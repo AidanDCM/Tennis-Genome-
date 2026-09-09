@@ -1,0 +1,191 @@
+name: Research Baselines
+
+on:
+  push:
+    branches:
+      - dev/real-data-baseline-run
+    paths:
+      - ".github/workflows/research_baselines.yml"
+      - "src/**"
+      - "research/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Download pinned research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              echo "Downloading ${url}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "${url}"
+            done
+          done
+          echo "Downloaded $(find data/research_raw -type f | wc -l) pinned source files."
+
+      - name: Build canonical ATP research dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            args+=(--input "data/research_raw/atp/atp_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset \
+            "${args[@]}" \
+            --tour ATP \
+            --output-dir data/research_processed/atp \
+            --source-id "sackmann-archive-${ARCHIVE_COMMIT}-atp-${START_YEAR}-${END_YEAR}" \
+            --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+            --source-version "$ARCHIVE_COMMIT" \
+            --license-name "$LICENSE_NAME" \
+            --license-url "$LICENSE_URL" \
+            --allowed-use-status research_allowed \
+            > data/research_processed/atp/build_output.json
+
+      - name: Build canonical WTA research dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            args+=(--input "data/research_raw/wta/wta_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset \
+            "${args[@]}" \
+            --tour WTA \
+            --output-dir data/research_processed/wta \
+            --source-id "sackmann-archive-${ARCHIVE_COMMIT}-wta-${START_YEAR}-${END_YEAR}" \
+            --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+            --source-version "$ARCHIVE_COMMIT" \
+            --license-name "$LICENSE_NAME" \
+            --license-url "$LICENSE_URL" \
+            --allowed-use-status research_allowed \
+            > data/research_processed/wta/build_output.json
+
+      - name: Run EXP-001 ATP
+        run: |
+          mkdir -p artifacts/research_baselines
+          python -m tennis_genome.experiments.exp001 \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --min-train-matches 500 \
+            > artifacts/research_baselines/exp001_atp.json
+
+      - name: Run EXP-001 WTA
+        run: |
+          python -m tennis_genome.experiments.exp001 \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --min-train-matches 500 \
+            > artifacts/research_baselines/exp001_wta.json
+
+      - name: Run EXP-002 ATP
+        run: |
+          python -m tennis_genome.experiments.exp002 \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            > artifacts/research_baselines/exp002_atp.json
+
+      - name: Run EXP-002 WTA
+        run: |
+          python -m tennis_genome.experiments.exp002 \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            > artifacts/research_baselines/exp002_wta.json
+
+      - name: Copy provenance manifests
+        run: |
+          cp data/research_processed/atp/atp_manifest.json artifacts/research_baselines/
+          cp data/research_processed/wta/wta_manifest.json artifacts/research_baselines/
+
+      - name: Write research summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("artifacts/research_baselines")
+          lines = [
+              "# Tennis Genome research baselines",
+              "",
+              "Pinned source: `Aneeshers/tennis-sackmann-archive@83733587353df8a41f2fd4f516147d5aa83f5a8d`",
+              "",
+              "Coverage: tour-level singles, 2000–2025. Research-only CC BY-NC-SA 4.0 source.",
+              "",
+              "| Experiment | Tour | N | Baseline Brier | Challenger Brier | Δ Brier | Baseline log loss | Challenger log loss | Δ log loss |",
+              "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+          ]
+          for experiment in ("exp001", "exp002"):
+              for tour in ("atp", "wta"):
+                  data = json.loads((root / f"{experiment}_{tour}.json").read_text())
+                  if experiment == "exp001":
+                      base = data["ranking"]
+                      challenger = data["elo"]
+                      db = data["brier_improvement_elo_vs_ranking"]
+                      dl = data["log_loss_improvement_elo_vs_ranking"]
+                      label = "EXP-001 Ranking→Elo"
+                  else:
+                      base = data["elo"]
+                      challenger = data["surface_elo"]
+                      db = data["brier_improvement_surface_vs_elo"]
+                      dl = data["log_loss_improvement_surface_vs_elo"]
+                      label = "EXP-002 Elo→Surface Elo"
+                  lines.append(
+                      f"| {label} | {tour.upper()} | {data['population_n']} | "
+                      f"{base['brier']:.6f} | {challenger['brier']:.6f} | {db:+.6f} | "
+                      f"{base['log_loss']:.6f} | {challenger['log_loss']:.6f} | {dl:+.6f} |"
+                  )
+          summary = "\n".join(lines) + "\n"
+          (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          print(summary)
+          PY
+
+      - name: Upload research reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-research-baselines
+          path: artifacts/research_baselines/
+          if-no-files-found: error
+          retention-days: 30
