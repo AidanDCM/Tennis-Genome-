@@ -69,9 +69,9 @@ class FoundationalSnapshot:
     form_point_90_diff: float
 
     event_gap_days_diff: float | None
-    minutes_7_diff: float
-    minutes_14_diff: float
-    minutes_28_diff: float
+    minutes_7_diff: float | None
+    minutes_14_diff: float | None
+    minutes_28_diff: float | None
     matches_14_diff: float
     matches_28_diff: float
     previous_event_minutes_diff: float | None
@@ -160,29 +160,35 @@ def _point_residual(
     return sum(value * weight for value, weight in components) / total
 
 
+def _window_minutes(
+    values: list[tuple[date, int | None]],
+    event_date: date,
+    *,
+    days: int,
+) -> float | None:
+    relevant = [
+        duration
+        for prior_date, duration in values
+        if 0 < (event_date - prior_date).days <= days
+    ]
+    if not relevant:
+        return 0.0
+    if any(duration is None for duration in relevant):
+        return None
+    return float(sum(duration for duration in relevant if duration is not None))
+
+
 def _window_values(
     history: deque[tuple[date, int | None]],
     event_date: date,
-) -> tuple[float, float, float, float, float]:
+) -> tuple[float | None, float | None, float | None, float, float]:
     """Return recent workload windows without owning long-horizon rest state."""
     while history and (event_date - history[0][0]).days > 60:
         history.popleft()
     values = list(history)
-    minutes_7 = sum(
-        duration or 0
-        for prior_date, duration in values
-        if 0 < (event_date - prior_date).days <= 7
-    )
-    minutes_14 = sum(
-        duration or 0
-        for prior_date, duration in values
-        if 0 < (event_date - prior_date).days <= 14
-    )
-    minutes_28 = sum(
-        duration or 0
-        for prior_date, duration in values
-        if 0 < (event_date - prior_date).days <= 28
-    )
+    minutes_7 = _window_minutes(values, event_date, days=7)
+    minutes_14 = _window_minutes(values, event_date, days=14)
+    minutes_28 = _window_minutes(values, event_date, days=28)
     matches_14 = sum(
         1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 14
     )
@@ -190,12 +196,18 @@ def _window_values(
         1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 28
     )
     return (
-        float(minutes_7),
-        float(minutes_14),
-        float(minutes_28),
+        minutes_7,
+        minutes_14,
+        minutes_28,
         float(matches_14),
         float(matches_28),
     )
+
+
+def _log1p_difference(a: float | int | None, b: float | int | None) -> float | None:
+    if a is None or b is None:
+        return None
+    return log1p(float(a)) - log1p(float(b))
 
 
 def _entry_indicator(entry: str | None, target: str) -> float:
@@ -382,10 +394,11 @@ def walk_forward_foundational_features(
             age_x_minutes: float | None = None
             age_x_short_gap: float | None = None
             if state.age_years_a is not None and state.age_years_b is not None:
-                age_x_minutes = (
-                    (state.age_years_a - 27.0) * log1p(minutes_14_a)
-                    - (state.age_years_b - 27.0) * log1p(minutes_14_b)
-                )
+                if minutes_14_a is not None and minutes_14_b is not None:
+                    age_x_minutes = (
+                        (state.age_years_a - 27.0) * log1p(minutes_14_a)
+                        - (state.age_years_b - 27.0) * log1p(minutes_14_b)
+                    )
                 if gap_a is not None and gap_b is not None:
                     age_x_short_gap = (
                         (state.age_years_a - 27.0) * float(gap_a <= 7.0)
@@ -420,10 +433,6 @@ def walk_forward_foundational_features(
             seed_strength_a = 1.0 / state.seed_a if state.seed_a else 0.0
             seed_strength_b = 1.0 / state.seed_b if state.seed_b else 0.0
 
-            previous_event_minutes_diff = None
-            if prev_a is not None and prev_b is not None:
-                previous_event_minutes_diff = log1p(prev_a) - log1p(prev_b)
-
             snapshots.append(
                 FoundationalSnapshot(
                     match_id=match.match_id,
@@ -445,12 +454,12 @@ def walk_forward_foundational_features(
                     event_gap_days_diff=(
                         None if gap_a is None or gap_b is None else gap_a - gap_b
                     ),
-                    minutes_7_diff=log1p(minutes_7_a) - log1p(minutes_7_b),
-                    minutes_14_diff=log1p(minutes_14_a) - log1p(minutes_14_b),
-                    minutes_28_diff=log1p(minutes_28_a) - log1p(minutes_28_b),
+                    minutes_7_diff=_log1p_difference(minutes_7_a, minutes_7_b),
+                    minutes_14_diff=_log1p_difference(minutes_14_a, minutes_14_b),
+                    minutes_28_diff=_log1p_difference(minutes_28_a, minutes_28_b),
                     matches_14_diff=matches_14_a - matches_14_b,
                     matches_28_diff=matches_28_a - matches_28_b,
-                    previous_event_minutes_diff=previous_event_minutes_diff,
+                    previous_event_minutes_diff=_log1p_difference(prev_a, prev_b),
                     age_diff=age_diff,
                     age_curve_diff=curve_diff,
                     young_diff=young_diff,
@@ -489,7 +498,7 @@ def walk_forward_foundational_features(
 
         # Update every state only after all same-date snapshots have been frozen.
         day_minutes: defaultdict[str, int] = defaultdict(int)
-        day_has_minutes: set[str] = set()
+        day_missing_minutes: set[str] = set()
         day_players: set[str] = set()
         for match in day_matches:
             state = match.pre_match
@@ -530,10 +539,11 @@ def walk_forward_foundational_features(
             duration = match.stats.duration_minutes if match.stats is not None else None
             workload[player_a].append((event_date, duration))
             workload[player_b].append((event_date, duration))
-            if duration is not None:
+            if duration is None:
+                day_missing_minutes.update((player_a, player_b))
+            else:
                 day_minutes[player_a] += duration
                 day_minutes[player_b] += duration
-                day_has_minutes.update((player_a, player_b))
 
             pair = h2h[(player_a, player_b)]
             if match.outcome.a_won:
@@ -544,7 +554,9 @@ def walk_forward_foundational_features(
         for player_id in day_players:
             last_event_date[player_id] = event_date
             last_event_minutes[player_id] = (
-                day_minutes[player_id] if player_id in day_has_minutes else None
+                None
+                if player_id in day_missing_minutes
+                else day_minutes[player_id]
             )
 
     return snapshots
