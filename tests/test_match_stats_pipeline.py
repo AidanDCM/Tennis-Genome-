@@ -89,7 +89,7 @@ def test_builder_writes_separate_verified_stats_table(tmp_path: Path):
     stats = pd.read_parquet(stats_path)
     pre_match = pd.read_parquet(output / "atp_pre_match.parquet")
 
-    assert manifest["schema_version"] == "canonical-v2"
+    assert manifest["schema_version"] == "canonical-v3"
     assert manifest["stats_filename"] == "atp_stats.parquet"
     assert stats_path.exists()
     assert "a_won" not in stats.columns
