@@ -15,12 +15,34 @@ from tennis_genome.data.canonical import (
 )
 
 _PRE_MATCH_FORBIDDEN = {"a_won", "score", "retirement", "walkover"}
+_PRE_MATCH_REQUIRED = {
+    "match_id",
+    "tour",
+    "event_date",
+    "source_order",
+    "tournament_id",
+    "tournament_name",
+    "tournament_level",
+    "surface",
+    "round",
+    "best_of",
+    "player_a_id",
+    "player_b_id",
+    "player_a_name",
+    "player_b_name",
+    "rank_a",
+    "rank_b",
+    "rank_points_a",
+    "rank_points_b",
+}
 _OUTCOME_REQUIRED = {"match_id", "a_won", "score", "retirement", "walkover"}
 _VALID_TOURS = {"ATP", "WTA"}
 _VALID_SURFACES = {"Hard", "Clay", "Grass", "Carpet", "Unknown"}
 
 
 def _date_value(value: object) -> date:
+    if value is None or pd.isna(value):
+        raise ValueError("canonical event_date cannot be missing")
     if isinstance(value, datetime):
         return value.date()
     if isinstance(value, date):
@@ -39,6 +61,14 @@ def _optional_text(value: object) -> str | None:
         return None
     text = str(value)
     return text if text else None
+
+
+def _required_bool(value: object, *, field: str, match_id: str) -> bool:
+    if value is None or pd.isna(value):
+        raise ValueError(f"{field} is missing for match {match_id}")
+    if value not in (True, False, 0, 1):
+        raise ValueError(f"{field} is not boolean for match {match_id}: {value!r}")
+    return bool(value)
 
 
 def _tour(value: object) -> Tour:
@@ -72,17 +102,25 @@ def load_canonical_parquet(
     leaked = sorted(_PRE_MATCH_FORBIDDEN.intersection(pre_match.columns))
     if leaked:
         raise ValueError(f"outcome fields leaked into pre-match table: {leaked}")
+    missing_pre_match = sorted(_PRE_MATCH_REQUIRED.difference(pre_match.columns))
+    if missing_pre_match:
+        raise ValueError(f"pre-match table missing required columns: {missing_pre_match}")
     missing_outcome = sorted(_OUTCOME_REQUIRED.difference(outcomes.columns))
     if missing_outcome:
         raise ValueError(f"outcome table missing required columns: {missing_outcome}")
+
+    pre_match = pre_match.copy()
+    outcomes = outcomes.copy()
+    pre_match["match_id"] = pre_match["match_id"].astype(str)
+    outcomes["match_id"] = outcomes["match_id"].astype(str)
 
     if pre_match["match_id"].duplicated().any():
         raise ValueError("pre-match table contains duplicate match_id values")
     if outcomes["match_id"].duplicated().any():
         raise ValueError("outcome table contains duplicate match_id values")
 
-    pre_ids = set(pre_match["match_id"].astype(str))
-    outcome_ids = set(outcomes["match_id"].astype(str))
+    pre_ids = set(pre_match["match_id"])
+    outcome_ids = set(outcomes["match_id"])
     if pre_ids != outcome_ids:
         missing_outcomes = sorted(pre_ids - outcome_ids)[:10]
         missing_states = sorted(outcome_ids - pre_ids)[:10]
@@ -120,10 +158,22 @@ def load_canonical_parquet(
         )
         outcome = MatchOutcome(
             match_id=match_id,
-            a_won=bool(outcome_values["a_won"]),
+            a_won=_required_bool(
+                outcome_values["a_won"],
+                field="a_won",
+                match_id=match_id,
+            ),
             score=_optional_text(outcome_values["score"]),
-            retirement=bool(outcome_values["retirement"]),
-            walkover=bool(outcome_values["walkover"]),
+            retirement=_required_bool(
+                outcome_values["retirement"],
+                field="retirement",
+                match_id=match_id,
+            ),
+            walkover=_required_bool(
+                outcome_values["walkover"],
+                field="walkover",
+                match_id=match_id,
+            ),
         )
         matches.append(HistoricalMatch(pre_match=state, outcome=outcome))
 
