@@ -11,6 +11,7 @@ import pandas as pd
 from tennis_genome.data.canonical import (
     HistoricalMatch,
     MatchOutcome,
+    MatchStats,
     PreMatchState,
     Surface,
     Tour,
@@ -73,30 +74,58 @@ def _disambiguate_match_id(
     player_a_id: str,
     player_b_id: str,
 ) -> str:
-    """Disambiguate reused source match numbers using only pre-match-safe identity.
-
-    Some historical WTA events reuse ``match_num`` across round-robin and
-    knockout matches. When that happens, every colliding row gets a deterministic
-    suffix derived from round + canonical player pair. Exact duplicate records
-    still receive the same suffix and are therefore rejected by the quality gate.
-    """
+    """Disambiguate reused source match numbers using only pre-match-safe identity."""
     identity = "|".join((round_name or "", player_a_id, player_b_id))
     digest = sha256(identity.encode("utf-8")).hexdigest()[:12]
     return f"{base_match_id}:d-{digest}"
 
 
+def _oriented_pair(
+    *,
+    a_won: bool,
+    winner_value: object,
+    loser_value: object,
+) -> tuple[int | None, int | None]:
+    winner = _optional_int(winner_value)
+    loser = _optional_int(loser_value)
+    return (winner, loser) if a_won else (loser, winner)
+
+
+def _match_stats(row: pd.Series, *, match_id: str, a_won: bool) -> MatchStats:
+    aces_a, aces_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_ace"), loser_value=row.get("l_ace"))
+    df_a, df_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_df"), loser_value=row.get("l_df"))
+    svpt_a, svpt_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_svpt"), loser_value=row.get("l_svpt"))
+    first_in_a, first_in_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_1stIn"), loser_value=row.get("l_1stIn"))
+    first_won_a, first_won_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_1stWon"), loser_value=row.get("l_1stWon"))
+    second_won_a, second_won_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_2ndWon"), loser_value=row.get("l_2ndWon"))
+    sv_gms_a, sv_gms_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_SvGms"), loser_value=row.get("l_SvGms"))
+    bp_saved_a, bp_saved_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_bpSaved"), loser_value=row.get("l_bpSaved"))
+    bp_faced_a, bp_faced_b = _oriented_pair(a_won=a_won, winner_value=row.get("w_bpFaced"), loser_value=row.get("l_bpFaced"))
+    return MatchStats(
+        match_id=match_id,
+        aces_a=aces_a,
+        aces_b=aces_b,
+        double_faults_a=df_a,
+        double_faults_b=df_b,
+        service_points_a=svpt_a,
+        service_points_b=svpt_b,
+        first_serves_in_a=first_in_a,
+        first_serves_in_b=first_in_b,
+        first_serve_points_won_a=first_won_a,
+        first_serve_points_won_b=first_won_b,
+        second_serve_points_won_a=second_won_a,
+        second_serve_points_won_b=second_won_b,
+        service_games_a=sv_gms_a,
+        service_games_b=sv_gms_b,
+        break_points_saved_a=bp_saved_a,
+        break_points_saved_b=bp_saved_b,
+        break_points_faced_a=bp_faced_a,
+        break_points_faced_b=bp_faced_b,
+    )
+
+
 def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
-    """Load one Jeff-Sackmann-style match CSV into the canonical contract.
-
-    This adapter intentionally does not download data. Callers provide a local
-    CSV and remain responsible for verifying source provenance, license, and the
-    timestamp semantics of fields such as rankings before using them in a final
-    experiment.
-
-    The source format stores winner fields first. A/B orientation is therefore
-    rebuilt from stable player IDs so the target label cannot leak through row
-    layout.
-    """
+    """Load one Jeff-Sackmann-style match CSV into the canonical contract."""
     frame = pd.read_csv(path, low_memory=False)
     required = {
         "tourney_id",
@@ -116,26 +145,14 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
     base_id_counts = Counter(base_ids)
 
     matches: list[HistoricalMatch] = []
-    for (source_order, row), base_match_id in zip(
-        frame.iterrows(),
-        base_ids,
-        strict=True,
-    ):
+    for (source_order, row), base_match_id in zip(frame.iterrows(), base_ids, strict=True):
         winner_name = _text(row.get("winner_name"))
         loser_name = _text(row.get("loser_name"))
         if not winner_name or not loser_name:
             raise ValueError(f"row {source_order} has an empty winner/loser name")
 
-        winner_id = canonical_player_id(
-            tour=tour,
-            source_id=row.get("winner_id"),
-            name=winner_name,
-        )
-        loser_id = canonical_player_id(
-            tour=tour,
-            source_id=row.get("loser_id"),
-            name=loser_name,
-        )
+        winner_id = canonical_player_id(tour=tour, source_id=row.get("winner_id"), name=winner_name)
+        loser_id = canonical_player_id(tour=tour, source_id=row.get("loser_id"), name=loser_name)
         player_a_id, player_b_id, player_a_name, player_b_name, a_won = orient_pair(
             winner_id=winner_id,
             loser_id=loser_id,
@@ -159,9 +176,7 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
         winner_points = _optional_int(row.get("winner_rank_points"))
         loser_points = _optional_int(row.get("loser_rank_points"))
         rank_a, rank_b = (winner_rank, loser_rank) if a_won else (loser_rank, winner_rank)
-        points_a, points_b = (
-            (winner_points, loser_points) if a_won else (loser_points, winner_points)
-        )
+        points_a, points_b = ((winner_points, loser_points) if a_won else (loser_points, winner_points))
 
         score = _optional_text(row.get("score"))
         score_upper = (score or "").upper()
@@ -192,25 +207,14 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             retirement="RET" in score_upper,
             walkover="W/O" in score_upper or score_upper == "WO",
         )
-        matches.append(HistoricalMatch(pre_match=pre_match, outcome=outcome))
+        stats = _match_stats(row, match_id=match_id, a_won=a_won)
+        matches.append(HistoricalMatch(pre_match=pre_match, outcome=outcome, stats=stats))
 
     return matches
 
 
-def load_sackmann_csvs(
-    paths: list[str | Path],
-    *,
-    tour: Tour,
-) -> list[HistoricalMatch]:
-    """Load a deterministic bundle of yearly/source CSVs.
-
-    Paths are resolved and sorted before loading so callers cannot accidentally
-    change the canonical row order by passing the same files in a different
-    sequence. ``source_order`` is then rewritten into one global monotonically
-    increasing sequence across the bundle. Match IDs remain source-derived; any
-    cross-file collision is intentionally left for the canonical quality gate to
-    reject rather than silently changing identity semantics.
-    """
+def load_sackmann_csvs(paths: list[str | Path], *, tour: Tour) -> list[HistoricalMatch]:
+    """Load a deterministic bundle of yearly/source CSVs."""
     resolved = sorted((Path(path).resolve() for path in paths), key=str)
     if not resolved:
         raise ValueError("at least one source CSV is required")
@@ -221,7 +225,7 @@ def load_sackmann_csvs(
         file_matches = load_sackmann_csv(path, tour=tour)
         for match in file_matches:
             state = replace(match.pre_match, source_order=next_order)
-            matches.append(HistoricalMatch(pre_match=state, outcome=match.outcome))
+            matches.append(HistoricalMatch(pre_match=state, outcome=match.outcome, stats=match.stats))
             next_order += 1
 
     return matches
