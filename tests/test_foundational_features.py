@@ -22,7 +22,7 @@ def _match(
     player_a: str,
     player_b: str,
     a_won: bool,
-    duration: int = 90,
+    duration: int | None = 90,
     age_a: float = 25.0,
     age_b: float = 30.0,
     hand_a: str = "L",
@@ -166,7 +166,45 @@ def test_long_rest_gap_survives_recent_workload_pruning() -> None:
 
     # A's 100-day gap remains available even though its rolling workload row was pruned.
     assert target.event_gap_days_diff == 79.0
-    assert target.minutes_28_diff == 0.0
+    assert target.minutes_28_diff is not None
+    assert target.minutes_28_diff < 0.0
+
+
+def test_unknown_duration_is_not_treated_as_zero_workload() -> None:
+    matches = [
+        _match(
+            match_id="a-missing",
+            event_date=date(2024, 1, 1),
+            player_a="a",
+            player_b="c",
+            a_won=True,
+            duration=None,
+        ),
+        _match(
+            match_id="b-known",
+            event_date=date(2024, 1, 1),
+            player_a="b",
+            player_b="d",
+            a_won=True,
+            duration=90,
+        ),
+        _match(
+            match_id="target",
+            event_date=date(2024, 1, 8),
+            player_a="a",
+            player_b="b",
+            a_won=True,
+        ),
+    ]
+
+    snapshots = {
+        item.match_id: item for item in walk_forward_foundational_features(matches)
+    }
+    target = snapshots["target"]
+
+    assert target.minutes_14_diff is None
+    assert target.previous_event_minutes_diff is None
+    assert target.matches_14_diff == 0.0
 
 
 def test_sackmann_demographics_and_duration_follow_canonical_orientation(
