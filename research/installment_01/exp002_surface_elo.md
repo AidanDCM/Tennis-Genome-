@@ -91,6 +91,8 @@ If exact match start times are not trustworthy, both overall Elo and Surface Elo
 
 CSV row order is never used as hidden chronology.
 
+The surface-experience diagnostic follows the same rule: same-day matches cannot increase one another's prior surface-match counts.
+
 ---
 
 ## Primary metrics
@@ -110,7 +112,10 @@ Report:
 - aggregate common-population performance,
 - year-by-year performance,
 - performance separately for Hard, Clay, Grass, and Carpet where present,
+- surface-experience bands based on the weaker player's prior matches on that surface: `0`, `1-4`, `5-9`, `10-24`, `25+`,
 - ATP/WTA as separate runs.
+
+The weaker-player count is used because a matchup is still a surface cold-start problem if only one participant has extensive surface history.
 
 Surface-specific conclusions must respect sample size. A strong Grass result on a tiny population cannot be generalized to all surfaces.
 
@@ -128,9 +133,10 @@ Before promotion:
 6. Confirm score comparison uses identical match IDs.
 7. Inspect year-by-year reversals.
 8. Inspect each surface separately.
-9. Run retirement sensitivity separately.
-10. Preserve the exact Elo configuration in the result artifact.
-11. If parameters are tuned later, use nested chronological tuning and retain an untouched final period.
+9. Inspect surface-experience bands for cold-start versus established-history behavior.
+10. Run retirement sensitivity separately.
+11. Preserve the exact Elo configuration in the result artifact.
+12. If parameters are tuned later, use nested chronological tuning and retain an untouched final period.
 
 ---
 
@@ -145,7 +151,7 @@ Promote Surface Elo as an A/Core candidate and test a hybrid overall + surface m
 Treat it as B/Conditional. Investigate whether a surface-specific or blended model is justified rather than forcing one global rule.
 
 ### Surface Elo is worse early but better after experience
-Register a cold-start / shrinkage hypothesis. Do not retroactively add priors and call the original experiment successful.
+Register a cold-start / shrinkage hypothesis. Do not retroactively add priors and call the original experiment successful. The pre-registered surface-experience slices are the first diagnostic for this case.
 
 ### Surface Elo loses overall
 Keep the result. The likely next question is whether surface information belongs as a smaller adjustment to overall strength rather than as independent rating universes.
