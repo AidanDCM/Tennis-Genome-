@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/hypothesis.schema.json",
+  "title": "Hypothesis",
+  "type": "object",
+  "required": ["hypothesis_id", "title", "created_at", "status", "primary_metrics"],
+  "properties": {
+    "hypothesis_id": {"type": "string"},
+    "title": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "created_by": {"type": ["string", "null"]},
+    "metric_family": {"type": ["string", "null"]},
+    "expected_direction": {"type": ["string", "null"]},
+    "mechanism": {"type": ["string", "null"]},
+    "alternative_explanations": {"type": "array", "items": {"type": "string"}},
+    "discovery_period": {"type": ["string", "null"]},
+    "validation_period": {"type": ["string", "null"]},
+    "untouched_test_period": {"type": ["string", "null"]},
+    "primary_metrics": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "subgroups": {"type": "array", "items": {"type": "string"}},
+    "multiple_testing_family": {"type": ["string", "null"]},
+    "acceptance_criteria": {"type": "array", "items": {"type": "string"}},
+    "result_summary": {"type": ["string", "null"]},
+    "effect_estimate": {"type": ["number", "null"]},
+    "uncertainty_low": {"type": ["number", "null"]},
+    "uncertainty_high": {"type": ["number", "null"]},
+    "sample_size": {"type": ["integer", "null"], "minimum": 0},
+    "status": {"type": "string", "enum": ["proposed", "registered", "running", "accepted", "conditional", "rejected", "needs_replication"]},
+    "adversarial_review": {"type": ["string", "null"]},
+    "code_commit": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
