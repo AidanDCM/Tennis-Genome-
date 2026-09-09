@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
-from typing import cast
 
 import pandas as pd
 
@@ -37,7 +36,7 @@ def _optional_text(value: object) -> str | None:
     return text or None
 
 
-def _parse_tourney_date(value: object) -> datetime.date:
+def _parse_tourney_date(value: object) -> date:
     raw = _text(value)
     if not raw:
         raise ValueError("tourney_date is required")
@@ -134,8 +133,8 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             a_won=a_won,
             score=score,
             retirement="RET" in score_upper,
-            walkover="W/O" in score_upper or "WO" == score_upper,
+            walkover="W/O" in score_upper or score_upper == "WO",
         )
         matches.append(HistoricalMatch(pre_match=pre_match, outcome=outcome))
 
-    return cast(list[HistoricalMatch], matches)
+    return matches
