@@ -21,7 +21,10 @@ def brier_score(y_true: Iterable[int | bool], probabilities: Iterable[float]) ->
 
 
 def binary_log_loss(
-    y_true: Iterable[int | bool], probabilities: Iterable[float], *, epsilon: float = 1e-15
+    y_true: Iterable[int | bool],
+    probabilities: Iterable[float],
+    *,
+    epsilon: float = 1e-15,
 ) -> float:
     """Binary log loss with numerical clipping only at evaluation time."""
     if not 0.0 < epsilon < 0.5:
@@ -37,7 +40,12 @@ def binary_log_loss(
     return total / len(ys)
 
 
-def accuracy(y_true: Iterable[int | bool], probabilities: Iterable[float], *, threshold: float = 0.5) -> float:
+def accuracy(
+    y_true: Iterable[int | bool],
+    probabilities: Iterable[float],
+    *,
+    threshold: float = 0.5,
+) -> float:
     """Binary accuracy; secondary to calibrated probability metrics."""
     ys = [bool(y) for y in y_true]
     ps = [_validate_probability(p) for p in probabilities]
