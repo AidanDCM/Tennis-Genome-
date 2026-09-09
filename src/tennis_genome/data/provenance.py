@@ -32,6 +32,14 @@ class SourceMetadata:
         return asdict(self)
 
 
+def assert_research_allowed(metadata: SourceMetadata) -> None:
+    if metadata.allowed_use_status not in {"research_allowed", "production_allowed"}:
+        raise SourcePermissionError(
+            f"source {metadata.source_id!r} is not cleared for research execution: "
+            f"{metadata.allowed_use_status}"
+        )
+
+
 def assert_production_allowed(metadata: SourceMetadata) -> None:
     if metadata.allowed_use_status != "production_allowed":
         raise SourcePermissionError(
