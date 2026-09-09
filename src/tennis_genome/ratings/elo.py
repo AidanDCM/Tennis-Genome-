@@ -16,6 +16,12 @@ class EloConfig:
     k_factor: float = 32.0
     scale: float = 400.0
 
+    def __post_init__(self) -> None:
+        if self.k_factor <= 0:
+            raise ValueError("k_factor must be positive")
+        if self.scale <= 0:
+            raise ValueError("scale must be positive")
+
 
 def expected_score(rating_a: float, rating_b: float, *, scale: float = 400.0) -> float:
     """Return pre-match probability that A defeats B under the Elo model."""
