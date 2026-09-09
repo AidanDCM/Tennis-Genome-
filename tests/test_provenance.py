@@ -4,6 +4,7 @@ from tennis_genome.data.provenance import (
     SourceMetadata,
     SourcePermissionError,
     assert_production_allowed,
+    assert_research_allowed,
 )
 
 
@@ -14,22 +15,36 @@ def test_production_source_passes_permission_gate():
         allowed_use_status="production_allowed",
     )
     assert_production_allowed(metadata)
+    assert_research_allowed(metadata)
 
 
-def test_research_only_source_fails_production_gate():
+def test_research_only_source_passes_research_but_fails_production_gate():
     metadata = SourceMetadata(
         source_id="research-source",
         provider="Research Provider",
         allowed_use_status="research_allowed",
     )
+    assert_research_allowed(metadata)
     with pytest.raises(SourcePermissionError):
         assert_production_allowed(metadata)
 
 
-def test_unknown_source_fails_closed():
+def test_unknown_source_fails_closed_for_both_uses():
     metadata = SourceMetadata(source_id="unknown", provider="Unknown")
     with pytest.raises(SourcePermissionError):
+        assert_research_allowed(metadata)
+    with pytest.raises(SourcePermissionError):
         assert_production_allowed(metadata)
+
+
+def test_permission_required_source_cannot_run_research_yet():
+    metadata = SourceMetadata(
+        source_id="permission-source",
+        provider="Provider",
+        allowed_use_status="permission_required",
+    )
+    with pytest.raises(SourcePermissionError):
+        assert_research_allowed(metadata)
 
 
 def test_manifest_preserves_license_metadata():
