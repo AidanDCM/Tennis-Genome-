@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/player.schema.json",
+  "title": "Player",
+  "type": "object",
+  "required": ["player_id", "canonical_name"],
+  "properties": {
+    "player_id": {"type": "string"},
+    "canonical_name": {"type": "string"},
+    "tour": {"type": ["string", "null"], "enum": ["ATP", "WTA", null]},
+    "date_of_birth": {"type": ["string", "null"], "format": "date"},
+    "handedness": {"type": ["string", "null"], "enum": ["R", "L", "U", null]},
+    "backhand_type": {"type": ["string", "null"]},
+    "country_code": {"type": ["string", "null"]},
+    "height_cm": {"type": ["number", "null"]},
+    "reach_cm": {"type": ["number", "null"]},
+    "turned_pro_year": {"type": ["integer", "null"]},
+    "source_ids": {"type": "object", "additionalProperties": {"type": "string"}},
+    "created_at": {"type": ["string", "null"], "format": "date-time"},
+    "updated_at": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "additionalProperties": false
+}
