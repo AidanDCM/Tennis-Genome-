@@ -43,13 +43,18 @@ def walk_forward_elo(
     This is conservative: it may ignore legitimately available earlier same-day
     results, but it cannot invent knowledge from arbitrary CSV row ordering.
     """
-    ordered = sorted(matches, key=lambda match: (match.pre_match.event_date, match.match_id))
+    ordered = sorted(
+        matches,
+        key=lambda match: (match.pre_match.event_date, match.match_id),
+    )
     ratings: dict[str, float] = {}
     predictions: list[ModelPrediction] = []
 
     for event_date, grouped in groupby(ordered, key=lambda match: match.pre_match.event_date):
         day_matches = [
-            match for match in grouped if _eligible(match, exclude_retirements=exclude_retirements)
+            match
+            for match in grouped
+            if _eligible(match, exclude_retirements=exclude_retirements)
         ]
         deltas: defaultdict[str, float] = defaultdict(float)
 
@@ -118,7 +123,10 @@ def walk_forward_ranking_logit(
 
         model = RankingLogitModel().fit(rank_pairs, outcomes)
         for match in test:
-            probability = model.predict_proba(match.pre_match.rank_a, match.pre_match.rank_b)
+            probability = model.predict_proba(
+                match.pre_match.rank_a,
+                match.pre_match.rank_b,
+            )
             if probability is None:
                 continue
             predictions.append(
