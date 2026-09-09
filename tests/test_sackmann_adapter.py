@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from tennis_genome.data.sackmann import load_sackmann_csv, load_sackmann_csvs
 
@@ -93,6 +94,99 @@ def test_adapter_marks_retirements_and_walkovers(tmp_path: Path):
     assert matches[0].outcome.retirement is True
     assert matches[0].outcome.walkover is False
     assert matches[1].outcome.walkover is True
+
+
+def test_legacy_entry_code_in_seed_cell_is_normalized(tmp_path: Path):
+    path = tmp_path / "legacy_wta.csv"
+    pd.DataFrame(
+        [
+            {
+                "tourney_id": "2001-WTA",
+                "tourney_name": "Legacy Open",
+                "surface": "Hard",
+                "tourney_level": "A",
+                "tourney_date": 20010101,
+                "match_num": 1,
+                "winner_id": 200,
+                "winner_name": "Winner",
+                "winner_seed": "Q",
+                "winner_entry": None,
+                "loser_id": 100,
+                "loser_name": "Loser",
+                "loser_seed": 8,
+                "loser_entry": None,
+                "score": "6-4 6-4",
+                "best_of": 3,
+                "round": "R32",
+            }
+        ]
+    ).to_csv(path, index=False)
+
+    match = load_sackmann_csv(path, tour="WTA")[0]
+    state = match.pre_match
+
+    assert state.player_a_id == "wta:id:100"
+    assert state.seed_a == 8
+    assert state.entry_a is None
+    assert state.player_b_id == "wta:id:200"
+    assert state.seed_b is None
+    assert state.entry_b == "Q"
+
+
+def test_explicit_entry_takes_precedence_over_legacy_seed_code(tmp_path: Path):
+    path = tmp_path / "legacy_wta_explicit.csv"
+    pd.DataFrame(
+        [
+            {
+                "tourney_id": "2001-WTA",
+                "tourney_name": "Legacy Open",
+                "surface": "Hard",
+                "tourney_level": "A",
+                "tourney_date": 20010101,
+                "match_num": 1,
+                "winner_id": 100,
+                "winner_name": "Winner",
+                "winner_seed": "Q",
+                "winner_entry": "WC",
+                "loser_id": 200,
+                "loser_name": "Loser",
+                "score": "6-4 6-4",
+                "best_of": 3,
+                "round": "R32",
+            }
+        ]
+    ).to_csv(path, index=False)
+
+    match = load_sackmann_csv(path, tour="WTA")[0]
+    assert match.pre_match.seed_a is None
+    assert match.pre_match.entry_a == "WC"
+
+
+def test_unknown_nonnumeric_seed_token_is_rejected(tmp_path: Path):
+    path = tmp_path / "bad_seed.csv"
+    pd.DataFrame(
+        [
+            {
+                "tourney_id": "2001-WTA",
+                "tourney_name": "Legacy Open",
+                "surface": "Hard",
+                "tourney_level": "A",
+                "tourney_date": 20010101,
+                "match_num": 1,
+                "winner_id": 100,
+                "winner_name": "Winner",
+                "winner_seed": "MYSTERY",
+                "loser_id": 200,
+                "loser_name": "Loser",
+                "score": "6-4 6-4",
+                "best_of": 3,
+                "round": "R32",
+            }
+        ]
+    ).to_csv(path, index=False)
+
+    with pytest.raises(ValueError, match="unrecognized nonnumeric seed token"):
+        load_sackmann_csv(path, tour="WTA")
 
 
 def test_reused_match_numbers_are_disambiguated_without_row_order_dependence(tmp_path: Path):
