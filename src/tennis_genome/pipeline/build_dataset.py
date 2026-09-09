@@ -85,12 +85,13 @@ def build_canonical_dataset_from_files(
 
     source_files = _source_file_records(paths)
     source_bundle_hash = _source_bundle_sha256(source_files)
+    is_single_file = len(paths) == 1
     dates = [match.pre_match.event_date for match in matches]
     manifest: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
-        "source_format": "sackmann_style_csv_bundle",
-        "source_filename": paths[0].name if len(paths) == 1 else "multi_file_bundle",
-        "source_sha256": source_files[0]["sha256"] if len(paths) == 1 else source_bundle_hash,
+        "source_format": "sackmann_style_csv" if is_single_file else "sackmann_style_csv_bundle",
+        "source_filename": paths[0].name if is_single_file else "multi_file_bundle",
+        "source_sha256": source_files[0]["sha256"] if is_single_file else source_bundle_hash,
         "source_files": source_files,
         "source_file_count": len(paths),
         "source_bundle_sha256": source_bundle_hash,
