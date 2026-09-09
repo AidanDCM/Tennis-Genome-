@@ -30,7 +30,9 @@ def _outcome_frame(matches: list[HistoricalMatch]) -> pd.DataFrame:
 def _stats_frame(matches: list[HistoricalMatch]) -> pd.DataFrame:
     return pd.DataFrame(
         [
-            asdict(match.stats) if match.stats is not None else {"match_id": match.match_id}
+            asdict(match.stats)
+            if match.stats is not None
+            else {"match_id": match.match_id}
             for match in matches
         ]
     )
@@ -90,9 +92,13 @@ def build_canonical_dataset_from_files(
     dates = [match.pre_match.event_date for match in matches]
     manifest: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
-        "source_format": "sackmann_style_csv" if is_single_file else "sackmann_style_csv_bundle",
+        "source_format": (
+            "sackmann_style_csv" if is_single_file else "sackmann_style_csv_bundle"
+        ),
         "source_filename": paths[0].name if is_single_file else "multi_file_bundle",
-        "source_sha256": source_files[0]["sha256"] if is_single_file else source_bundle_hash,
+        "source_sha256": (
+            source_files[0]["sha256"] if is_single_file else source_bundle_hash
+        ),
         "source_files": source_files,
         "source_file_count": len(paths),
         "source_bundle_sha256": source_bundle_hash,
@@ -117,7 +123,10 @@ def build_canonical_dataset_from_files(
             "multi-file bundles are sorted by resolved path before ingestion",
         ],
     }
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     return manifest
 
 
@@ -137,7 +146,9 @@ def build_canonical_dataset(
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build canonical Tennis Genome historical data")
+    parser = argparse.ArgumentParser(
+        description="Build canonical Tennis Genome historical data"
+    )
     parser.add_argument("--input", required=True, type=Path, action="append")
     parser.add_argument("--tour", required=True, choices=("ATP", "WTA"))
     parser.add_argument("--output-dir", required=True, type=Path)
@@ -148,7 +159,12 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--license-url")
     parser.add_argument(
         "--allowed-use-status",
-        choices=("research_allowed", "production_allowed", "permission_required", "unknown_do_not_use"),
+        choices=(
+            "research_allowed",
+            "production_allowed",
+            "permission_required",
+            "unknown_do_not_use",
+        ),
         default="unknown_do_not_use",
     )
     return parser.parse_args()
@@ -158,7 +174,10 @@ def main() -> None:
     args = _parse_args()
     inputs: list[Path] = args.input
     source_metadata = SourceMetadata(
-        source_id=args.source_id or (inputs[0].name if len(inputs) == 1 else "multi_file_bundle"),
+        source_id=(
+            args.source_id
+            or (inputs[0].name if len(inputs) == 1 else "multi_file_bundle")
+        ),
         provider=args.provider,
         source_version=args.source_version,
         license_name=args.license_name,
