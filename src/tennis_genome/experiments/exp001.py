@@ -4,6 +4,7 @@ import argparse
 from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
+from typing import cast
 
 from tennis_genome.data.canonical import HistoricalMatch, Tour
 from tennis_genome.data.sackmann import load_sackmann_csv
@@ -94,7 +95,7 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    tour = args.tour
+    tour = cast(Tour, args.tour)
     matches = load_sackmann_csv(args.input, tour=tour)
     report = run_exp001(
         matches,
