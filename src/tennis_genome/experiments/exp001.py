@@ -65,11 +65,12 @@ def _score(y_true: list[bool], probabilities: list[float]) -> ModelScore:
 def _comparison_for_ids(
     ids: list[str],
     *,
+    outcomes_by_id: dict[str, bool],
     elo_by_id: dict[str, ModelPrediction],
     ranking_by_id: dict[str, ModelPrediction],
     year: int,
 ) -> PeriodComparison:
-    y_true = [ranking_by_id[match_id].actual_a_won for match_id in ids]
+    y_true = [outcomes_by_id[match_id] for match_id in ids]
     ranking_probs = [ranking_by_id[match_id].probability_a for match_id in ids]
     elo_probs = [elo_by_id[match_id].probability_a for match_id in ids]
     ranking_score = _score(y_true, ranking_probs)
@@ -99,6 +100,7 @@ def run_exp001(
         exclude_retirements=exclude_retirements,
     )
 
+    outcomes_by_id = {match.match_id: match.outcome.a_won for match in matches}
     elo_by_id = {prediction.match_id: prediction for prediction in elo_predictions}
     ranking_by_id = {prediction.match_id: prediction for prediction in ranking_predictions}
     common_ids = sorted(
@@ -111,7 +113,7 @@ def run_exp001(
     if not common_ids:
         raise ValueError("no common walk-forward predictions are available for EXP-001")
 
-    y_true = [ranking_by_id[match_id].actual_a_won for match_id in common_ids]
+    y_true = [outcomes_by_id[match_id] for match_id in common_ids]
     ranking_probs = [ranking_by_id[match_id].probability_a for match_id in common_ids]
     elo_probs = [elo_by_id[match_id].probability_a for match_id in common_ids]
     ranking_score = _score(y_true, ranking_probs)
@@ -124,6 +126,7 @@ def run_exp001(
     yearly = tuple(
         _comparison_for_ids(
             ids,
+            outcomes_by_id=outcomes_by_id,
             elo_by_id=elo_by_id,
             ranking_by_id=ranking_by_id,
             year=year,
