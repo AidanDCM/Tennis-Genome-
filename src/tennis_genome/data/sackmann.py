@@ -35,6 +35,15 @@ def _optional_int(value: object) -> int | None:
     return int(float(text))
 
 
+def _optional_float(value: object) -> float | None:
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    if not text or text.casefold() in {"nan", "none", "null", "<na>"}:
+        return None
+    return float(text)
+
+
 def _text(value: object, *, default: str = "") -> str:
     if value is None or pd.isna(value):
         return default
@@ -80,7 +89,7 @@ def _disambiguate_match_id(
     return f"{base_match_id}:d-{digest}"
 
 
-def _oriented_pair(
+def _oriented_int_pair(
     *,
     a_won: bool,
     winner_value: object,
@@ -91,48 +100,70 @@ def _oriented_pair(
     return (winner, loser) if a_won else (loser, winner)
 
 
+def _oriented_float_pair(
+    *,
+    a_won: bool,
+    winner_value: object,
+    loser_value: object,
+) -> tuple[float | None, float | None]:
+    winner = _optional_float(winner_value)
+    loser = _optional_float(loser_value)
+    return (winner, loser) if a_won else (loser, winner)
+
+
+def _oriented_text_pair(
+    *,
+    a_won: bool,
+    winner_value: object,
+    loser_value: object,
+) -> tuple[str | None, str | None]:
+    winner = _optional_text(winner_value)
+    loser = _optional_text(loser_value)
+    return (winner, loser) if a_won else (loser, winner)
+
+
 def _match_stats(row: pd.Series, *, match_id: str, a_won: bool) -> MatchStats:
-    aces_a, aces_b = _oriented_pair(
+    aces_a, aces_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_ace"),
         loser_value=row.get("l_ace"),
     )
-    df_a, df_b = _oriented_pair(
+    df_a, df_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_df"),
         loser_value=row.get("l_df"),
     )
-    svpt_a, svpt_b = _oriented_pair(
+    svpt_a, svpt_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_svpt"),
         loser_value=row.get("l_svpt"),
     )
-    first_in_a, first_in_b = _oriented_pair(
+    first_in_a, first_in_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_1stIn"),
         loser_value=row.get("l_1stIn"),
     )
-    first_won_a, first_won_b = _oriented_pair(
+    first_won_a, first_won_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_1stWon"),
         loser_value=row.get("l_1stWon"),
     )
-    second_won_a, second_won_b = _oriented_pair(
+    second_won_a, second_won_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_2ndWon"),
         loser_value=row.get("l_2ndWon"),
     )
-    sv_gms_a, sv_gms_b = _oriented_pair(
+    sv_gms_a, sv_gms_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_SvGms"),
         loser_value=row.get("l_SvGms"),
     )
-    bp_saved_a, bp_saved_b = _oriented_pair(
+    bp_saved_a, bp_saved_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_bpSaved"),
         loser_value=row.get("l_bpSaved"),
     )
-    bp_faced_a, bp_faced_b = _oriented_pair(
+    bp_faced_a, bp_faced_b = _oriented_int_pair(
         a_won=a_won,
         winner_value=row.get("w_bpFaced"),
         loser_value=row.get("l_bpFaced"),
@@ -157,6 +188,7 @@ def _match_stats(row: pd.Series, *, match_id: str, a_won: bool) -> MatchStats:
         break_points_saved_b=bp_saved_b,
         break_points_faced_a=bp_faced_a,
         break_points_faced_b=bp_faced_b,
+        duration_minutes=_optional_int(row.get("minutes")),
     )
 
 
@@ -219,15 +251,45 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
                 player_b_id=player_b_id,
             )
 
-        winner_rank = _optional_int(row.get("winner_rank"))
-        loser_rank = _optional_int(row.get("loser_rank"))
-        winner_points = _optional_int(row.get("winner_rank_points"))
-        loser_points = _optional_int(row.get("loser_rank_points"))
-        rank_a, rank_b = (
-            (winner_rank, loser_rank) if a_won else (loser_rank, winner_rank)
+        rank_a, rank_b = _oriented_int_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_rank"),
+            loser_value=row.get("loser_rank"),
         )
-        points_a, points_b = (
-            (winner_points, loser_points) if a_won else (loser_points, winner_points)
+        points_a, points_b = _oriented_int_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_rank_points"),
+            loser_value=row.get("loser_rank_points"),
+        )
+        seed_a, seed_b = _oriented_int_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_seed"),
+            loser_value=row.get("loser_seed"),
+        )
+        entry_a, entry_b = _oriented_text_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_entry"),
+            loser_value=row.get("loser_entry"),
+        )
+        hand_a, hand_b = _oriented_text_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_hand"),
+            loser_value=row.get("loser_hand"),
+        )
+        height_a, height_b = _oriented_int_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_ht"),
+            loser_value=row.get("loser_ht"),
+        )
+        age_a, age_b = _oriented_float_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_age"),
+            loser_value=row.get("loser_age"),
+        )
+        ioc_a, ioc_b = _oriented_text_pair(
+            a_won=a_won,
+            winner_value=row.get("winner_ioc"),
+            loser_value=row.get("loser_ioc"),
         )
 
         score = _optional_text(row.get("score"))
@@ -251,6 +313,19 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             rank_b=rank_b,
             rank_points_a=points_a,
             rank_points_b=points_b,
+            draw_size=_optional_int(row.get("draw_size")),
+            seed_a=seed_a,
+            seed_b=seed_b,
+            entry_a=entry_a,
+            entry_b=entry_b,
+            hand_a=hand_a,
+            hand_b=hand_b,
+            height_cm_a=height_a,
+            height_cm_b=height_b,
+            age_years_a=age_a,
+            age_years_b=age_b,
+            ioc_a=ioc_a,
+            ioc_b=ioc_b,
         )
         outcome = MatchOutcome(
             match_id=match_id,
