@@ -7,6 +7,8 @@ from math import log
 from pathlib import Path
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from tennis_genome.data.canonical import HistoricalMatch
 from tennis_genome.data.manifest import verify_canonical_manifest
@@ -148,9 +150,16 @@ def _predict_year(
     train: list[_FeatureRow],
     test: list[_FeatureRow],
 ) -> tuple[list[float], list[float]]:
+    """Fit both contestants on prior years using training-fold scaling only."""
     y_train = [int(row.outcome_a) for row in train]
-    baseline = LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000)
-    challenger = LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000)
+    baseline = make_pipeline(
+        StandardScaler(),
+        LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000),
+    )
+    challenger = make_pipeline(
+        StandardScaler(),
+        LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000),
+    )
     baseline.fit([[row.elo_logit] for row in train], y_train)
     challenger.fit(
         [[row.elo_logit, row.serve_return_edge] for row in train],
