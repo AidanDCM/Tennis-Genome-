@@ -12,11 +12,12 @@ from tennis_genome.ratings.elo import EloConfig, expected_score
 
 @dataclass(frozen=True)
 class ModelPrediction:
+    """Pre-match model output only; realized outcomes live elsewhere."""
+
     match_id: str
     event_date: date
     model_name: str
     probability_a: float
-    actual_a_won: bool
 
 
 def _eligible(match: HistoricalMatch, *, exclude_retirements: bool) -> bool:
@@ -70,7 +71,6 @@ def walk_forward_elo(
                     event_date=event_date,
                     model_name="elo",
                     probability_a=p_a,
-                    actual_a_won=match.outcome.a_won,
                 )
             )
 
@@ -136,7 +136,6 @@ def walk_forward_ranking_logit(
                     event_date=match.pre_match.event_date,
                     model_name="ranking_logit",
                     probability_a=probability,
-                    actual_a_won=match.outcome.a_won,
                 )
             )
 
