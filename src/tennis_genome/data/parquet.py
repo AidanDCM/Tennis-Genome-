@@ -9,6 +9,7 @@ import pandas as pd
 from tennis_genome.data.canonical import (
     HistoricalMatch,
     MatchOutcome,
+    MatchStats,
     PreMatchState,
     Surface,
     Tour,
@@ -36,6 +37,28 @@ _PRE_MATCH_REQUIRED = {
     "rank_points_b",
 }
 _OUTCOME_REQUIRED = {"match_id", "a_won", "score", "retirement", "walkover"}
+_STATS_REQUIRED = {
+    "match_id",
+    "aces_a",
+    "aces_b",
+    "double_faults_a",
+    "double_faults_b",
+    "service_points_a",
+    "service_points_b",
+    "first_serves_in_a",
+    "first_serves_in_b",
+    "first_serve_points_won_a",
+    "first_serve_points_won_b",
+    "second_serve_points_won_a",
+    "second_serve_points_won_b",
+    "service_games_a",
+    "service_games_b",
+    "break_points_saved_a",
+    "break_points_saved_b",
+    "break_points_faced_a",
+    "break_points_faced_b",
+}
+_STATS_FORBIDDEN = {"a_won", "score", "retirement", "walkover"}
 _VALID_TOURS = {"ATP", "WTA"}
 _VALID_SURFACES = {"Hard", "Clay", "Grass", "Carpet", "Unknown"}
 
@@ -85,19 +108,44 @@ def _surface(value: object) -> Surface:
     return cast(Surface, text)
 
 
+def _stats_from_row(values: dict[str, object]) -> MatchStats:
+    return MatchStats(
+        match_id=str(values["match_id"]),
+        aces_a=_optional_int(values.get("aces_a")),
+        aces_b=_optional_int(values.get("aces_b")),
+        double_faults_a=_optional_int(values.get("double_faults_a")),
+        double_faults_b=_optional_int(values.get("double_faults_b")),
+        service_points_a=_optional_int(values.get("service_points_a")),
+        service_points_b=_optional_int(values.get("service_points_b")),
+        first_serves_in_a=_optional_int(values.get("first_serves_in_a")),
+        first_serves_in_b=_optional_int(values.get("first_serves_in_b")),
+        first_serve_points_won_a=_optional_int(values.get("first_serve_points_won_a")),
+        first_serve_points_won_b=_optional_int(values.get("first_serve_points_won_b")),
+        second_serve_points_won_a=_optional_int(
+            values.get("second_serve_points_won_a")
+        ),
+        second_serve_points_won_b=_optional_int(
+            values.get("second_serve_points_won_b")
+        ),
+        service_games_a=_optional_int(values.get("service_games_a")),
+        service_games_b=_optional_int(values.get("service_games_b")),
+        break_points_saved_a=_optional_int(values.get("break_points_saved_a")),
+        break_points_saved_b=_optional_int(values.get("break_points_saved_b")),
+        break_points_faced_a=_optional_int(values.get("break_points_faced_a")),
+        break_points_faced_b=_optional_int(values.get("break_points_faced_b")),
+    )
+
+
 def load_canonical_parquet(
     *,
     pre_match_path: Path,
     outcome_path: Path,
+    stats_path: Path | None = None,
 ) -> list[HistoricalMatch]:
-    """Load canonical pre-match and outcome tables into HistoricalMatch records.
-
-    Modeling code should prefer this boundary over source-specific adapters.
-    The loader fails closed if outcome fields appear in the pre-match table or
-    if the two tables do not contain exactly the same match IDs.
-    """
+    """Load canonical tables while preserving information-class boundaries."""
     pre_match = pd.read_parquet(pre_match_path)
     outcomes = pd.read_parquet(outcome_path)
+    stats = pd.read_parquet(stats_path) if stats_path is not None else None
 
     leaked = sorted(_PRE_MATCH_FORBIDDEN.intersection(pre_match.columns))
     if leaked:
@@ -122,12 +170,32 @@ def load_canonical_parquet(
     pre_ids = set(pre_match["match_id"])
     outcome_ids = set(outcomes["match_id"])
     if pre_ids != outcome_ids:
-        missing_outcomes = sorted(pre_ids - outcome_ids)[:10]
-        missing_states = sorted(outcome_ids - pre_ids)[:10]
         raise ValueError(
             "canonical table match IDs differ; "
-            f"missing_outcomes={missing_outcomes}, missing_pre_match={missing_states}"
+            f"missing_outcomes={sorted(pre_ids - outcome_ids)[:10]}, "
+            f"missing_pre_match={sorted(outcome_ids - pre_ids)[:10]}"
         )
+
+    stats_by_id: pd.DataFrame | None = None
+    if stats is not None:
+        leaked_stats = sorted(_STATS_FORBIDDEN.intersection(stats.columns))
+        if leaked_stats:
+            raise ValueError(f"outcome fields leaked into stats table: {leaked_stats}")
+        missing_stats = sorted(_STATS_REQUIRED.difference(stats.columns))
+        if missing_stats:
+            raise ValueError(f"stats table missing required columns: {missing_stats}")
+        stats = stats.copy()
+        stats["match_id"] = stats["match_id"].astype(str)
+        if stats["match_id"].duplicated().any():
+            raise ValueError("stats table contains duplicate match_id values")
+        stats_ids = set(stats["match_id"])
+        if stats_ids != pre_ids:
+            raise ValueError(
+                "canonical stats match IDs differ; "
+                f"missing_stats={sorted(pre_ids - stats_ids)[:10]}, "
+                f"extra_stats={sorted(stats_ids - pre_ids)[:10]}"
+            )
+        stats_by_id = stats.set_index("match_id", drop=False)
 
     outcome_by_id = outcomes.set_index("match_id", drop=False)
     matches: list[HistoricalMatch] = []
@@ -135,7 +203,6 @@ def load_canonical_parquet(
         values = row._asdict()
         match_id = str(values["match_id"])
         outcome_values = outcome_by_id.loc[match_id]
-
         state = PreMatchState(
             match_id=match_id,
             tour=_tour(values["tour"]),
@@ -175,6 +242,16 @@ def load_canonical_parquet(
                 match_id=match_id,
             ),
         )
-        matches.append(HistoricalMatch(pre_match=state, outcome=outcome))
+        match_stats = None
+        if stats_by_id is not None:
+            stats_values = stats_by_id.loc[match_id].to_dict()
+            match_stats = _stats_from_row(stats_values)
+        matches.append(
+            HistoricalMatch(
+                pre_match=state,
+                outcome=outcome,
+                stats=match_stats,
+            )
+        )
 
     return matches

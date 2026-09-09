@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev/real-data-baseline-run
+      - dev/serve-return
     paths:
       - ".github/workflows/research_baselines.yml"
       - "src/**"
@@ -132,6 +133,26 @@ jobs:
             --outcomes data/research_processed/wta/wta_outcomes.parquet \
             > artifacts/research_baselines/exp002_wta.json
 
+      - name: Run EXP-003 ATP
+        run: |
+          python -m tennis_genome.experiments.exp003 \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --min-train-matches 1000 \
+            > artifacts/research_baselines/exp003_atp.json
+
+      - name: Run EXP-003 WTA
+        run: |
+          python -m tennis_genome.experiments.exp003 \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --min-train-matches 1000 \
+            > artifacts/research_baselines/exp003_wta.json
+
       - name: Copy provenance manifests
         run: |
           cp data/research_processed/atp/atp_manifest.json artifacts/research_baselines/
@@ -156,7 +177,7 @@ jobs:
               "| Experiment | Tour | N | Baseline Brier | Challenger Brier | Δ Brier | Baseline log loss | Challenger log loss | Δ log loss |",
               "|---|---|---:|---:|---:|---:|---:|---:|---:|",
           ]
-          for experiment in ("exp001", "exp002"):
+          for experiment in ("exp001", "exp002", "exp003"):
               for tour in ("atp", "wta"):
                   data = json.loads((root / f"{experiment}_{tour}.json").read_text())
                   if experiment == "exp001":
@@ -165,12 +186,18 @@ jobs:
                       db = data["brier_improvement_elo_vs_ranking"]
                       dl = data["log_loss_improvement_elo_vs_ranking"]
                       label = "EXP-001 Ranking→Elo"
-                  else:
+                  elif experiment == "exp002":
                       base = data["elo"]
                       challenger = data["surface_elo"]
                       db = data["brier_improvement_surface_vs_elo"]
                       dl = data["log_loss_improvement_surface_vs_elo"]
                       label = "EXP-002 Elo→Surface Elo"
+                  else:
+                      base = data["elo_calibrated"]
+                      challenger = data["elo_serve_return"]
+                      db = data["brier_improvement"]
+                      dl = data["log_loss_improvement"]
+                      label = "EXP-003 Elo→Elo+Serve/Return"
                   lines.append(
                       f"| {label} | {tour.upper()} | {data['population_n']} | "
                       f"{base['brier']:.6f} | {challenger['brier']:.6f} | {db:+.6f} | "

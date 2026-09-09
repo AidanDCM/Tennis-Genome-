@@ -13,8 +13,8 @@ class PreMatchState:
     """Information that is allowed to exist at prediction time.
 
     Outcome and post-match statistics are deliberately excluded. When a source
-    row contains both pre- and post-match fields, adapters must split them into
-    this structure plus ``MatchOutcome`` before modeling code sees the record.
+    row contains both pre- and post-match fields, adapters must split them before
+    modeling code sees the pre-match state.
     """
 
     match_id: str
@@ -49,15 +49,60 @@ class MatchOutcome:
 
 
 @dataclass(frozen=True)
+class MatchStats:
+    """Post-match statistics stored separately from legal pre-match state.
+
+    These values describe what happened during the match. They may update a
+    player's historical state only *after* the match/date has passed; the target
+    match's own stats are never legal target-match features.
+    """
+
+    match_id: str
+    aces_a: int | None = None
+    aces_b: int | None = None
+    double_faults_a: int | None = None
+    double_faults_b: int | None = None
+    service_points_a: int | None = None
+    service_points_b: int | None = None
+    first_serves_in_a: int | None = None
+    first_serves_in_b: int | None = None
+    first_serve_points_won_a: int | None = None
+    first_serve_points_won_b: int | None = None
+    second_serve_points_won_a: int | None = None
+    second_serve_points_won_b: int | None = None
+    service_games_a: int | None = None
+    service_games_b: int | None = None
+    break_points_saved_a: int | None = None
+    break_points_saved_b: int | None = None
+    break_points_faced_a: int | None = None
+    break_points_faced_b: int | None = None
+
+    @property
+    def service_points_won_a(self) -> int | None:
+        if self.first_serve_points_won_a is None or self.second_serve_points_won_a is None:
+            return None
+        return self.first_serve_points_won_a + self.second_serve_points_won_a
+
+    @property
+    def service_points_won_b(self) -> int | None:
+        if self.first_serve_points_won_b is None or self.second_serve_points_won_b is None:
+            return None
+        return self.first_serve_points_won_b + self.second_serve_points_won_b
+
+
+@dataclass(frozen=True)
 class HistoricalMatch:
-    """Canonical historical match split into legal pre-match state and outcome."""
+    """Canonical historical record with physically separable information classes."""
 
     pre_match: PreMatchState
     outcome: MatchOutcome
+    stats: MatchStats | None = None
 
     def __post_init__(self) -> None:
         if self.pre_match.match_id != self.outcome.match_id:
             raise ValueError("pre_match and outcome match_id must agree")
+        if self.stats is not None and self.pre_match.match_id != self.stats.match_id:
+            raise ValueError("pre_match and stats match_id must agree")
         if self.pre_match.player_a_id == self.pre_match.player_b_id:
             raise ValueError("player_a_id and player_b_id must differ")
 
