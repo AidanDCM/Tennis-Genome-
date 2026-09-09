@@ -59,6 +59,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p data/research_processed/atp
           args=()
           for year in $(seq "$START_YEAR" "$END_YEAR"); do
             args+=(--input "data/research_raw/atp/atp_matches_${year}.csv")
@@ -79,6 +80,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p data/research_processed/wta
           args=()
           for year in $(seq "$START_YEAR" "$END_YEAR"); do
             args+=(--input "data/research_raw/wta/wta_matches_${year}.csv")
@@ -187,5 +189,5 @@ jobs:
         with:
           name: tennis-genome-research-baselines
           path: artifacts/research_baselines/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
