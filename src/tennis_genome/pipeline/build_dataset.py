@@ -4,6 +4,7 @@ import argparse
 import json
 from dataclasses import asdict
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import cast
 
@@ -13,7 +14,7 @@ from tennis_genome.data.canonical import HistoricalMatch, Tour
 from tennis_genome.data.manifest import sha256_file
 from tennis_genome.data.provenance import AllowedUseStatus, SourceMetadata
 from tennis_genome.data.quality import audit_historical_matches, raise_for_quality_errors
-from tennis_genome.data.sackmann import load_sackmann_csv
+from tennis_genome.data.sackmann import load_sackmann_csvs
 
 SCHEMA_VERSION = "canonical-v1"
 
@@ -26,24 +27,43 @@ def _outcome_frame(matches: list[HistoricalMatch]) -> pd.DataFrame:
     return pd.DataFrame([asdict(match.outcome) for match in matches])
 
 
-def build_canonical_dataset(
+def _source_file_records(paths: list[Path]) -> list[dict[str, str]]:
+    return [
+        {
+            "filename": path.name,
+            "sha256": sha256_file(path),
+        }
+        for path in paths
+    ]
+
+
+def _source_bundle_sha256(records: list[dict[str, str]]) -> str:
+    """Hash the ordered filename/hash manifest for a multi-file source bundle."""
+    payload = json.dumps(records, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return sha256(payload).hexdigest()
+
+
+def build_canonical_dataset_from_files(
     *,
-    source_csv: Path,
+    source_csvs: list[Path],
     tour: Tour,
     output_dir: Path,
     source_metadata: SourceMetadata | None = None,
 ) -> dict[str, object]:
-    """Build versioned Parquet tables plus an auditable provenance manifest."""
-    source_csv = source_csv.resolve()
+    """Build canonical Parquet tables from one or more auditable source CSVs."""
+    paths = sorted((path.resolve() for path in source_csvs), key=str)
+    if not paths:
+        raise ValueError("at least one source CSV is required")
+
     output_dir.mkdir(parents=True, exist_ok=True)
     source_metadata = source_metadata or SourceMetadata(
-        source_id=source_csv.name,
+        source_id=paths[0].name if len(paths) == 1 else "multi_file_bundle",
         provider="unspecified",
     )
 
-    matches = load_sackmann_csv(source_csv, tour=tour)
+    matches = load_sackmann_csvs(paths, tour=tour)
     if not matches:
-        raise ValueError("source CSV contains no matches")
+        raise ValueError("source CSV bundle contains no matches")
 
     issues = audit_historical_matches(matches)
     raise_for_quality_errors(issues)
@@ -63,12 +83,18 @@ def build_canonical_dataset(
             continue
         warning_counts[issue.code] = warning_counts.get(issue.code, 0) + 1
 
+    source_files = _source_file_records(paths)
+    source_bundle_hash = _source_bundle_sha256(source_files)
+    is_single_file = len(paths) == 1
     dates = [match.pre_match.event_date for match in matches]
     manifest: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
-        "source_format": "sackmann_style_csv",
-        "source_filename": source_csv.name,
-        "source_sha256": sha256_file(source_csv),
+        "source_format": "sackmann_style_csv" if is_single_file else "sackmann_style_csv_bundle",
+        "source_filename": paths[0].name if is_single_file else "multi_file_bundle",
+        "source_sha256": source_files[0]["sha256"] if is_single_file else source_bundle_hash,
+        "source_files": source_files,
+        "source_file_count": len(paths),
+        "source_bundle_sha256": source_bundle_hash,
         "source_metadata": source_metadata.to_manifest(),
         "tour": tour,
         "row_count": len(matches),
@@ -84,6 +110,7 @@ def build_canonical_dataset(
             "pre-match and outcome tables are intentionally separated",
             "field timestamp semantics still require source-specific audit before final claims",
             "same-day exact start times are not inferred by this builder",
+            "multi-file bundles are sorted by resolved path before ingestion",
         ],
     }
     manifest_text = json.dumps(manifest, indent=2, sort_keys=True) + "\n"
@@ -91,9 +118,31 @@ def build_canonical_dataset(
     return manifest
 
 
+def build_canonical_dataset(
+    *,
+    source_csv: Path,
+    tour: Tour,
+    output_dir: Path,
+    source_metadata: SourceMetadata | None = None,
+) -> dict[str, object]:
+    """Backward-compatible one-file wrapper around the bundle builder."""
+    return build_canonical_dataset_from_files(
+        source_csvs=[source_csv],
+        tour=tour,
+        output_dir=output_dir,
+        source_metadata=source_metadata,
+    )
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build canonical Tennis Genome historical data")
-    parser.add_argument("--input", required=True, type=Path)
+    parser.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        action="append",
+        help="Source CSV. Repeat --input for yearly/multi-file bundles.",
+    )
     parser.add_argument("--tour", required=True, choices=("ATP", "WTA"))
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--source-id")
@@ -116,16 +165,17 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    inputs: list[Path] = args.input
     source_metadata = SourceMetadata(
-        source_id=args.source_id or args.input.name,
+        source_id=args.source_id or (inputs[0].name if len(inputs) == 1 else "multi_file_bundle"),
         provider=args.provider,
         source_version=args.source_version,
         license_name=args.license_name,
         license_url=args.license_url,
         allowed_use_status=cast(AllowedUseStatus, args.allowed_use_status),
     )
-    manifest = build_canonical_dataset(
-        source_csv=args.input,
+    manifest = build_canonical_dataset_from_files(
+        source_csvs=inputs,
         tour=cast(Tour, args.tour),
         output_dir=args.output_dir,
         source_metadata=source_metadata,

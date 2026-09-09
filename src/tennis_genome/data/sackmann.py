@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date, datetime
 from pathlib import Path
 
@@ -57,7 +58,7 @@ def _surface(value: object) -> Surface:
 
 
 def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
-    """Load a Jeff-Sackmann-style match CSV into the canonical contract.
+    """Load one Jeff-Sackmann-style match CSV into the canonical contract.
 
     This adapter intentionally does not download data. Callers provide a local
     CSV and remain responsible for verifying source provenance, license, and the
@@ -148,5 +149,35 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             walkover="W/O" in score_upper or score_upper == "WO",
         )
         matches.append(HistoricalMatch(pre_match=pre_match, outcome=outcome))
+
+    return matches
+
+
+def load_sackmann_csvs(
+    paths: list[str | Path],
+    *,
+    tour: Tour,
+) -> list[HistoricalMatch]:
+    """Load a deterministic bundle of yearly/source CSVs.
+
+    Paths are resolved and sorted before loading so callers cannot accidentally
+    change the canonical row order by passing the same files in a different
+    sequence. ``source_order`` is then rewritten into one global monotonically
+    increasing sequence across the bundle. Match IDs remain source-derived; any
+    cross-file collision is intentionally left for the canonical quality gate to
+    reject rather than silently changing identity semantics.
+    """
+    resolved = sorted((Path(path).resolve() for path in paths), key=str)
+    if not resolved:
+        raise ValueError("at least one source CSV is required")
+
+    matches: list[HistoricalMatch] = []
+    next_order = 0
+    for path in resolved:
+        file_matches = load_sackmann_csv(path, tour=tour)
+        for match in file_matches:
+            state = replace(match.pre_match, source_order=next_order)
+            matches.append(HistoricalMatch(pre_match=state, outcome=match.outcome))
+            next_order += 1
 
     return matches
