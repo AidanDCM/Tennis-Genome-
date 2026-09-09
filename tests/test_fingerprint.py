@@ -1,3 +1,5 @@
+import pytest
+
 from tennis_genome.features.fingerprint import build_core_fingerprint, delta
 
 
@@ -19,9 +21,9 @@ def test_core_fingerprint_has_expected_differences():
         return_a=0.40,
         return_b=0.37,
     )
-    assert fp.features["delta_elo"] == 100.0
-    assert fp.features["delta_surface_elo"] == 25.0
-    assert fp.features["a_serve_minus_b_return"] == 0.29
+    assert fp.features["delta_elo"] == pytest.approx(100.0)
+    assert fp.features["delta_surface_elo"] == pytest.approx(25.0)
+    assert fp.features["a_serve_minus_b_return"] == pytest.approx(0.29)
     assert len(fp.digest()) == 64
 
 
@@ -34,4 +36,6 @@ def test_digest_is_deterministic():
         surface_elo_a=1550,
         surface_elo_b=1525,
     )
-    assert build_core_fingerprint(**kwargs).digest() == build_core_fingerprint(**kwargs).digest()
+    first = build_core_fingerprint(**kwargs).digest()
+    second = build_core_fingerprint(**kwargs).digest()
+    assert first == second
