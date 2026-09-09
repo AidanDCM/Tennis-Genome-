@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from tennis_genome.data.canonical import HistoricalMatch
@@ -174,9 +174,13 @@ def _matrix(rows: list[_Row], feature_names: tuple[str, ...]) -> list[list[float
     return [[_value(row.snapshot, name) for name in feature_names] for row in rows]
 
 
-def _model():
+def _model() -> Pipeline:
     return make_pipeline(
-        SimpleImputer(strategy="median", add_indicator=True),
+        SimpleImputer(
+            strategy="median",
+            add_indicator=True,
+            keep_empty_features=True,
+        ),
         StandardScaler(),
         LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000),
     )
@@ -203,7 +207,10 @@ def _rows(
         exclude_retirements=exclude_retirements,
     )
     outcomes = {match.match_id: match.outcome.a_won for match in matches}
-    return [_Row(snapshot=snapshot, outcome_a=outcomes[snapshot.match_id]) for snapshot in snapshots]
+    return [
+        _Row(snapshot=snapshot, outcome_a=outcomes[snapshot.match_id])
+        for snapshot in snapshots
+    ]
 
 
 def _all_family_features() -> tuple[str, ...]:
@@ -367,7 +374,8 @@ def run_family_lab(
         ),
         timing_limitation=(
             "Source tourney_date is event-start-era rather than trustworthy exact match time; "
-            "workload/rest variables are conservative event-gap proxies and omit within-event chronology."
+            "workload/rest variables are conservative event-gap proxies and omit "
+            "within-event chronology."
         ),
     )
 
