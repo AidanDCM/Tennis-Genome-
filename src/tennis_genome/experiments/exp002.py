@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import defaultdict
 from dataclasses import asdict, dataclass
+from itertools import groupby
 from pathlib import Path
 
 from tennis_genome.data.canonical import HistoricalMatch, Surface
@@ -57,6 +59,7 @@ class Exp002Report:
     accuracy_change_surface_vs_elo: float
     yearly: tuple[SliceComparison, ...]
     by_surface: tuple[SliceComparison, ...]
+    by_surface_experience: tuple[SliceComparison, ...]
 
 
 def _score(y_true: list[bool], probabilities: list[float]) -> ModelScore:
@@ -95,6 +98,59 @@ def _comparison_for_ids(
     )
 
 
+def _surface_experience_by_match(
+    matches: list[HistoricalMatch],
+    *,
+    exclude_retirements: bool,
+) -> dict[str, int]:
+    """Return the weaker player's prior match count on the target surface.
+
+    Counts use the same conservative date-only timing policy as Elo: all matches
+    on one date see experience accumulated only through earlier dates. This makes
+    the diagnostic legal at prediction time and insensitive to arbitrary CSV row
+    order within a day.
+    """
+    ordered = sorted(
+        matches,
+        key=lambda match: (match.pre_match.event_date, match.match_id),
+    )
+    counts: defaultdict[tuple[str, Surface], int] = defaultdict(int)
+    prior_minimum: dict[str, int] = {}
+
+    for _, grouped in groupby(ordered, key=lambda match: match.pre_match.event_date):
+        day_matches = [
+            match
+            for match in grouped
+            if not match.outcome.walkover
+            and not (exclude_retirements and match.outcome.retirement)
+            and match.pre_match.surface != "Unknown"
+        ]
+        for match in day_matches:
+            state = match.pre_match
+            key_a = (state.player_a_id, state.surface)
+            key_b = (state.player_b_id, state.surface)
+            prior_minimum[match.match_id] = min(counts[key_a], counts[key_b])
+
+        for match in day_matches:
+            state = match.pre_match
+            counts[(state.player_a_id, state.surface)] += 1
+            counts[(state.player_b_id, state.surface)] += 1
+
+    return prior_minimum
+
+
+def _experience_band(prior_matches: int) -> str:
+    if prior_matches == 0:
+        return "0"
+    if prior_matches <= 4:
+        return "1-4"
+    if prior_matches <= 9:
+        return "5-9"
+    if prior_matches <= 24:
+        return "10-24"
+    return "25+"
+
+
 def run_exp002(
     matches: list[HistoricalMatch],
     *,
@@ -124,6 +180,10 @@ def run_exp002(
         config=config,
         exclude_retirements=exclude_retirements,
     )
+    surface_experience = _surface_experience_by_match(
+        known_surface_matches,
+        exclude_retirements=exclude_retirements,
+    )
 
     outcomes_by_id = {
         match.match_id: match.outcome.a_won for match in known_surface_matches
@@ -150,11 +210,14 @@ def run_exp002(
 
     ids_by_year: dict[int, list[str]] = {}
     ids_by_surface: dict[Surface, list[str]] = {}
+    ids_by_experience: dict[str, list[str]] = {}
     for match_id in common_ids:
         year = elo_by_id[match_id].event_date.year
         ids_by_year.setdefault(year, []).append(match_id)
         surface = surface_name_by_id[match_id]
         ids_by_surface.setdefault(surface, []).append(match_id)
+        band = _experience_band(surface_experience[match_id])
+        ids_by_experience.setdefault(band, []).append(match_id)
 
     yearly = tuple(
         _comparison_for_ids(
@@ -178,6 +241,21 @@ def run_exp002(
         )
         for surface, ids in sorted(ids_by_surface.items())
     )
+    experience_order = {"0": 0, "1-4": 1, "5-9": 2, "10-24": 3, "25+": 4}
+    by_surface_experience = tuple(
+        _comparison_for_ids(
+            ids,
+            outcomes_by_id=outcomes_by_id,
+            elo_by_id=elo_by_id,
+            surface_by_id=surface_by_id,
+            slice_type="surface_experience",
+            slice_value=band,
+        )
+        for band, ids in sorted(
+            ids_by_experience.items(),
+            key=lambda item: experience_order[item[0]],
+        )
+    )
 
     return Exp002Report(
         experiment_id="EXP-002",
@@ -192,6 +270,7 @@ def run_exp002(
         accuracy_change_surface_vs_elo=surface_score.accuracy - elo_score.accuracy,
         yearly=yearly,
         by_surface=by_surface,
+        by_surface_experience=by_surface_experience,
     )
 
 
