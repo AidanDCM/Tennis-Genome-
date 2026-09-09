@@ -121,8 +121,12 @@ def _stats_from_row(values: dict[str, object]) -> MatchStats:
         first_serves_in_b=_optional_int(values.get("first_serves_in_b")),
         first_serve_points_won_a=_optional_int(values.get("first_serve_points_won_a")),
         first_serve_points_won_b=_optional_int(values.get("first_serve_points_won_b")),
-        second_serve_points_won_a=_optional_int(values.get("second_serve_points_won_a")),
-        second_serve_points_won_b=_optional_int(values.get("second_serve_points_won_b")),
+        second_serve_points_won_a=_optional_int(
+            values.get("second_serve_points_won_a")
+        ),
+        second_serve_points_won_b=_optional_int(
+            values.get("second_serve_points_won_b")
+        ),
         service_games_a=_optional_int(values.get("service_games_a")),
         service_games_b=_optional_int(values.get("service_games_b")),
         break_points_saved_a=_optional_int(values.get("break_points_saved_a")),
@@ -221,15 +225,33 @@ def load_canonical_parquet(
         )
         outcome = MatchOutcome(
             match_id=match_id,
-            a_won=_required_bool(outcome_values["a_won"], field="a_won", match_id=match_id),
+            a_won=_required_bool(
+                outcome_values["a_won"],
+                field="a_won",
+                match_id=match_id,
+            ),
             score=_optional_text(outcome_values["score"]),
-            retirement=_required_bool(outcome_values["retirement"], field="retirement", match_id=match_id),
-            walkover=_required_bool(outcome_values["walkover"], field="walkover", match_id=match_id),
+            retirement=_required_bool(
+                outcome_values["retirement"],
+                field="retirement",
+                match_id=match_id,
+            ),
+            walkover=_required_bool(
+                outcome_values["walkover"],
+                field="walkover",
+                match_id=match_id,
+            ),
         )
         match_stats = None
         if stats_by_id is not None:
             stats_values = stats_by_id.loc[match_id].to_dict()
             match_stats = _stats_from_row(stats_values)
-        matches.append(HistoricalMatch(pre_match=state, outcome=outcome, stats=match_stats))
+        matches.append(
+            HistoricalMatch(
+                pre_match=state,
+                outcome=outcome,
+                stats=match_stats,
+            )
+        )
 
     return matches
