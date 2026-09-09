@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from tennis_genome.data.canonical import HistoricalMatch
+from tennis_genome.data.manifest import verify_canonical_manifest
 from tennis_genome.data.parquet import load_canonical_parquet
 from tennis_genome.evaluation.metrics import (
     accuracy,
@@ -149,6 +150,12 @@ def run_exp001(
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run EXP-001: ranking versus Elo")
     parser.add_argument(
+        "--manifest",
+        required=True,
+        type=Path,
+        help="Canonical dataset provenance manifest",
+    )
+    parser.add_argument(
         "--pre-match",
         required=True,
         type=Path,
@@ -171,6 +178,12 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    verify_canonical_manifest(
+        manifest_path=args.manifest,
+        pre_match_path=args.pre_match,
+        outcome_path=args.outcomes,
+        require_research_permission=True,
+    )
     matches = load_canonical_parquet(
         pre_match_path=args.pre_match,
         outcome_path=args.outcomes,
