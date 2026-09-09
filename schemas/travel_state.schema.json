@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "travel_state.schema.json",
+  "title": "Tennis Genome Travel and Circadian State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "player_id",
+    "match_id",
+    "as_of",
+    "source_id",
+    "known_before_match"
+  ],
+  "properties": {
+    "player_id": {"type": "string", "minLength": 1},
+    "match_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "format": "date-time"},
+    "source_id": {"type": "string", "minLength": 1},
+    "known_before_match": {"type": "boolean"},
+    "previous_location": {"type": ["string", "null"]},
+    "target_location": {"type": ["string", "null"]},
+    "travel_distance_km": {"type": ["number", "null"], "minimum": 0},
+    "time_zone_delta_hours": {"type": ["number", "null"]},
+    "travel_direction": {
+      "type": ["string", "null"],
+      "enum": ["east", "west", "north_south", "none", "unknown", null]
+    },
+    "departure_at": {"type": ["string", "null"], "format": "date-time"},
+    "arrival_at": {"type": ["string", "null"], "format": "date-time"},
+    "acclimation_hours_before_match": {"type": ["number", "null"], "minimum": 0},
+    "match_local_hour": {"type": ["number", "null"], "minimum": 0, "maximum": 24},
+    "estimated_body_clock_hour": {"type": ["number", "null"], "minimum": 0, "maximum": 24},
+    "consecutive_travel_weeks": {"type": ["integer", "null"], "minimum": 0},
+    "source_reliability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "provenance_url": {"type": ["string", "null"], "format": "uri"}
+  }
+}
