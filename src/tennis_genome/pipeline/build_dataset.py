@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import asdict
 from datetime import UTC, datetime
 from hashlib import sha256
-import json
 from pathlib import Path
 from typing import cast
 
@@ -87,7 +87,8 @@ def build_canonical_dataset(
             "same-day exact start times are not inferred by this builder",
         ],
     }
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_text = json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    manifest_path.write_text(manifest_text, encoding="utf-8")
     return manifest
 
 
