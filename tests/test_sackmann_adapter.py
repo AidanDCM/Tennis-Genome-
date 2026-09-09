@@ -95,6 +95,51 @@ def test_adapter_marks_retirements_and_walkovers(tmp_path: Path):
     assert matches[1].outcome.walkover is True
 
 
+def test_reused_match_numbers_are_disambiguated_without_row_order_dependence(tmp_path: Path):
+    first_path = tmp_path / "first.csv"
+    reversed_path = tmp_path / "reversed.csv"
+    common = {
+        "tourney_id": "2009-W-CHA-INA-01A-2009",
+        "tourney_name": "Tournament of Champions",
+        "surface": "Hard",
+        "tourney_level": "F",
+        "tourney_date": 20091102,
+        "match_num": 1,
+        "best_of": 3,
+    }
+    rows = [
+        {
+            **common,
+            "winner_id": 201294,
+            "winner_name": "Marion Bartoli",
+            "loser_id": 200617,
+            "loser_name": "Kimiko Date Krumm",
+            "round": "SF",
+            "score": "6-1 6-3",
+        },
+        {
+            **common,
+            "winner_id": 201294,
+            "winner_name": "Marion Bartoli",
+            "loser_id": 201424,
+            "loser_name": "Shahar Peer",
+            "round": "RR",
+            "score": "6-3 6-2",
+        },
+    ]
+    pd.DataFrame(rows).to_csv(first_path, index=False)
+    pd.DataFrame(list(reversed(rows))).to_csv(reversed_path, index=False)
+
+    first = load_sackmann_csv(first_path, tour="WTA")
+    reversed_matches = load_sackmann_csv(reversed_path, tour="WTA")
+
+    first_ids = {match.match_id for match in first}
+    reversed_ids = {match.match_id for match in reversed_matches}
+    assert len(first_ids) == 2
+    assert first_ids == reversed_ids
+    assert all(":d-" in match_id for match_id in first_ids)
+
+
 def test_multi_file_adapter_is_independent_of_input_order(tmp_path: Path):
     older = tmp_path / "2024.csv"
     newer = tmp_path / "2025.csv"

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import replace
 from datetime import date, datetime
+from hashlib import sha256
 from pathlib import Path
 
 import pandas as pd
@@ -57,6 +59,32 @@ def _surface(value: object) -> Surface:
     return _SURFACES.get(text, "Unknown")
 
 
+def _base_match_id(*, tour: Tour, row: pd.Series, source_order: object) -> str:
+    tournament_id = _text(row.get("tourney_id"), default="unknown")
+    match_num = _optional_int(row.get("match_num"))
+    match_suffix = str(match_num) if match_num is not None else f"row-{source_order}"
+    return f"{tour.lower()}:{tournament_id}:{match_suffix}"
+
+
+def _disambiguate_match_id(
+    base_match_id: str,
+    *,
+    round_name: str | None,
+    player_a_id: str,
+    player_b_id: str,
+) -> str:
+    """Disambiguate reused source match numbers using only pre-match-safe identity.
+
+    Some historical WTA events reuse ``match_num`` across round-robin and
+    knockout matches. When that happens, every colliding row gets a deterministic
+    suffix derived from round + canonical player pair. Exact duplicate records
+    still receive the same suffix and are therefore rejected by the quality gate.
+    """
+    identity = "|".join((round_name or "", player_a_id, player_b_id))
+    digest = sha256(identity.encode("utf-8")).hexdigest()[:12]
+    return f"{base_match_id}:d-{digest}"
+
+
 def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
     """Load one Jeff-Sackmann-style match CSV into the canonical contract.
 
@@ -81,8 +109,18 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
     if missing:
         raise ValueError(f"missing required source columns: {missing}")
 
+    base_ids = [
+        _base_match_id(tour=tour, row=row, source_order=source_order)
+        for source_order, row in frame.iterrows()
+    ]
+    base_id_counts = Counter(base_ids)
+
     matches: list[HistoricalMatch] = []
-    for source_order, row in frame.iterrows():
+    for (source_order, row), base_match_id in zip(
+        frame.iterrows(),
+        base_ids,
+        strict=True,
+    ):
         winner_name = _text(row.get("winner_name"))
         loser_name = _text(row.get("loser_name"))
         if not winner_name or not loser_name:
@@ -106,9 +144,15 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
         )
 
         tournament_id = _text(row.get("tourney_id"), default="unknown")
-        match_num = _optional_int(row.get("match_num"))
-        match_suffix = str(match_num) if match_num is not None else f"row-{source_order}"
-        match_id = f"{tour.lower()}:{tournament_id}:{match_suffix}"
+        round_name = _optional_text(row.get("round"))
+        match_id = base_match_id
+        if base_id_counts[base_match_id] > 1:
+            match_id = _disambiguate_match_id(
+                base_match_id,
+                round_name=round_name,
+                player_a_id=player_a_id,
+                player_b_id=player_b_id,
+            )
 
         winner_rank = _optional_int(row.get("winner_rank"))
         loser_rank = _optional_int(row.get("loser_rank"))
@@ -130,7 +174,7 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             tournament_name=_text(row.get("tourney_name"), default="unknown"),
             tournament_level=_optional_text(row.get("tourney_level")),
             surface=_surface(row.get("surface")),
-            round=_optional_text(row.get("round")),
+            round=round_name,
             best_of=_optional_int(row.get("best_of")),
             player_a_id=player_a_id,
             player_b_id=player_b_id,
