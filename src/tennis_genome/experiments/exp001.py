@@ -4,18 +4,20 @@ import argparse
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import cast
 
-from tennis_genome.data.canonical import HistoricalMatch, Tour
-from tennis_genome.data.sackmann import load_sackmann_csv
+from tennis_genome.data.canonical import HistoricalMatch
+from tennis_genome.data.parquet import load_canonical_parquet
 from tennis_genome.evaluation.metrics import (
     accuracy,
     binary_log_loss,
     brier_score,
     expected_calibration_error,
 )
-from tennis_genome.evaluation.walkforward import ModelPrediction, walk_forward_elo
-from tennis_genome.evaluation.walkforward import walk_forward_ranking_logit
+from tennis_genome.evaluation.walkforward import (
+    ModelPrediction,
+    walk_forward_elo,
+    walk_forward_ranking_logit,
+)
 
 
 @dataclass(frozen=True)
@@ -143,8 +145,18 @@ def run_exp001(
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run EXP-001: ranking versus Elo")
-    parser.add_argument("--input", required=True, type=Path, help="Local historical match CSV")
-    parser.add_argument("--tour", required=True, choices=("ATP", "WTA"))
+    parser.add_argument(
+        "--pre-match",
+        required=True,
+        type=Path,
+        help="Canonical pre-match Parquet table",
+    )
+    parser.add_argument(
+        "--outcomes",
+        required=True,
+        type=Path,
+        help="Canonical outcome Parquet table",
+    )
     parser.add_argument("--min-train-matches", type=int, default=500)
     parser.add_argument(
         "--include-retirements",
@@ -156,8 +168,10 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    tour = cast(Tour, args.tour)
-    matches = load_sackmann_csv(args.input, tour=tour)
+    matches = load_canonical_parquet(
+        pre_match_path=args.pre_match,
+        outcome_path=args.outcomes,
+    )
     report = run_exp001(
         matches,
         min_train_matches=args.min_train_matches,
