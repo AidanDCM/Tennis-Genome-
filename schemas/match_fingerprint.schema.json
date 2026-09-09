@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/match_fingerprint.schema.json",
+  "title": "MatchFingerprint",
+  "type": "object",
+  "required": ["fingerprint_id", "match_id", "prediction_cutoff_at", "feature_version", "features"],
+  "properties": {
+    "fingerprint_id": {"type": "string"},
+    "match_id": {"type": "string"},
+    "prediction_cutoff_at": {"type": "string", "format": "date-time"},
+    "feature_version": {"type": "string"},
+    "player_a_snapshot_id": {"type": ["string", "null"]},
+    "player_b_snapshot_id": {"type": ["string", "null"]},
+    "orientation_rule": {"type": ["string", "null"]},
+    "features": {"type": "object", "additionalProperties": {"type": ["number", "integer", "boolean", "string", "null"]}},
+    "family_vectors": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": ["number", "null"]}}},
+    "missingness": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "data_quality_score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "fingerprint_hash": {"type": ["string", "null"]},
+    "created_at": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "additionalProperties": false
+}
