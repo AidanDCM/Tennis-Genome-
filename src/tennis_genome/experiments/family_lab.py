@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -173,7 +174,7 @@ def _matrix(rows: list[_Row], feature_names: tuple[str, ...]) -> list[list[float
     return [[_value(row.snapshot, name) for name in feature_names] for row in rows]
 
 
-def _model() -> object:
+def _model():
     return make_pipeline(
         SimpleImputer(strategy="median", add_indicator=True),
         StandardScaler(),
@@ -223,7 +224,7 @@ def run_family_lab(
     full_features = CORE_FEATURES + _all_family_features()
 
     predicted_rows: list[_Row] = []
-    predictions: dict[str, list[float]] = defaultdict_list()
+    predictions: defaultdict[str, list[float]] = defaultdict(list)
     family_year_wins: dict[str, list[int]] = {
         family: [0, 0, 0] for family in FAMILY_FEATURES
     }
@@ -256,10 +257,9 @@ def run_family_lab(
 
         for family, names in FAMILY_FEATURES.items():
             add_probs = _fit_predict(train, test, CORE_FEATURES + names)
+            excluded = set(names)
             without = tuple(
-                feature
-                for feature in full_features
-                if feature not in set(names)
+                feature for feature in full_features if feature not in excluded
             )
             without_probs = _fit_predict(train, test, without)
             predictions[f"add:{family}"].extend(add_probs)
@@ -370,11 +370,6 @@ def run_family_lab(
             "workload/rest variables are conservative event-gap proxies and omit within-event chronology."
         ),
     )
-
-
-def defaultdict_list() -> dict[str, list[float]]:
-    """Small explicit helper that keeps prediction storage typing simple."""
-    return {}
 
 
 def _parse_args() -> argparse.Namespace:
