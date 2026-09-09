@@ -74,7 +74,7 @@ class FoundationalSnapshot:
     minutes_28_diff: float
     matches_14_diff: float
     matches_28_diff: float
-    previous_event_minutes_diff: float
+    previous_event_minutes_diff: float | None
 
     age_diff: float | None
     age_curve_diff: float | None
@@ -141,7 +141,10 @@ def _point_residual(
     ):
         observed = stats.service_points_won_a / stats.service_points_a
         components.append(
-            (observed - serve_snapshot.probability_a_serve_point, stats.service_points_a)
+            (
+                observed - serve_snapshot.probability_a_serve_point,
+                stats.service_points_a,
+            )
         )
     if (
         stats.service_points_b is not None
@@ -160,7 +163,8 @@ def _point_residual(
 def _window_values(
     history: deque[tuple[date, int | None]],
     event_date: date,
-) -> tuple[float, float, float, float, float, float, float | None]:
+) -> tuple[float, float, float, float, float]:
+    """Return recent workload windows without owning long-horizon rest state."""
     while history and (event_date - history[0][0]).days > 60:
         history.popleft()
     values = list(history)
@@ -185,22 +189,12 @@ def _window_values(
     matches_28 = sum(
         1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 28
     )
-    prior_dates = [prior_date for prior_date, _ in values if prior_date < event_date]
-    if not prior_dates:
-        return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, None
-    last_date = max(prior_dates)
-    previous_event_minutes = sum(
-        duration or 0 for prior_date, duration in values if prior_date == last_date
-    )
-    gap_days = float((event_date - last_date).days)
     return (
         float(minutes_7),
         float(minutes_14),
         float(minutes_28),
         float(matches_14),
         float(matches_28),
-        float(previous_event_minutes),
-        gap_days,
     )
 
 
@@ -230,7 +224,12 @@ def _age_curve(age: float | None) -> float | None:
     return (age - 27.0) ** 2
 
 
-def _binary_age(age: float | None, *, lower: float | None = None, upper: float | None = None) -> float | None:
+def _binary_age(
+    age: float | None,
+    *,
+    lower: float | None = None,
+    upper: float | None = None,
+) -> float | None:
     if age is None:
         return None
     if lower is not None:
@@ -274,7 +273,10 @@ def walk_forward_foundational_features(
             exclude_retirements=False,
         )
     }
-    ordered = sorted(eligible, key=lambda match: (match.pre_match.event_date, match.match_id))
+    ordered = sorted(
+        eligible,
+        key=lambda match: (match.pre_match.event_date, match.match_id),
+    )
 
     result_ema: dict[int, defaultdict[str, _DecayAccumulator]] = {
         30: defaultdict(_DecayAccumulator),
@@ -285,10 +287,15 @@ def walk_forward_foundational_features(
         90: defaultdict(_DecayAccumulator),
     }
     workload: defaultdict[str, deque[tuple[date, int | None]]] = defaultdict(deque)
+    last_event_date: dict[str, date] = {}
+    last_event_minutes: dict[str, int | None] = {}
     h2h: defaultdict[tuple[str, str], list[int]] = defaultdict(lambda: [0, 0])
     snapshots: list[FoundationalSnapshot] = []
 
-    for event_date, grouped in groupby(ordered, key=lambda match: match.pre_match.event_date):
+    for event_date, grouped in groupby(
+        ordered,
+        key=lambda match: match.pre_match.event_date,
+    ):
         day_matches = list(grouped)
 
         for match in day_matches:
@@ -298,19 +305,58 @@ def walk_forward_foundational_features(
             player_a = state.player_a_id
             player_b = state.player_b_id
 
-            result_30_a = result_ema[30][player_a].mean_at(event_date, half_life_days=30.0)
-            result_30_b = result_ema[30][player_b].mean_at(event_date, half_life_days=30.0)
-            result_90_a = result_ema[90][player_a].mean_at(event_date, half_life_days=90.0)
-            result_90_b = result_ema[90][player_b].mean_at(event_date, half_life_days=90.0)
-            point_30_a = point_ema[30][player_a].mean_at(event_date, half_life_days=30.0)
-            point_30_b = point_ema[30][player_b].mean_at(event_date, half_life_days=30.0)
-            point_90_a = point_ema[90][player_a].mean_at(event_date, half_life_days=90.0)
-            point_90_b = point_ema[90][player_b].mean_at(event_date, half_life_days=90.0)
+            result_30_a = result_ema[30][player_a].mean_at(
+                event_date,
+                half_life_days=30.0,
+            )
+            result_30_b = result_ema[30][player_b].mean_at(
+                event_date,
+                half_life_days=30.0,
+            )
+            result_90_a = result_ema[90][player_a].mean_at(
+                event_date,
+                half_life_days=90.0,
+            )
+            result_90_b = result_ema[90][player_b].mean_at(
+                event_date,
+                half_life_days=90.0,
+            )
+            point_30_a = point_ema[30][player_a].mean_at(
+                event_date,
+                half_life_days=30.0,
+            )
+            point_30_b = point_ema[30][player_b].mean_at(
+                event_date,
+                half_life_days=30.0,
+            )
+            point_90_a = point_ema[90][player_a].mean_at(
+                event_date,
+                half_life_days=90.0,
+            )
+            point_90_b = point_ema[90][player_b].mean_at(
+                event_date,
+                half_life_days=90.0,
+            )
 
             work_a = _window_values(workload[player_a], event_date)
             work_b = _window_values(workload[player_b], event_date)
-            minutes_7_a, minutes_14_a, minutes_28_a, matches_14_a, matches_28_a, prev_a, gap_a = work_a
-            minutes_7_b, minutes_14_b, minutes_28_b, matches_14_b, matches_28_b, prev_b, gap_b = work_b
+            minutes_7_a, minutes_14_a, minutes_28_a, matches_14_a, matches_28_a = work_a
+            minutes_7_b, minutes_14_b, minutes_28_b, matches_14_b, matches_28_b = work_b
+
+            prior_date_a = last_event_date.get(player_a)
+            prior_date_b = last_event_date.get(player_b)
+            gap_a = (
+                float((event_date - prior_date_a).days)
+                if prior_date_a is not None
+                else None
+            )
+            gap_b = (
+                float((event_date - prior_date_b).days)
+                if prior_date_b is not None
+                else None
+            )
+            prev_a = last_event_minutes.get(player_a)
+            prev_b = last_event_minutes.get(player_b)
 
             pair_key = (player_a, player_b)
             wins_a, wins_b = h2h[pair_key]
@@ -354,21 +400,29 @@ def walk_forward_foundational_features(
             level = (state.tournament_level or "").upper()
             round_name = (state.round or "").upper()
 
-            qualifier_diff = _entry_indicator(state.entry_a, "Q") - _entry_indicator(
-                state.entry_b, "Q"
-            )
-            wildcard_diff = _entry_indicator(state.entry_a, "WC") - _entry_indicator(
-                state.entry_b, "WC"
-            )
-            lucky_loser_diff = _entry_indicator(state.entry_a, "LL") - _entry_indicator(
-                state.entry_b, "LL"
-            )
+            qualifier_diff = _entry_indicator(
+                state.entry_a,
+                "Q",
+            ) - _entry_indicator(state.entry_b, "Q")
+            wildcard_diff = _entry_indicator(
+                state.entry_a,
+                "WC",
+            ) - _entry_indicator(state.entry_b, "WC")
+            lucky_loser_diff = _entry_indicator(
+                state.entry_a,
+                "LL",
+            ) - _entry_indicator(state.entry_b, "LL")
             protected_ranking_diff = _entry_indicator(
-                state.entry_a, "PR"
+                state.entry_a,
+                "PR",
             ) - _entry_indicator(state.entry_b, "PR")
             seeded_diff = float(state.seed_a is not None) - float(state.seed_b is not None)
             seed_strength_a = 1.0 / state.seed_a if state.seed_a else 0.0
             seed_strength_b = 1.0 / state.seed_b if state.seed_b else 0.0
+
+            previous_event_minutes_diff = None
+            if prev_a is not None and prev_b is not None:
+                previous_event_minutes_diff = log1p(prev_a) - log1p(prev_b)
 
             snapshots.append(
                 FoundationalSnapshot(
@@ -396,7 +450,7 @@ def walk_forward_foundational_features(
                     minutes_28_diff=log1p(minutes_28_a) - log1p(minutes_28_b),
                     matches_14_diff=matches_14_a - matches_14_b,
                     matches_28_diff=matches_28_a - matches_28_b,
-                    previous_event_minutes_diff=log1p(prev_a) - log1p(prev_b),
+                    previous_event_minutes_diff=previous_event_minutes_diff,
                     age_diff=age_diff,
                     age_curve_diff=curve_diff,
                     young_diff=young_diff,
@@ -434,12 +488,16 @@ def walk_forward_foundational_features(
             )
 
         # Update every state only after all same-date snapshots have been frozen.
+        day_minutes: defaultdict[str, int] = defaultdict(int)
+        day_has_minutes: set[str] = set()
+        day_players: set[str] = set()
         for match in day_matches:
             state = match.pre_match
             elo = elo_map[match.match_id]
             serve = serve_map[match.match_id]
             player_a = state.player_a_id
             player_b = state.player_b_id
+            day_players.update((player_a, player_b))
 
             y_a = 1.0 if match.outcome.a_won else 0.0
             result_residual_a = y_a - elo.probability_a
@@ -472,10 +530,21 @@ def walk_forward_foundational_features(
             duration = match.stats.duration_minutes if match.stats is not None else None
             workload[player_a].append((event_date, duration))
             workload[player_b].append((event_date, duration))
+            if duration is not None:
+                day_minutes[player_a] += duration
+                day_minutes[player_b] += duration
+                day_has_minutes.update((player_a, player_b))
+
             pair = h2h[(player_a, player_b)]
             if match.outcome.a_won:
                 pair[0] += 1
             else:
                 pair[1] += 1
+
+        for player_id in day_players:
+            last_event_date[player_id] = event_date
+            last_event_minutes[player_id] = (
+                day_minutes[player_id] if player_id in day_has_minutes else None
+            )
 
     return snapshots
