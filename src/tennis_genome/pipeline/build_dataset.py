@@ -4,26 +4,18 @@ import argparse
 import json
 from dataclasses import asdict
 from datetime import UTC, datetime
-from hashlib import sha256
 from pathlib import Path
 from typing import cast
 
 import pandas as pd
 
 from tennis_genome.data.canonical import HistoricalMatch, Tour
+from tennis_genome.data.manifest import sha256_file
 from tennis_genome.data.provenance import AllowedUseStatus, SourceMetadata
 from tennis_genome.data.quality import audit_historical_matches, raise_for_quality_errors
 from tennis_genome.data.sackmann import load_sackmann_csv
 
 SCHEMA_VERSION = "canonical-v1"
-
-
-def _sha256_file(path: Path) -> str:
-    digest = sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _pre_match_frame(matches: list[HistoricalMatch]) -> pd.DataFrame:
@@ -76,16 +68,16 @@ def build_canonical_dataset(
         "schema_version": SCHEMA_VERSION,
         "source_format": "sackmann_style_csv",
         "source_filename": source_csv.name,
-        "source_sha256": _sha256_file(source_csv),
+        "source_sha256": sha256_file(source_csv),
         "source_metadata": source_metadata.to_manifest(),
         "tour": tour,
         "row_count": len(matches),
         "date_min": min(dates).isoformat(),
         "date_max": max(dates).isoformat(),
         "pre_match_filename": pre_match_path.name,
-        "pre_match_sha256": _sha256_file(pre_match_path),
+        "pre_match_sha256": sha256_file(pre_match_path),
         "outcome_filename": outcome_path.name,
-        "outcome_sha256": _sha256_file(outcome_path),
+        "outcome_sha256": sha256_file(outcome_path),
         "quality_warning_counts": warning_counts,
         "built_at_utc": datetime.now(UTC).isoformat(),
         "notes": [
