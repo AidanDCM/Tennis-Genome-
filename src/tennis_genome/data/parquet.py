@@ -2,13 +2,22 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 
-from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState, Surface, Tour
+from tennis_genome.data.canonical import (
+    HistoricalMatch,
+    MatchOutcome,
+    PreMatchState,
+    Surface,
+    Tour,
+)
 
 _PRE_MATCH_FORBIDDEN = {"a_won", "score", "retirement", "walkover"}
 _OUTCOME_REQUIRED = {"match_id", "a_won", "score", "retirement", "walkover"}
+_VALID_TOURS = {"ATP", "WTA"}
+_VALID_SURFACES = {"Hard", "Clay", "Grass", "Carpet", "Unknown"}
 
 
 def _date_value(value: object) -> date:
@@ -30,6 +39,20 @@ def _optional_text(value: object) -> str | None:
         return None
     text = str(value)
     return text if text else None
+
+
+def _tour(value: object) -> Tour:
+    text = str(value)
+    if text not in _VALID_TOURS:
+        raise ValueError(f"invalid canonical tour: {text}")
+    return cast(Tour, text)
+
+
+def _surface(value: object) -> Surface:
+    text = str(value)
+    if text not in _VALID_SURFACES:
+        raise ValueError(f"invalid canonical surface: {text}")
+    return cast(Surface, text)
 
 
 def load_canonical_parquet(
@@ -77,13 +100,13 @@ def load_canonical_parquet(
 
         state = PreMatchState(
             match_id=match_id,
-            tour=Tour.__args__[Tour.__args__.index(str(values["tour"]))],
+            tour=_tour(values["tour"]),
             event_date=_date_value(values["event_date"]),
             source_order=int(values["source_order"]),
             tournament_id=str(values["tournament_id"]),
             tournament_name=str(values["tournament_name"]),
             tournament_level=_optional_text(values.get("tournament_level")),
-            surface=Surface.__args__[Surface.__args__.index(str(values["surface"]))],
+            surface=_surface(values["surface"]),
             round=_optional_text(values.get("round")),
             best_of=_optional_int(values.get("best_of")),
             player_a_id=str(values["player_a_id"]),
