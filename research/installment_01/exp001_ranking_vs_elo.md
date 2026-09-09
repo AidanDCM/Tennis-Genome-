@@ -38,6 +38,7 @@ Do not silently fill missing ranking values for EXP-001.
 ## Data boundary
 
 EXP-001 consumes only canonical:
+- `*_manifest.json`
 - `*_pre_match.parquet`
 - `*_outcomes.parquet`
 
@@ -48,6 +49,13 @@ Canonical data must have:
 - no outcome columns in pre-match data,
 - provenance manifest with source hash and allowed-use status,
 - no unresolved critical quality errors.
+
+Before the CLI loads any canonical tables it verifies that:
+- the manifest identifies a source cleared for research execution,
+- the supplied Parquet filenames match the manifest,
+- the SHA256 hash of each Parquet file matches the manifest.
+
+Edited, swapped, untracked, permission-required, or unknown-status datasets must fail closed rather than silently producing an EXP-001 result.
 
 ---
 
@@ -119,11 +127,13 @@ Before accepting the result:
 3. Confirm same-day CSV order cannot alter predictions under date-only timing.
 4. Confirm ranking values are genuinely pre-match/T0-safe under source semantics.
 5. Confirm ranking and Elo scores use identical match IDs.
-6. Run retirement-excluded and labeled retirement-inclusive sensitivity views.
-7. Inspect performance by year for regime dependence.
-8. Re-run from the same source snapshot/hash to verify reproducibility.
-9. Record chosen Elo hyperparameters and whether they were tuned; if tuned, tuning must be nested inside historical training data.
-10. Preserve the final untouched evaluation period once the hyperparameter-search design is added.
+6. Confirm prediction artifacts do not carry realized outcomes.
+7. Confirm the manifest and exact Parquet hashes are verified before CLI execution.
+8. Run retirement-excluded and labeled retirement-inclusive sensitivity views.
+9. Inspect performance by year for regime dependence.
+10. Re-run from the same source snapshot/hash to verify reproducibility.
+11. Record chosen Elo hyperparameters and whether they were tuned; if tuned, tuning must be nested inside historical training data.
+12. Preserve the final untouched evaluation period once the hyperparameter-search design is added.
 
 ---
 
@@ -144,6 +154,7 @@ A failure is useful. If calibrated ranking is equal or better, record that resul
 
 ```bash
 python -m tennis_genome.experiments.exp001 \
+  --manifest data/processed/atp_manifest.json \
   --pre-match data/processed/atp_pre_match.parquet \
   --outcomes data/processed/atp_outcomes.parquet \
   --min-train-matches 500
@@ -151,7 +162,7 @@ python -m tennis_genome.experiments.exp001 \
 
 Run WTA separately with the WTA canonical tables.
 
-The command prints a JSON report with aggregate and yearly comparison metrics.
+The command verifies provenance first, then prints a JSON report with aggregate and yearly comparison metrics.
 
 ---
 
