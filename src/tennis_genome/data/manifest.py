@@ -83,13 +83,7 @@ def verify_canonical_manifest(
     stats_path: Path | None = None,
     require_research_permission: bool = True,
 ) -> dict[str, object]:
-    """Verify canonical artifacts against their exact provenance manifest.
-
-    ``stats_path`` is optional for backward compatibility with experiments that
-    only consume the pre-match/outcome split. Experiments that depend on
-    post-match statistics must pass it explicitly; the verifier then requires
-    and validates the stats filename/hash recorded in the manifest.
-    """
+    """Verify canonical artifacts against their exact provenance manifest."""
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if not isinstance(manifest, dict):
         raise ValueError("dataset manifest must be a JSON object")
@@ -105,11 +99,13 @@ def verify_canonical_manifest(
     expected_outcome_name = str(manifest["outcome_filename"])
     if pre_match_path.name != expected_pre_name:
         raise ValueError(
-            f"pre-match filename does not match manifest: {pre_match_path.name!r} != {expected_pre_name!r}"
+            "pre-match filename does not match manifest: "
+            f"{pre_match_path.name!r} != {expected_pre_name!r}"
         )
     if outcome_path.name != expected_outcome_name:
         raise ValueError(
-            f"outcome filename does not match manifest: {outcome_path.name!r} != {expected_outcome_name!r}"
+            "outcome filename does not match manifest: "
+            f"{outcome_path.name!r} != {expected_outcome_name!r}"
         )
 
     if sha256_file(pre_match_path) != manifest["pre_match_sha256"]:
@@ -123,7 +119,8 @@ def verify_canonical_manifest(
         expected_stats_name = str(manifest["stats_filename"])
         if stats_path.name != expected_stats_name:
             raise ValueError(
-                f"stats filename does not match manifest: {stats_path.name!r} != {expected_stats_name!r}"
+                "stats filename does not match manifest: "
+                f"{stats_path.name!r} != {expected_stats_name!r}"
             )
         if sha256_file(stats_path) != manifest["stats_sha256"]:
             raise ValueError("stats Parquet hash does not match dataset manifest")
