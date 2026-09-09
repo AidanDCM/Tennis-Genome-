@@ -72,6 +72,7 @@ def test_builder_separates_pre_match_and_outcome_tables(tmp_path: Path):
     outcomes = pd.read_parquet(output / "atp_outcomes.parquet")
 
     assert manifest["row_count"] == 1
+    assert manifest["source_format"] == "sackmann_style_csv"
     assert "a_won" not in pre_match.columns
     assert "score" not in pre_match.columns
     assert "rank_a" in pre_match.columns
@@ -150,6 +151,7 @@ def test_multi_file_builder_records_every_source_and_is_order_invariant(tmp_path
         {"filename": "2025.csv", "sha256": sha256_file(newer)},
     ]
     assert first["row_count"] == 2
+    assert first["source_format"] == "sackmann_style_csv_bundle"
     assert first["source_file_count"] == 2
     assert first["source_files"] == expected_files
     assert second["source_files"] == expected_files
