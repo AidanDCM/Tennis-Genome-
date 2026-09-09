@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from hashlib import sha256
 import re
 import unicodedata
+from hashlib import sha256
 
 from tennis_genome.data.canonical import Tour
 
