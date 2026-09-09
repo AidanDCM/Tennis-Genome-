@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_snapshot.schema.json",
+  "title": "MarketSnapshot",
+  "type": "object",
+  "required": ["market_snapshot_id", "match_id", "bookmaker", "market_type", "captured_at"],
+  "properties": {
+    "market_snapshot_id": {"type": "string"},
+    "match_id": {"type": "string"},
+    "bookmaker": {"type": "string"},
+    "market_type": {"type": "string"},
+    "selection_a": {"type": ["string", "null"]},
+    "selection_b": {"type": ["string", "null"]},
+    "odds_format": {"type": ["string", "null"], "enum": ["decimal", "american", null]},
+    "odds_a": {"type": ["number", "null"]},
+    "odds_b": {"type": ["number", "null"]},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "source_available_at": {"type": ["string", "null"], "format": "date-time"},
+    "is_open": {"type": ["boolean", "null"]},
+    "is_close": {"type": ["boolean", "null"]},
+    "implied_p_a_raw": {"type": ["number", "null"]},
+    "implied_p_b_raw": {"type": ["number", "null"]},
+    "novig_method": {"type": ["string", "null"]},
+    "novig_p_a": {"type": ["number", "null"]},
+    "novig_p_b": {"type": ["number", "null"]},
+    "book_margin": {"type": ["number", "null"]},
+    "liquidity": {"type": ["number", "null"]},
+    "source_ref": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
