@@ -24,3 +24,13 @@ def test_winner_gains_and_loser_loses():
 def test_invalid_scale_fails():
     with pytest.raises(ValueError):
         expected_score(1500, 1500, scale=0)
+
+
+def test_elo_config_rejects_non_positive_k_factor():
+    with pytest.raises(ValueError, match="k_factor"):
+        EloConfig(k_factor=0)
+
+
+def test_elo_config_rejects_non_positive_scale():
+    with pytest.raises(ValueError, match="scale"):
+        EloConfig(scale=-1)
