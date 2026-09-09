@@ -5,7 +5,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState, Surface, Tour
+from tennis_genome.data.canonical import (
+    HistoricalMatch,
+    MatchOutcome,
+    PreMatchState,
+    Surface,
+    Tour,
+)
 from tennis_genome.data.identity import canonical_player_id, orient_pair
 
 _SURFACES: dict[str, Surface] = {
@@ -82,9 +88,15 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             raise ValueError(f"row {source_order} has an empty winner/loser name")
 
         winner_id = canonical_player_id(
-            tour=tour, source_id=row.get("winner_id"), name=winner_name
+            tour=tour,
+            source_id=row.get("winner_id"),
+            name=winner_name,
         )
-        loser_id = canonical_player_id(tour=tour, source_id=row.get("loser_id"), name=loser_name)
+        loser_id = canonical_player_id(
+            tour=tour,
+            source_id=row.get("loser_id"),
+            name=loser_name,
+        )
         player_a_id, player_b_id, player_a_name, player_b_name, a_won = orient_pair(
             winner_id=winner_id,
             loser_id=loser_id,
