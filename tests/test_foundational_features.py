@@ -5,7 +5,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, MatchStats, PreMatchState
+from tennis_genome.data.canonical import (
+    HistoricalMatch,
+    MatchOutcome,
+    MatchStats,
+    PreMatchState,
+)
 from tennis_genome.data.sackmann import load_sackmann_csv
 from tennis_genome.features.foundational import walk_forward_foundational_features
 
@@ -88,7 +93,9 @@ def test_same_day_matches_do_not_update_each_other() -> None:
         ),
     ]
 
-    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
+    snapshots = {
+        item.match_id: item for item in walk_forward_foundational_features(matches)
+    }
 
     assert snapshots["m1"].h2h_count == 0
     assert snapshots["m2"].h2h_count == 0
@@ -116,13 +123,50 @@ def test_later_date_sees_prior_workload_form_and_h2h() -> None:
         ),
     ]
 
-    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
+    snapshots = {
+        item.match_id: item for item in walk_forward_foundational_features(matches)
+    }
     later = snapshots["m2"]
 
     assert later.h2h_count == 1
     assert later.h2h_edge > 0.0
     assert later.form_result_30_diff > 0.0
     assert later.previous_event_minutes_diff == 0.0
+
+
+def test_long_rest_gap_survives_recent_workload_pruning() -> None:
+    matches = [
+        _match(
+            match_id="a-old",
+            event_date=date(2024, 1, 1),
+            player_a="a",
+            player_b="c",
+            a_won=True,
+        ),
+        _match(
+            match_id="b-recent",
+            event_date=date(2024, 3, 20),
+            player_a="b",
+            player_b="d",
+            a_won=True,
+        ),
+        _match(
+            match_id="target",
+            event_date=date(2024, 4, 10),
+            player_a="a",
+            player_b="b",
+            a_won=True,
+        ),
+    ]
+
+    snapshots = {
+        item.match_id: item for item in walk_forward_foundational_features(matches)
+    }
+    target = snapshots["target"]
+
+    # A's 100-day gap remains available even though its rolling workload row was pruned.
+    assert target.event_gap_days_diff == 79.0
+    assert target.minutes_28_diff == 0.0
 
 
 def test_sackmann_demographics_and_duration_follow_canonical_orientation(
