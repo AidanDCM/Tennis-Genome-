@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/match.schema.json",
+  "title": "Match",
+  "type": "object",
+  "required": ["match_id", "player_a_id", "player_b_id", "scheduled_start_at", "status"],
+  "properties": {
+    "match_id": {"type": "string"},
+    "event_id": {"type": ["string", "null"]},
+    "tour": {"type": ["string", "null"], "enum": ["ATP", "WTA", null]},
+    "tournament_name": {"type": ["string", "null"]},
+    "tournament_level": {"type": ["string", "null"]},
+    "round": {"type": ["string", "null"]},
+    "surface": {"type": ["string", "null"]},
+    "indoor": {"type": ["boolean", "null"]},
+    "best_of": {"type": ["integer", "null"]},
+    "player_a_id": {"type": "string"},
+    "player_b_id": {"type": "string"},
+    "scheduled_start_at": {"type": "string", "format": "date-time"},
+    "actual_start_at": {"type": ["string", "null"], "format": "date-time"},
+    "prediction_cutoff_at": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"type": "string", "enum": ["scheduled", "completed", "retired", "walkover", "defaulted", "cancelled", "unknown"]},
+    "winner_id": {"type": ["string", "null"]},
+    "score_text": {"type": ["string", "null"]},
+    "duration_minutes": {"type": ["number", "null"]},
+    "source_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}
