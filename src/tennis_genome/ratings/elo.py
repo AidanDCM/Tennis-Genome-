@@ -46,7 +46,7 @@ def update_pair(
     rating_b: float,
     *,
     a_won: bool,
-    config: EloConfig = EloConfig(),
+    config: EloConfig | None = None,
 ) -> tuple[float, float]:
     """Update both players after a completed binary-outcome match.
 
@@ -54,6 +54,7 @@ def update_pair(
     calling this function. Ratings updated from the target match are not legal
     pre-match features for that same match.
     """
+    config = config or EloConfig()
     p_a = expected_score(rating_a, rating_b, scale=config.scale)
     p_b = 1.0 - p_a
     y_a = 1.0 if a_won else 0.0
