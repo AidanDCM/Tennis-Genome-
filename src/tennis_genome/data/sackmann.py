@@ -24,6 +24,7 @@ _SURFACES: dict[str, Surface] = {
     "grass": "Grass",
     "carpet": "Carpet",
 }
+_ENTRY_CODES = {"Q", "WC", "LL", "SE", "PR", "ALT"}
 
 
 def _optional_int(value: object) -> int | None:
@@ -53,6 +54,30 @@ def _text(value: object, *, default: str = "") -> str:
 def _optional_text(value: object) -> str | None:
     text = _text(value)
     return text or None
+
+
+def _seed_and_entry(
+    seed_value: object,
+    entry_value: object,
+) -> tuple[int | None, str | None]:
+    """Normalize numeric seed plus legacy entry codes stored in seed cells.
+
+    Sackmann-style match files normally separate numeric seed from entry status,
+    but some legacy WTA rows place recognized entry codes such as ``Q`` in the
+    seed column. Explicit entry values take precedence. Unknown nonnumeric seed
+    tokens remain fatal so source anomalies cannot be silently discarded.
+    """
+    entry = _optional_text(entry_value)
+    seed_text = _text(seed_value)
+    if not seed_text:
+        return None, entry
+    try:
+        return int(float(seed_text)), entry
+    except ValueError as exc:
+        code = seed_text.upper()
+        if code in _ENTRY_CODES:
+            return None, entry or code
+        raise ValueError(f"unrecognized nonnumeric seed token: {seed_text!r}") from exc
 
 
 def _parse_tourney_date(value: object) -> date:
@@ -261,16 +286,20 @@ def load_sackmann_csv(path: str | Path, *, tour: Tour) -> list[HistoricalMatch]:
             winner_value=row.get("winner_rank_points"),
             loser_value=row.get("loser_rank_points"),
         )
-        seed_a, seed_b = _oriented_int_pair(
-            a_won=a_won,
-            winner_value=row.get("winner_seed"),
-            loser_value=row.get("loser_seed"),
+        winner_seed, winner_entry = _seed_and_entry(
+            row.get("winner_seed"),
+            row.get("winner_entry"),
         )
-        entry_a, entry_b = _oriented_text_pair(
-            a_won=a_won,
-            winner_value=row.get("winner_entry"),
-            loser_value=row.get("loser_entry"),
+        loser_seed, loser_entry = _seed_and_entry(
+            row.get("loser_seed"),
+            row.get("loser_entry"),
         )
+        if a_won:
+            seed_a, seed_b = winner_seed, loser_seed
+            entry_a, entry_b = winner_entry, loser_entry
+        else:
+            seed_a, seed_b = loser_seed, winner_seed
+            entry_a, entry_b = loser_entry, winner_entry
         hand_a, hand_b = _oriented_text_pair(
             a_won=a_won,
             winner_value=row.get("winner_hand"),
