@@ -30,7 +30,7 @@ def _eligible(match: HistoricalMatch, *, exclude_retirements: bool) -> bool:
 def walk_forward_elo(
     matches: list[HistoricalMatch],
     *,
-    config: EloConfig = EloConfig(),
+    config: EloConfig | None = None,
     exclude_retirements: bool = True,
 ) -> list[ModelPrediction]:
     """Generate pre-match Elo probabilities without same-day order leakage.
@@ -43,6 +43,7 @@ def walk_forward_elo(
     This is conservative: it may ignore legitimately available earlier same-day
     results, but it cannot invent knowledge from arbitrary CSV row ordering.
     """
+    config = config or EloConfig()
     ordered = sorted(
         matches,
         key=lambda match: (match.pre_match.event_date, match.match_id),
