@@ -73,7 +73,6 @@ FAMILY_FEATURES: dict[str, tuple[str, ...]] = {
         "slam_elo",
         "masters_elo",
         "finals_elo",
-        "lower_tier_elo",
         "late_round_elo",
         "round_robin_elo",
         "best_of_five_elo",
