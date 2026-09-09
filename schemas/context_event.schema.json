@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context_event.schema.json",
+  "title": "Tennis Genome Player Context Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "player_id",
+    "event_type",
+    "source_id",
+    "published_at",
+    "collected_at",
+    "known_before_match",
+    "source_reliability",
+    "event_certainty"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "player_id": {"type": "string", "minLength": 1},
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "injury",
+        "illness",
+        "medical_timeout_history",
+        "withdrawal",
+        "retirement",
+        "surgery",
+        "return_from_layoff",
+        "practice_restriction",
+        "coaching_change",
+        "trainer_physio_change",
+        "equipment_change",
+        "travel_disruption",
+        "visa_or_entry_issue",
+        "disciplinary_or_legal_issue",
+        "bereavement_or_major_personal_event",
+        "burnout_or_schedule_statement",
+        "fitness_statement",
+        "other_verified_context"
+      ]
+    },
+    "occurred_at": {"type": ["string", "null"], "format": "date-time"},
+    "published_at": {"type": "string", "format": "date-time"},
+    "collected_at": {"type": "string", "format": "date-time"},
+    "known_before_match": {"type": "boolean"},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_url": {"type": ["string", "null"], "format": "uri"},
+    "source_reliability": {"type": "number", "minimum": 0, "maximum": 1},
+    "event_certainty": {"type": "number", "minimum": 0, "maximum": 1},
+    "severity": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "body_part": {"type": ["string", "null"]},
+    "body_side": {
+      "type": ["string", "null"],
+      "enum": ["left", "right", "bilateral", "unknown", null]
+    },
+    "mechanisms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "serve",
+          "movement",
+          "endurance",
+          "recovery",
+          "pain",
+          "practice_time",
+          "sleep",
+          "travel",
+          "preparation",
+          "equipment_familiarity",
+          "motivation_or_attention",
+          "unknown"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "expected_resolution_at": {"type": ["string", "null"], "format": "date-time"},
+    "notes": {"type": ["string", "null"]}
+  }
+}
