@@ -39,6 +39,12 @@ class ServeReturnSnapshot:
     prior_serve_points_b: int
     prior_return_points_a: int
     prior_return_points_b: int
+    serve_rating_a: float
+    serve_rating_b: float
+    return_rating_a: float
+    return_rating_b: float
+    serve_rating_diff_a: float
+    return_rating_diff_a: float
 
 
 def _logit(probability: float) -> float:
@@ -120,16 +126,12 @@ def walk_forward_serve_return(
 
         for match in day_matches:
             state = match.pre_match
-            p_a_serve = _sigmoid(
-                base_logit
-                + serve_rating.get(state.player_a_id, 0.0)
-                - return_rating.get(state.player_b_id, 0.0)
-            )
-            p_b_serve = _sigmoid(
-                base_logit
-                + serve_rating.get(state.player_b_id, 0.0)
-                - return_rating.get(state.player_a_id, 0.0)
-            )
+            serve_a = serve_rating.get(state.player_a_id, 0.0)
+            serve_b = serve_rating.get(state.player_b_id, 0.0)
+            return_a = return_rating.get(state.player_a_id, 0.0)
+            return_b = return_rating.get(state.player_b_id, 0.0)
+            p_a_serve = _sigmoid(base_logit + serve_a - return_b)
+            p_b_serve = _sigmoid(base_logit + serve_b - return_a)
             snapshots.append(
                 ServeReturnSnapshot(
                     match_id=match.match_id,
@@ -141,6 +143,12 @@ def walk_forward_serve_return(
                     prior_serve_points_b=serve_points[state.player_b_id],
                     prior_return_points_a=return_points[state.player_a_id],
                     prior_return_points_b=return_points[state.player_b_id],
+                    serve_rating_a=serve_a,
+                    serve_rating_b=serve_b,
+                    return_rating_a=return_a,
+                    return_rating_b=return_b,
+                    serve_rating_diff_a=serve_a - serve_b,
+                    return_rating_diff_a=return_a - return_b,
                 )
             )
 
