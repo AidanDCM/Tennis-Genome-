@@ -5,6 +5,7 @@ on:
     branches:
       - dev/real-data-baseline-run
       - dev/serve-return
+      - dev/foundational-families
     paths:
       - ".github/workflows/research_baselines.yml"
       - "src/**"
@@ -18,7 +19,7 @@ permissions:
 jobs:
   baseline-research:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
       ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
@@ -153,6 +154,26 @@ jobs:
             --min-train-matches 1000 \
             > artifacts/research_baselines/exp003_wta.json
 
+      - name: Run Foundational Family Lab ATP
+        run: |
+          python -m tennis_genome.experiments.family_lab \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --min-train-matches 1000 \
+            > artifacts/research_baselines/family_lab_atp.json
+
+      - name: Run Foundational Family Lab WTA
+        run: |
+          python -m tennis_genome.experiments.family_lab \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --min-train-matches 1000 \
+            > artifacts/research_baselines/family_lab_wta.json
+
       - name: Copy provenance manifests
         run: |
           cp data/research_processed/atp/atp_manifest.json artifacts/research_baselines/
@@ -203,6 +224,36 @@ jobs:
                       f"{base['brier']:.6f} | {challenger['brier']:.6f} | {db:+.6f} | "
                       f"{base['log_loss']:.6f} | {challenger['log_loss']:.6f} | {dl:+.6f} |"
                   )
+
+          lines.extend(
+              [
+                  "",
+                  "## Foundational family laboratory",
+                  "",
+                  "| Tour | Family | N | Add-one Δ Brier | Add-one Δ log loss | Brier winning years | Log-loss winning years | Ablation Brier contribution | Ablation log-loss contribution |",
+                  "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+              ]
+          )
+          for tour in ("atp", "wta"):
+              data = json.loads((root / f"family_lab_{tour}.json").read_text())
+              for family in data["families"]:
+                  lines.append(
+                      f"| {tour.upper()} | {family['family']} | {data['population_n']} | "
+                      f"{family['add_one_brier_improvement']:+.6f} | "
+                      f"{family['add_one_log_loss_improvement']:+.6f} | "
+                      f"{family['add_one_brier_winning_years']}/{family['evaluated_years']} | "
+                      f"{family['add_one_log_loss_winning_years']}/{family['evaluated_years']} | "
+                      f"{family['ablation_brier_contribution']:+.6f} | "
+                      f"{family['ablation_log_loss_contribution']:+.6f} |"
+                  )
+              lines.extend(
+                  [
+                      "",
+                      f"{tour.upper()} full-vs-core Δ Brier: {data['full_brier_improvement']:+.6f}; "
+                      f"Δ log loss: {data['full_log_loss_improvement']:+.6f}.",
+                  ]
+              )
+
           summary = "\n".join(lines) + "\n"
           (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
