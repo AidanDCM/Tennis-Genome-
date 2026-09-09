@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/source_manifest.schema.json",
+  "title": "Tennis Genome Canonical Dataset Manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "source_format",
+    "source_filename",
+    "source_sha256",
+    "source_metadata",
+    "tour",
+    "row_count",
+    "date_min",
+    "date_max",
+    "pre_match_filename",
+    "pre_match_sha256",
+    "outcome_filename",
+    "outcome_sha256"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "minLength": 1},
+    "source_format": {"type": "string", "minLength": 1},
+    "source_filename": {"type": "string", "minLength": 1},
+    "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "source_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "provider", "allowed_use_status", "notes"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "provider": {"type": "string", "minLength": 1},
+        "source_version": {"type": ["string", "null"]},
+        "license_name": {"type": ["string", "null"]},
+        "license_url": {"type": ["string", "null"]},
+        "allowed_use_status": {
+          "enum": [
+            "research_allowed",
+            "production_allowed",
+            "permission_required",
+            "unknown_do_not_use"
+          ]
+        },
+        "retrieved_at": {"type": ["string", "null"]},
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "tour": {"enum": ["ATP", "WTA"]},
+    "row_count": {"type": "integer", "minimum": 1},
+    "date_min": {"type": "string", "format": "date"},
+    "date_max": {"type": "string", "format": "date"},
+    "pre_match_filename": {"type": "string", "minLength": 1},
+    "pre_match_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "outcome_filename": {"type": "string", "minLength": 1},
+    "outcome_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "quality_warning_counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "built_at_utc": {"type": "string"},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}
