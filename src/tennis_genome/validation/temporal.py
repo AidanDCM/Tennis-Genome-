@@ -8,7 +8,11 @@ class TemporalLeakageError(ValueError):
     """Raised when information unavailable at prediction time is used."""
 
 
-def assert_available_before_t0(*, available_at: datetime, prediction_cutoff_at: datetime) -> None:
+def assert_available_before_t0(
+    *,
+    available_at: datetime,
+    prediction_cutoff_at: datetime,
+) -> None:
     """Assert a source record was available no later than prediction cutoff."""
     if available_at > prediction_cutoff_at:
         raise TemporalLeakageError(
@@ -18,7 +22,9 @@ def assert_available_before_t0(*, available_at: datetime, prediction_cutoff_at: 
 
 
 def assert_history_strictly_before_t0(
-    *, history_times: Iterable[datetime], prediction_cutoff_at: datetime
+    *,
+    history_times: Iterable[datetime],
+    prediction_cutoff_at: datetime,
 ) -> None:
     """Assert all rolling-history observations are strictly before T0."""
     illegal = [ts for ts in history_times if ts >= prediction_cutoff_at]
@@ -31,7 +37,10 @@ def assert_history_strictly_before_t0(
 
 
 def assert_neighbor_is_historical(
-    *, neighbor_t0: datetime, target_t0: datetime, neighbor_match_id: str | None = None
+    *,
+    neighbor_t0: datetime,
+    target_t0: datetime,
+    neighbor_match_id: str | None = None,
 ) -> None:
     """Prevent future/self-period neighbors in Tennis Genome retrieval."""
     if neighbor_t0 >= target_t0:
