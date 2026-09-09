@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState
+from tennis_genome.data.canonical import (
+    HistoricalMatch,
+    MatchOutcome,
+    PreMatchState,
+    Surface,
+)
 
 
 def make_match(
@@ -14,6 +19,7 @@ def make_match(
     a_won: bool,
     rank_a: int | None = None,
     rank_b: int | None = None,
+    surface: Surface = "Hard",
     retirement: bool = False,
     walkover: bool = False,
 ) -> HistoricalMatch:
@@ -25,7 +31,7 @@ def make_match(
         tournament_id="test",
         tournament_name="Test Event",
         tournament_level="A",
-        surface="Hard",
+        surface=surface,
         round="R32",
         best_of=3,
         player_a_id=player_a_id,
