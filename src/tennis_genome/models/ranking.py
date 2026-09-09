@@ -28,7 +28,11 @@ class RankingLogitModel:
             raise ValueError("rank values must be positive")
         return log(rank_b / rank_a)
 
-    def fit(self, rank_pairs: list[tuple[int, int]], outcomes: list[bool]) -> RankingLogitModel:
+    def fit(
+        self,
+        rank_pairs: list[tuple[int, int]],
+        outcomes: list[bool],
+    ) -> RankingLogitModel:
         if len(rank_pairs) != len(outcomes) or not rank_pairs:
             raise ValueError("rank_pairs and outcomes must have equal non-zero length")
         labels = {bool(value) for value in outcomes}
