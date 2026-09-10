@@ -1,0 +1,117 @@
+name: Recent Family Diagnostic
+
+on:
+  push:
+    branches:
+      - dev/foundational-families
+    paths:
+      - ".github/workflows/recent_family_diagnostic.yml"
+      - "src/tennis_genome/experiments/family_recent_diagnostic.py"
+      - "src/tennis_genome/experiments/family_lab.py"
+      - "src/tennis_genome/features/foundational.py"
+      - "src/tennis_genome/data/**"
+      - "tests/test_family_recent_diagnostic.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recent-family-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Download pinned research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "${url}"
+            done
+          done
+
+      - name: Build canonical research datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tour in atp wta; do
+            mkdir -p "data/research_processed/${tour}"
+            args=()
+            for year in $(seq "$START_YEAR" "$END_YEAR"); do
+              args+=(--input "data/research_raw/${tour}/${tour}_matches_${year}.csv")
+            done
+            upper=$(echo "$tour" | tr '[:lower:]' '[:upper:]')
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour "$upper" \
+              --output-dir "data/research_processed/${tour}" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-${tour}-${START_YEAR}-${END_YEAR}" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "$LICENSE_NAME" \
+              --license-url "$LICENSE_URL" \
+              --allowed-use-status research_allowed \
+              > "data/research_processed/${tour}/build_output.json"
+          done
+
+      - name: Run ATP recent diagnostic
+        run: |
+          mkdir -p artifacts/recent_family_diagnostic
+          python -m tennis_genome.experiments.family_recent_diagnostic \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --min-train-matches 1000 \
+            --recent-years 5 \
+            > artifacts/recent_family_diagnostic/atp_recent.json
+
+      - name: Run WTA recent diagnostic
+        run: |
+          python -m tennis_genome.experiments.family_recent_diagnostic \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --min-train-matches 1000 \
+            --recent-years 5 \
+            > artifacts/recent_family_diagnostic/wta_recent.json
+
+      - name: Copy provenance manifests
+        run: |
+          cp data/research_processed/atp/atp_manifest.json artifacts/recent_family_diagnostic/
+          cp data/research_processed/wta/wta_manifest.json artifacts/recent_family_diagnostic/
+
+      - name: Upload recent diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-recent-family-diagnostic
+          path: artifacts/recent_family_diagnostic/
+          if-no-files-found: error
+          retention-days: 30
