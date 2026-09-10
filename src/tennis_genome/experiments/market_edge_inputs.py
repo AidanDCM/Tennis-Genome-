@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import cast
 
@@ -59,6 +60,24 @@ def _required_float(value: object, *, name: str) -> float:
     return result
 
 
+def _timestamp(value: object, *, name: str) -> datetime:
+    text = str(value)
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError(f"{name} must be an ISO-8601 timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{name} must be timezone-aware")
+    return parsed
+
+
+def _sha256_text(value: object, *, name: str) -> str:
+    text = str(value)
+    if len(text) != 64 or any(character not in "0123456789abcdef" for character in text.lower()):
+        raise ValueError(f"{name} must be a 64-character SHA-256 hex digest")
+    return text.lower()
+
+
 def load_closing_market_rows(path: str | Path) -> dict[str, ClosingMarketRow]:
     """Load executable CLOSE_PREPLAY rows from a MARKET-HIST-001 artifact."""
 
@@ -89,13 +108,50 @@ def load_closing_market_rows(path: str | Path) -> dict[str, ClosingMarketRow]:
                 continue
             if checkpoint.get("executable_two_way") is not True:
                 continue
-            if not float(checkpoint["seconds_to_start"]) > 0.0:
+
+            seconds_to_start = _required_float(
+                checkpoint.get("seconds_to_start"),
+                name="seconds_to_start",
+            )
+            if seconds_to_start <= 0.0:
                 raise ValueError("CLOSE_PREPLAY checkpoint is not strictly pre-match")
+            published_text = str(checkpoint["published_at"])
+            market_time_text = str(checkpoint["market_time"])
+            published_at = _timestamp(published_text, name="published_at")
+            market_time = _timestamp(market_time_text, name="market_time")
+            actual_seconds_to_start = (market_time - published_at).total_seconds()
+            if actual_seconds_to_start <= 0.0:
+                raise ValueError("CLOSE_PREPLAY timestamp is not strictly before market time")
+            if not math.isclose(
+                actual_seconds_to_start,
+                seconds_to_start,
+                rel_tol=0.0,
+                abs_tol=1e-3,
+            ):
+                raise ValueError("CLOSE_PREPLAY seconds_to_start disagrees with timestamps")
+
             match_id = str(join["match_id"])
+            source_market_id = str(record["source_market_id"])
+            if str(checkpoint.get("match_id")) != match_id:
+                raise ValueError("CLOSE_PREPLAY match_id disagrees with join")
+            if str(checkpoint.get("source_market_id")) != source_market_id:
+                raise ValueError("CLOSE_PREPLAY source_market_id disagrees with market record")
+            join_hash = _sha256_text(join.get("join_hash"), name="join.join_hash")
+            checkpoint_join_hash = _sha256_text(
+                checkpoint.get("join_hash"),
+                name="checkpoint.join_hash",
+            )
+            if checkpoint_join_hash != join_hash:
+                raise ValueError("CLOSE_PREPLAY join_hash disagrees with join")
+            record_hash = _sha256_text(
+                checkpoint.get("record_hash"),
+                name="checkpoint.record_hash",
+            )
             if match_id in result:
                 raise ValueError(
                     f"multiple executable Betfair closing markets joined to {match_id}"
                 )
+
             back_a = _required_float(checkpoint.get("best_back_a"), name="best_back_a")
             lay_a = _required_float(checkpoint.get("best_lay_a"), name="best_lay_a")
             back_b = _required_float(checkpoint.get("best_back_b"), name="best_back_b")
@@ -106,22 +162,18 @@ def load_closing_market_rows(path: str | Path) -> dict[str, ClosingMarketRow]:
                 back_b=back_b,
                 lay_b=lay_b,
             )
-            market_time = str(checkpoint["market_time"])
-            published_at = str(checkpoint["published_at"])
-            if published_at >= market_time:
-                raise ValueError("CLOSE_PREPLAY timestamp is not strictly before market time")
             result[match_id] = ClosingMarketRow(
                 match_id=match_id,
                 tour=_tour(join["tour"]),
-                source_market_id=str(record["source_market_id"]),
+                source_market_id=source_market_id,
                 market_probability_a=fair.probability_a,
                 market_probability_b=fair.probability_b,
                 best_back_a=back_a,
                 best_lay_a=lay_a,
                 best_back_b=back_b,
                 best_lay_b=lay_b,
-                published_at=published_at,
-                market_time=market_time,
+                published_at=published_text,
+                market_time=market_time_text,
                 market_total_matched=(
                     None
                     if checkpoint.get("market_total_matched") is None
@@ -138,14 +190,14 @@ def load_closing_market_rows(path: str | Path) -> dict[str, ClosingMarketRow]:
                         name="market_base_rate",
                     )
                 ),
-                record_hash=str(checkpoint["record_hash"]),
-                join_hash=str(checkpoint["join_hash"]),
+                record_hash=record_hash,
+                join_hash=join_hash,
             )
     return result
 
 
 def load_settled_outcomes(path: str | Path) -> dict[str, SettledOutcome]:
-    """Load only settled, non-walkover canonical outcomes for evaluation."""
+    """Load completed, non-retirement, non-walkover outcomes for evaluation."""
 
     frame = pd.read_parquet(Path(path))
     required = {"match_id", "a_won", "retirement", "walkover"}
@@ -157,7 +209,10 @@ def load_settled_outcomes(path: str | Path) -> dict[str, SettledOutcome]:
     result: dict[str, SettledOutcome] = {}
     for row in frame.itertuples(index=False):
         values = row._asdict()
-        if bool(values["walkover"]):
+        for field in ("a_won", "retirement", "walkover"):
+            if pd.isna(values[field]):
+                raise ValueError(f"outcome field {field} cannot be missing")
+        if bool(values["walkover"]) or bool(values["retirement"]):
             continue
         match_id = str(values["match_id"])
         result[match_id] = SettledOutcome(
