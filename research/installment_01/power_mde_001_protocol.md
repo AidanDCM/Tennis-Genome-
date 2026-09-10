@@ -84,6 +84,12 @@ For power planning, construct the earlier-row design matrix:
 X = [1, logit(p_market), z(signal)]
 ```
 
+Use the same probability clipping boundary as MARKET-EDGE-001 for the logit transform:
+
+```text
+p_market in [1e-6, 1 - 1e-6]
+```
+
 Under the null `beta = 0`, use `p_market` only to construct Bernoulli Fisher weights:
 
 ```text
@@ -97,8 +103,8 @@ The planning standard error for `beta` is:
 SE_beta = sqrt((I^-1)[beta,beta])
 ```
 
-A singular or ill-conditioned information matrix is reported as non-identifiable rather than
-silently regularized.
+A rank-deficient information matrix or a condition number `>= 1e12` is reported as
+non-identifiable rather than silently regularized.
 
 ## Multiplicity-aware alpha
 
