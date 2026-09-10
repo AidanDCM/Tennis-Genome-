@@ -1,6 +1,5 @@
-from tests.test_family_lab import _match
-
 from tennis_genome.experiments.core_holdout import run_core_holdout
+from tests.test_family_lab import _match
 
 
 def test_core_holdout_freezes_mapping_and_scores_future_year() -> None:
