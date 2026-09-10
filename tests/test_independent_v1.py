@@ -127,6 +127,9 @@ def test_market_and_outcome_fields_fail_closed_recursively() -> None:
         "stake_units",
         "outcome_player_a_won",
         "realized_profit_units",
+        "sportsbook_odds",
+        "market_price",
+        "closing_line_price",
     ):
         with pytest.raises(ValueError, match="forbidden"):
             reject_market_or_outcome_fields({"match_id": "m1", forbidden: 1})
@@ -136,7 +139,7 @@ def test_market_and_outcome_fields_fail_closed_recursively() -> None:
 
 def test_prediction_rejects_market_data_hidden_in_diagnostics() -> None:
     with pytest.raises(ValueError, match="forbidden"):
-        _prediction(diagnostics={"odds": 2.1})
+        _prediction(diagnostics={"sportsbook_odds": 2.1})
 
 
 def test_independent_schema_contains_no_market_or_outcome_properties() -> None:
