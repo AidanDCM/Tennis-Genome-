@@ -16,6 +16,8 @@ from tennis_genome.experiments.market_edge_inputs import (
     load_settled_outcomes,
 )
 
+_DEVELOPMENT_END_YEAR = 2025
+
 
 @dataclass(frozen=True)
 class ClaimCoverage:
@@ -55,6 +57,11 @@ def _build_claim(
         tour=tour,
         signal_name=signal_name,
     )
+    forbidden = [row.match_id for row in rows if row.year > _DEVELOPMENT_END_YEAR]
+    if forbidden:
+        raise ValueError(
+            "MARKET-EDGE-001 is frozen through 2025; post-2025 rows are forbidden"
+        )
     return rows, ClaimCoverage(
         tour=tour,
         signal_name=signal_name,
