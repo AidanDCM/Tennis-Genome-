@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_validation_preoutcome_seal.schema.json",
+  "title": "MARKET-VALIDATION-RUNNER-v1 pre-outcome seal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "seal_version",
+    "created_at",
+    "source_bundle_sha256",
+    "source_manifest_sha256",
+    "market_hist_records_sha256",
+    "market_hist_qa_sha256",
+    "power_mde_sha256",
+    "pre_match_sha256",
+    "profile_gap_atp_sha256",
+    "profile_gap_wta_sha256",
+    "genome_atp_sha256",
+    "genome_wta_sha256",
+    "qa_outcomes_sha256",
+    "qa_tour_status",
+    "power_outcome_blind",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-VALIDATION-RUNNER-v1"},
+    "seal_version": {"const": "market-validation-preoutcome-seal-v1"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source_bundle_sha256": {"$ref": "#/$defs/sha256"},
+    "source_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "market_hist_records_sha256": {"$ref": "#/$defs/sha256"},
+    "market_hist_qa_sha256": {"$ref": "#/$defs/sha256"},
+    "power_mde_sha256": {"$ref": "#/$defs/sha256"},
+    "pre_match_sha256": {"$ref": "#/$defs/sha256"},
+    "profile_gap_atp_sha256": {"$ref": "#/$defs/sha256"},
+    "profile_gap_wta_sha256": {"$ref": "#/$defs/sha256"},
+    "genome_atp_sha256": {"$ref": "#/$defs/sha256"},
+    "genome_wta_sha256": {"$ref": "#/$defs/sha256"},
+    "qa_outcomes_sha256": {"$ref": "#/$defs/sha256"},
+    "qa_tour_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ATP", "WTA"],
+      "properties": {
+        "ATP": {"const": "ELIGIBLE_CONFIRMATORY"},
+        "WTA": {"const": "ELIGIBLE_CONFIRMATORY"}
+      }
+    },
+    "power_outcome_blind": {"const": true},
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
