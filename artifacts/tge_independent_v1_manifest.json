@@ -1,0 +1,52 @@
+{
+  "model_version": "TGE-Independent-v1",
+  "spec_version": "1.0.0",
+  "architecture_hash": "bd7b13c780fdae07c19be2bbaf159e6d0ac26dc27afeb14711ccbc1e7c8e0432",
+  "development_data_end_year": 2025,
+  "market_blind": true,
+  "hard_pass_policy_promoted": false,
+  "scientific_status": "development_frozen_not_independently_forward_validated_as_complete_architecture",
+  "research_evidence": [
+    {
+      "experiment": "CORE-V1-SEALED-HOLDOUT",
+      "role": "forward confirmation of Core v1 only",
+      "note": "Partial-2026 holdout is spent and unavailable for validating later components."
+    },
+    {
+      "experiment": "GENOME-ADV-001",
+      "role": "tour-specific historical-alignment architecture",
+      "decision": "ATP full Genome; WTA strict-Core geometry"
+    },
+    {
+      "experiment": "UNCERTAINTY-OOD-001",
+      "role": "diagnostics only",
+      "decision": "ATP conditioned unfamiliarity; WTA model disagreement; no universal composite"
+    },
+    {
+      "experiment": "FUSION-CAL-001",
+      "role": "reject unnecessary extra fusion/calibration",
+      "decision": "retain simpler tour-specific historical-alignment architecture"
+    },
+    {
+      "experiment": "POINTSIM-ADV-001",
+      "workflow_run": 34493151233,
+      "artifact_id": 10159299587,
+      "artifact_digest": "sha256:92ab7f6ed87b4bfb0efb27dded138efeb4e6778d407ae8c7ed18e1e8e829f817",
+      "role": "WTA conditional residual component",
+      "decision": "PASS historical development gate"
+    }
+  ],
+  "prohibited_inputs": [
+    "bookmaker",
+    "odds",
+    "market_probability",
+    "market_novig_probability",
+    "edge",
+    "expected_value",
+    "stake",
+    "closing_line_value",
+    "realized_outcome",
+    "realized_profit"
+  ],
+  "next_layer": "production-compatible data and market snapshot system"
+}
