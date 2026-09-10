@@ -11,6 +11,7 @@ from tennis_genome.experiments.market_edge_adv_pipeline import (
     build_market_edge_adversarial_artifact,
 )
 from tennis_genome.experiments.market_edge_pipeline import build_market_edge_artifact
+from tennis_genome.market.historical_manifest import load_historical_source_manifest
 
 _EXPERIMENT_ID = "MARKET-VALIDATION-RUN-001"
 _STAGE = "OUTCOME_LOCKED_COMPLETE"
@@ -21,6 +22,20 @@ _CLAIMS = (
     ("ATP", "genome"),
     ("WTA", "genome"),
 )
+_CONFIRMATORY_QA_STATUS = "ELIGIBLE_CONFIRMATORY"
+_REQUIRED_QA_GATES = {
+    "overall_close_coverage_at_least_60pct",
+    "every_recent_year_close_coverage_at_least_50pct",
+    "every_recent_year_at_least_100_rows",
+    "at_least_1000_prior_rows_before_first_evaluation_year",
+    "at_least_five_evaluation_years",
+    "all_2021_2025_years_in_evaluation_population",
+    "passed",
+}
+_POWER_FAMILY_ALPHA = 0.05
+_POWER_FAMILY_SIZE = 4
+_POWER_PLANNING_ALPHA = 0.0125
+_POWER_MIN_PRIOR_ROWS = 1000
 
 
 @dataclass(frozen=True)
@@ -39,6 +54,7 @@ class OutcomeUnlockSeal:
     qa_artifact_sha256: str
     qa_effective_overall_status: str
     qa_tour_status: dict[str, str]
+    qa_outcomes_sha256: str
     power_mde_artifact_sha256: str
     power_claims: tuple[PowerClaimSeal, ...]
     seal_sha256: str
@@ -86,6 +102,13 @@ def _payload_sha256(payload: object) -> str:
     return hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
 
 
+def _valid_sha256(value: object, *, label: str) -> str:
+    text = str(value).lower()
+    if len(text) != 64 or any(char not in "0123456789abcdef" for char in text):
+        raise ValueError(f"{label} must be a lowercase SHA-256")
+    return text
+
+
 def _load_json_object(path: str | Path, *, label: str) -> dict[str, Any]:
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -94,13 +117,14 @@ def _load_json_object(path: str | Path, *, label: str) -> dict[str, Any]:
 
 
 def _verify_self_digest(payload: dict[str, Any], *, label: str) -> str:
-    digest = payload.get("artifact_sha256")
-    if not isinstance(digest, str) or len(digest) != 64:
-        raise ValueError(f"{label} lacks a valid artifact_sha256")
+    digest = _valid_sha256(
+        payload.get("artifact_sha256"),
+        label=f"{label}.artifact_sha256",
+    )
     unsigned = dict(payload)
     unsigned.pop("artifact_sha256", None)
     expected = _payload_sha256(unsigned)
-    if digest.lower() != expected:
+    if digest != expected:
         raise ValueError(f"{label} artifact_sha256 mismatch")
     return expected
 
@@ -108,14 +132,17 @@ def _verify_self_digest(payload: dict[str, Any], *, label: str) -> str:
 def _qa_tour_status(qa: dict[str, Any]) -> dict[str, str]:
     if qa.get("experiment_id") != "MARKET-HIST-QA-001":
         raise ValueError("unexpected MARKET-HIST-QA experiment ID")
-    if qa.get("effective_overall_status") == "BLOCKED_STRUCTURAL":
-        raise ValueError("MARKET-HIST-QA is structurally blocked")
+    if qa.get("effective_overall_status") != _CONFIRMATORY_QA_STATUS:
+        raise ValueError("MARKET-HIST-QA effective status is not confirmatory")
     report = qa.get("qa_report")
     if not isinstance(report, dict):
         raise ValueError("MARKET-HIST-QA lacks qa_report")
+    if report.get("overall_status") != _CONFIRMATORY_QA_STATUS:
+        raise ValueError("MARKET-HIST-QA report status is not confirmatory")
     tours = report.get("tours")
     if not isinstance(tours, list):
         raise ValueError("MARKET-HIST-QA qa_report.tours must be a list")
+
     result: dict[str, str] = {}
     for row in tours:
         if not isinstance(row, dict):
@@ -123,13 +150,22 @@ def _qa_tour_status(qa: dict[str, Any]) -> dict[str, str]:
         tour = str(row.get("tour", ""))
         if tour not in {"ATP", "WTA"} or tour in result:
             raise ValueError("MARKET-HIST-QA tour rows must contain unique ATP and WTA")
-        result[tour] = str(row.get("status", ""))
+        status = str(row.get("status", ""))
+        gates = row.get("gates")
+        if not isinstance(gates, dict):
+            raise ValueError(f"MARKET-HIST-QA {tour} row lacks coverage gates")
+        if set(gates) != _REQUIRED_QA_GATES:
+            raise ValueError(f"MARKET-HIST-QA {tour} gate set differs from frozen design")
+        if any(gates[name] is not True for name in _REQUIRED_QA_GATES):
+            raise ValueError(f"MARKET-HIST-QA {tour} has a failed frozen coverage gate")
+        result[tour] = status
+
     if set(result) != {"ATP", "WTA"}:
         raise ValueError("MARKET-HIST-QA must report ATP and WTA")
     blocked = [
         tour
         for tour in ("ATP", "WTA")
-        if result[tour] != "ELIGIBLE_CONFIRMATORY"
+        if result[tour] != _CONFIRMATORY_QA_STATUS
     ]
     if blocked:
         raise ValueError(
@@ -145,14 +181,18 @@ def _verify_artifact_input_hashes(
     actual: dict[str, str],
     required_names: tuple[str, ...],
     label: str,
-) -> None:
+) -> dict[str, str]:
     stored = payload.get("input_sha256")
     if not isinstance(stored, dict):
         raise ValueError(f"{label} lacks input_sha256")
+    normalized = {
+        str(name): _valid_sha256(value, label=f"{label}.input_sha256.{name}")
+        for name, value in stored.items()
+    }
     for name in required_names:
-        value = stored.get(name)
-        if not isinstance(value, str) or value.lower() != actual[name]:
+        if normalized.get(name) != actual[name]:
             raise ValueError(f"{label} input hash mismatch for {name}")
+    return normalized
 
 
 def _power_claims(power: dict[str, Any]) -> tuple[PowerClaimSeal, ...]:
@@ -160,6 +200,13 @@ def _power_claims(power: dict[str, Any]) -> tuple[PowerClaimSeal, ...]:
         raise ValueError("unexpected POWER-MDE experiment ID")
     if power.get("outcome_blind") is not True:
         raise ValueError("POWER-MDE artifact must declare outcome_blind=true")
+    if power.get("family_size") != _POWER_FAMILY_SIZE:
+        raise ValueError("POWER-MDE family_size differs from frozen design")
+    if power.get("family_alpha") != _POWER_FAMILY_ALPHA:
+        raise ValueError("POWER-MDE family_alpha differs from frozen design")
+    if power.get("conservative_planning_alpha") != _POWER_PLANNING_ALPHA:
+        raise ValueError("POWER-MDE planning alpha differs from frozen design")
+
     claims = power.get("claims")
     if not isinstance(claims, list) or len(claims) != len(_CLAIMS):
         raise ValueError("POWER-MDE artifact must contain exactly four claims")
@@ -173,6 +220,15 @@ def _power_claims(power: dict[str, Any]) -> tuple[PowerClaimSeal, ...]:
         if key not in _CLAIMS or key in seen:
             raise ValueError("POWER-MDE claims are missing, duplicated, or unexpected")
         seen.add(key)
+        if claim.get("min_prior_rows") != _POWER_MIN_PRIOR_ROWS:
+            raise ValueError("POWER-MDE min_prior_rows differs from frozen design")
+        if claim.get("family_size") != _POWER_FAMILY_SIZE:
+            raise ValueError("POWER-MDE claim family_size differs from frozen design")
+        if claim.get("family_alpha") != _POWER_FAMILY_ALPHA:
+            raise ValueError("POWER-MDE claim family_alpha differs from frozen design")
+        if claim.get("conservative_planning_alpha") != _POWER_PLANNING_ALPHA:
+            raise ValueError("POWER-MDE claim planning alpha differs from frozen design")
+
         plans = claim.get("year_plans")
         if not isinstance(plans, list):
             raise ValueError(f"POWER-MDE {key} lacks year_plans")
@@ -250,15 +306,21 @@ def create_outcome_unlock_seal(
     )
     hashes = {name: _sha256_file(path) for name, path in sorted(paths.items())}
 
+    # Validate provider/package/date semantics, not only the manifest file hash.
+    load_historical_source_manifest(paths["source_manifest"])
+
     qa = _load_json_object(paths["market_hist_qa"], label="MARKET-HIST-QA artifact")
     qa_digest = _verify_self_digest(qa, label="MARKET-HIST-QA artifact")
     qa_status = _qa_tour_status(qa)
-    _verify_artifact_input_hashes(
+    qa_hashes = _verify_artifact_input_hashes(
         qa,
         actual=hashes,
         required_names=("source_manifest", "market_hist_records", "pre_match"),
         label="MARKET-HIST-QA artifact",
     )
+    qa_outcomes_sha = qa_hashes.get("outcomes")
+    if qa_outcomes_sha is None:
+        raise ValueError("MARKET-HIST-QA artifact lacks outcomes input hash")
 
     power = _load_json_object(paths["power_mde"], label="POWER-MDE artifact")
     power_digest = _verify_self_digest(power, label="POWER-MDE artifact")
@@ -285,6 +347,7 @@ def create_outcome_unlock_seal(
         "qa_artifact_sha256": qa_digest,
         "qa_effective_overall_status": str(qa.get("effective_overall_status", "")),
         "qa_tour_status": qa_status,
+        "qa_outcomes_sha256": qa_outcomes_sha,
         "power_mde_artifact_sha256": power_digest,
         "power_claims": [asdict(row) for row in claims],
     }
@@ -297,6 +360,7 @@ def create_outcome_unlock_seal(
         qa_artifact_sha256=qa_digest,
         qa_effective_overall_status=str(qa.get("effective_overall_status", "")),
         qa_tour_status=qa_status,
+        qa_outcomes_sha256=qa_outcomes_sha,
         power_mde_artifact_sha256=power_digest,
         power_claims=claims,
         seal_sha256=seal_digest,
@@ -310,13 +374,12 @@ def _verify_seal(payload: dict[str, Any]) -> str:
         raise ValueError("MARKET-VALIDATION-RUN seal is not outcome-unlocked")
     if payload.get("winner_outcomes_permitted_for_stage_b") is not True:
         raise ValueError("MARKET-VALIDATION-RUN seal does not permit Stage B")
-    digest = payload.get("seal_sha256")
-    if not isinstance(digest, str) or len(digest) != 64:
-        raise ValueError("MARKET-VALIDATION-RUN seal lacks valid seal_sha256")
+    _valid_sha256(payload.get("qa_outcomes_sha256"), label="seal.qa_outcomes_sha256")
+    digest = _valid_sha256(payload.get("seal_sha256"), label="seal.seal_sha256")
     unsigned = dict(payload)
     unsigned.pop("seal_sha256", None)
     expected = _payload_sha256(unsigned)
-    if digest.lower() != expected:
+    if digest != expected:
         raise ValueError("MARKET-VALIDATION-RUN seal digest mismatch")
     return expected
 
@@ -337,6 +400,8 @@ def _verify_stage_b_inputs(
         current = _sha256_file(path)
         if str(stored_hashes.get(name, "")).lower() != current:
             raise ValueError(f"sealed Stage A file changed before Stage B: {name}")
+
+    load_historical_source_manifest(paths["source_manifest"])
 
     qa = _load_json_object(paths["market_hist_qa"], label="MARKET-HIST-QA artifact")
     qa_digest = _verify_self_digest(qa, label="MARKET-HIST-QA artifact")
@@ -365,8 +430,11 @@ def run_outcome_open_stage(
     profile_gap_wta: str | Path,
     genome_atp: str | Path,
     genome_wta: str | Path,
-    min_prior_rows: int = 1000,
+    min_prior_rows: int = _POWER_MIN_PRIOR_ROWS,
 ) -> MarketValidationResultBundle:
+    if min_prior_rows != _POWER_MIN_PRIOR_ROWS:
+        raise ValueError("MARKET-VALIDATION-RUN-001 min_prior_rows is frozen at 1000")
+
     sealed_paths = _sealed_paths(
         source_manifest=source_manifest,
         market_hist_records=market_hist_records,
@@ -383,7 +451,12 @@ def run_outcome_open_stage(
         paths=sealed_paths,
     )
 
-    # Winner outcomes are not read until every Stage A artifact/hash check above succeeds.
+    # This is the first Stage-B access to the outcome file. Bind it to the exact
+    # file whose completion/retirement metadata MARKET-HIST-QA used at Stage A.
+    outcomes_digest = _sha256_file(outcomes)
+    if outcomes_digest != seal.get("qa_outcomes_sha256"):
+        raise ValueError("outcomes file differs from the file frozen by MARKET-HIST-QA")
+
     edge = build_market_edge_artifact(
         market_hist_records=market_hist_records,
         pre_match=pre_match,
@@ -392,7 +465,7 @@ def run_outcome_open_stage(
         profile_gap_wta=profile_gap_wta,
         genome_atp=genome_atp,
         genome_wta=genome_wta,
-        min_prior_rows=min_prior_rows,
+        min_prior_rows=_POWER_MIN_PRIOR_ROWS,
     )
     edge_adv = build_market_edge_adversarial_artifact(
         market_hist_qa=market_hist_qa,
@@ -403,14 +476,13 @@ def run_outcome_open_stage(
         profile_gap_wta=profile_gap_wta,
         genome_atp=genome_atp,
         genome_wta=genome_wta,
-        min_prior_rows=min_prior_rows,
+        min_prior_rows=_POWER_MIN_PRIOR_ROWS,
     )
     edge_dict = edge.to_dict()
     edge_adv_dict = edge_adv.to_dict()
     edge_digest = _payload_sha256(edge_dict)
     edge_adv_digest = _payload_sha256(edge_adv_dict)
     sealed_hashes = cast(dict[str, str], seal["sealed_file_sha256"])
-    outcomes_digest = _sha256_file(outcomes)
     unsigned: dict[str, object] = {
         "experiment_id": _EXPERIMENT_ID,
         "stage": "OUTCOME_OPEN_COMPLETE",
@@ -477,7 +549,7 @@ def _parse_args() -> argparse.Namespace:
     _add_shared(run)
     run.add_argument("--seal", required=True, type=Path)
     run.add_argument("--outcomes", required=True, type=Path)
-    run.add_argument("--min-prior-rows", type=int, default=1000)
+    run.add_argument("--min-prior-rows", type=int, default=_POWER_MIN_PRIOR_ROWS)
     run.add_argument("--output", required=True, type=Path)
     return parser.parse_args()
 
