@@ -19,6 +19,7 @@
     "decimal_odds_b",
     "source_event_id",
     "source_payload_sha256",
+    "identity_resolution_hash",
     "is_live",
     "is_suspended"
   ],
@@ -43,7 +44,7 @@
     "is_live": {"type": "boolean"},
     "is_suspended": {"type": "boolean"},
     "identity_resolution_hash": {
-      "type": ["string", "null"],
+      "type": "string",
       "pattern": "^[0-9a-f]{64}$"
     }
   },
