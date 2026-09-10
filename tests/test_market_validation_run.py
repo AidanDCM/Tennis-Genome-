@@ -13,6 +13,10 @@ from tennis_genome.experiments.market_validation_run import (
     create_outcome_unlock_seal,
     run_outcome_open_stage,
 )
+from tennis_genome.market.historical_manifest import (
+    build_historical_source_manifest,
+    write_historical_source_manifest,
+)
 
 
 def _canonical_json_bytes(value: object) -> bytes:
@@ -42,18 +46,44 @@ def _write_self_hashed(path: Path, payload: dict[str, object]) -> None:
     _write_json(path, unsigned)
 
 
+def _qa_gates(*, passed: bool = True) -> dict[str, bool]:
+    return {
+        "overall_close_coverage_at_least_60pct": passed,
+        "every_recent_year_close_coverage_at_least_50pct": passed,
+        "every_recent_year_at_least_100_rows": passed,
+        "at_least_1000_prior_rows_before_first_evaluation_year": passed,
+        "at_least_five_evaluation_years": passed,
+        "all_2021_2025_years_in_evaluation_population": passed,
+        "passed": passed,
+    }
+
+
 def _base_files(tmp_path: Path) -> dict[str, Path]:
-    names = (
-        "source_manifest",
-        "market_hist_records",
-        "pre_match",
-        "profile_gap_atp",
-        "profile_gap_wta",
-        "genome_atp",
-        "genome_wta",
+    source_root = tmp_path / "source"
+    source_root.mkdir()
+    source_file = source_root / "bundle.jsonl"
+    source_file.write_text("synthetic-betfair-source\n", encoding="utf-8")
+    manifest = build_historical_source_manifest(
+        root=source_root,
+        data_package="ADVANCED",
+        requested_start_date="2020-01-01",
+        requested_end_date="2025-12-31",
     )
-    result: dict[str, Path] = {}
-    for index, name in enumerate(names):
+    source_manifest = tmp_path / "source_manifest.json"
+    write_historical_source_manifest(manifest, source_manifest)
+
+    result: dict[str, Path] = {"source_manifest": source_manifest}
+    for index, name in enumerate(
+        (
+            "market_hist_records",
+            "pre_match",
+            "outcomes",
+            "profile_gap_atp",
+            "profile_gap_wta",
+            "genome_atp",
+            "genome_wta",
+        )
+    ):
         path = tmp_path / f"{name}.dat"
         path.write_text(f"{name}-{index}\n", encoding="utf-8")
         result[name] = path
@@ -64,15 +94,26 @@ def _qa_payload(
     files: dict[str, Path],
     *,
     wta_status: str = "ELIGIBLE_CONFIRMATORY",
+    overall_status: str = "ELIGIBLE_CONFIRMATORY",
+    wta_gates_passed: bool = True,
 ) -> dict[str, object]:
     return {
         "experiment_id": "MARKET-HIST-QA-001",
-        "effective_overall_status": "ELIGIBLE_CONFIRMATORY",
+        "effective_overall_status": overall_status,
         "qa_report": {
+            "overall_status": overall_status,
             "tours": [
-                {"tour": "ATP", "status": "ELIGIBLE_CONFIRMATORY"},
-                {"tour": "WTA", "status": wta_status},
-            ]
+                {
+                    "tour": "ATP",
+                    "status": "ELIGIBLE_CONFIRMATORY",
+                    "gates": _qa_gates(),
+                },
+                {
+                    "tour": "WTA",
+                    "status": wta_status,
+                    "gates": _qa_gates(passed=wta_gates_passed),
+                },
+            ],
         },
         "checkpoint_coverage": [],
         "companion_structural_errors": [],
@@ -80,7 +121,7 @@ def _qa_payload(
             "source_manifest": _file_sha256(files["source_manifest"]),
             "market_hist_records": _file_sha256(files["market_hist_records"]),
             "pre_match": _file_sha256(files["pre_match"]),
-            "outcomes": "0" * 64,
+            "outcomes": _file_sha256(files["outcomes"]),
         },
     }
 
@@ -90,6 +131,7 @@ def _power_payload(
     *,
     outcome_blind: bool = True,
     missing_recent_year: int | None = None,
+    family_size: int = 4,
 ) -> dict[str, object]:
     claims = []
     for tour, signal in (
@@ -107,6 +149,10 @@ def _power_payload(
                 "experiment_id": "POWER-MDE-001",
                 "tour": tour,
                 "signal_name": signal,
+                "min_prior_rows": 1000,
+                "family_alpha": 0.05,
+                "family_size": 4,
+                "conservative_planning_alpha": 0.0125,
                 "year_plans": plans,
             }
         )
@@ -114,6 +160,9 @@ def _power_payload(
         "experiment_id": "POWER-MDE-001",
         "outcome_blind": outcome_blind,
         "method": "synthetic",
+        "family_alpha": 0.05,
+        "family_size": family_size,
+        "conservative_planning_alpha": 0.0125,
         "claims": claims,
         "input_sha256": {
             name: _file_sha256(files[name])
@@ -158,13 +207,14 @@ def test_stage_a_has_no_outcomes_argument():
     assert "outcomes_path" not in parameters
 
 
-def test_stage_a_is_deterministic(tmp_path: Path):
+def test_stage_a_is_deterministic_and_binds_qa_outcome_hash(tmp_path: Path):
     files, qa, power = _fixture(tmp_path)
     first = create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
     second = create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
     assert first == second
     assert first.stage == "OUTCOME_LOCKED_COMPLETE"
     assert first.winner_outcomes_permitted_for_stage_b is True
+    assert first.qa_outcomes_sha256 == _file_sha256(files["outcomes"])
     assert len(first.power_claims) == 4
     assert all(
         set(range(2021, 2026)).issubset(claim.identifiable_evaluation_years)
@@ -185,6 +235,25 @@ def test_stage_a_rejects_nonconfirmatory_tour(tmp_path: Path):
         create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
 
 
+def test_stage_a_rejects_inconsistent_qa_gate(tmp_path: Path):
+    files = _base_files(tmp_path)
+    qa = tmp_path / "qa.json"
+    power = tmp_path / "power.json"
+    _write_self_hashed(qa, _qa_payload(files, wta_gates_passed=False))
+    _write_self_hashed(power, _power_payload(files))
+    with pytest.raises(ValueError, match="failed frozen coverage gate"):
+        create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
+
+
+def test_stage_a_rejects_invalid_source_manifest_semantics(tmp_path: Path):
+    files, qa, power = _fixture(tmp_path)
+    payload = json.loads(files["source_manifest"].read_text(encoding="utf-8"))
+    payload["provider"] = "NOT_BETFAIR"
+    _write_json(files["source_manifest"], payload)
+    with pytest.raises(ValueError, match="provider or sport"):
+        create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
+
+
 def test_stage_a_rejects_non_outcome_blind_power(tmp_path: Path):
     files = _base_files(tmp_path)
     qa = tmp_path / "qa.json"
@@ -192,6 +261,16 @@ def test_stage_a_rejects_non_outcome_blind_power(tmp_path: Path):
     _write_self_hashed(qa, _qa_payload(files))
     _write_self_hashed(power, _power_payload(files, outcome_blind=False))
     with pytest.raises(ValueError, match="outcome_blind=true"):
+        create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
+
+
+def test_stage_a_rejects_wrong_power_family_settings(tmp_path: Path):
+    files = _base_files(tmp_path)
+    qa = tmp_path / "qa.json"
+    power = tmp_path / "power.json"
+    _write_self_hashed(qa, _qa_payload(files))
+    _write_self_hashed(power, _power_payload(files, family_size=3))
+    with pytest.raises(ValueError, match="family_size differs"):
         create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
 
 
@@ -244,7 +323,63 @@ def test_stage_b_rejects_changed_file_before_scoring(
     with pytest.raises(ValueError, match="changed before Stage B: genome_atp"):
         run_outcome_open_stage(
             seal_path=seal_path,
-            outcomes=tmp_path / "does-not-need-to-exist.parquet",
+            outcomes=files["outcomes"],
+            **_seal_kwargs(files, qa, power),
+        )
+    assert called is False
+
+
+def test_stage_b_rejects_different_outcome_file_before_scoring(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    files, qa, power = _fixture(tmp_path)
+    seal = create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
+    seal_path = tmp_path / "seal.json"
+    _write_json(seal_path, seal.to_dict())
+    different = tmp_path / "different_outcomes.dat"
+    different.write_text("different-outcomes\n", encoding="utf-8")
+
+    called = False
+
+    def _must_not_run(**kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("outcome-scoring builder ran before outcome hash check")
+
+    monkeypatch.setattr(module, "build_market_edge_artifact", _must_not_run)
+    monkeypatch.setattr(module, "build_market_edge_adversarial_artifact", _must_not_run)
+    with pytest.raises(ValueError, match="file frozen by MARKET-HIST-QA"):
+        run_outcome_open_stage(
+            seal_path=seal_path,
+            outcomes=different,
+            **_seal_kwargs(files, qa, power),
+        )
+    assert called is False
+
+
+def test_stage_b_rejects_nonfrozen_min_prior_rows_before_scoring(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    files, qa, power = _fixture(tmp_path)
+    seal = create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
+    seal_path = tmp_path / "seal.json"
+    _write_json(seal_path, seal.to_dict())
+
+    called = False
+
+    def _must_not_run(**kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("outcome-scoring builder ran with altered frozen threshold")
+
+    monkeypatch.setattr(module, "build_market_edge_artifact", _must_not_run)
+    monkeypatch.setattr(module, "build_market_edge_adversarial_artifact", _must_not_run)
+    with pytest.raises(ValueError, match="frozen at 1000"):
+        run_outcome_open_stage(
+            seal_path=seal_path,
+            outcomes=files["outcomes"],
             min_prior_rows=24,
             **_seal_kwargs(files, qa, power),
         )
@@ -259,32 +394,31 @@ def test_stage_b_runs_both_frozen_experiments_after_verification(
     seal = create_outcome_unlock_seal(**_seal_kwargs(files, qa, power))
     seal_path = tmp_path / "seal.json"
     _write_json(seal_path, seal.to_dict())
-    outcomes = tmp_path / "outcomes.parquet"
-    outcomes.write_text("winner-outcomes-open-only-in-stage-b\n", encoding="utf-8")
 
     calls: list[str] = []
 
     def _edge(**kwargs):
         calls.append("edge")
-        assert kwargs["outcomes_path"] == outcomes
+        assert kwargs["outcomes_path"] == files["outcomes"]
+        assert kwargs["min_prior_rows"] == 1000
         return _DummyArtifact("MARKET-EDGE-001")
 
     def _edge_adv(**kwargs):
         calls.append("edge_adv")
-        assert kwargs["outcomes_path"] == outcomes
+        assert kwargs["outcomes_path"] == files["outcomes"]
+        assert kwargs["min_prior_rows"] == 1000
         return _DummyArtifact("MARKET-EDGE-ADV-001")
 
     monkeypatch.setattr(module, "build_market_edge_artifact", _edge)
     monkeypatch.setattr(module, "build_market_edge_adversarial_artifact", _edge_adv)
     result = run_outcome_open_stage(
         seal_path=seal_path,
-        outcomes=outcomes,
-        min_prior_rows=24,
+        outcomes=files["outcomes"],
         **_seal_kwargs(files, qa, power),
     )
     assert calls == ["edge", "edge_adv"]
     assert result.stage == "OUTCOME_OPEN_COMPLETE"
-    assert result.outcomes_sha256 == _file_sha256(outcomes)
+    assert result.outcomes_sha256 == _file_sha256(files["outcomes"])
     assert result.market_edge_001["experiment_id"] == "MARKET-EDGE-001"
     assert result.market_edge_adv_001["experiment_id"] == "MARKET-EDGE-ADV-001"
 
@@ -298,7 +432,6 @@ def test_stage_b_rejects_tampered_seal(tmp_path: Path):
     with pytest.raises(ValueError, match="seal digest mismatch"):
         run_outcome_open_stage(
             seal_path=seal_path,
-            outcomes=tmp_path / "outcomes.parquet",
-            min_prior_rows=24,
+            outcomes=files["outcomes"],
             **_seal_kwargs(files, qa, power),
         )
