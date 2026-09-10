@@ -1,0 +1,233 @@
+name: Player Profile Gap Research
+
+on:
+  push:
+    branches:
+      - dev/player-profile-v1
+    paths:
+      - ".github/workflows/profile_gap.yml"
+      - "src/tennis_genome/profiles/**"
+      - "src/tennis_genome/models/profile_strength.py"
+      - "src/tennis_genome/experiments/profile_gap.py"
+      - "src/tennis_genome/features/**"
+      - "src/tennis_genome/ratings/**"
+      - "src/tennis_genome/data/**"
+      - "research/installment_01/profile_gap*.md"
+      - "schemas/player_snapshot.schema.json"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profile-gap-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Assert spent 2026 holdout is excluded
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$START_YEAR" = "2000"
+          test "$END_YEAR" = "2025"
+
+      - name: Download pinned 2000-2025 research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "$url"
+            done
+          done
+          test "$(find data/research_raw -type f | wc -l)" -eq 52
+
+      - name: Build canonical ATP and WTA datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tour in atp wta; do
+            mkdir -p "data/research_processed/${tour}"
+            args=()
+            for year in $(seq "$START_YEAR" "$END_YEAR"); do
+              args+=(--input "data/research_raw/${tour}/${tour}_matches_${year}.csv")
+            done
+            upper=$(echo "$tour" | tr '[:lower:]' '[:upper:]')
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour "$upper" \
+              --output-dir "data/research_processed/${tour}" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-${tour}-${START_YEAR}-${END_YEAR}" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "$LICENSE_NAME" \
+              --license-url "$LICENSE_URL" \
+              --allowed-use-status research_allowed \
+              > "data/research_processed/${tour}/build_output.json"
+          done
+
+      - name: Run PROFILE-GAP-001 ATP strict
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/profile_gap
+          python -m tennis_genome.experiments.profile_gap \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --tour ATP \
+            --min-train-matches 1000 \
+            > artifacts/profile_gap/profile_gap_atp_strict.json
+
+      - name: Run PROFILE-GAP-001 WTA strict
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m tennis_genome.experiments.profile_gap \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --tour WTA \
+            --min-train-matches 1000 \
+            > artifacts/profile_gap/profile_gap_wta_strict.json
+
+      - name: Run PROFILE-GAP-001 WTA conditional serve-return diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m tennis_genome.experiments.profile_gap \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --tour WTA \
+            --include-conditional \
+            --min-train-matches 1000 \
+            > artifacts/profile_gap/profile_gap_wta_conditional.json
+
+      - name: Copy provenance manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp data/research_processed/atp/atp_manifest.json artifacts/profile_gap/
+          cp data/research_processed/wta/wta_manifest.json artifacts/profile_gap/
+
+      - name: Write PROFILE-GAP-001 summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("artifacts/profile_gap")
+          reports = [
+              ("ATP strict", "profile_gap_atp_strict.json"),
+              ("WTA strict", "profile_gap_wta_strict.json"),
+              ("WTA conditional", "profile_gap_wta_conditional.json"),
+          ]
+          lines = [
+              "# PROFILE-GAP-001",
+              "",
+              "Pinned source: `Aneeshers/tennis-sackmann-archive@83733587353df8a41f2fd4f516147d5aa83f5a8d`",
+              "",
+              "Coverage: **2000-2025 only**. The spent partial-2026 holdout is excluded both by this workflow and by experiment code.",
+              "",
+              "## Probability quality",
+              "",
+              "| Representation | N | Elo Brier | Profile Brier | Δ Brier | Elo log loss | Profile log loss | Δ log loss | Profile accuracy | Core Brier | Core log loss |",
+              "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+          ]
+          loaded = []
+          for label, filename in reports:
+              data = json.loads((root / filename).read_text())
+              loaded.append((label, data))
+              c = data["comparison"]
+              lines.append(
+                  f"| {label} | {c['n']} | {c['elo']['brier']:.6f} | "
+                  f"{c['profile']['brier']:.6f} | {c['brier_improvement_vs_elo']:+.6f} | "
+                  f"{c['elo']['log_loss']:.6f} | {c['profile']['log_loss']:.6f} | "
+                  f"{c['log_loss_improvement_vs_elo']:+.6f} | {c['profile']['accuracy']:.4%} | "
+                  f"{c['strict_core']['brier']:.6f} | {c['strict_core']['log_loss']:.6f} |"
+              )
+
+          lines.extend([
+              "",
+              "## Registered promotion diagnostics",
+              "",
+              "| Representation | Joint year wins | Year win rate | Recent Brier OK | Recent log loss OK | Gap top-bottom + | Gap slope + | Recent gap direction OK |",
+              "|---|---:|---:|---|---|---|---|---|",
+          ])
+          for label, data in loaded:
+              p = data["promotion_diagnostics"]
+              lines.append(
+                  f"| {label} | {p['joint_year_win_count']}/{p['evaluated_year_count']} | "
+                  f"{p['joint_year_win_rate']:.2%} | {p['recent_brier_not_worse']} | "
+                  f"{p['recent_log_loss_not_worse']} | {p['gap_top_minus_bottom_positive']} | "
+                  f"{p['gap_slope_positive']} | {p['recent_gap_direction_not_reversed']} |"
+              )
+
+          lines.extend([
+              "",
+              "## Profile Gap direction",
+              "",
+              "| Representation | N | Residual slope on gap | Q5 − Q1 Elo residual | Recent slope | Recent Q5 − Q1 residual |",
+              "|---|---:|---:|---:|---:|---:|",
+          ])
+          for label, data in loaded:
+              g = data["gap"]
+              rg = data["recent_gap"]
+              recent_slope = "n/a" if rg is None or rg["residual_slope_on_gap"] is None else f"{rg['residual_slope_on_gap']:.6f}"
+              recent_spread = "n/a" if rg is None or rg["top_minus_bottom_residual"] is None else f"{rg['top_minus_bottom_residual']:.6f}"
+              slope = "n/a" if g["residual_slope_on_gap"] is None else f"{g['residual_slope_on_gap']:.6f}"
+              spread = "n/a" if g["top_minus_bottom_residual"] is None else f"{g['top_minus_bottom_residual']:.6f}"
+              lines.append(
+                  f"| {label} | {g['n']} | {slope} | {spread} | {recent_slope} | {recent_spread} |"
+              )
+
+          lines.extend([
+              "",
+              "This is historical development evidence, not independent forward confirmation and not a betting-profitability test.",
+          ])
+          summary = "\n".join(lines) + "\n"
+          (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          print(summary)
+          PY
+
+      - name: Upload PROFILE-GAP-001 reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-profile-gap
+          path: artifacts/profile_gap/
+          if-no-files-found: warn
+          retention-days: 30
