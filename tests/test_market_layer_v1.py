@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -207,9 +207,7 @@ def test_live_or_mismatched_market_cannot_be_compared() -> None:
             market=live,
         )
 
-    mismatched = MarketSnapshot(
-        **{**_snapshot().__dict__, "match_id": "other-match"}
-    )
+    mismatched = MarketSnapshot(**{**_snapshot().__dict__, "match_id": "other-match"})
     with pytest.raises(ValueError, match="same match_id"):
         compare_prediction_to_market(
             comparison_id="cmp-other",
