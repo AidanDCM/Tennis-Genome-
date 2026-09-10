@@ -1,9 +1,8 @@
-from tests.test_family_lab import _match
-
 from tennis_genome.experiments.family_lab import FAMILY_FEATURES
 from tennis_genome.experiments.family_recent_diagnostic import (
     run_recent_family_diagnostic,
 )
+from tests.test_family_lab import _match
 
 
 def test_recent_diagnostic_reports_exact_recent_year_block() -> None:
