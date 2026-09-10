@@ -234,3 +234,95 @@ def test_corrupt_state_is_rejected(tmp_path: Path):
     )
     with pytest.raises(ValueError, match="unexpected Betfair download state"):
         _load_state(state_path)
+
+
+def test_api_request_uses_official_host_and_ssoid_header(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    import urllib.request
+
+    captured: dict[str, object] = {}
+
+    class _Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self, size: int = -1) -> bytes:
+            return b'["/data/xds/historic/ADVANCED/100/1.100000001.bz2"]'
+
+    def _urlopen(request, timeout):
+        captured["url"] = request.full_url
+        captured["headers"] = dict(request.header_items())
+        captured["data"] = request.data
+        captured["timeout"] = timeout
+        return _Response()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _urlopen)
+    client = HistoricalDataClient(ssoid="fixture-secret")
+    rows = client.list_files(
+        HistoricalFilter(
+            "Advanced Plan",
+            date(2021, 1, 1),
+            date(2021, 1, 31),
+        )
+    )
+    assert rows == ["/data/xds/historic/ADVANCED/100/1.100000001.bz2"]
+    assert captured["url"] == "https://historicdata.betfair.com/api/DownloadListOfFiles"
+    headers = {str(key).lower(): value for key, value in captured["headers"].items()}
+    assert headers["ssoid"] == "fixture-secret"
+    assert headers["content-type"] == "application/json"
+    payload = json.loads(captured["data"].decode("utf-8"))
+    assert payload["sport"] == "Tennis"
+    assert payload["marketTypesCollection"] == ["MATCH_ODDS"]
+    assert payload["fileTypeCollection"] == ["M"]
+    assert "fixture-secret" not in str(captured["url"])
+
+
+def test_download_request_encodes_remote_path_and_keeps_token_out_of_url(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    import urllib.request
+
+    captured: dict[str, object] = {}
+    chunks = [b"abc", b"def", b""]
+
+    class _Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self, size: int = -1) -> bytes:
+            return chunks.pop(0)
+
+    def _urlopen(request, timeout):
+        captured["url"] = request.full_url
+        captured["headers"] = dict(request.header_items())
+        captured["timeout"] = timeout
+        return _Response()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _urlopen)
+    remote = "/data/xds/historic/ADVANCED/100/1.100000001.bz2"
+    target = tmp_path / "fixture.bz2.part"
+    client = HistoricalDataClient(ssoid="fixture-secret")
+    assert client.download_file(remote, target) == 6
+    assert target.read_bytes() == b"abcdef"
+    url = str(captured["url"])
+    assert url.startswith("https://historicdata.betfair.com/api/DownloadFile?filePath=")
+    assert "%2Fdata%2Fxds%2Fhistoric%2FADVANCED%2F100%2F1.100000001.bz2" in url
+    assert "fixture-secret" not in url
+    headers = {str(key).lower(): value for key, value in captured["headers"].items()}
+    assert headers["ssoid"] == "fixture-secret"
+
+
+def test_client_refuses_non_betfair_api_host():
+    with pytest.raises(ValueError, match="official Betfair"):
+        HistoricalDataClient(
+            ssoid="secret",
+            api_base="https://example.com/api/",
+        )
