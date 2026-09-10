@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import bz2
 import json
 from dataclasses import asdict
 from datetime import UTC, date, datetime
@@ -105,6 +106,20 @@ def _basic_line(
         },
         sort_keys=True,
     )
+
+
+def _rich_line(*, field: str, value: object) -> str:
+    payload = json.loads(
+        _basic_line(
+            market_id="1.500",
+            event_id="e-rich",
+            market_time=datetime(2024, 5, 1, 18, tzinfo=UTC),
+            player_a="Rich Alpha",
+            player_b="Rich Beta",
+        )
+    )
+    payload["mc"][0]["rc"] = [{"id": 101, field: value}]
+    return json.dumps(payload, sort_keys=True)
 
 
 def test_basic_preflight_is_deterministic_and_outcome_blind(tmp_path: Path) -> None:
@@ -321,6 +336,74 @@ def test_preflight_rejects_two_markets_joining_same_canonical_match(tmp_path: Pa
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="multiple BASIC source markets"):
+        build_basic_preflight_report(
+            betfair_root=root,
+            pre_match_path=pre_match,
+            requested_start_date="2024-01-01",
+            requested_end_date="2024-12-31",
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("batb", [[0, 2.0, 10.0]]),
+        ("batl", [[0, 2.2, 10.0]]),
+        ("atb", [[2.0, 10.0]]),
+        ("atl", [[2.2, 10.0]]),
+    ],
+)
+def test_preflight_rejects_advanced_or_pro_price_ladders(
+    tmp_path: Path,
+    field: str,
+    value: object,
+) -> None:
+    root = tmp_path / "basic"
+    root.mkdir()
+    (root / "rich.jsonl").write_text(_rich_line(field=field, value=value) + "\n", encoding="utf-8")
+    pre_match = tmp_path / "pre_match.parquet"
+    _write_pre_match(
+        pre_match,
+        [
+            _state(
+                match_id="rich",
+                tour="ATP",
+                event_date=date(2024, 5, 1),
+                player_a_name="Rich Alpha",
+                player_b_name="Rich Beta",
+            )
+        ],
+    )
+
+    with pytest.raises(ValueError, match="ADVANCED/PRO executable price-ladder"):
+        build_basic_preflight_report(
+            betfair_root=root,
+            pre_match_path=pre_match,
+            requested_start_date="2024-01-01",
+            requested_end_date="2024-12-31",
+        )
+
+
+def test_preflight_rejects_rich_price_ladder_in_bz2(tmp_path: Path) -> None:
+    root = tmp_path / "basic"
+    root.mkdir()
+    with bz2.open(root / "rich.jsonl.bz2", "wb") as handle:
+        handle.write((_rich_line(field="batb", value=[[0, 2.0, 10.0]]) + "\n").encode())
+    pre_match = tmp_path / "pre_match.parquet"
+    _write_pre_match(
+        pre_match,
+        [
+            _state(
+                match_id="rich",
+                tour="ATP",
+                event_date=date(2024, 5, 1),
+                player_a_name="Rich Alpha",
+                player_b_name="Rich Beta",
+            )
+        ],
+    )
+
+    with pytest.raises(ValueError, match="ADVANCED/PRO executable price-ladder"):
         build_basic_preflight_report(
             betfair_root=root,
             pre_match_path=pre_match,
