@@ -397,12 +397,18 @@ def walk_forward_player_profiles(
                 )
             )
 
+        # Apply all current-date outcomes and stats only after profiles freeze.
+        day_minutes: defaultdict[str, int] = defaultdict(int)
+        day_missing_minutes: set[str] = set()
+        day_players: set[str] = set()
         for match in day_matches:
             state = match.pre_match
             elo = elo_map[match.match_id]
             serve = serve_map[match.match_id]
             player_a = state.player_a_id
             player_b = state.player_b_id
+            day_players.update((player_a, player_b))
+
             outcome_a = 1.0 if match.outcome.a_won else 0.0
             result_residual_a = outcome_a - elo.probability_a
             for half_life in (30, 90):
@@ -434,9 +440,16 @@ def walk_forward_player_profiles(
             duration = match.stats.duration_minutes if match.stats is not None else None
             workload[player_a].append((event_date, duration))
             workload[player_b].append((event_date, duration))
-            last_event_date[player_a] = event_date
-            last_event_date[player_b] = event_date
-            last_event_minutes[player_a] = duration
-            last_event_minutes[player_b] = duration
+            if duration is None:
+                day_missing_minutes.update((player_a, player_b))
+            else:
+                day_minutes[player_a] += duration
+                day_minutes[player_b] += duration
+
+        for player_id in day_players:
+            last_event_date[player_id] = event_date
+            last_event_minutes[player_id] = (
+                None if player_id in day_missing_minutes else day_minutes[player_id]
+            )
 
     return pairs
