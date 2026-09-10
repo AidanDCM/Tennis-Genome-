@@ -37,7 +37,7 @@ If a provisional A fails the recent-block gate, it is excluded from the A-only C
 
 ## Models to compare
 
-For each tour, train using 2000–2025 only and predict the available 2026 matches.
+For each tour, fit model parameters using 2000–2025 only and predict the available 2026 matches in chronological source-date order.
 
 ### Historical core benchmark
 - chronologically constructed overall Elo;
@@ -52,13 +52,18 @@ A secondary diagnostic may report an A-plus-B model, but it cannot replace the A
 
 ---
 
-## Training discipline
+## Training and forward-state discipline
 
-1. Build historical feature state through the end of 2025 without using 2026 outcomes.
-2. Fit missing-value handling, scaling, and model coefficients on 2000–2025 only.
-3. Generate 2026 probabilities from frozen pre-match state.
-4. Do not refit within the holdout after seeing any 2026 outcome for the primary result.
-5. Score only after all eligible 2026 predictions are frozen.
+1. Fit missing-value handling, scaling, and model coefficients using 2000–2025 only.
+2. Freeze those fitted model parameters before the first 2026 prediction.
+3. Generate 2026 predictions sequentially in source-date order.
+4. Dynamic player state such as Elo, serve/return strength, form, H2H, workload, and prior-match state **may update from genuinely earlier 2026 matches**, because those outcomes would have been available in real forward deployment.
+5. A 2026 match may never affect its own features or any match on the same unresolved source date; existing conservative date-batching remains mandatory.
+6. Model coefficients, scalers, imputers, family membership, and hyperparameters must **not** be refit or changed using 2026 outcomes.
+7. Freeze every eligible 2026 probability before using that match outcome for scoring.
+8. Score the holdout only after the complete available 2026 prediction sequence has been generated.
+
+This distinction is deliberate: **player state is allowed to evolve as new public match results arrive; the predictive mapping learned from 2000–2025 remains frozen.** That mirrors deployment while preserving a genuine forward model test.
 
 Because the source lacks trustworthy exact match timestamps, the same conservative source-date freezing rules remain in force.
 
