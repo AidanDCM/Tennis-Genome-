@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import bz2
 import hashlib
 import json
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import date, timedelta
 from pathlib import Path
+from typing import BinaryIO
 
 from tennis_genome.data.canonical import PreMatchState, Tour
 from tennis_genome.market.historical_batch import (
@@ -21,6 +23,7 @@ _DEVELOPMENT_END = date(2025, 12, 31)
 _RECENT_YEARS = tuple(range(2021, 2026))
 _MIN_PRIOR_ROWS = 1000
 _RIGHT_EDGE_BUFFER_DAYS = 21
+_FORBIDDEN_RICH_PRICE_FIELDS = frozenset({"batb", "batl", "atb", "atl"})
 
 
 @dataclass(frozen=True)
@@ -128,6 +131,54 @@ def _month_range(start: date, end: date) -> list[date]:
         result.append(current)
         current = _next_month(current)
     return result
+
+
+def _open_source_lines(path: Path) -> BinaryIO:
+    if path.suffix.lower() == ".bz2":
+        return bz2.open(path, "rb")
+    return path.open("rb")
+
+
+def _reject_rich_price_ladders(root: Path) -> None:
+    """Fail closed if BASIC preflight sees ADVANCED/PRO executable ladder fields."""
+
+    for path in discover_betfair_files(root):
+        relative = path.relative_to(root).as_posix()
+        with _open_source_lines(path) as handle:
+            for line_number, raw_line in enumerate(handle, start=1):
+                raw_message = raw_line.rstrip(b"\r\n")
+                if not raw_message:
+                    continue
+                try:
+                    message = json.loads(raw_message)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(
+                        f"invalid Betfair JSON in BASIC source {relative}:{line_number}"
+                    ) from exc
+                if not isinstance(message, dict) or message.get("op") != "mcm":
+                    continue
+                market_changes = message.get("mc")
+                if not isinstance(market_changes, list):
+                    continue
+                for market_change in market_changes:
+                    if not isinstance(market_change, dict):
+                        continue
+                    runner_changes = market_change.get("rc")
+                    if not isinstance(runner_changes, list):
+                        continue
+                    for runner_change in runner_changes:
+                        if not isinstance(runner_change, dict):
+                            continue
+                        forbidden = sorted(
+                            _FORBIDDEN_RICH_PRICE_FIELDS.intersection(runner_change)
+                        )
+                        if forbidden:
+                            fields = ", ".join(forbidden)
+                            raise ValueError(
+                                "BASIC preflight source contains ADVANCED/PRO executable "
+                                f"price-ladder field(s) [{fields}] at "
+                                f"{relative}:{line_number}; use BASIC data only"
+                            )
 
 
 def _source_digests(root: Path) -> tuple[SourceFileDigest, ...]:
@@ -285,6 +336,7 @@ def build_basic_preflight_report(
 
     root = Path(betfair_root)
     pre_match = Path(pre_match_path)
+    _reject_rich_price_ladders(root)
     source_files = _source_digests(root)
     states = load_pre_match_states(pre_match)
     records, _, _ = build_market_hist_records(
