@@ -106,6 +106,26 @@ def test_closing_market_loader_rejects_duplicate_joined_markets(tmp_path: Path) 
         load_closing_market_rows(path)
 
 
+def test_closing_market_loader_rejects_timestamp_distance_mismatch(tmp_path: Path) -> None:
+    record = _market_record()
+    checkpoint = record["checkpoints"][0]
+    checkpoint["seconds_to_start"] = 30.0
+    path = tmp_path / "records.jsonl"
+    path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="seconds_to_start disagrees"):
+        load_closing_market_rows(path)
+
+
+def test_closing_market_loader_rejects_join_hash_mismatch(tmp_path: Path) -> None:
+    record = _market_record()
+    checkpoint = record["checkpoints"][0]
+    checkpoint["join_hash"] = "f" * 64
+    path = tmp_path / "records.jsonl"
+    path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="join_hash disagrees"):
+        load_closing_market_rows(path)
+
+
 def test_signal_loaders_ignore_embedded_outcome_fields(tmp_path: Path) -> None:
     profile_path = tmp_path / "profile.json"
     profile_path.write_text(
@@ -170,7 +190,7 @@ def test_wta_genome_loader_uses_core_geometry_signal(tmp_path: Path) -> None:
     assert values["m1"].signal == pytest.approx(0.03)
 
 
-def test_settled_outcomes_drop_walkovers_but_keep_retirements(tmp_path: Path) -> None:
+def test_settled_outcomes_drop_walkovers_and_retirements(tmp_path: Path) -> None:
     frame = pd.DataFrame(
         [
             {"match_id": "m1", "a_won": True, "retirement": False, "walkover": False},
@@ -181,7 +201,7 @@ def test_settled_outcomes_drop_walkovers_but_keep_retirements(tmp_path: Path) ->
     path = tmp_path / "outcomes.parquet"
     frame.to_parquet(path, index=False)
     outcomes = load_settled_outcomes(path)
-    assert set(outcomes) == {"m1", "m2"}
+    assert set(outcomes) == {"m1"}
 
 
 def test_market_signal_builder_uses_canonical_outcome_not_signal_report(tmp_path: Path) -> None:
