@@ -14,12 +14,12 @@ from tennis_genome.data.canonical import (
     Tour,
 )
 from tennis_genome.features.foundational import walk_forward_foundational_features
-from tennis_genome.profiles.state import walk_forward_player_profiles
 from tennis_genome.profiles.spec import (
     conditional_profile_fields,
     core_profile_fields,
     field_role,
 )
+from tennis_genome.profiles.state import walk_forward_player_profiles
 from tennis_genome.ratings.elo import expected_score
 
 
