@@ -259,7 +259,10 @@ def _base_probability_rows(
     exclude_retirements: bool,
 ) -> list[BaseProbabilityRow]:
     selected = [match for match in matches if match.pre_match.tour == tour]
-    if any(match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR for match in selected):
+    if any(
+        match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR
+        for match in selected
+    ):
         raise ValueError("post-2025 selected-tour data are forbidden in FUSION-CAL-001")
 
     report = run_genome_adversarial_controls(
@@ -740,7 +743,9 @@ def run_fusion_calibration(
     selected_calibration = next(
         result for result in calibration if result.candidate == selected_candidate
     )
-    alignment_representation = "full_genome" if tour == "ATP" else "strict_core_geometry"
+    alignment_representation = (
+        "full_genome" if tour == "ATP" else "strict_core_geometry"
+    )
     decision = ArchitectureDecision(
         fusion_promoted=gate.passed,
         selected_probability_candidate=selected_candidate,
@@ -748,7 +753,10 @@ def run_fusion_calibration(
         note=(
             "two-view fusion passed all preregistered gates"
             if gate.passed
-            else "two-view fusion failed at least one preregistered gate; retain incumbent alignment"
+            else (
+                "two-view fusion failed at least one preregistered gate; "
+                "retain incumbent alignment"
+            )
         ),
     )
 
