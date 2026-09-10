@@ -1,0 +1,252 @@
+name: Tennis Genome Neighborhood Research
+
+on:
+  push:
+    branches:
+      - dev/genome-neighborhood-v1
+    paths:
+      - ".github/workflows/genome_neighborhood.yml"
+      - "src/tennis_genome/features/genome.py"
+      - "src/tennis_genome/neighbors/**"
+      - "src/tennis_genome/experiments/genome_neighborhood.py"
+      - "src/tennis_genome/profiles/**"
+      - "src/tennis_genome/features/foundational.py"
+      - "src/tennis_genome/models/core_v1_spec.py"
+      - "src/tennis_genome/models/feature_probability.py"
+      - "src/tennis_genome/ratings/**"
+      - "src/tennis_genome/data/**"
+      - "research/installment_01/genome_neighborhood*.md"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genome-neighborhood-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Assert spent 2026 holdout is excluded
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$START_YEAR" = "2000"
+          test "$END_YEAR" = "2025"
+
+      - name: Download pinned 2000-2025 research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "$url"
+            done
+          done
+          test "$(find data/research_raw -type f | wc -l)" -eq 52
+
+      - name: Build canonical ATP and WTA datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tour in atp wta; do
+            mkdir -p "data/research_processed/${tour}"
+            args=()
+            for year in $(seq "$START_YEAR" "$END_YEAR"); do
+              args+=(--input "data/research_raw/${tour}/${tour}_matches_${year}.csv")
+            done
+            upper=$(echo "$tour" | tr '[:lower:]' '[:upper:]')
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour "$upper" \
+              --output-dir "data/research_processed/${tour}" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-${tour}-${START_YEAR}-${END_YEAR}" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "$LICENSE_NAME" \
+              --license-url "$LICENSE_URL" \
+              --allowed-use-status research_allowed \
+              > "data/research_processed/${tour}/build_output.json"
+          done
+
+      - name: Run GENOME-NN-001 ATP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/genome_neighborhood
+          python -m tennis_genome.experiments.genome_neighborhood \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --tour ATP \
+            --min-core-train-matches 1000 \
+            --min-neighbor-pool 1000 \
+            --min-meta-train-rows 1000 \
+            --candidate-limit 1000 \
+            > artifacts/genome_neighborhood/genome_nn_atp.json
+
+      - name: Run GENOME-NN-001 WTA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m tennis_genome.experiments.genome_neighborhood \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --tour WTA \
+            --min-core-train-matches 1000 \
+            --min-neighbor-pool 1000 \
+            --min-meta-train-rows 1000 \
+            --candidate-limit 1000 \
+            > artifacts/genome_neighborhood/genome_nn_wta.json
+
+      - name: Copy provenance manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp data/research_processed/atp/atp_manifest.json artifacts/genome_neighborhood/
+          cp data/research_processed/wta/wta_manifest.json artifacts/genome_neighborhood/
+
+      - name: Write GENOME-NN-001 summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("artifacts/genome_neighborhood")
+          reports = [
+              ("ATP", "genome_nn_atp.json"),
+              ("WTA", "genome_nn_wta.json"),
+          ]
+          loaded = [
+              (label, json.loads((root / filename).read_text()))
+              for label, filename in reports
+          ]
+
+          lines = [
+              "# GENOME-NN-001",
+              "",
+              "Pinned source: `Aneeshers/tennis-sackmann-archive@83733587353df8a41f2fd4f516147d5aa83f5a8d`",
+              "",
+              "Coverage: **2000-2025 only**. The spent partial-2026 holdout is excluded by workflow and experiment code.",
+              "",
+              "Primary distance: historical-fold standardized Euclidean. Primary k: **100**.",
+              "",
+              "## H-011 probability comparison",
+              "",
+              "| Tour | N | Raw Core Brier | Meta-control Brier | Genome Brier | Δ Brier | Meta-control log loss | Genome log loss | Δ log loss | Genome accuracy | Year wins | Primary pass |",
+              "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+          ]
+          for label, data in loaded:
+              c = data["comparison"]
+              p = data["promotion_diagnostics"]
+              lines.append(
+                  f"| {label} | {c['n']} | {c['raw_core']['brier']:.6f} | "
+                  f"{c['meta_control']['brier']:.6f} | {c['genome_challenger']['brier']:.6f} | "
+                  f"{c['brier_improvement']:+.6f} | {c['meta_control']['log_loss']:.6f} | "
+                  f"{c['genome_challenger']['log_loss']:.6f} | {c['log_loss_improvement']:+.6f} | "
+                  f"{c['genome_challenger']['accuracy']:.4%} | "
+                  f"{p['joint_year_win_count']}/{p['evaluated_year_count']} | {p['h011_primary_pass']} |"
+              )
+
+          lines.extend([
+              "",
+              "## Residual signal",
+              "",
+              "| Tour | Neighbor rows | Meta rows | Slope | Q5-Q1 residual | Recent slope | Recent Q5-Q1 |",
+              "|---|---:|---:|---:|---:|---:|---:|",
+          ])
+          for label, data in loaded:
+              g = data["residual"]
+              rg = data["recent_residual"]
+              recent_slope = "n/a" if rg is None or rg["residual_slope_on_neighbor_signal"] is None else f"{rg['residual_slope_on_neighbor_signal']:.6f}"
+              recent_spread = "n/a" if rg is None or rg["top_minus_bottom_core_residual"] is None else f"{rg['top_minus_bottom_core_residual']:.6f}"
+              slope = "n/a" if g["residual_slope_on_neighbor_signal"] is None else f"{g['residual_slope_on_neighbor_signal']:.6f}"
+              spread = "n/a" if g["top_minus_bottom_core_residual"] is None else f"{g['top_minus_bottom_core_residual']:.6f}"
+              lines.append(
+                  f"| {label} | {data['neighbor_population_n']} | {data['meta_population_n']} | "
+                  f"{slope} | {spread} | {recent_slope} | {recent_spread} |"
+              )
+
+          lines.extend([
+              "",
+              "## H-012 density / OOD",
+              "",
+              "| Tour | Log-loss slope | Abs-residual slope | Q5-Q1 log loss | Recent direction OK | Density pass |",
+              "|---|---:|---:|---:|---|---|",
+          ])
+          for label, data in loaded:
+              d = data["density"]
+              p = data["promotion_diagnostics"]
+              lines.append(
+                  f"| {label} | {d['log_loss_slope_on_distance']:.6f} | "
+                  f"{d['absolute_residual_slope_on_distance']:.6f} | "
+                  f"{d['top_minus_bottom_log_loss']:.6f} | "
+                  f"{p['recent_density_direction_not_reversed']} | {p['h012_density_pass']} |"
+              )
+
+          lines.extend([
+              "",
+              "## Shared-player adversarial sensitivity",
+              "",
+              "| Tour | Coverage | Sensitivity Δ Brier | Sensitivity Δ log loss | Classification |",
+              "|---|---:|---:|---:|---|",
+          ])
+          for label, data in loaded:
+              s = data["shared_player_sensitivity"]
+              p = data["promotion_diagnostics"]
+              c = s["comparison"]
+              brier = "n/a" if c is None else f"{c['brier_improvement']:+.6f}"
+              logloss = "n/a" if c is None else f"{c['log_loss_improvement']:+.6f}"
+              lines.append(
+                  f"| {label} | {s['coverage']:.2%} | {brier} | {logloss} | "
+                  f"{p['shared_player_classification']} |"
+              )
+
+          lines.extend([
+              "",
+              "This is historical development evidence only. It is not independent forward confirmation, market evidence, or a profitability test.",
+          ])
+          summary = "\n".join(lines) + "\n"
+          (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          print(summary)
+          PY
+
+      - name: Upload GENOME-NN-001 reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-neighborhood
+          path: artifacts/genome_neighborhood/
+          if-no-files-found: warn
+          retention-days: 30
