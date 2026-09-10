@@ -7,6 +7,7 @@ from typing import Literal
 
 import numpy as np
 from scipy.optimize import minimize
+from scipy.special import expit
 
 from tennis_genome.evaluation.metrics import (
     accuracy,
@@ -168,11 +169,7 @@ def _logit(probability: float) -> float:
 
 
 def _sigmoid(value: float) -> float:
-    if value >= 0.0:
-        exp_neg = math.exp(-value)
-        return 1.0 / (1.0 + exp_neg)
-    exp_pos = math.exp(value)
-    return exp_pos / (1.0 + exp_pos)
+    return float(expit(value))
 
 
 def _fit_offset_model(
@@ -182,8 +179,14 @@ def _fit_offset_model(
 ) -> OffsetFit:
     if not rows:
         raise ValueError("offset model requires non-empty training rows")
-    market_logits = np.asarray([_logit(row.market_probability_a) for row in rows])
-    outcomes = np.asarray([1.0 if row.outcome_a else 0.0 for row in rows])
+    market_logits = np.asarray(
+        [_logit(row.market_probability_a) for row in rows],
+        dtype=float,
+    )
+    outcomes = np.asarray(
+        [1.0 if row.outcome_a else 0.0 for row in rows],
+        dtype=float,
+    )
 
     signal_mean: float | None = None
     signal_sd: float | None = None
@@ -201,17 +204,8 @@ def _fit_offset_model(
         if include_signal:
             assert z_signal is not None
             linear = linear + parameters[1] * z_signal
-        probabilities = np.where(
-            linear >= 0.0,
-            1.0 / (1.0 + np.exp(-linear)),
-            np.exp(linear) / (1.0 + np.exp(linear)),
-        )
-        probabilities = np.clip(probabilities, 1e-15, 1.0 - 1e-15)
-        loss = float(
-            np.mean(
-                -(outcomes * np.log(probabilities) + (1.0 - outcomes) * np.log(1.0 - probabilities))
-            )
-        )
+        loss = float(np.mean(np.logaddexp(0.0, linear) - outcomes * linear))
+        probabilities = expit(linear)
         residual = probabilities - outcomes
         gradient_values = [float(np.mean(residual))]
         if include_signal:
@@ -225,10 +219,14 @@ def _fit_offset_model(
         initial,
         jac=lambda parameters: objective(parameters)[1],
         method="BFGS",
-        tol=1e-10,
-        options={"maxiter": 1000},
+        options={"maxiter": 1000, "gtol": 1e-8},
     )
-    if not result.success or not np.all(np.isfinite(result.x)):
+    if (
+        not result.success
+        or not np.all(np.isfinite(result.x))
+        or not math.isfinite(float(result.fun))
+        or not np.all(np.isfinite(result.jac))
+    ):
         raise RuntimeError(f"offset logistic optimization failed: {result.message}")
     return OffsetFit(
         intercept=float(result.x[0]),
@@ -432,19 +430,22 @@ def run_market_edge_claim(
         tour=tour,
         signal_name=signal_name,
     )
-    yearly = tuple(
-        YearResult(
-            year=year,
-            n=len(subset),
-            comparison=(year_comparison := _comparison(subset)),
-            joint_proper_score_win=(
-                year_comparison.brier_improvement_vs_control > 0.0
-                and year_comparison.log_loss_improvement_vs_control > 0.0
-            ),
+    yearly_results: list[YearResult] = []
+    for year in sorted({row.year for row in predictions}):
+        subset = [row for row in predictions if row.year == year]
+        year_comparison = _comparison(subset)
+        yearly_results.append(
+            YearResult(
+                year=year,
+                n=len(subset),
+                comparison=year_comparison,
+                joint_proper_score_win=(
+                    year_comparison.brier_improvement_vs_control > 0.0
+                    and year_comparison.log_loss_improvement_vs_control > 0.0
+                ),
+            )
         )
-        for year in sorted({row.year for row in predictions})
-        if (subset := [row for row in predictions if row.year == year])
-    )
+    yearly = tuple(yearly_results)
     recent_rows = [
         row
         for row in predictions
