@@ -80,7 +80,7 @@ def _build_case(
 ) -> QACase:
     source_root = root / "source"
     source_root.mkdir(parents=True)
-    source_file = source_root / "bundle.dat"
+    source_file = source_root / "bundle.jsonl"
     source_file.write_bytes(b"synthetic licensed-source stand-in")
     manifest = build_historical_source_manifest(
         root=source_root,
@@ -196,7 +196,7 @@ def _build_case(
                         {
                             "source_market_id": market_id,
                             "source_event_id": f"event-{year}",
-                            "source_file": "bundle.dat",
+                            "source_file": "bundle.jsonl",
                             "source_file_sha256": record_source_hash,
                             "data_package": "ADVANCED",
                             "join_status": "MATCHED",
