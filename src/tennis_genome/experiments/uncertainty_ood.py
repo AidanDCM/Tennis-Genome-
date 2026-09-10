@@ -747,7 +747,7 @@ def _monotone_brier_through_25(
     ]
     return all(
         later <= earlier + 1e-12
-        for earlier, later in zip(values, values[1:], strict=True)
+        for earlier, later in zip(values[:-1], values[1:], strict=True)
     )
 
 
