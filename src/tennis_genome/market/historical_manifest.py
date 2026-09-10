@@ -107,6 +107,29 @@ def _manifest_payload(
     }
 
 
+def _manifest_from_parts(
+    *,
+    data_package: DataPackage,
+    requested_start_date: str,
+    requested_end_date: str,
+    files: tuple[HistoricalSourceFile, ...],
+    bundle_sha256: str,
+) -> HistoricalSourceManifest:
+    return HistoricalSourceManifest(
+        manifest_version=_MANIFEST_VERSION,
+        provider=_PROVIDER,
+        sport=_SPORT,
+        market_type=_MARKET_TYPE,
+        data_package=data_package,
+        requested_start_date=requested_start_date,
+        requested_end_date=requested_end_date,
+        file_count=len(files),
+        total_bytes=sum(item.size_bytes for item in files),
+        files=files,
+        bundle_sha256=bundle_sha256,
+    )
+
+
 def build_historical_source_manifest(
     *,
     root: str | Path,
@@ -143,8 +166,10 @@ def build_historical_source_manifest(
         files=files,
     )
     bundle_sha256 = hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
-    return HistoricalSourceManifest(
-        **payload,
+    return _manifest_from_parts(
+        data_package=package,
+        requested_start_date=start.isoformat(),
+        requested_end_date=end.isoformat(),
         files=files,
         bundle_sha256=bundle_sha256,
     )
@@ -166,8 +191,14 @@ def load_historical_source_manifest(path: str | Path) -> HistoricalSourceManifes
         for item in files_raw
     )
     package = _package(str(raw.get("data_package", "")))
-    start = _parse_date(str(raw.get("requested_start_date", "")), field="requested_start_date")
-    end = _parse_date(str(raw.get("requested_end_date", "")), field="requested_end_date")
+    start = _parse_date(
+        str(raw.get("requested_start_date", "")),
+        field="requested_start_date",
+    )
+    end = _parse_date(
+        str(raw.get("requested_end_date", "")),
+        field="requested_end_date",
+    )
     if start > end or end > _DEVELOPMENT_END:
         raise ValueError("source manifest interval is outside frozen research scope")
     if raw.get("manifest_version") != _MANIFEST_VERSION:
@@ -179,7 +210,9 @@ def load_historical_source_manifest(path: str | Path) -> HistoricalSourceManifes
     for item in files:
         if item.size_bytes <= 0:
             raise ValueError("source manifest contains non-positive file size")
-        if len(item.sha256) != 64 or any(char not in "0123456789abcdef" for char in item.sha256):
+        if len(item.sha256) != 64 or any(
+            char not in "0123456789abcdef" for char in item.sha256
+        ):
             raise ValueError("source manifest contains invalid file SHA-256")
     if len({item.relative_path for item in files}) != len(files):
         raise ValueError("source manifest contains duplicate relative paths")
@@ -197,8 +230,10 @@ def load_historical_source_manifest(path: str | Path) -> HistoricalSourceManifes
     provided_digest = str(raw.get("bundle_sha256", "")).lower()
     if provided_digest != expected_digest:
         raise ValueError("source manifest bundle SHA-256 mismatch")
-    return HistoricalSourceManifest(
-        **payload,
+    return _manifest_from_parts(
+        data_package=package,
+        requested_start_date=start.isoformat(),
+        requested_end_date=end.isoformat(),
         files=files,
         bundle_sha256=provided_digest,
     )
