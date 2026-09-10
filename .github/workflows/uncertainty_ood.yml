@@ -1,0 +1,219 @@
+name: Tennis Genome Uncertainty OOD Research
+
+on:
+  push:
+    branches:
+      - dev/uncertainty-ood-v1
+    paths:
+      - ".github/workflows/uncertainty_ood.yml"
+      - "src/tennis_genome/experiments/uncertainty_ood.py"
+      - "src/tennis_genome/experiments/calibration_selective.py"
+      - "src/tennis_genome/experiments/genome_neighborhood.py"
+      - "src/tennis_genome/features/**"
+      - "src/tennis_genome/neighbors/**"
+      - "src/tennis_genome/profiles/**"
+      - "src/tennis_genome/models/**"
+      - "src/tennis_genome/ratings/**"
+      - "src/tennis_genome/data/**"
+      - "tests/test_uncertainty_ood.py"
+      - "research/installment_01/uncertainty_ood*.md"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  uncertainty-ood-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Assert spent 2026 holdout is excluded
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$START_YEAR" = "2000"
+          test "$END_YEAR" = "2025"
+
+      - name: Download pinned 2000-2025 research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "$url"
+            done
+          done
+          test "$(find data/research_raw -type f | wc -l)" -eq 52
+
+      - name: Build canonical ATP and WTA datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tour in atp wta; do
+            mkdir -p "data/research_processed/${tour}"
+            args=()
+            for year in $(seq "$START_YEAR" "$END_YEAR"); do
+              args+=(--input "data/research_raw/${tour}/${tour}_matches_${year}.csv")
+            done
+            upper=$(echo "$tour" | tr '[:lower:]' '[:upper:]')
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour "$upper" \
+              --output-dir "data/research_processed/${tour}" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-${tour}-${START_YEAR}-${END_YEAR}" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "$LICENSE_NAME" \
+              --license-url "$LICENSE_URL" \
+              --allowed-use-status research_allowed \
+              > "data/research_processed/${tour}/build_output.json"
+          done
+
+      - name: Run UNCERTAINTY-OOD-001 ATP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/uncertainty_ood
+          python -m tennis_genome.experiments.uncertainty_ood \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --tour ATP \
+            --min-core-train-matches 1000 \
+            --min-neighbor-pool 1000 \
+            --min-condition-train-rows 1000 \
+            --min-risk-train-rows 1000 \
+            > artifacts/uncertainty_ood/uncertainty_ood_atp.json
+
+      - name: Run UNCERTAINTY-OOD-001 WTA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m tennis_genome.experiments.uncertainty_ood \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --tour WTA \
+            --min-core-train-matches 1000 \
+            --min-neighbor-pool 1000 \
+            --min-condition-train-rows 1000 \
+            --min-risk-train-rows 1000 \
+            > artifacts/uncertainty_ood/uncertainty_ood_wta.json
+
+      - name: Copy provenance manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp data/research_processed/atp/atp_manifest.json artifacts/uncertainty_ood/
+          cp data/research_processed/wta/wta_manifest.json artifacts/uncertainty_ood/
+
+      - name: Write UNCERTAINTY-OOD-001 summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("artifacts/uncertainty_ood")
+          loaded = [
+              ("ATP", json.loads((root / "uncertainty_ood_atp.json").read_text())),
+              ("WTA", json.loads((root / "uncertainty_ood_wta.json").read_text())),
+          ]
+          lines = [
+              "# UNCERTAINTY-OOD-001",
+              "",
+              "Pinned source: `Aneeshers/tennis-sackmann-archive@83733587353df8a41f2fd4f516147d5aa83f5a8d`",
+              "",
+              "Coverage: **2000-2025 only**. The spent partial-2026 holdout remains excluded.",
+              "",
+              "## Promotion gates",
+              "",
+              "| Tour | Alignment | Risk N | Conditioned density | Disagreement | Missingness | History depth | Point depth | Combined uncertainty |",
+              "|---|---|---:|---|---|---|---|---|---|",
+          ]
+          for label, data in loaded:
+              p = data["promotion_diagnostics"]
+              lines.append(
+                  f"| {label} | {data['alignment_representation']} | {data['risk_population_n']} | "
+                  f"{p['conditioned_density_pass']} | {p['disagreement_pass']} | "
+                  f"{p['missingness_pass']} | {p['history_depth_pass']} | "
+                  f"{p['point_depth_pass']} | {p['combined_uncertainty_pass']} |"
+              )
+
+          lines.extend([
+              "",
+              "## Selective-risk comparison",
+              "",
+              "| Tour | Coverage | Confidence Brier | Risk Brier | Δ Brier | Confidence LL | Risk LL | Δ LL |",
+              "|---|---:|---:|---:|---:|---:|---:|---:|",
+          ])
+          for label, data in loaded:
+              for item in data["selective"]["coverage"]:
+                  lines.append(
+                      f"| {label} | {item['requested_coverage']:.0%} | "
+                      f"{item['confidence_baseline']['brier']:.6f} | {item['uncertainty_model']['brier']:.6f} | "
+                      f"{item['brier_improvement']:+.6f} | {item['confidence_baseline']['log_loss']:.6f} | "
+                      f"{item['uncertainty_model']['log_loss']:.6f} | {item['log_loss_improvement']:+.6f} |"
+                  )
+
+          lines.extend([
+              "",
+              "## Operational aggregate (75/50/25%)",
+              "",
+              "| Tour | Brier wins | Log-loss wins | Mean Δ Brier | Mean Δ LL | Recent mean Δ Brier | Recent mean Δ LL | Monotone through 25% |",
+              "|---|---:|---:|---:|---:|---:|---:|---|",
+          ])
+          for label, data in loaded:
+              p = data["promotion_diagnostics"]
+              lines.append(
+                  f"| {label} | {p['operational_brier_win_count']}/3 | {p['operational_log_loss_win_count']}/3 | "
+                  f"{p['mean_operational_brier_improvement']:+.6f} | {p['mean_operational_log_loss_improvement']:+.6f} | "
+                  f"{p['recent_mean_operational_brier_improvement']:+.6f} | {p['recent_mean_operational_log_loss_improvement']:+.6f} | "
+                  f"{p['monotone_uncertainty_brier_through_25pct']} |"
+              )
+
+          lines.append("")
+          lines.append("This is historical uncertainty-development evidence only; it does not define a hard PASS threshold and is not a market/profitability test.")
+          summary = "\n".join(lines) + "\n"
+          (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          print(summary)
+          PY
+
+      - name: Upload UNCERTAINTY-OOD-001 reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-uncertainty-ood
+          path: artifacts/uncertainty_ood/
+          if-no-files-found: warn
+          retention-days: 30
