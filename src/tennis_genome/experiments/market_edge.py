@@ -29,6 +29,7 @@ from tennis_genome.evaluation.paired_inference import (
 SignalName = Literal["profile_gap", "genome"]
 Tour = Literal["ATP", "WTA"]
 _EXPERIMENT_ID = "MARKET-EDGE-001"
+_DEVELOPMENT_END_YEAR = 2025
 _MIN_PRIOR_ROWS = 1000
 _RECENT_START_YEAR = 2021
 _RECENT_END_YEAR = 2025
@@ -51,8 +52,8 @@ class MarketSignalRow:
             raise ValueError("match_id must be non-empty")
         if self.tour not in {"ATP", "WTA"}:
             raise ValueError("tour must be ATP or WTA")
-        if self.year < 1900 or self.year > 2100:
-            raise ValueError("year is outside supported range")
+        if self.year < 1900 or self.year > _DEVELOPMENT_END_YEAR:
+            raise ValueError("MARKET-EDGE-001 is frozen through 2025")
         if not math.isfinite(self.market_probability_a):
             raise ValueError("market_probability_a must be finite")
         if not 0.0 < self.market_probability_a < 1.0:
@@ -64,6 +65,7 @@ class MarketSignalRow:
 @dataclass(frozen=True)
 class OffsetFit:
     intercept: float
+    market_logit_slope: float
     beta: float | None
     signal_mean: float | None
     signal_sd: float | None
@@ -82,7 +84,9 @@ class MarketEdgePrediction:
     challenger_probability_a: float
     signal: float
     fit_intercept_control: float
+    fit_market_slope_control: float
     fit_intercept_challenger: float
+    fit_market_slope_challenger: float
     fit_beta: float
     fit_signal_mean: float
     fit_signal_sd: float
@@ -177,8 +181,14 @@ def _fit_offset_model(
     *,
     include_signal: bool,
 ) -> OffsetFit:
+    """Fit chronological Platt-style market recalibration with optional signal.
+
+    The primary control is alpha + gamma * logit(p_market). The challenger adds
+    beta * z(signal), where signal scaling is fit on these training rows only.
+    """
+
     if not rows:
-        raise ValueError("offset model requires non-empty training rows")
+        raise ValueError("market recalibration requires non-empty training rows")
     market_logits = np.asarray(
         [_logit(row.market_probability_a) for row in rows],
         dtype=float,
@@ -200,20 +210,28 @@ def _fit_offset_model(
         z_signal = (signal - signal_mean) / signal_sd
 
     def objective(parameters: np.ndarray) -> tuple[float, np.ndarray]:
-        linear = market_logits + parameters[0]
+        intercept = parameters[0]
+        market_slope = parameters[1]
+        linear = intercept + market_slope * market_logits
         if include_signal:
             assert z_signal is not None
-            linear = linear + parameters[1] * z_signal
+            linear = linear + parameters[2] * z_signal
         loss = float(np.mean(np.logaddexp(0.0, linear) - outcomes * linear))
         probabilities = expit(linear)
         residual = probabilities - outcomes
-        gradient_values = [float(np.mean(residual))]
+        gradient_values = [
+            float(np.mean(residual)),
+            float(np.mean(residual * market_logits)),
+        ]
         if include_signal:
             assert z_signal is not None
             gradient_values.append(float(np.mean(residual * z_signal)))
         return loss, np.asarray(gradient_values, dtype=float)
 
-    initial = np.zeros(2 if include_signal else 1, dtype=float)
+    initial = np.asarray(
+        [0.0, 1.0, 0.0] if include_signal else [0.0, 1.0],
+        dtype=float,
+    )
     result = minimize(
         lambda parameters: objective(parameters)[0],
         initial,
@@ -227,10 +245,11 @@ def _fit_offset_model(
         or not math.isfinite(float(result.fun))
         or not np.all(np.isfinite(result.jac))
     ):
-        raise RuntimeError(f"offset logistic optimization failed: {result.message}")
+        raise RuntimeError(f"market recalibration optimization failed: {result.message}")
     return OffsetFit(
         intercept=float(result.x[0]),
-        beta=float(result.x[1]) if include_signal else None,
+        market_logit_slope=float(result.x[1]),
+        beta=float(result.x[2]) if include_signal else None,
         signal_mean=signal_mean,
         signal_sd=signal_sd,
         train_n=len(rows),
@@ -238,7 +257,9 @@ def _fit_offset_model(
 
 
 def _predict_control(row: MarketSignalRow, fit: OffsetFit) -> float:
-    return _sigmoid(_logit(row.market_probability_a) + fit.intercept)
+    return _sigmoid(
+        fit.intercept + fit.market_logit_slope * _logit(row.market_probability_a)
+    )
 
 
 def _predict_challenger(row: MarketSignalRow, fit: OffsetFit) -> float:
@@ -246,7 +267,9 @@ def _predict_challenger(row: MarketSignalRow, fit: OffsetFit) -> float:
         raise ValueError("challenger prediction requires signal fit")
     z_signal = (row.signal - fit.signal_mean) / fit.signal_sd
     return _sigmoid(
-        _logit(row.market_probability_a) + fit.intercept + fit.beta * z_signal
+        fit.intercept
+        + fit.market_logit_slope * _logit(row.market_probability_a)
+        + fit.beta * z_signal
     )
 
 
@@ -262,6 +285,8 @@ def generate_market_edge_predictions(
         raise ValueError("min_prior_rows must be positive")
     if not rows:
         raise ValueError("rows must be non-empty")
+    if any(row.year > _DEVELOPMENT_END_YEAR for row in rows):
+        raise ValueError("MARKET-EDGE-001 is frozen through 2025")
     tours = {row.tour for row in rows}
     if len(tours) != 1:
         raise ValueError("one market-edge claim must contain exactly one tour")
@@ -294,7 +319,9 @@ def generate_market_edge_predictions(
                     challenger_probability_a=_predict_challenger(row, challenger_fit),
                     signal=row.signal,
                     fit_intercept_control=control_fit.intercept,
+                    fit_market_slope_control=control_fit.market_logit_slope,
                     fit_intercept_challenger=challenger_fit.intercept,
+                    fit_market_slope_challenger=challenger_fit.market_logit_slope,
                     fit_beta=challenger_fit.beta,
                     fit_signal_mean=challenger_fit.signal_mean,
                     fit_signal_sd=challenger_fit.signal_sd,
