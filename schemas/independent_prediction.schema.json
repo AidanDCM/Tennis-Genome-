@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/independent_prediction.schema.json",
+  "title": "TGE Independent Prediction",
+  "type": "object",
+  "required": [
+    "prediction_id",
+    "match_id",
+    "tour",
+    "created_at",
+    "prediction_cutoff_at",
+    "model_version",
+    "architecture_hash",
+    "p_player_a",
+    "p_player_b",
+    "component_probabilities",
+    "diagnostics",
+    "source_manifest_hashes",
+    "reason_codes"
+  ],
+  "properties": {
+    "prediction_id": {"type": "string", "minLength": 1},
+    "match_id": {"type": "string", "minLength": 1},
+    "tour": {"type": "string", "enum": ["ATP", "WTA"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "prediction_cutoff_at": {"type": "string", "format": "date-time"},
+    "model_version": {"const": "TGE-Independent-v1"},
+    "architecture_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "p_player_a": {"type": "number", "minimum": 0, "maximum": 1},
+    "p_player_b": {"type": "number", "minimum": 0, "maximum": 1},
+    "component_probabilities": {
+      "type": "object",
+      "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}
+    },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": {"type": ["number", "integer", "boolean", "null"]}
+    },
+    "source_manifest_hashes": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "uniqueItems": true
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "additionalProperties": false
+}
