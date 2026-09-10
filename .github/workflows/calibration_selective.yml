@@ -44,11 +44,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test "$START_YEAR" = "2000"
           test "$END_YEAR" = "2025"
-          if grep -q 'END_YEAR: "2026"' .github/workflows/calibration_selective.yml; then
-            echo "CAL-SEL-001 must not consume the spent 2026 holdout."
-            exit 1
-          fi
 
       - name: Download pinned 2000-2025 research snapshot
         shell: bash
