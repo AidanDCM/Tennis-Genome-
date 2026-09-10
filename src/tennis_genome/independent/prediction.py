@@ -32,7 +32,34 @@ _MARKET_OR_OUTCOME_KEYS = frozenset(
         "outcome_player_a_won",
     }
 )
+_FORBIDDEN_KEY_FRAGMENTS = (
+    "bookmaker",
+    "sportsbook",
+    "odds",
+    "market",
+    "stake",
+    "profit",
+    "payout",
+    "closing_line",
+    "closingline",
+    "expected_value",
+    "expectedvalue",
+    "novig",
+    "no_vig",
+    "outcome",
+    "winner",
+)
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _is_forbidden_key(key: str) -> bool:
+    normalized = key.lower()
+    if normalized in _MARKET_OR_OUTCOME_KEYS:
+        return True
+    if any(fragment in normalized for fragment in _FORBIDDEN_KEY_FRAGMENTS):
+        return True
+    tokens = {token for token in re.split(r"[^a-z0-9]+", normalized) if token}
+    return bool(tokens.intersection({"edge", "ev", "vig", "clv", "price"}))
 
 
 def _forbidden_keys(value: object) -> set[str]:
@@ -40,7 +67,7 @@ def _forbidden_keys(value: object) -> set[str]:
     if isinstance(value, Mapping):
         for key, nested in value.items():
             normalized = str(key).lower()
-            if normalized in _MARKET_OR_OUTCOME_KEYS:
+            if _is_forbidden_key(normalized):
                 found.add(normalized)
             found.update(_forbidden_keys(nested))
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
