@@ -63,6 +63,8 @@ jobs:
               for year in range(2020, 2026):
                   for index in range(24):
                       match_id = f"{tour.lower()}-{year}-{index:03d}"
+                      source_market_id = f"market-{match_id}"
+                      join_hash = (f"{tour_index}{index:03d}{year:04d}" * 8)[:64]
                       market_p = 0.30 + 0.40 * rng.random()
                       profile_signal = rng.gauss(0.0, 1.0)
                       genome_signal = 0.45 * profile_signal + rng.gauss(0.0, 0.9)
@@ -85,14 +87,20 @@ jobs:
                       lay_b = 1.0 / implied_lay_b
 
                       market_lines.append(json.dumps({
-                          "source_market_id": f"market-{match_id}",
+                          "source_market_id": source_market_id,
                           "join_status": "MATCHED",
-                          "join": {"match_id": match_id, "tour": tour},
+                          "join": {
+                              "match_id": match_id,
+                              "tour": tour,
+                              "join_hash": join_hash,
+                          },
                           "checkpoints": [{
                               "checkpoint_name": "CLOSE_PREPLAY",
                               "data_package": "ADVANCED",
                               "executable_two_way": True,
                               "seconds_to_start": 300.0,
+                              "match_id": match_id,
+                              "source_market_id": source_market_id,
                               "best_back_a": back_a,
                               "best_lay_a": lay_a,
                               "best_back_b": back_b,
@@ -102,7 +110,7 @@ jobs:
                               "market_total_matched": 10000.0 + 10.0 * index,
                               "market_base_rate": 5.0,
                               "record_hash": (f"{year:04d}{index:03d}{tour_index}" * 8)[:64],
-                              "join_hash": (f"{tour_index}{index:03d}{year:04d}" * 8)[:64],
+                              "join_hash": join_hash,
                           }],
                       }, sort_keys=True))
                       pre_match_rows.append({"match_id": match_id, "event_date": event_date})
@@ -185,12 +193,17 @@ jobs:
           }
           assert all(item["matched_claim_rows"] == 144 for item in result["coverage"])
           assert all(claim["last_evaluation_year"] == 2025 for claim in family["claims"])
+          assert all(
+              math.isfinite(prediction["fit_market_slope_control"])
+              and math.isfinite(prediction["fit_market_slope_challenger"])
+              for claim in family["claims"]
+              for prediction in claim["predictions"]
+          )
           PY
 
       - name: Enforce post-2025 fail-closed boundary
         run: |
           python - <<'PY'
-          import json
           from pathlib import Path
 
           import pandas as pd
