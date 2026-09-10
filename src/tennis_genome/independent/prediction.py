@@ -61,8 +61,8 @@ class IndependentPrediction:
             raise ValueError("p_player_b must be in [0, 1]")
         if abs((self.p_player_a + self.p_player_b) - 1.0) > 1e-9:
             raise ValueError("player probabilities must sum to one")
-        if self.created_at > self.prediction_cutoff_at:
-            raise ValueError("created_at cannot be after prediction_cutoff_at")
+        if self.created_at < self.prediction_cutoff_at:
+            raise ValueError("created_at cannot be before prediction_cutoff_at")
         for name, probability in self.component_probabilities.items():
             if not name:
                 raise ValueError("component probability names must be non-empty")
