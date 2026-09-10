@@ -98,6 +98,8 @@ def test_closing_market_loader_rejects_duplicate_joined_markets(tmp_path: Path) 
     first = _market_record()
     second = _market_record()
     second["source_market_id"] = "1.200"
+    second["join"]["source_market_id"] = "1.200"
+    second["checkpoints"][0]["source_market_id"] = "1.200"
     path.write_text(
         json.dumps(first) + "\n" + json.dumps(second) + "\n",
         encoding="utf-8",
