@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
