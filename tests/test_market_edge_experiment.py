@@ -42,6 +42,28 @@ def _synthetic_rows(
     return rows
 
 
+def _miscalibrated_market_rows() -> list[MarketSignalRow]:
+    rng = random.Random(20260910)
+    rows: list[MarketSignalRow] = []
+    for year in range(2018, 2026):
+        for index in range(200):
+            market_probability = 0.15 + 0.70 * rng.random()
+            market_logit = math.log(market_probability / (1.0 - market_probability))
+            true_logit = 0.15 + 0.65 * market_logit
+            true_probability = 1.0 / (1.0 + math.exp(-true_logit))
+            rows.append(
+                MarketSignalRow(
+                    match_id=f"miscal-{year}-{index:04d}",
+                    tour="ATP",
+                    year=year,
+                    outcome_a=rng.random() < true_probability,
+                    market_probability_a=market_probability,
+                    signal=rng.gauss(0.0, 1.0),
+                )
+            )
+    return rows
+
+
 def test_market_edge_predictions_use_only_earlier_years() -> None:
     rows = _synthetic_rows()
     predictions = generate_market_edge_predictions(
@@ -54,6 +76,17 @@ def test_market_edge_predictions_use_only_earlier_years() -> None:
     for prediction in predictions:
         expected_train_n = sum(row.year < prediction.year for row in rows)
         assert prediction.train_n == expected_train_n
+
+
+def test_market_recalibration_control_learns_probability_slope() -> None:
+    predictions = generate_market_edge_predictions(
+        _miscalibrated_market_rows(),
+        signal_name="profile_gap",
+        min_prior_rows=400,
+    )
+    latest = next(row for row in predictions if row.year == 2025)
+    assert 0.40 < latest.fit_market_slope_control < 0.90
+    assert math.isfinite(latest.fit_market_slope_challenger)
 
 
 def test_current_year_outcome_mutation_cannot_change_current_year_predictions() -> None:
@@ -89,6 +122,12 @@ def test_current_year_outcome_mutation_cannot_change_current_year_predictions() 
         )
         assert changed_year[match_id].challenger_probability_a == pytest.approx(
             base_year[match_id].challenger_probability_a
+        )
+        assert changed_year[match_id].fit_market_slope_control == pytest.approx(
+            base_year[match_id].fit_market_slope_control
+        )
+        assert changed_year[match_id].fit_market_slope_challenger == pytest.approx(
+            base_year[match_id].fit_market_slope_challenger
         )
         assert changed_year[match_id].fit_beta == pytest.approx(base_year[match_id].fit_beta)
 
@@ -190,4 +229,16 @@ def test_market_edge_rejects_duplicate_match_ids() -> None:
             [row, row],
             signal_name="profile_gap",
             min_prior_rows=1,
+        )
+
+
+def test_market_edge_row_rejects_spent_post_2025_year() -> None:
+    with pytest.raises(ValueError, match="frozen through 2025"):
+        MarketSignalRow(
+            match_id="future",
+            tour="ATP",
+            year=2026,
+            outcome_a=True,
+            market_probability_a=0.55,
+            signal=0.1,
         )
