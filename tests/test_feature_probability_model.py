@@ -50,6 +50,7 @@ def _snapshot(index: int) -> FoundationalSnapshot:
         slam_elo=0.0,
         masters_elo=0.0,
         finals_elo=0.0,
+        lower_tier_elo=0.0,
         late_round_elo=0.0,
         round_robin_elo=0.0,
         best_of_five_elo=0.0,
