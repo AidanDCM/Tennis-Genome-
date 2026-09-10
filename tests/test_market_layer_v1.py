@@ -192,6 +192,17 @@ def test_stale_last_update_is_metadata_not_automatic_rejection() -> None:
     assert comparison.decision_eligible is True
 
 
+def test_exact_commencement_is_closed_for_pre_match_comparison() -> None:
+    comparison = compare_prediction_to_market(
+        comparison_id="cmp-commence",
+        created_at=datetime(2026, 9, 10, 16, 0, tzinfo=UTC),
+        prediction=_prediction(),
+        market=_snapshot(),
+    )
+    assert comparison.decision_eligible is False
+    assert comparison.reason_codes == ("DECISION_AT_OR_AFTER_COMMENCE",)
+
+
 def test_live_or_mismatched_market_cannot_be_compared() -> None:
     live = parse_h2h_snapshot(
         event=_event(),
