@@ -1,0 +1,376 @@
+name: MARKET-VALIDATION-RUN-001 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/market-validation-run-v1
+    paths:
+      - "src/tennis_genome/experiments/market_validation_run.py"
+      - "tests/test_market_validation_run.py"
+      - "schemas/market_validation_*.schema.json"
+      - ".github/workflows/market_validation_run_synthetic.yml"
+  pull_request:
+    paths:
+      - "src/tennis_genome/experiments/market_validation_run.py"
+      - "tests/test_market_validation_run.py"
+      - "schemas/market_validation_*.schema.json"
+      - ".github/workflows/market_validation_run_synthetic.yml"
+
+jobs:
+  synthetic-staged-market-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate sealed synthetic inputs
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import math
+          import random
+          from datetime import UTC, date, datetime, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("synthetic_market_validation")
+          root.mkdir(parents=True)
+
+          def canonical_bytes(value):
+              return json.dumps(
+                  value,
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  ensure_ascii=False,
+              ).encode("utf-8")
+
+          def file_sha(path):
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          def write_self_hashed(path, payload):
+              value = dict(payload)
+              value["artifact_sha256"] = hashlib.sha256(canonical_bytes(payload)).hexdigest()
+              path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+          source_manifest = root / "source_manifest.json"
+          source_manifest.write_text(
+              json.dumps({"synthetic": True, "data_package": "ADVANCED"}, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          market_path = root / "market_hist_001_records.jsonl"
+          pre_match_path = root / "pre_match.parquet"
+          outcomes_path = root / "outcomes.parquet"
+          market_lines = []
+          pre_match_rows = []
+          outcome_rows = []
+          reports = {
+              ("ATP", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+              ("ATP", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+          }
+
+          for tour_index, tour in enumerate(("ATP", "WTA")):
+              rng = random.Random(9100 + tour_index)
+              for year in range(2020, 2026):
+                  for index in range(20):
+                      match_id = f"{tour.lower()}-{year}-{index:03d}"
+                      market_id = f"market-{match_id}"
+                      join_hash = hashlib.sha256(f"join:{match_id}".encode()).hexdigest()
+                      market_p = 0.28 + 0.44 * rng.random()
+                      profile_signal = rng.gauss(0.0, 1.0)
+                      genome_signal = 0.35 * profile_signal + rng.gauss(0.0, 0.95)
+                      core_noise = rng.gauss(0.0, 1.0)
+                      market_logit = math.log(market_p / (1.0 - market_p))
+                      core_logit = market_logit + 0.18 * core_noise
+                      core_p = 1.0 / (1.0 + math.exp(-core_logit))
+                      true_logit = market_logit + 0.12 * core_noise
+                      true_logit += 0.20 * profile_signal + 0.14 * genome_signal
+                      true_p = 1.0 / (1.0 + math.exp(-true_logit))
+                      outcome_a = rng.random() < true_p
+
+                      market_time = datetime(year, 6, 15, 18, 0, tzinfo=UTC)
+                      published_at = market_time - timedelta(minutes=5)
+                      spread = 0.008
+                      implied_back_a = min(0.98, market_p + spread)
+                      implied_lay_a = max(0.02, market_p - spread)
+                      implied_back_b = min(0.98, 1.0 - market_p + spread)
+                      implied_lay_b = max(0.02, 1.0 - market_p - spread)
+
+                      market_lines.append(
+                          json.dumps(
+                              {
+                                  "source_market_id": market_id,
+                                  "join_status": "MATCHED",
+                                  "join": {
+                                      "match_id": match_id,
+                                      "tour": tour,
+                                      "join_hash": join_hash,
+                                  },
+                                  "checkpoints": [
+                                      {
+                                          "checkpoint_name": "CLOSE_PREPLAY",
+                                          "data_package": "ADVANCED",
+                                          "executable_two_way": True,
+                                          "seconds_to_start": 300.0,
+                                          "match_id": match_id,
+                                          "source_market_id": market_id,
+                                          "best_back_a": 1.0 / implied_back_a,
+                                          "best_lay_a": 1.0 / implied_lay_a,
+                                          "best_back_b": 1.0 / implied_back_b,
+                                          "best_lay_b": 1.0 / implied_lay_b,
+                                          "published_at": published_at.isoformat(),
+                                          "market_time": market_time.isoformat(),
+                                          "market_total_matched": 10000.0 + index,
+                                          "market_base_rate": 5.0,
+                                          "record_hash": hashlib.sha256(
+                                              f"checkpoint:{match_id}".encode()
+                                          ).hexdigest(),
+                                          "join_hash": join_hash,
+                                      }
+                                  ],
+                              },
+                              sort_keys=True,
+                          )
+                      )
+                      pre_match_rows.append(
+                          {"match_id": match_id, "event_date": date(year, 6, 15)}
+                      )
+                      outcome_rows.append(
+                          {
+                              "match_id": match_id,
+                              "a_won": outcome_a,
+                              "retirement": False,
+                              "walkover": False,
+                          }
+                      )
+                      reports[(tour, "profile")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "strict_core_probability": core_p,
+                              "profile_gap_match": profile_signal,
+                              "outcome_a": not outcome_a,
+                          }
+                      )
+                      reports[(tour, "genome")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "core_probability_a": core_p,
+                              "full_neighbor_residual": genome_signal,
+                              "core_neighbor_residual": genome_signal,
+                              "outcome_a": not outcome_a,
+                          }
+                      )
+
+          market_path.write_text("\n".join(market_lines) + "\n", encoding="utf-8")
+          pd.DataFrame(pre_match_rows).to_parquet(pre_match_path, index=False)
+          pd.DataFrame(outcome_rows).to_parquet(outcomes_path, index=False)
+          report_paths = {}
+          for (tour, kind), payload in reports.items():
+              path = root / f"{kind}_{tour.lower()}.json"
+              path.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+              report_paths[(tour, kind)] = path
+
+          qa_path = root / "market_hist_qa_001.json"
+          qa_payload = {
+              "experiment_id": "MARKET-HIST-QA-001",
+              "effective_overall_status": "ELIGIBLE_CONFIRMATORY",
+              "qa_report": {
+                  "tours": [
+                      {"tour": "ATP", "status": "ELIGIBLE_CONFIRMATORY"},
+                      {"tour": "WTA", "status": "ELIGIBLE_CONFIRMATORY"},
+                  ]
+              },
+              "checkpoint_coverage": [],
+              "companion_structural_errors": [],
+              "input_sha256": {
+                  "source_manifest": file_sha(source_manifest),
+                  "market_hist_records": file_sha(market_path),
+                  "pre_match": file_sha(pre_match_path),
+                  "outcomes": file_sha(outcomes_path),
+              },
+          }
+          write_self_hashed(qa_path, qa_payload)
+
+          signal_paths = {
+              "profile_gap_atp": report_paths[("ATP", "profile")],
+              "profile_gap_wta": report_paths[("WTA", "profile")],
+              "genome_atp": report_paths[("ATP", "genome")],
+              "genome_wta": report_paths[("WTA", "genome")],
+          }
+          power_path = root / "power_mde_001.json"
+          claims = []
+          for tour, signal in (
+              ("ATP", "profile_gap"),
+              ("WTA", "profile_gap"),
+              ("ATP", "genome"),
+              ("WTA", "genome"),
+          ):
+              claims.append(
+                  {
+                      "experiment_id": "POWER-MDE-001",
+                      "tour": tour,
+                      "signal_name": signal,
+                      "year_plans": [
+                          {"evaluation_year": year, "identifiable": True}
+                          for year in range(2021, 2026)
+                      ],
+                  }
+              )
+          power_payload = {
+              "experiment_id": "POWER-MDE-001",
+              "outcome_blind": True,
+              "method": "synthetic-outcome-blind-fixture",
+              "claims": claims,
+              "input_sha256": {
+                  "market_hist_records": file_sha(market_path),
+                  "pre_match": file_sha(pre_match_path),
+                  **{name: file_sha(path) for name, path in signal_paths.items()},
+              },
+          }
+          write_self_hashed(power_path, power_payload)
+          PY
+
+      - name: Prove Stage A CLI has no outcomes input
+        run: |
+          python -m tennis_genome.experiments.market_validation_run seal --help > seal-help.txt
+          if grep -q -- "--outcomes" seal-help.txt; then
+            echo "Stage A unexpectedly exposes an outcomes argument"
+            exit 1
+          fi
+
+      - name: Create deterministic Stage A seals
+        run: |
+          for output in seal-a.json seal-b.json; do
+            python -m tennis_genome.experiments.market_validation_run seal \
+              --source-manifest synthetic_market_validation/source_manifest.json \
+              --market-hist-records synthetic_market_validation/market_hist_001_records.jsonl \
+              --pre-match synthetic_market_validation/pre_match.parquet \
+              --market-hist-qa synthetic_market_validation/market_hist_qa_001.json \
+              --power-mde synthetic_market_validation/power_mde_001.json \
+              --profile-gap-atp synthetic_market_validation/profile_atp.json \
+              --profile-gap-wta synthetic_market_validation/profile_wta.json \
+              --genome-atp synthetic_market_validation/genome_atp.json \
+              --genome-wta synthetic_market_validation/genome_wta.json \
+              --output synthetic_market_validation/${output} > /dev/null
+          done
+          cmp synthetic_market_validation/seal-a.json synthetic_market_validation/seal-b.json
+
+      - name: Prove post-seal mutation blocks before outcomes are needed
+        run: |
+          cp synthetic_market_validation/genome_atp.json synthetic_market_validation/genome_atp.original
+          printf '\n' >> synthetic_market_validation/genome_atp.json
+          set +e
+          python -m tennis_genome.experiments.market_validation_run run \
+            --seal synthetic_market_validation/seal-a.json \
+            --source-manifest synthetic_market_validation/source_manifest.json \
+            --market-hist-records synthetic_market_validation/market_hist_001_records.jsonl \
+            --pre-match synthetic_market_validation/pre_match.parquet \
+            --market-hist-qa synthetic_market_validation/market_hist_qa_001.json \
+            --power-mde synthetic_market_validation/power_mde_001.json \
+            --profile-gap-atp synthetic_market_validation/profile_atp.json \
+            --profile-gap-wta synthetic_market_validation/profile_wta.json \
+            --genome-atp synthetic_market_validation/genome_atp.json \
+            --genome-wta synthetic_market_validation/genome_wta.json \
+            --outcomes synthetic_market_validation/DOES_NOT_EXIST.parquet \
+            --min-prior-rows 20 \
+            --output synthetic_market_validation/should-not-exist.json \
+            > /tmp/stage-b-tamper.stdout 2> /tmp/stage-b-tamper.stderr
+          status=$?
+          set -e
+          test "$status" -ne 0
+          grep -q "changed before Stage B: genome_atp" /tmp/stage-b-tamper.stderr
+          test ! -e synthetic_market_validation/should-not-exist.json
+          mv synthetic_market_validation/genome_atp.original synthetic_market_validation/genome_atp.json
+
+      - name: Run Stage B twice on exact sealed inputs
+        run: |
+          for output in result-a.json result-b.json; do
+            python -m tennis_genome.experiments.market_validation_run run \
+              --seal synthetic_market_validation/seal-a.json \
+              --source-manifest synthetic_market_validation/source_manifest.json \
+              --market-hist-records synthetic_market_validation/market_hist_001_records.jsonl \
+              --pre-match synthetic_market_validation/pre_match.parquet \
+              --market-hist-qa synthetic_market_validation/market_hist_qa_001.json \
+              --power-mde synthetic_market_validation/power_mde_001.json \
+              --profile-gap-atp synthetic_market_validation/profile_atp.json \
+              --profile-gap-wta synthetic_market_validation/profile_wta.json \
+              --genome-atp synthetic_market_validation/genome_atp.json \
+              --genome-wta synthetic_market_validation/genome_wta.json \
+              --outcomes synthetic_market_validation/outcomes.parquet \
+              --min-prior-rows 20 \
+              --output synthetic_market_validation/${output} > /dev/null
+          done
+          cmp synthetic_market_validation/result-a.json synthetic_market_validation/result-b.json
+
+      - name: Enforce staged result provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("synthetic_market_validation")
+          seal = json.loads((root / "seal-a.json").read_text(encoding="utf-8"))
+          result = json.loads((root / "result-a.json").read_text(encoding="utf-8"))
+          assert seal["experiment_id"] == "MARKET-VALIDATION-RUN-001"
+          assert seal["stage"] == "OUTCOME_LOCKED_COMPLETE"
+          assert seal["winner_outcomes_permitted_for_stage_b"] is True
+          assert len(seal["power_claims"]) == 4
+          assert result["experiment_id"] == "MARKET-VALIDATION-RUN-001"
+          assert result["stage"] == "OUTCOME_OPEN_COMPLETE"
+          assert result["outcome_open"] is True
+          assert result["stage_a_seal_sha256"] == seal["seal_sha256"]
+          assert result["market_edge_001"]["experiment_id"] == "MARKET-EDGE-001"
+          assert result["market_edge_adv_001"]["experiment_id"] == "MARKET-EDGE-ADV-001"
+          assert result["market_edge_001_sha256"] == hashlib.sha256(
+              json.dumps(
+                  result["market_edge_001"],
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  ensure_ascii=False,
+              ).encode("utf-8")
+          ).hexdigest()
+          assert result["market_edge_adv_001_sha256"] == hashlib.sha256(
+              json.dumps(
+                  result["market_edge_adv_001"],
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  ensure_ascii=False,
+              ).encode("utf-8")
+          ).hexdigest()
+          PY
+
+      - name: Upload staged synthetic artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-market-validation-run-synthetic
+          path: |
+            synthetic_market_validation/seal-a.json
+            synthetic_market_validation/result-a.json
