@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "style_snapshot.schema.json",
+  "title": "Tennis Genome Player Style Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "player_id",
+    "valid_from",
+    "source_id",
+    "known_before_match",
+    "sample_size"
+  ],
+  "properties": {
+    "player_id": {"type": "string", "minLength": 1},
+    "valid_from": {"type": "string", "format": "date-time"},
+    "valid_until": {"type": ["string", "null"], "format": "date-time"},
+    "source_id": {"type": "string", "minLength": 1},
+    "known_before_match": {"type": "boolean"},
+    "sample_size": {"type": "integer", "minimum": 0},
+    "surface": {
+      "type": ["string", "null"],
+      "enum": ["Hard", "Clay", "Grass", "Carpet", "All", null]
+    },
+    "serve_dependence": {"type": ["number", "null"]},
+    "return_dependence": {"type": ["number", "null"]},
+    "aggression_index": {"type": ["number", "null"]},
+    "rally_tolerance": {"type": ["number", "null"]},
+    "net_approach_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "net_points_won_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "average_rally_length": {"type": ["number", "null"], "minimum": 0},
+    "short_rally_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "long_rally_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "forehand_spin_index": {"type": ["number", "null"]},
+    "backhand_spin_index": {"type": ["number", "null"]},
+    "slice_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "return_position_m": {"type": ["number", "null"]},
+    "court_position_index": {"type": ["number", "null"]},
+    "serve_direction_t_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "serve_direction_wide_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "serve_direction_body_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "first_strike_efficiency": {"type": ["number", "null"]},
+    "movement_index": {"type": ["number", "null"]},
+    "source_reliability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": ["number", "null"], "minimum": 0}
+  }
+}

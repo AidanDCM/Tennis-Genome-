@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "environment_snapshot.schema.json",
+  "title": "Tennis Genome Environment Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "match_id",
+    "source_id",
+    "published_at",
+    "collected_at",
+    "known_before_match"
+  ],
+  "properties": {
+    "match_id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "published_at": {"type": "string", "format": "date-time"},
+    "collected_at": {"type": "string", "format": "date-time"},
+    "forecast_for": {"type": ["string", "null"], "format": "date-time"},
+    "known_before_match": {"type": "boolean"},
+    "venue_id": {"type": ["string", "null"]},
+    "latitude": {"type": ["number", "null"], "minimum": -90, "maximum": 90},
+    "longitude": {"type": ["number", "null"], "minimum": -180, "maximum": 180},
+    "altitude_m": {"type": ["number", "null"]},
+    "indoor": {"type": ["boolean", "null"]},
+    "roof_state": {
+      "type": ["string", "null"],
+      "enum": ["open", "closed", "unknown", null]
+    },
+    "temperature_c": {"type": ["number", "null"]},
+    "humidity_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "wind_kph": {"type": ["number", "null"], "minimum": 0},
+    "court_speed_index": {"type": ["number", "null"]},
+    "ball_manufacturer": {"type": ["string", "null"]},
+    "ball_model": {"type": ["string", "null"]},
+    "source_reliability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "measurement_uncertainty": {"type": ["number", "null"], "minimum": 0},
+    "provenance_url": {"type": ["string", "null"], "format": "uri"}
+  }
+}

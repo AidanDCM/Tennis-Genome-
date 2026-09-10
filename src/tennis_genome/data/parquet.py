@@ -79,6 +79,12 @@ def _optional_int(value: object) -> int | None:
     return int(value)
 
 
+def _optional_float(value: object) -> float | None:
+    if value is None or pd.isna(value):
+        return None
+    return float(value)
+
+
 def _optional_text(value: object) -> str | None:
     if value is None or pd.isna(value):
         return None
@@ -133,6 +139,7 @@ def _stats_from_row(values: dict[str, object]) -> MatchStats:
         break_points_saved_b=_optional_int(values.get("break_points_saved_b")),
         break_points_faced_a=_optional_int(values.get("break_points_faced_a")),
         break_points_faced_b=_optional_int(values.get("break_points_faced_b")),
+        duration_minutes=_optional_int(values.get("duration_minutes")),
     )
 
 
@@ -222,6 +229,19 @@ def load_canonical_parquet(
             rank_b=_optional_int(values.get("rank_b")),
             rank_points_a=_optional_int(values.get("rank_points_a")),
             rank_points_b=_optional_int(values.get("rank_points_b")),
+            draw_size=_optional_int(values.get("draw_size")),
+            seed_a=_optional_int(values.get("seed_a")),
+            seed_b=_optional_int(values.get("seed_b")),
+            entry_a=_optional_text(values.get("entry_a")),
+            entry_b=_optional_text(values.get("entry_b")),
+            hand_a=_optional_text(values.get("hand_a")),
+            hand_b=_optional_text(values.get("hand_b")),
+            height_cm_a=_optional_int(values.get("height_cm_a")),
+            height_cm_b=_optional_int(values.get("height_cm_b")),
+            age_years_a=_optional_float(values.get("age_years_a")),
+            age_years_b=_optional_float(values.get("age_years_b")),
+            ioc_a=_optional_text(values.get("ioc_a")),
+            ioc_b=_optional_text(values.get("ioc_b")),
         )
         outcome = MatchOutcome(
             match_id=match_id,

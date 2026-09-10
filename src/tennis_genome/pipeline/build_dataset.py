@@ -16,7 +16,7 @@ from tennis_genome.data.provenance import AllowedUseStatus, SourceMetadata
 from tennis_genome.data.quality import audit_historical_matches, raise_for_quality_errors
 from tennis_genome.data.sackmann import load_sackmann_csvs
 
-SCHEMA_VERSION = "canonical-v2"
+SCHEMA_VERSION = "canonical-v3"
 
 
 def _pre_match_frame(matches: list[HistoricalMatch]) -> pd.DataFrame:
@@ -118,6 +118,8 @@ def build_canonical_dataset_from_files(
         "notes": [
             "pre-match, outcome, and post-match stats tables are intentionally separated",
             "target-match stats are never legal pre-match features",
+            "canonical-v3 adds pre-match age/hand/height/entry/seed/country fields",
+            "canonical-v3 adds match duration only to the post-match stats table",
             "field timestamp semantics still require source-specific audit before final claims",
             "same-day exact start times are not inferred by this builder",
             "multi-file bundles are sorted by resolved path before ingestion",

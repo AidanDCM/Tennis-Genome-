@@ -35,6 +35,19 @@ class PreMatchState:
     rank_b: int | None
     rank_points_a: int | None
     rank_points_b: int | None
+    draw_size: int | None = None
+    seed_a: int | None = None
+    seed_b: int | None = None
+    entry_a: str | None = None
+    entry_b: str | None = None
+    hand_a: str | None = None
+    hand_b: str | None = None
+    height_cm_a: int | None = None
+    height_cm_b: int | None = None
+    age_years_a: float | None = None
+    age_years_b: float | None = None
+    ioc_a: str | None = None
+    ioc_b: str | None = None
 
 
 @dataclass(frozen=True)
@@ -76,6 +89,7 @@ class MatchStats:
     break_points_saved_b: int | None = None
     break_points_faced_a: int | None = None
     break_points_faced_b: int | None = None
+    duration_minutes: int | None = None
 
     @property
     def service_points_won_a(self) -> int | None:
