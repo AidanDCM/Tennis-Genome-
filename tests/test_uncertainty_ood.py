@@ -5,13 +5,7 @@ from datetime import date
 import pytest
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState
-from tennis_genome.experiments.uncertainty_ood import (
-    _BaseRow,
-    _DistanceRow,
-    _alignment_vector,
-    _condition_distances,
-    run_uncertainty_ood,
-)
+from tennis_genome.experiments import uncertainty_ood
 from tennis_genome.features.genome import GENOME_VERSION, GenomeVector
 
 
@@ -38,9 +32,9 @@ def _base(
     year: int,
     *,
     confidence_probability: float,
-) -> _BaseRow:
+) -> uncertainty_ood._BaseRow:
     genome = _genome(match_id)
-    return _BaseRow(
+    return uncertainty_ood._BaseRow(
         match_id=match_id,
         year=year,
         outcome_a=True,
@@ -55,8 +49,8 @@ def _base(
 def test_wta_alignment_uses_strict_core_only_but_atp_keeps_full_genome() -> None:
     genome = _genome("m")
 
-    atp = _alignment_vector(genome, tour="ATP")
-    wta = _alignment_vector(
+    atp = uncertainty_ood._alignment_vector(genome, tour="ATP")
+    wta = uncertainty_ood._alignment_vector(
         GenomeVector(
             **{
                 **genome.__dict__,
@@ -78,33 +72,33 @@ def test_wta_alignment_uses_strict_core_only_but_atp_keeps_full_genome() -> None
 
 def test_distance_conditioning_never_fits_target_year_distribution() -> None:
     prior = [
-        _DistanceRow(
+        uncertainty_ood._DistanceRow(
             base=_base(f"p-{index}", 2010 + index // 2, confidence_probability=0.6),
             raw_mean_distance_100=1.0 + 0.1 * index,
             historical_pool_size=1000 + 50 * index,
         )
         for index in range(4)
     ]
-    target_a = _DistanceRow(
+    target_a = uncertainty_ood._DistanceRow(
         base=_base("target-a", 2012, confidence_probability=0.7),
         raw_mean_distance_100=1.5,
         historical_pool_size=1200,
     )
-    target_b = _DistanceRow(
+    target_b = uncertainty_ood._DistanceRow(
         base=_base("target-b", 2012, confidence_probability=0.7),
         raw_mean_distance_100=1.6,
         historical_pool_size=1200,
     )
 
-    first = _condition_distances(
+    first = uncertainty_ood._condition_distances(
         prior + [target_a, target_b],
         min_condition_train_rows=4,
     )
-    altered = _condition_distances(
+    altered = uncertainty_ood._condition_distances(
         prior
         + [
             target_a,
-            _DistanceRow(
+            uncertainty_ood._DistanceRow(
                 base=target_b.base,
                 raw_mean_distance_100=1_000_000.0,
                 historical_pool_size=1200,
@@ -180,7 +174,7 @@ def _history(*, tour: str = "ATP") -> list[HistoricalMatch]:
 
 
 def test_uncertainty_lab_produces_nested_oos_risk_predictions() -> None:
-    report = run_uncertainty_ood(
+    report = uncertainty_ood.run_uncertainty_ood(
         _history(),
         tour="ATP",
         min_core_train_matches=100,
@@ -204,7 +198,7 @@ def test_uncertainty_lab_rejects_spent_post_2025_data() -> None:
     matches.append(_synthetic_match(2026, 0))
 
     with pytest.raises(ValueError, match="post-2025"):
-        run_uncertainty_ood(
+        uncertainty_ood.run_uncertainty_ood(
             matches,
             tour="ATP",
             min_core_train_matches=100,
