@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "market_validation_result_bundle.schema.json",
+  "title": "MARKET-VALIDATION-RUN-001 Outcome-Open Result Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "stage",
+    "outcome_open",
+    "stage_a_seal_sha256",
+    "sealed_file_sha256",
+    "outcomes_sha256",
+    "market_edge_001_sha256",
+    "market_edge_adv_001_sha256",
+    "market_edge_001",
+    "market_edge_adv_001",
+    "bundle_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-VALIDATION-RUN-001"},
+    "stage": {"const": "OUTCOME_OPEN_COMPLETE"},
+    "outcome_open": {"const": true},
+    "stage_a_seal_sha256": {"$ref": "#/$defs/sha256"},
+    "sealed_file_sha256": {"type": "object"},
+    "outcomes_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_001_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_adv_001_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_001": {
+      "type": "object",
+      "required": ["experiment_id"],
+      "properties": {"experiment_id": {"const": "MARKET-EDGE-001"}}
+    },
+    "market_edge_adv_001": {
+      "type": "object",
+      "required": ["experiment_id"],
+      "properties": {"experiment_id": {"const": "MARKET-EDGE-ADV-001"}}
+    },
+    "bundle_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
