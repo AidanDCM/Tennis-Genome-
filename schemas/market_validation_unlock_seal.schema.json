@@ -12,6 +12,7 @@
     "qa_artifact_sha256",
     "qa_effective_overall_status",
     "qa_tour_status",
+    "qa_outcomes_sha256",
     "power_mde_artifact_sha256",
     "power_claims",
     "seal_sha256"
@@ -57,6 +58,7 @@
         "WTA": {"const": "ELIGIBLE_CONFIRMATORY"}
       }
     },
+    "qa_outcomes_sha256": {"$ref": "#/$defs/sha256"},
     "power_mde_artifact_sha256": {"$ref": "#/$defs/sha256"},
     "power_claims": {
       "type": "array",
