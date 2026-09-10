@@ -13,6 +13,7 @@ _MANIFEST_VERSION = "betfair-historical-bundle-v1"
 _PROVIDER = "BETFAIR_HISTORICAL"
 _SPORT = "TENNIS"
 _MARKET_TYPE = "MATCH_ODDS"
+_BETFAIR_HISTORY_START = date(2015, 4, 1)
 _DEVELOPMENT_END = date(2025, 12, 31)
 _SUPPORTED_SUFFIXES = {"", ".bz2", ".json", ".jsonl", ".txt"}
 
@@ -142,6 +143,11 @@ def build_historical_source_manifest(
     end = _parse_date(requested_end_date, field="requested_end_date")
     if start > end:
         raise ValueError("requested_start_date must not be after requested_end_date")
+    if start < _BETFAIR_HISTORY_START:
+        raise ValueError(
+            "Betfair Stream-format Historical Data source interval must start on or after "
+            "2015-04-01"
+        )
     if end > _DEVELOPMENT_END:
         raise ValueError("MARKET-HIST confirmatory source interval must end by 2025-12-31")
 
@@ -199,7 +205,7 @@ def load_historical_source_manifest(path: str | Path) -> HistoricalSourceManifes
         str(raw.get("requested_end_date", "")),
         field="requested_end_date",
     )
-    if start > end or end > _DEVELOPMENT_END:
+    if start < _BETFAIR_HISTORY_START or start > end or end > _DEVELOPMENT_END:
         raise ValueError("source manifest interval is outside frozen research scope")
     if raw.get("manifest_version") != _MANIFEST_VERSION:
         raise ValueError("unexpected source manifest version")

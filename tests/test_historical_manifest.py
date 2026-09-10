@@ -81,6 +81,30 @@ def test_manifest_detects_extra_or_missing_source_file(tmp_path: Path) -> None:
         verify_historical_source_manifest(manifest, root=root)
 
 
+def test_manifest_rejects_pre_april_2015_stream_interval(tmp_path: Path) -> None:
+    root = tmp_path / "betfair"
+    _source_tree(root)
+    with pytest.raises(ValueError, match="2015-04-01"):
+        build_historical_source_manifest(
+            root=root,
+            data_package="ADVANCED",
+            requested_start_date="2015-03-31",
+            requested_end_date="2015-12-31",
+        )
+
+
+def test_manifest_accepts_documented_april_2015_floor(tmp_path: Path) -> None:
+    root = tmp_path / "betfair"
+    _source_tree(root)
+    manifest = build_historical_source_manifest(
+        root=root,
+        data_package="ADVANCED",
+        requested_start_date="2015-04-01",
+        requested_end_date="2015-12-31",
+    )
+    assert manifest.requested_start_date == "2015-04-01"
+
+
 def test_manifest_rejects_post_2025_interval(tmp_path: Path) -> None:
     root = tmp_path / "betfair"
     _source_tree(root)
@@ -120,6 +144,47 @@ def test_manifest_loader_detects_metadata_tampering(tmp_path: Path) -> None:
     payload["total_bytes"] += 1
     output.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match="total_bytes mismatch"):
+        load_historical_source_manifest(output)
+
+
+def test_manifest_loader_rejects_pre_april_2015_interval(tmp_path: Path) -> None:
+    root = tmp_path / "betfair"
+    _source_tree(root)
+    manifest = build_historical_source_manifest(
+        root=root,
+        data_package="ADVANCED",
+        requested_start_date="2015-04-01",
+        requested_end_date="2015-12-31",
+    )
+    output = tmp_path / "manifest.json"
+    write_historical_source_manifest(manifest, output)
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    payload["requested_start_date"] = "2015-03-31"
+    files = payload["files"]
+    canonical_payload = {
+        "manifest_version": payload["manifest_version"],
+        "provider": payload["provider"],
+        "sport": payload["sport"],
+        "market_type": payload["market_type"],
+        "data_package": payload["data_package"],
+        "requested_start_date": payload["requested_start_date"],
+        "requested_end_date": payload["requested_end_date"],
+        "file_count": payload["file_count"],
+        "total_bytes": payload["total_bytes"],
+        "files": files,
+    }
+    import hashlib
+
+    payload["bundle_sha256"] = hashlib.sha256(
+        json.dumps(
+            canonical_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    output.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="outside frozen research scope"):
         load_historical_source_manifest(output)
 
 
