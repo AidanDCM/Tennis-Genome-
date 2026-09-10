@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_validation_execution_ledger.schema.json",
+  "title": "MARKET-VALIDATION-RUNNER-v1 execution ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "created_at",
+    "preoutcome_seal_sha256",
+    "outcomes_sha256",
+    "market_edge_output_sha256",
+    "market_edge_adv_output_sha256",
+    "market_edge_internal_artifact_sha256",
+    "market_edge_adv_internal_artifact_sha256",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-VALIDATION-RUNNER-v1"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "preoutcome_seal_sha256": {"$ref": "#/$defs/sha256"},
+    "outcomes_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_output_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_adv_output_sha256": {"$ref": "#/$defs/sha256"},
+    "market_edge_internal_artifact_sha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "market_edge_adv_internal_artifact_sha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
