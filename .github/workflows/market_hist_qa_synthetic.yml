@@ -52,7 +52,7 @@ jobs:
           root = Path("synthetic_market_hist_qa")
           source = root / "source"
           source.mkdir(parents=True)
-          source_file = source / "bundle.dat"
+          source_file = source / "bundle.jsonl"
           source_file.write_bytes(b"synthetic Betfair source stand-in")
           manifest = build_historical_source_manifest(
               root=source,
@@ -140,7 +140,7 @@ jobs:
                       market_lines.append(json.dumps({
                           "source_market_id": market_id,
                           "source_event_id": f"event-{year}",
-                          "source_file": "bundle.dat",
+                          "source_file": "bundle.jsonl",
                           "source_file_sha256": source_hash,
                           "data_package": "ADVANCED",
                           "join_status": "MATCHED",
@@ -227,7 +227,7 @@ jobs:
 
       - name: Enforce physical source tamper detection
         run: |
-          printf 'tampered' >> synthetic_market_hist_qa/source/bundle.dat
+          printf 'tampered' >> synthetic_market_hist_qa/source/bundle.jsonl
           set +e
           python -m tennis_genome.experiments.market_hist_qa_bundle \
             --source-manifest synthetic_market_hist_qa/manifest.json \
