@@ -47,6 +47,16 @@ def test_architecture_hash_is_deterministic_and_sensitive_to_spec() -> None:
     assert canonical_spec_json() == canonical_spec_json(TGE_INDEPENDENT_V1)
 
 
+def test_committed_manifest_matches_frozen_architecture_hash() -> None:
+    manifest = json.loads(
+        Path("artifacts/tge_independent_v1_manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["model_version"] == MODEL_VERSION
+    assert manifest["architecture_hash"] == architecture_hash()
+    assert manifest["development_data_end_year"] == 2025
+    assert manifest["market_blind"] is True
+
+
 def test_tour_architectures_are_intentionally_asymmetric() -> None:
     atp = tour_spec("ATP")
     wta = tour_spec("WTA")
@@ -69,6 +79,11 @@ def test_independent_prediction_is_complementary_and_market_blind() -> None:
     reject_market_or_outcome_fields(payload)
 
 
+def test_independent_prediction_rejects_wrong_architecture_hash() -> None:
+    with pytest.raises(ValueError, match="architecture_hash"):
+        _prediction(architecture_hash="0" * 64)
+
+
 def test_independent_prediction_rejects_invalid_probability_sum() -> None:
     with pytest.raises(ValueError, match="sum to one"):
         _prediction(p_player_a=0.7, p_player_b=0.4)
@@ -83,7 +98,26 @@ def test_independent_prediction_allows_creation_at_or_after_cutoff() -> None:
         _prediction(created_at=cutoff - timedelta(seconds=1), prediction_cutoff_at=cutoff)
 
 
-def test_market_and_outcome_fields_fail_closed() -> None:
+def test_independent_prediction_requires_aware_timestamps() -> None:
+    naive = datetime(2026, 9, 10, 14, 0)
+    aware = datetime(2026, 9, 10, 14, 0, tzinfo=UTC)
+
+    with pytest.raises(ValueError, match="created_at must be timezone-aware"):
+        _prediction(created_at=naive, prediction_cutoff_at=aware)
+    with pytest.raises(ValueError, match="prediction_cutoff_at must be timezone-aware"):
+        _prediction(created_at=aware, prediction_cutoff_at=naive)
+
+
+def test_source_manifest_hashes_are_required_and_validated() -> None:
+    with pytest.raises(ValueError, match="at least one"):
+        _prediction(source_manifest_hashes=())
+    with pytest.raises(ValueError, match="lowercase SHA-256"):
+        _prediction(source_manifest_hashes=("not-a-hash",))
+    with pytest.raises(ValueError, match="unique"):
+        _prediction(source_manifest_hashes=("a" * 64, "a" * 64))
+
+
+def test_market_and_outcome_fields_fail_closed_recursively() -> None:
     for forbidden in (
         "odds",
         "bookmaker",
@@ -96,6 +130,13 @@ def test_market_and_outcome_fields_fail_closed() -> None:
     ):
         with pytest.raises(ValueError, match="forbidden"):
             reject_market_or_outcome_fields({"match_id": "m1", forbidden: 1})
+        with pytest.raises(ValueError, match="forbidden"):
+            reject_market_or_outcome_fields({"diagnostics": {forbidden: 1}})
+
+
+def test_prediction_rejects_market_data_hidden_in_diagnostics() -> None:
+    with pytest.raises(ValueError, match="forbidden"):
+        _prediction(diagnostics={"odds": 2.1})
 
 
 def test_independent_schema_contains_no_market_or_outcome_properties() -> None:
