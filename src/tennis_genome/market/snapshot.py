@@ -28,11 +28,11 @@ class MarketSnapshot:
     decimal_odds_b: float
     source_event_id: str
     source_payload_sha256: str
+    identity_resolution_hash: str
     commence_at: datetime | None = None
     source_market_id: str | None = None
     is_live: bool = False
     is_suspended: bool = False
-    identity_resolution_hash: str | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -73,9 +73,7 @@ class MarketSnapshot:
                 raise ValueError(f"{name} must be greater than 1.0")
         if not _SHA256_RE.fullmatch(self.source_payload_sha256):
             raise ValueError("source_payload_sha256 must be lowercase SHA-256 hex")
-        if self.identity_resolution_hash is not None and not _SHA256_RE.fullmatch(
-            self.identity_resolution_hash
-        ):
+        if not _SHA256_RE.fullmatch(self.identity_resolution_hash):
             raise ValueError("identity_resolution_hash must be lowercase SHA-256 hex")
 
     def to_dict(self) -> dict[str, Any]:
