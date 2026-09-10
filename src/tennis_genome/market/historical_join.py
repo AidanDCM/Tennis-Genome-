@@ -74,7 +74,9 @@ class HistoricalMarketJoinResult:
 
 
 def _pair_key(name_a: str, name_b: str) -> tuple[str, str]:
-    return tuple(sorted((normalize_market_player_name(name_a), normalize_market_player_name(name_b))))  # type: ignore[return-value]
+    return tuple(
+        sorted((normalize_market_player_name(name_a), normalize_market_player_name(name_b)))
+    )  # type: ignore[return-value]
 
 
 def _join_hash(
