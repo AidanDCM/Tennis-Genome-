@@ -4,7 +4,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, cast
+from typing import cast
 
 import pandas as pd
 
