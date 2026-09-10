@@ -5,16 +5,21 @@ on:
   push:
     branches:
       - dev/basic-preflight-v1
+      - dev/basic-preflight-source-integrity
     paths:
       - "src/tennis_genome/experiments/basic_preflight.py"
       - "tests/test_basic_preflight.py"
+      - "schemas/basic_preflight_report.schema.json"
       - "research/installment_01/basic_preflight_001_protocol.md"
+      - "research/installment_01/basic_preflight_001_amendment_001.md"
       - ".github/workflows/basic_preflight_synthetic.yml"
   pull_request:
     paths:
       - "src/tennis_genome/experiments/basic_preflight.py"
       - "tests/test_basic_preflight.py"
+      - "schemas/basic_preflight_report.schema.json"
       - "research/installment_01/basic_preflight_001_protocol.md"
+      - "research/installment_01/basic_preflight_001_amendment_001.md"
       - ".github/workflows/basic_preflight_synthetic.yml"
 
 jobs:
@@ -28,7 +33,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e .[dev]
+
+      - name: Run BASIC-PREFLIGHT regression suite
+        run: pytest -q tests/test_basic_preflight.py
 
       - name: Generate outcome-free BASIC and canonical fixtures
         run: |
@@ -200,6 +208,34 @@ jobs:
             echo "BASIC-PREFLIGHT accepted an outcome field" >&2
             exit 1
           fi
+
+      - name: Enforce ADVANCED and PRO ladder rejection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("synthetic_basic_preflight")
+          source = root / "basic" / "tennis-basic.jsonl"
+          first = json.loads(source.read_text(encoding="utf-8").splitlines()[0])
+          first["mc"][0]["rc"] = [{"id": 3, "batb": [[0, 2.0, 10.0]]}]
+          rich = root / "rich"
+          rich.mkdir()
+          (rich / "advanced-like.jsonl").write_text(
+              json.dumps(first, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          if python -m tennis_genome.experiments.basic_preflight \
+            --betfair-root synthetic_basic_preflight/rich \
+            --pre-match synthetic_basic_preflight/pre_match.parquet \
+            --start-date 2019-01-01 \
+            --end-date 2025-12-31 \
+            --output synthetic_basic_preflight/rich-should-not-exist.json > /dev/null 2>&1; then
+            echo "BASIC-PREFLIGHT accepted an ADVANCED/PRO price ladder" >&2
+            exit 1
+          fi
+          test ! -e synthetic_basic_preflight/rich-should-not-exist.json
 
       - name: Upload synthetic BASIC preflight artifact
         uses: actions/upload-artifact@v4
