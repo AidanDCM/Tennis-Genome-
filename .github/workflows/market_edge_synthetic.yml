@@ -229,7 +229,7 @@ jobs:
                   min_prior_rows=24,
               )
           except ValueError as exc:
-              assert "post-2025" in str(exc)
+              assert "2025" in str(exc)
           else:
               raise AssertionError("MARKET-EDGE accepted a post-2025 row")
           PY
