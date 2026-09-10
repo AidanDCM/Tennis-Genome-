@@ -1,0 +1,336 @@
+name: MARKET-EDGE-ADV-001 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/market-edge-adv-v1
+    paths:
+      - "src/tennis_genome/experiments/market_edge_adv*.py"
+      - "src/tennis_genome/experiments/market_edge_adversarial.py"
+      - "tests/test_market_edge_adversarial.py"
+      - ".github/workflows/market_edge_adv_synthetic.yml"
+      - "research/installment_01/market_edge_adv_001_protocol.md"
+  pull_request:
+    paths:
+      - "src/tennis_genome/experiments/market_edge_adv*.py"
+      - "src/tennis_genome/experiments/market_edge_adversarial.py"
+      - "tests/test_market_edge_adversarial.py"
+      - ".github/workflows/market_edge_adv_synthetic.yml"
+      - "research/installment_01/market_edge_adv_001_protocol.md"
+
+jobs:
+  synthetic-market-edge-adv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate four-claim Market + Core fixtures
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import math
+          import random
+          from datetime import UTC, date, datetime, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("synthetic_market_edge_adv")
+          root.mkdir(parents=True)
+
+          qa = {
+              "experiment_id": "MARKET-HIST-QA-001",
+              "effective_overall_status": "ELIGIBLE_CONFIRMATORY",
+              "qa_report": {
+                  "tours": [
+                      {"tour": "ATP", "status": "ELIGIBLE_CONFIRMATORY"},
+                      {"tour": "WTA", "status": "ELIGIBLE_CONFIRMATORY"},
+                  ]
+              },
+          }
+          (root / "qa.json").write_text(
+              json.dumps(qa, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          market_lines = []
+          pre_match_rows = []
+          outcome_rows = []
+          reports = {
+              ("ATP", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+              ("ATP", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+          }
+
+          def digest(value: str) -> str:
+              return hashlib.sha256(value.encode()).hexdigest()
+
+          for tour_index, tour in enumerate(("ATP", "WTA")):
+              rng = random.Random(8800 + tour_index)
+              for year in range(2020, 2026):
+                  for index in range(40):
+                      match_id = f"{tour.lower()}-{year}-{index:03d}"
+                      source_market_id = f"adv-{match_id}"
+                      join_hash = digest(f"join:{match_id}")
+
+                      market_latent = -1.35 + 2.7 * ((index + 0.7 * (year - 2020)) % 40) / 39.0
+                      core_extra = 0.55 * math.sin(index * 0.43 + 0.7 * year)
+                      core_latent = 0.72 * market_latent + core_extra
+                      profile_signal = math.cos(index * 0.31 + year * 0.19) + rng.gauss(0.0, 0.25)
+                      genome_signal = 0.35 * profile_signal + rng.gauss(0.0, 0.75)
+                      true_logit = (
+                          0.72 * market_latent
+                          + 0.48 * core_latent
+                          + 0.36 * profile_signal
+                          + 0.24 * genome_signal
+                      )
+                      true_p = 1.0 / (1.0 + math.exp(-true_logit))
+                      outcome_a = rng.random() < true_p
+                      market_p = 1.0 / (1.0 + math.exp(-market_latent))
+                      core_p = 1.0 / (1.0 + math.exp(-core_latent))
+
+                      market_time = datetime(year, 6, 15, 18, 0, tzinfo=UTC)
+                      published_at = market_time - timedelta(minutes=5)
+                      spread = 0.006
+                      implied_back_a = min(0.985, market_p + spread)
+                      implied_lay_a = max(0.015, market_p - spread)
+                      implied_back_b = min(0.985, 1.0 - market_p + spread)
+                      implied_lay_b = max(0.015, 1.0 - market_p - spread)
+
+                      market_lines.append(
+                          json.dumps(
+                              {
+                                  "source_market_id": source_market_id,
+                                  "join_status": "MATCHED",
+                                  "join": {
+                                      "match_id": match_id,
+                                      "tour": tour,
+                                      "join_hash": join_hash,
+                                  },
+                                  "checkpoints": [
+                                      {
+                                          "checkpoint_name": "CLOSE_PREPLAY",
+                                          "data_package": "ADVANCED",
+                                          "executable_two_way": True,
+                                          "seconds_to_start": 300.0,
+                                          "match_id": match_id,
+                                          "source_market_id": source_market_id,
+                                          "best_back_a": 1.0 / implied_back_a,
+                                          "best_lay_a": 1.0 / implied_lay_a,
+                                          "best_back_b": 1.0 / implied_back_b,
+                                          "best_lay_b": 1.0 / implied_lay_b,
+                                          "published_at": published_at.isoformat(),
+                                          "market_time": market_time.isoformat(),
+                                          "market_total_matched": 8000.0 + 20.0 * index,
+                                          "market_base_rate": 5.0,
+                                          "record_hash": digest(f"record:{match_id}"),
+                                          "join_hash": join_hash,
+                                      }
+                                  ],
+                              },
+                              sort_keys=True,
+                          )
+                      )
+                      pre_match_rows.append(
+                          {"match_id": match_id, "event_date": date(year, 6, 15)}
+                      )
+                      outcome_rows.append(
+                          {
+                              "match_id": match_id,
+                              "a_won": outcome_a,
+                              "retirement": False,
+                              "walkover": False,
+                          }
+                      )
+                      reports[(tour, "profile")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "outcome_a": not outcome_a,
+                              "strict_core_probability": core_p,
+                              "profile_gap_match": profile_signal,
+                          }
+                      )
+                      reports[(tour, "genome")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "outcome_a": not outcome_a,
+                              "core_probability_a": core_p,
+                              "full_neighbor_residual": genome_signal,
+                              "core_neighbor_residual": genome_signal,
+                          }
+                      )
+
+          (root / "market_hist_001_records.jsonl").write_text(
+              "\n".join(market_lines) + "\n",
+              encoding="utf-8",
+          )
+          pd.DataFrame(pre_match_rows).to_parquet(root / "pre_match.parquet", index=False)
+          pd.DataFrame(outcome_rows).to_parquet(root / "outcomes.parquet", index=False)
+          for (tour, kind), payload in reports.items():
+              (root / f"{kind}_{tour.lower()}.json").write_text(
+                  json.dumps(payload, sort_keys=True) + "\n",
+                  encoding="utf-8",
+              )
+          PY
+
+      - name: Run MARKET-EDGE-ADV family twice
+        run: |
+          python -m tennis_genome.experiments.market_edge_adv_pipeline \
+            --market-hist-qa synthetic_market_edge_adv/qa.json \
+            --market-hist-records synthetic_market_edge_adv/market_hist_001_records.jsonl \
+            --pre-match synthetic_market_edge_adv/pre_match.parquet \
+            --outcomes synthetic_market_edge_adv/outcomes.parquet \
+            --profile-gap-atp synthetic_market_edge_adv/profile_atp.json \
+            --profile-gap-wta synthetic_market_edge_adv/profile_wta.json \
+            --genome-atp synthetic_market_edge_adv/genome_atp.json \
+            --genome-wta synthetic_market_edge_adv/genome_wta.json \
+            --min-prior-rows 40 \
+            --output synthetic_market_edge_adv/result-a.json > /dev/null
+          python -m tennis_genome.experiments.market_edge_adv_pipeline \
+            --market-hist-qa synthetic_market_edge_adv/qa.json \
+            --market-hist-records synthetic_market_edge_adv/market_hist_001_records.jsonl \
+            --pre-match synthetic_market_edge_adv/pre_match.parquet \
+            --outcomes synthetic_market_edge_adv/outcomes.parquet \
+            --profile-gap-atp synthetic_market_edge_adv/profile_atp.json \
+            --profile-gap-wta synthetic_market_edge_adv/profile_wta.json \
+            --genome-atp synthetic_market_edge_adv/genome_atp.json \
+            --genome-wta synthetic_market_edge_adv/genome_wta.json \
+            --min-prior-rows 40 \
+            --output synthetic_market_edge_adv/result-b.json > /dev/null
+
+      - name: Enforce deterministic stronger-adversary artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("synthetic_market_edge_adv")
+          first = (root / "result-a.json").read_text(encoding="utf-8")
+          second = (root / "result-b.json").read_text(encoding="utf-8")
+          assert first == second
+          result = json.loads(first)
+          assert result["experiment_id"] == "MARKET-EDGE-ADV-001"
+          assert result["qa_required"] is True
+          assert result["qa_tour_status"] == {
+              "ATP": "ELIGIBLE_CONFIRMATORY",
+              "WTA": "ELIGIBLE_CONFIRMATORY",
+          }
+          assert len(result["input_sha256"]) == 8
+          assert len(result["artifact_sha256"]) == 64
+          assert len(result["coverage"]) == 4
+          assert all(item["matched_claim_rows"] == 240 for item in result["coverage"])
+          family = result["family_report"]
+          assert family["experiment_id"] == "MARKET-EDGE-ADV-001"
+          assert "Holm" in family["multiplicity_method"]
+          assert len(family["claims"]) == 4
+          assert len(family["decisions"]) == 4
+          for claim in family["claims"]:
+              primary = claim["primary"]
+              assert primary["training_window"] == "expanding"
+              assert primary["last_evaluation_year"] == 2025
+              assert claim["trailing_3y_robustness"] is not None
+              assert claim["trailing_3y_robustness"]["training_window"] == "trailing_3y"
+              for row in primary["predictions"]:
+                  assert row["market_core_fit"]["train_end_year"] < row["year"]
+                  assert row["challenger_fit"]["train_end_year"] < row["year"]
+          PY
+
+      - name: Enforce QA eligibility fail-closed boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from tennis_genome.experiments.market_edge_adv_pipeline import (
+              build_market_edge_adversarial_artifact,
+          )
+
+          root = Path("synthetic_market_edge_adv")
+          qa = json.loads((root / "qa.json").read_text(encoding="utf-8"))
+          qa["effective_overall_status"] = "PARTIAL_TOUR_ELIGIBILITY"
+          qa["qa_report"]["tours"][1]["status"] = "EXPLORATORY_ONLY_COVERAGE"
+          bad_qa = root / "qa-wta-exploratory.json"
+          bad_qa.write_text(json.dumps(qa, sort_keys=True) + "\n", encoding="utf-8")
+          try:
+              build_market_edge_adversarial_artifact(
+                  market_hist_qa=bad_qa,
+                  market_hist_records=root / "market_hist_001_records.jsonl",
+                  pre_match=root / "pre_match.parquet",
+                  outcomes_path=root / "outcomes.parquet",
+                  profile_gap_atp=root / "profile_atp.json",
+                  profile_gap_wta=root / "profile_wta.json",
+                  genome_atp=root / "genome_atp.json",
+                  genome_wta=root / "genome_wta.json",
+                  min_prior_rows=40,
+              )
+          except ValueError as exc:
+              assert "QA-eligible" in str(exc)
+          else:
+              raise AssertionError("adversary accepted an exploratory-only QA tour")
+          PY
+
+      - name: Enforce post-2025 fail-closed boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          import pandas as pd
+
+          from tennis_genome.experiments.market_edge_adv_pipeline import (
+              build_market_edge_adversarial_artifact,
+          )
+
+          root = Path("synthetic_market_edge_adv")
+          pre = pd.read_parquet(root / "pre_match.parquet")
+          pre.loc[pre.index[0], "event_date"] = pd.Timestamp("2026-01-01").date()
+          bad = root / "pre_match_2026.parquet"
+          pre.to_parquet(bad, index=False)
+          try:
+              build_market_edge_adversarial_artifact(
+                  market_hist_qa=root / "qa.json",
+                  market_hist_records=root / "market_hist_001_records.jsonl",
+                  pre_match=bad,
+                  outcomes_path=root / "outcomes.parquet",
+                  profile_gap_atp=root / "profile_atp.json",
+                  profile_gap_wta=root / "profile_wta.json",
+                  genome_atp=root / "genome_atp.json",
+                  genome_wta=root / "genome_wta.json",
+                  min_prior_rows=40,
+              )
+          except ValueError as exc:
+              assert "2025" in str(exc)
+          else:
+              raise AssertionError("adversary accepted post-2025 canonical data")
+          PY
+
+      - name: Upload synthetic adversarial artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-market-edge-adv-synthetic
+          path: synthetic_market_edge_adv/result-a.json

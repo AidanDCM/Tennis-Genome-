@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_edge_adv_artifact.schema.json",
+  "title": "MARKET-EDGE-ADV-001 Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "development_end_year",
+    "market_probability_method",
+    "qa_required",
+    "qa_tour_status",
+    "input_sha256",
+    "coverage",
+    "family_report",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-EDGE-ADV-001"},
+    "development_end_year": {"const": 2025},
+    "market_probability_method": {"const": "exchange_mid_implied_proportional_v1"},
+    "qa_required": {"const": true},
+    "qa_tour_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ATP", "WTA"],
+      "properties": {
+        "ATP": {"const": "ELIGIBLE_CONFIRMATORY"},
+        "WTA": {"const": "ELIGIBLE_CONFIRMATORY"}
+      }
+    },
+    "input_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "market_hist_qa",
+        "market_hist_records",
+        "pre_match",
+        "outcomes",
+        "profile_gap_atp",
+        "profile_gap_wta",
+        "genome_atp",
+        "genome_wta"
+      ],
+      "properties": {
+        "market_hist_qa": {"$ref": "#/$defs/sha256"},
+        "market_hist_records": {"$ref": "#/$defs/sha256"},
+        "pre_match": {"$ref": "#/$defs/sha256"},
+        "outcomes": {"$ref": "#/$defs/sha256"},
+        "profile_gap_atp": {"$ref": "#/$defs/sha256"},
+        "profile_gap_wta": {"$ref": "#/$defs/sha256"},
+        "genome_atp": {"$ref": "#/$defs/sha256"},
+        "genome_wta": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/coverage"}
+    },
+    "family_report": {"$ref": "#/$defs/family"},
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tour": {
+      "type": "string",
+      "enum": ["ATP", "WTA"]
+    },
+    "signal": {
+      "type": "string",
+      "enum": ["profile_gap", "genome"]
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tour",
+        "signal_name",
+        "executable_close_rows_for_tour",
+        "frozen_core_signal_rows",
+        "settled_outcome_rows",
+        "matched_claim_rows"
+      ],
+      "properties": {
+        "tour": {"$ref": "#/$defs/tour"},
+        "signal_name": {"$ref": "#/$defs/signal"},
+        "executable_close_rows_for_tour": {"type": "integer", "minimum": 0},
+        "frozen_core_signal_rows": {"type": "integer", "minimum": 0},
+        "settled_outcome_rows": {"type": "integer", "minimum": 0},
+        "matched_claim_rows": {"type": "integer", "minimum": 0}
+      }
+    },
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "brier", "log_loss", "accuracy", "ece_10"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 1},
+        "brier": {"type": "number", "minimum": 0},
+        "log_loss": {"type": "number", "minimum": 0},
+        "accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "ece_10": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "market",
+        "core",
+        "market_only_recalibration",
+        "market_core_control",
+        "signal_challenger",
+        "brier_improvement_vs_market_core",
+        "log_loss_improvement_vs_market_core",
+        "accuracy_change_vs_market_core",
+        "brier_improvement_market_core_vs_market_only",
+        "log_loss_improvement_market_core_vs_market_only"
+      ],
+      "properties": {
+        "market": {"$ref": "#/$defs/score"},
+        "core": {"$ref": "#/$defs/score"},
+        "market_only_recalibration": {"$ref": "#/$defs/score"},
+        "market_core_control": {"$ref": "#/$defs/score"},
+        "signal_challenger": {"$ref": "#/$defs/score"},
+        "brier_improvement_vs_market_core": {"type": "number"},
+        "log_loss_improvement_vs_market_core": {"type": "number"},
+        "accuracy_change_vs_market_core": {"type": "number"},
+        "brier_improvement_market_core_vs_market_only": {"type": "number"},
+        "log_loss_improvement_market_core_vs_market_only": {"type": "number"}
+      }
+    },
+    "window": {
+      "type": "object",
+      "required": [
+        "training_window",
+        "prediction_n",
+        "first_evaluation_year",
+        "last_evaluation_year",
+        "comparison",
+        "recent_comparison",
+        "yearly",
+        "predictions"
+      ],
+      "properties": {
+        "training_window": {"enum": ["expanding", "trailing_3y"]},
+        "prediction_n": {"type": "integer", "minimum": 1},
+        "first_evaluation_year": {"type": "integer", "maximum": 2025},
+        "last_evaluation_year": {"type": "integer", "maximum": 2025},
+        "comparison": {"$ref": "#/$defs/comparison"},
+        "recent_comparison": {
+          "anyOf": [
+            {"$ref": "#/$defs/comparison"},
+            {"type": "null"}
+          ]
+        },
+        "yearly": {"type": "array"},
+        "predictions": {"type": "array"}
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": [
+        "experiment_id",
+        "tour",
+        "signal_name",
+        "min_prior_rows",
+        "primary",
+        "trailing_3y_robustness",
+        "brier_inference",
+        "log_loss_inference",
+        "mcnemar",
+        "promotion_diagnostics"
+      ],
+      "properties": {
+        "experiment_id": {"const": "MARKET-EDGE-ADV-001"},
+        "tour": {"$ref": "#/$defs/tour"},
+        "signal_name": {"$ref": "#/$defs/signal"},
+        "min_prior_rows": {"type": "integer", "minimum": 1},
+        "primary": {"$ref": "#/$defs/window"},
+        "trailing_3y_robustness": {
+          "anyOf": [
+            {"$ref": "#/$defs/window"},
+            {"type": "null"}
+          ]
+        },
+        "brier_inference": {"type": "object"},
+        "log_loss_inference": {"type": "object"},
+        "mcnemar": {"type": "object"},
+        "promotion_diagnostics": {"type": "object"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "label",
+        "tour",
+        "signal_name",
+        "brier_holm",
+        "log_loss_holm",
+        "pre_holm_candidate_pass",
+        "holm_brier_pass",
+        "holm_log_loss_pass",
+        "market_core_incremental_pass"
+      ],
+      "properties": {
+        "label": {"type": "string"},
+        "tour": {"$ref": "#/$defs/tour"},
+        "signal_name": {"$ref": "#/$defs/signal"},
+        "brier_holm": {"type": "object"},
+        "log_loss_holm": {"type": "object"},
+        "pre_holm_candidate_pass": {"type": "boolean"},
+        "holm_brier_pass": {"type": "boolean"},
+        "holm_log_loss_pass": {"type": "boolean"},
+        "market_core_incremental_pass": {"type": "boolean"}
+      }
+    },
+    "family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "multiplicity_method",
+        "control_description",
+        "claims",
+        "decisions"
+      ],
+      "properties": {
+        "experiment_id": {"const": "MARKET-EDGE-ADV-001"},
+        "multiplicity_method": {"type": "string"},
+        "control_description": {"type": "string"},
+        "claims": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/claim"}
+        },
+        "decisions": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/decision"}
+        }
+      }
+    }
+  }
+}
