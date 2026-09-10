@@ -1,0 +1,167 @@
+name: MARKET-HIST-001 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/betfair-historical-v1
+    paths:
+      - "src/tennis_genome/market/**"
+      - "tests/test_market_hist_batch.py"
+      - ".github/workflows/market_hist_synthetic.yml"
+  pull_request:
+    paths:
+      - "src/tennis_genome/market/**"
+      - "tests/test_market_hist_batch.py"
+      - ".github/workflows/market_hist_synthetic.yml"
+
+jobs:
+  synthetic-market-hist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate outcome-free canonical and Betfair fixtures
+        run: |
+          python - <<'PY'
+          import bz2
+          import json
+          from datetime import UTC, date, datetime, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("synthetic_market_hist")
+          source = root / "betfair"
+          source.mkdir(parents=True)
+
+          pre_match = pd.DataFrame([
+              {
+                  "match_id": "synthetic-match-1",
+                  "tour": "ATP",
+                  "event_date": date(2021, 9, 6),
+                  "source_order": 0,
+                  "tournament_id": "synthetic-tournament",
+                  "tournament_name": "Synthetic Open",
+                  "tournament_level": "G",
+                  "surface": "Hard",
+                  "round": "F",
+                  "best_of": 5,
+                  "player_a_id": "beta-id",
+                  "player_b_id": "alpha-id",
+                  "player_a_name": "Player Beta",
+                  "player_b_name": "Player Alpha",
+                  "rank_a": 2,
+                  "rank_b": 1,
+                  "rank_points_a": 9000,
+                  "rank_points_b": 10000,
+              }
+          ])
+          pre_match.to_parquet(root / "pre_match.parquet", index=False)
+
+          market_time = datetime(2021, 9, 12, 20, 0, tzinfo=UTC)
+          offsets = (
+              timedelta(hours=25),
+              timedelta(hours=7),
+              timedelta(hours=2),
+              timedelta(minutes=20),
+              timedelta(minutes=5),
+          )
+          messages = []
+          for index, offset in enumerate(offsets):
+              definition = None
+              if index == 0:
+                  definition = {
+                      "eventId": "event-1",
+                      "eventTypeId": "2",
+                      "marketType": "MATCH_ODDS",
+                      "marketTime": market_time.isoformat().replace("+00:00", "Z"),
+                      "status": "OPEN",
+                      "inPlay": False,
+                      "marketBaseRate": 5.0,
+                      "eventName": "Player Alpha v Player Beta",
+                      "runners": [
+                          {"id": 101, "name": "Player Alpha", "status": "ACTIVE"},
+                          {"id": 202, "name": "Player Beta", "status": "ACTIVE"},
+                      ],
+                  }
+              change = {
+                  "id": "1.100",
+                  "tv": 5000.0,
+                  "rc": [
+                      {
+                          "id": 101,
+                          "ltp": 1.80,
+                          "batb": [[0, 1.79, 100.0]],
+                          "batl": [[0, 1.81, 90.0]],
+                      },
+                      {
+                          "id": 202,
+                          "ltp": 2.20,
+                          "batb": [[0, 2.18, 75.0]],
+                          "batl": [[0, 2.22, 65.0]],
+                      },
+                  ],
+              }
+              if definition is not None:
+                  change["marketDefinition"] = definition
+              messages.append({
+                  "op": "mcm",
+                  "pt": int((market_time - offset).timestamp() * 1000),
+                  "mc": [change],
+              })
+
+          with bz2.open(source / "1.100.bz2", "wt", encoding="utf-8") as handle:
+              for message in messages:
+                  handle.write(json.dumps(message, separators=(",", ":")) + "\n")
+          PY
+
+      - name: Run MARKET-HIST-001 batch twice
+        run: |
+          python -m tennis_genome.market.historical_batch \
+            --betfair-root synthetic_market_hist/betfair \
+            --pre-match synthetic_market_hist/pre_match.parquet \
+            --data-package ADVANCED \
+            --output-dir synthetic_market_hist/output-a
+          python -m tennis_genome.market.historical_batch \
+            --betfair-root synthetic_market_hist/betfair \
+            --pre-match synthetic_market_hist/pre_match.parquet \
+            --data-package ADVANCED \
+            --output-dir synthetic_market_hist/output-b
+
+      - name: Enforce deterministic outcome-free artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("synthetic_market_hist")
+          summary_a = json.loads((root / "output-a/market_hist_001_summary.json").read_text())
+          summary_b = json.loads((root / "output-b/market_hist_001_summary.json").read_text())
+          records_a = (root / "output-a/market_hist_001_records.jsonl").read_text()
+          records_b = (root / "output-b/market_hist_001_records.jsonl").read_text()
+
+          assert summary_a == summary_b
+          assert records_a == records_b
+          assert summary_a["markets_reconstructed"] == 1
+          assert summary_a["markets_matched"] == 1
+          assert summary_a["markets_ambiguous"] == 0
+          assert summary_a["checkpoint_counts"]["CLOSE_PREPLAY"] == 1
+          assert summary_a["executable_checkpoint_counts"]["T-15M"] == 1
+          assert "a_won" not in records_a
+          assert "score" not in records_a
+          assert "retirement" not in records_a
+          PY
+
+      - name: Upload synthetic MARKET-HIST artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-market-hist-synthetic
+          path: synthetic_market_hist/output-a
