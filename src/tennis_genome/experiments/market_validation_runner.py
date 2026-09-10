@@ -18,6 +18,15 @@ _EXPERIMENT_ID = "MARKET-VALIDATION-RUNNER-v1"
 _SEAL_VERSION = "market-validation-preoutcome-seal-v1"
 _CONFIRMATORY_QA_STATUS = "ELIGIBLE_CONFIRMATORY"
 _REQUIRED_TOURS = {"ATP", "WTA"}
+_REQUIRED_QA_GATES = {
+    "overall_close_coverage_at_least_60pct",
+    "every_recent_year_close_coverage_at_least_50pct",
+    "every_recent_year_at_least_100_rows",
+    "at_least_1000_prior_rows_before_first_evaluation_year",
+    "at_least_five_evaluation_years",
+    "all_2021_2025_years_in_evaluation_population",
+    "passed",
+}
 _REQUIRED_POWER_CLAIMS = {
     ("ATP", "profile_gap"),
     ("WTA", "profile_gap"),
@@ -124,11 +133,13 @@ def _utc_timestamp(value: datetime | None) -> str:
 def _qa_status(payload: dict[str, Any]) -> dict[str, str]:
     if payload.get("experiment_id") != "MARKET-HIST-QA-001":
         raise ValueError("unexpected MARKET-HIST-QA experiment ID")
-    if payload.get("effective_overall_status") == "BLOCKED_STRUCTURAL":
-        raise ValueError("MARKET-HIST-QA is structurally blocked")
+    if payload.get("effective_overall_status") != _CONFIRMATORY_QA_STATUS:
+        raise ValueError("MARKET-HIST-QA effective status is not confirmatory")
     report = payload.get("qa_report")
     if not isinstance(report, dict):
         raise ValueError("MARKET-HIST-QA artifact lacks qa_report")
+    if report.get("overall_status") != _CONFIRMATORY_QA_STATUS:
+        raise ValueError("MARKET-HIST-QA report status is not confirmatory")
     tours = report.get("tours")
     if not isinstance(tours, list):
         raise ValueError("MARKET-HIST-QA qa_report.tours must be a list")
@@ -141,7 +152,15 @@ def _qa_status(payload: dict[str, Any]) -> dict[str, str]:
             raise ValueError(f"invalid MARKET-HIST-QA tour: {tour!r}")
         if tour in result:
             raise ValueError(f"duplicate MARKET-HIST-QA tour: {tour}")
-        result[tour] = str(item.get("status", ""))
+        status = str(item.get("status", ""))
+        gates = item.get("gates")
+        if not isinstance(gates, dict):
+            raise ValueError(f"MARKET-HIST-QA {tour} row lacks coverage gates")
+        if set(gates) != _REQUIRED_QA_GATES:
+            raise ValueError(f"MARKET-HIST-QA {tour} gate set differs from frozen design")
+        if any(gates[key] is not True for key in _REQUIRED_QA_GATES):
+            raise ValueError(f"MARKET-HIST-QA {tour} has a failed frozen coverage gate")
+        result[tour] = status
     if set(result) != _REQUIRED_TOURS:
         raise ValueError("MARKET-HIST-QA must report ATP and WTA")
     blocked = sorted(
