@@ -138,3 +138,48 @@ def test_genome_hash_is_deterministic_and_missingness_is_preserved() -> None:
     assert first.values[index] is None
     assert first.missing_fraction > 0.0
     assert first.digest == second.digest
+
+
+def test_future_append_does_not_change_existing_genome_vector() -> None:
+    target = _match()
+    future_state = replace(
+        target.pre_match,
+        match_id="future",
+        event_date=date(2025, 2, 1),
+        source_order=1,
+        player_b_id="c",
+        player_b_name="C",
+        rank_b=30,
+        rank_points_b=1500,
+        age_years_b=27.0,
+        height_cm_b=184,
+        hand_b="R",
+        ioc_b="FRA",
+    )
+    future = HistoricalMatch(
+        pre_match=future_state,
+        outcome=replace(
+            target.outcome,
+            match_id="future",
+            a_won=False,
+        ),
+        stats=None,
+    )
+
+    def target_genome(matches: list[HistoricalMatch]):
+        pairs = {
+            pair.match_id: pair
+            for pair in walk_forward_player_profiles(matches)
+        }
+        foundational = {
+            snapshot.match_id: snapshot
+            for snapshot in walk_forward_foundational_features(matches)
+        }
+        return build_genome_vector(pairs["target"], foundational["target"])
+
+    before = target_genome([target])
+    after = target_genome([target, future])
+
+    assert after.feature_names == before.feature_names
+    assert after.values == before.values
+    assert after.digest == before.digest
