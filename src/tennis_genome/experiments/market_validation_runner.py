@@ -12,12 +12,22 @@ from tennis_genome.experiments.market_edge_adv_pipeline import (
     build_market_edge_adversarial_artifact,
 )
 from tennis_genome.experiments.market_edge_pipeline import build_market_edge_artifact
+from tennis_genome.market.historical_manifest import load_historical_source_manifest
 
 _EXPERIMENT_ID = "MARKET-VALIDATION-RUNNER-v1"
 _SEAL_VERSION = "market-validation-preoutcome-seal-v1"
 _CONFIRMATORY_QA_STATUS = "ELIGIBLE_CONFIRMATORY"
-_ALLOWED_PACKAGES = {"ADVANCED", "PRO"}
 _REQUIRED_TOURS = {"ATP", "WTA"}
+_REQUIRED_POWER_CLAIMS = {
+    ("ATP", "profile_gap"),
+    ("WTA", "profile_gap"),
+    ("ATP", "genome"),
+    ("WTA", "genome"),
+}
+_POWER_FAMILY_ALPHA = 0.05
+_POWER_FAMILY_SIZE = 4
+_POWER_PLANNING_ALPHA = 0.0125
+_POWER_MIN_PRIOR_ROWS = 1000
 
 
 @dataclass(frozen=True)
@@ -95,6 +105,22 @@ def _valid_sha256(value: object, *, label: str) -> str:
     return text
 
 
+def _verify_embedded_artifact_hash(payload: dict[str, Any], *, label: str) -> str:
+    provided = _valid_sha256(payload.get("artifact_sha256"), label=f"{label}.artifact_sha256")
+    scientific = {key: value for key, value in payload.items() if key != "artifact_sha256"}
+    expected = _artifact_hash(scientific)
+    if provided != expected:
+        raise ValueError(f"{label} artifact SHA-256 mismatch")
+    return provided
+
+
+def _utc_timestamp(value: datetime | None) -> str:
+    instant = value or datetime.now(timezone.utc)
+    if instant.tzinfo is None or instant.utcoffset() is None:
+        raise ValueError("created_at must be timezone-aware")
+    return instant.astimezone(timezone.utc).isoformat()
+
+
 def _qa_status(payload: dict[str, Any]) -> dict[str, str]:
     if payload.get("experiment_id") != "MARKET-HIST-QA-001":
         raise ValueError("unexpected MARKET-HIST-QA experiment ID")
@@ -147,6 +173,38 @@ def _require_hashes(
     return normalized
 
 
+def _validate_power_family(payload: dict[str, Any]) -> None:
+    if payload.get("family_size") != _POWER_FAMILY_SIZE:
+        raise ValueError("POWER-MDE family_size differs from frozen design")
+    if payload.get("family_alpha") != _POWER_FAMILY_ALPHA:
+        raise ValueError("POWER-MDE family_alpha differs from frozen design")
+    if payload.get("conservative_planning_alpha") != _POWER_PLANNING_ALPHA:
+        raise ValueError("POWER-MDE planning alpha differs from frozen design")
+    claims = payload.get("claims")
+    if not isinstance(claims, list) or len(claims) != _POWER_FAMILY_SIZE:
+        raise ValueError("POWER-MDE must contain exactly four claims")
+    observed: set[tuple[str, str]] = set()
+    for claim in claims:
+        if not isinstance(claim, dict):
+            raise ValueError("invalid POWER-MDE claim row")
+        if claim.get("experiment_id") != "POWER-MDE-001":
+            raise ValueError("unexpected POWER-MDE claim experiment ID")
+        key = (str(claim.get("tour", "")), str(claim.get("signal_name", "")))
+        if key in observed:
+            raise ValueError("POWER-MDE contains a duplicate claim")
+        observed.add(key)
+        if claim.get("min_prior_rows") != _POWER_MIN_PRIOR_ROWS:
+            raise ValueError("POWER-MDE min_prior_rows differs from frozen design")
+        if claim.get("family_size") != _POWER_FAMILY_SIZE:
+            raise ValueError("POWER-MDE claim family_size differs from frozen design")
+        if claim.get("family_alpha") != _POWER_FAMILY_ALPHA:
+            raise ValueError("POWER-MDE claim family_alpha differs from frozen design")
+        if claim.get("conservative_planning_alpha") != _POWER_PLANNING_ALPHA:
+            raise ValueError("POWER-MDE claim planning alpha differs from frozen design")
+    if observed != _REQUIRED_POWER_CLAIMS:
+        raise ValueError("POWER-MDE claim family differs from frozen four-claim design")
+
+
 def build_preoutcome_seal(
     *,
     source_manifest: str | Path,
@@ -173,15 +231,11 @@ def build_preoutcome_seal(
     }
     file_hashes = {name: _sha256_file(path) for name, path in paths.items()}
 
-    manifest = _load_json_object(paths["source_manifest"], label="source manifest")
-    package = str(manifest.get("data_package", ""))
-    if package not in _ALLOWED_PACKAGES:
-        raise ValueError("confirmatory source manifest must declare ADVANCED or PRO")
-    source_bundle_sha = _valid_sha256(
-        manifest.get("bundle_sha256"), label="source manifest bundle_sha256"
-    )
+    manifest = load_historical_source_manifest(paths["source_manifest"])
+    source_bundle_sha = manifest.bundle_sha256
 
     qa = _load_json_object(paths["market_hist_qa"], label="MARKET-HIST-QA")
+    _verify_embedded_artifact_hash(qa, label="MARKET-HIST-QA")
     tour_status = _qa_status(qa)
     qa_hashes = _require_hashes(
         qa.get("input_sha256"),
@@ -197,10 +251,12 @@ def build_preoutcome_seal(
         raise ValueError("MARKET-HIST-QA must record the QA outcomes SHA-256")
 
     power = _load_json_object(paths["power_mde"], label="POWER-MDE")
+    _verify_embedded_artifact_hash(power, label="POWER-MDE")
     if power.get("experiment_id") != "POWER-MDE-001":
         raise ValueError("unexpected POWER-MDE experiment ID")
     if power.get("outcome_blind") is not True:
         raise ValueError("POWER-MDE artifact must be explicitly outcome-blind")
+    _validate_power_family(power)
     _require_hashes(
         power.get("input_sha256"),
         expected={
@@ -231,10 +287,9 @@ def build_preoutcome_seal(
         "qa_tour_status": tour_status,
         "power_outcome_blind": True,
     }
-    created = (created_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
     return PreOutcomeSeal(
         **scientific_payload,
-        created_at=created.isoformat(),
+        created_at=_utc_timestamp(created_at),
         artifact_sha256=_artifact_hash(scientific_payload),
     )
 
@@ -362,10 +417,9 @@ def run_confirmatory_validation(
             edge_adv, "artifact_sha256", None
         ),
     }
-    created = (created_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
     ledger = ConfirmatoryExecutionLedger(
         **scientific_payload,
-        created_at=created.isoformat(),
+        created_at=_utc_timestamp(created_at),
         artifact_sha256=_artifact_hash(scientific_payload),
     )
     ledger_path = destination / "market_validation_execution_ledger.json"
