@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_identity_resolution.schema.json",
+  "title": "MarketIdentityResolutionV1",
+  "type": "object",
+  "required": [
+    "match_id",
+    "provider",
+    "source_event_id",
+    "source_selection_a",
+    "source_selection_b",
+    "player_a_id",
+    "player_b_id",
+    "resolved_at",
+    "method",
+    "resolver_version"
+  ],
+  "properties": {
+    "match_id": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "source_event_id": {"type": "string", "minLength": 1},
+    "source_selection_a": {"type": "string", "minLength": 1},
+    "source_selection_b": {"type": "string", "minLength": 1},
+    "player_a_id": {"type": "string", "minLength": 1},
+    "player_b_id": {"type": "string", "minLength": 1},
+    "resolved_at": {"type": "string", "format": "date-time"},
+    "method": {
+      "type": "string",
+      "enum": ["provider_id", "exact_alias", "manual_verified"]
+    },
+    "resolver_version": {"const": "market-identity-v1"}
+  },
+  "additionalProperties": false
+}
