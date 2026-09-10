@@ -1,0 +1,59 @@
+name: MARKET-VALIDATION-RUNNER-v1 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/market-validation-runner-v1
+    paths:
+      - "src/tennis_genome/experiments/market_validation_runner.py"
+      - "tests/test_market_validation_runner.py"
+      - "schemas/market_validation_preoutcome_seal.schema.json"
+      - "schemas/market_validation_execution_ledger.schema.json"
+      - "research/installment_01/market_validation_runner_v1_protocol.md"
+      - ".github/workflows/market_validation_runner_synthetic.yml"
+  pull_request:
+    paths:
+      - "src/tennis_genome/experiments/market_validation_runner.py"
+      - "tests/test_market_validation_runner.py"
+      - "schemas/market_validation_preoutcome_seal.schema.json"
+      - "schemas/market_validation_execution_ledger.schema.json"
+      - "research/installment_01/market_validation_runner_v1_protocol.md"
+      - ".github/workflows/market_validation_runner_synthetic.yml"
+
+jobs:
+  synthetic-validation-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Validate contract schemas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          for path in (
+              Path("schemas/market_validation_preoutcome_seal.schema.json"),
+              Path("schemas/market_validation_execution_ledger.schema.json"),
+          ):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              assert payload["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+              assert payload["additionalProperties"] is False
+          PY
+
+      - name: Run seal and chronology regression suite
+        run: pytest -q tests/test_market_validation_runner.py
+
+      - name: Verify CLI surfaces
+        run: |
+          python -m tennis_genome.experiments.market_validation_runner --help > /dev/null
+          python -m tennis_genome.experiments.market_validation_runner seal --help > /dev/null
+          python -m tennis_genome.experiments.market_validation_runner evaluate --help > /dev/null
