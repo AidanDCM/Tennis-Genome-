@@ -1,0 +1,122 @@
+name: Core v1 Sealed Holdout
+
+on:
+  push:
+    branches:
+      - dev/foundational-families
+    paths:
+      - ".github/workflows/core_v1_holdout.yml"
+      - "src/tennis_genome/experiments/core_holdout.py"
+      - "src/tennis_genome/models/core_v1_spec.py"
+      - "src/tennis_genome/models/feature_probability.py"
+      - "src/tennis_genome/features/foundational.py"
+      - "src/tennis_genome/data/**"
+      - "tests/test_core_holdout.py"
+      - "tests/test_core_v1_spec.py"
+      - "tests/test_feature_probability_model.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sealed-holdout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2026"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+    steps:
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Download pinned 2000-2026 research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "${url}"
+            done
+          done
+
+      - name: Build canonical holdout datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tour in atp wta; do
+            mkdir -p "data/research_processed/${tour}"
+            args=()
+            for year in $(seq "$START_YEAR" "$END_YEAR"); do
+              args+=(--input "data/research_raw/${tour}/${tour}_matches_${year}.csv")
+            done
+            upper=$(echo "$tour" | tr '[:lower:]' '[:upper:]')
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour "$upper" \
+              --output-dir "data/research_processed/${tour}" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-${tour}-${START_YEAR}-${END_YEAR}" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "$LICENSE_NAME" \
+              --license-url "$LICENSE_URL" \
+              --allowed-use-status research_allowed \
+              > "data/research_processed/${tour}/build_output.json"
+          done
+
+      - name: Run ATP sealed holdout
+        run: |
+          mkdir -p artifacts/core_v1_holdout
+          python -m tennis_genome.experiments.core_holdout \
+            --manifest data/research_processed/atp/atp_manifest.json \
+            --pre-match data/research_processed/atp/atp_pre_match.parquet \
+            --outcomes data/research_processed/atp/atp_outcomes.parquet \
+            --stats data/research_processed/atp/atp_stats.parquet \
+            --tour ATP \
+            --train-end-year 2025 \
+            --holdout-year 2026 \
+            > artifacts/core_v1_holdout/atp_holdout.json
+
+      - name: Run WTA sealed holdout
+        run: |
+          python -m tennis_genome.experiments.core_holdout \
+            --manifest data/research_processed/wta/wta_manifest.json \
+            --pre-match data/research_processed/wta/wta_pre_match.parquet \
+            --outcomes data/research_processed/wta/wta_outcomes.parquet \
+            --stats data/research_processed/wta/wta_stats.parquet \
+            --tour WTA \
+            --train-end-year 2025 \
+            --holdout-year 2026 \
+            > artifacts/core_v1_holdout/wta_holdout.json
+
+      - name: Copy provenance manifests
+        run: |
+          cp data/research_processed/atp/atp_manifest.json artifacts/core_v1_holdout/
+          cp data/research_processed/wta/wta_manifest.json artifacts/core_v1_holdout/
+
+      - name: Upload sealed holdout reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-core-v1-sealed-holdout
+          path: artifacts/core_v1_holdout/
+          if-no-files-found: error
+          retention-days: 30
