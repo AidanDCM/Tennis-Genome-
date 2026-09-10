@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -161,8 +161,8 @@ def _seal(paths: dict[str, Path], created_at: datetime):
 
 def test_seal_digest_excludes_runtime_timestamp(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
-    first = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
-    second = _seal(paths, datetime(2026, 9, 10, 13, tzinfo=timezone.utc))
+    first = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
+    second = _seal(paths, datetime(2026, 9, 10, 13, tzinfo=UTC))
     assert first.created_at != second.created_at
     assert first.artifact_sha256 == second.artifact_sha256
     assert first.qa_outcomes_sha256 == _sha(paths["outcomes"])
@@ -185,7 +185,7 @@ def test_seal_rejects_nonconfirmatory_tour(tmp_path: Path) -> None:
     qa["qa_report"]["tours"][1]["status"] = "EXPLORATORY_ONLY_COVERAGE"
     _json(paths["market_hist_qa"], _with_artifact_hash(qa))
     with pytest.raises(ValueError, match="QA-eligible ATP and WTA"):
-        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
 
 
 def test_seal_rejects_tampered_qa_artifact(tmp_path: Path) -> None:
@@ -194,7 +194,7 @@ def test_seal_rejects_tampered_qa_artifact(tmp_path: Path) -> None:
     qa["qa_report"]["tours"][0]["status"] = "EXPLORATORY_ONLY_COVERAGE"
     _json(paths["market_hist_qa"], qa)
     with pytest.raises(ValueError, match="MARKET-HIST-QA artifact SHA-256 mismatch"):
-        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
 
 
 def test_seal_rejects_wrong_power_family(tmp_path: Path) -> None:
@@ -204,19 +204,19 @@ def test_seal_rejects_wrong_power_family(tmp_path: Path) -> None:
     power["claims"][3]["signal_name"] = "profile_gap"
     _json(paths["power_mde"], _with_artifact_hash(power))
     with pytest.raises(ValueError, match="duplicate claim|claim family differs"):
-        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
 
 
 def test_seal_rejects_power_input_hash_mismatch(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
     _write(paths["genome_wta"], b"mutated-after-power")
     with pytest.raises(ValueError, match="POWER-MDE input hash mismatch for genome_wta"):
-        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
 
 
 def test_evaluation_rejects_changed_non_outcome_input(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
-    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
     seal_path = tmp_path / "seal.json"
     _json(seal_path, seal.to_dict())
     _write(paths["profile_gap_atp"], b"changed-after-seal")
@@ -241,7 +241,7 @@ def test_outcome_hash_mismatch_blocks_before_evaluators(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     paths = _fixture(tmp_path)
-    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
     seal_path = tmp_path / "seal.json"
     _json(seal_path, seal.to_dict())
     _write(paths["outcomes"], b"different-outcomes")
@@ -279,7 +279,7 @@ def test_successful_execution_writes_child_artifacts_and_ledger(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     paths = _fixture(tmp_path)
-    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=timezone.utc))
+    seal = _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
     seal_path = tmp_path / "seal.json"
     _json(seal_path, seal.to_dict())
 
@@ -315,7 +315,7 @@ def test_successful_execution_writes_child_artifacts_and_ledger(
         genome_atp=paths["genome_atp"],
         genome_wta=paths["genome_wta"],
         output_dir=output,
-        created_at=datetime(2026, 9, 10, 14, tzinfo=timezone.utc),
+        created_at=datetime(2026, 9, 10, 14, tzinfo=UTC),
     )
     assert ledger.outcomes_sha256 == _sha(paths["outcomes"])
     assert ledger.market_edge_adv_internal_artifact_sha256 == "b" * 64
