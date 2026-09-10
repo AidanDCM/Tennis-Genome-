@@ -98,8 +98,8 @@ def compare_prediction_to_market(
     reasons: list[str] = []
     if market.is_suspended:
         reasons.append("MARKET_SUSPENDED")
-    if market.commence_at is not None and created_at > market.commence_at:
-        reasons.append("DECISION_AFTER_COMMENCE")
+    if market.commence_at is not None and created_at >= market.commence_at:
+        reasons.append("DECISION_AT_OR_AFTER_COMMENCE")
 
     market_age_seconds = max(0.0, (created_at - market.observed_at).total_seconds())
     eligible = not reasons
