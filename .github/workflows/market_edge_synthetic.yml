@@ -170,6 +170,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import math
           from pathlib import Path
 
           root = Path("synthetic_market_edge")
