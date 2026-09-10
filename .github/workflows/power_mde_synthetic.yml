@@ -1,0 +1,243 @@
+name: POWER-MDE-001 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/power-mde-v1
+    paths:
+      - "src/tennis_genome/experiments/power_mde.py"
+      - "tests/test_power_mde.py"
+      - ".github/workflows/power_mde_synthetic.yml"
+      - "research/installment_01/power_mde_001_protocol.md"
+  pull_request:
+    paths:
+      - "src/tennis_genome/experiments/power_mde.py"
+      - "tests/test_power_mde.py"
+      - ".github/workflows/power_mde_synthetic.yml"
+      - "research/installment_01/power_mde_001_protocol.md"
+
+jobs:
+  synthetic-power-mde:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate outcome-free four-claim fixtures
+        run: |
+          python - <<'PY'
+          import json
+          import math
+          import random
+          from datetime import UTC, date, datetime, timedelta
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("synthetic_power_mde")
+          root.mkdir(parents=True)
+          market_lines = []
+          pre_match_rows = []
+          reports = {
+              ("ATP", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "profile"): {
+                  "experiment_id": "PROFILE-GAP-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+              ("ATP", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "ATP",
+                  "predictions": [],
+              },
+              ("WTA", "genome"): {
+                  "experiment_id": "GENOME-ADV-001",
+                  "tour": "WTA",
+                  "predictions": [],
+              },
+          }
+
+          for tour_index, tour in enumerate(("ATP", "WTA")):
+              rng = random.Random(9100 + tour_index)
+              for year in range(2020, 2026):
+                  for index in range(24):
+                      match_id = f"{tour.lower()}-{year}-{index:03d}"
+                      source_market_id = f"power-{match_id}"
+                      join_hash = (f"{tour_index}{year:04d}{index:03d}" * 8)[:64]
+                      market_p = 0.20 + 0.60 * rng.random()
+                      profile_signal = rng.gauss(0.0, 1.0) + 0.10 * (market_p - 0.5)
+                      genome_signal = rng.gauss(0.0, 1.0) + 0.25 * profile_signal
+                      market_time = datetime(year, 6, 15, 18, 0, tzinfo=UTC)
+                      published_at = market_time - timedelta(minutes=5)
+                      spread = 0.006
+                      implied_back_a = min(0.985, market_p + spread)
+                      implied_lay_a = max(0.015, market_p - spread)
+                      implied_back_b = min(0.985, 1.0 - market_p + spread)
+                      implied_lay_b = max(0.015, 1.0 - market_p - spread)
+                      record_hash = (f"{year:04d}{index:03d}{tour_index}a" * 8)[:64]
+
+                      market_lines.append(
+                          json.dumps(
+                              {
+                                  "source_market_id": source_market_id,
+                                  "join_status": "MATCHED",
+                                  "join": {
+                                      "match_id": match_id,
+                                      "tour": tour,
+                                      "join_hash": join_hash,
+                                  },
+                                  "checkpoints": [
+                                      {
+                                          "checkpoint_name": "CLOSE_PREPLAY",
+                                          "data_package": "ADVANCED",
+                                          "executable_two_way": True,
+                                          "seconds_to_start": 300.0,
+                                          "match_id": match_id,
+                                          "source_market_id": source_market_id,
+                                          "best_back_a": 1.0 / implied_back_a,
+                                          "best_lay_a": 1.0 / implied_lay_a,
+                                          "best_back_b": 1.0 / implied_back_b,
+                                          "best_lay_b": 1.0 / implied_lay_b,
+                                          "published_at": published_at.isoformat(),
+                                          "market_time": market_time.isoformat(),
+                                          "record_hash": record_hash,
+                                          "join_hash": join_hash,
+                                      }
+                                  ],
+                              },
+                              sort_keys=True,
+                          )
+                      )
+                      pre_match_rows.append(
+                          {"match_id": match_id, "event_date": date(year, 6, 15)}
+                      )
+                      reports[(tour, "profile")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "profile_gap_match": profile_signal,
+                          }
+                      )
+                      reports[(tour, "genome")]["predictions"].append(
+                          {
+                              "match_id": match_id,
+                              "full_neighbor_residual": genome_signal,
+                              "core_neighbor_residual": genome_signal,
+                          }
+                      )
+
+          market_path = root / "market_hist_001_records.jsonl"
+          market_path.write_text("\n".join(market_lines) + "\n", encoding="utf-8")
+          pd.DataFrame(pre_match_rows).to_parquet(root / "pre_match.parquet", index=False)
+          for (tour, kind), payload in reports.items():
+              (root / f"{kind}_{tour.lower()}.json").write_text(
+                  json.dumps(payload, sort_keys=True) + "\n",
+                  encoding="utf-8",
+              )
+          PY
+
+      - name: Run POWER-MDE family twice
+        run: |
+          python -m tennis_genome.experiments.power_mde \
+            --market-hist-records synthetic_power_mde/market_hist_001_records.jsonl \
+            --pre-match synthetic_power_mde/pre_match.parquet \
+            --profile-gap-atp synthetic_power_mde/profile_atp.json \
+            --profile-gap-wta synthetic_power_mde/profile_wta.json \
+            --genome-atp synthetic_power_mde/genome_atp.json \
+            --genome-wta synthetic_power_mde/genome_wta.json \
+            --min-prior-rows 24 \
+            --output synthetic_power_mde/result-a.json > /dev/null
+          python -m tennis_genome.experiments.power_mde \
+            --market-hist-records synthetic_power_mde/market_hist_001_records.jsonl \
+            --pre-match synthetic_power_mde/pre_match.parquet \
+            --profile-gap-atp synthetic_power_mde/profile_atp.json \
+            --profile-gap-wta synthetic_power_mde/profile_wta.json \
+            --genome-atp synthetic_power_mde/genome_atp.json \
+            --genome-wta synthetic_power_mde/genome_wta.json \
+            --min-prior-rows 24 \
+            --output synthetic_power_mde/result-b.json > /dev/null
+
+      - name: Enforce deterministic outcome-blind artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("synthetic_power_mde")
+          first = (root / "result-a.json").read_text(encoding="utf-8")
+          second = (root / "result-b.json").read_text(encoding="utf-8")
+          assert first == second
+          result = json.loads(first)
+          assert result["experiment_id"] == "POWER-MDE-001"
+          assert result["outcome_blind"] is True
+          assert result["family_size"] == 4
+          assert result["conservative_planning_alpha"] == 0.0125
+          assert len(result["claims"]) == 4
+          assert set(result["input_sha256"]) == {
+              "market_hist_records",
+              "pre_match",
+              "profile_gap_atp",
+              "profile_gap_wta",
+              "genome_atp",
+              "genome_wta",
+          }
+          for claim in result["claims"]:
+              assert claim["first_planned_evaluation_year"] == 2021
+              assert claim["last_planned_evaluation_year"] == 2025
+              assert claim["identifiable_year_count"] == 5
+              assert all(plan["identifiable"] for plan in claim["year_plans"])
+              for plan in claim["year_plans"]:
+                  assert plan["mde_beta_90"] > plan["mde_beta_80"] > 0
+                  powers = [item["approximate_two_sided_power"] for item in plan["power_grid"]]
+                  assert powers == sorted(powers)
+          serialized = first.lower()
+          assert "outcome_a" not in serialized
+          assert "winner" not in serialized
+          assert "realized" not in serialized
+          PY
+
+      - name: Enforce post-2025 fail-closed boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          import pandas as pd
+
+          from tennis_genome.experiments.power_mde import build_power_mde_artifact
+
+          root = Path("synthetic_power_mde")
+          pre = pd.read_parquet(root / "pre_match.parquet")
+          pre.loc[pre.index[0], "event_date"] = pd.Timestamp("2026-01-01").date()
+          bad = root / "pre_match_2026.parquet"
+          pre.to_parquet(bad, index=False)
+          try:
+              build_power_mde_artifact(
+                  market_hist_records=root / "market_hist_001_records.jsonl",
+                  pre_match=bad,
+                  profile_gap_atp=root / "profile_atp.json",
+                  profile_gap_wta=root / "profile_wta.json",
+                  genome_atp=root / "genome_atp.json",
+                  genome_wta=root / "genome_wta.json",
+                  min_prior_rows=24,
+              )
+          except ValueError as exc:
+              assert "2025" in str(exc)
+          else:
+              raise AssertionError("POWER-MDE accepted a post-2025 row")
+          PY
+
+      - name: Upload synthetic POWER-MDE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-genome-power-mde-synthetic
+          path: synthetic_power_mde/result-a.json
