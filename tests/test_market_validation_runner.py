@@ -59,6 +59,18 @@ def _source_manifest() -> dict[str, object]:
     return {**payload, "bundle_sha256": _canonical_sha(payload)}
 
 
+def _qa_gates() -> dict[str, bool]:
+    return {
+        "overall_close_coverage_at_least_60pct": True,
+        "every_recent_year_close_coverage_at_least_50pct": True,
+        "every_recent_year_at_least_100_rows": True,
+        "at_least_1000_prior_rows_before_first_evaluation_year": True,
+        "at_least_five_evaluation_years": True,
+        "all_2021_2025_years_in_evaluation_population": True,
+        "passed": True,
+    }
+
+
 def _power_claim(tour: str, signal_name: str) -> dict[str, object]:
     return {
         "experiment_id": "POWER-MDE-001",
@@ -100,10 +112,19 @@ def _fixture(tmp_path: Path) -> dict[str, Path]:
         "experiment_id": "MARKET-HIST-QA-001",
         "effective_overall_status": "ELIGIBLE_CONFIRMATORY",
         "qa_report": {
+            "overall_status": "ELIGIBLE_CONFIRMATORY",
             "tours": [
-                {"tour": "ATP", "status": "ELIGIBLE_CONFIRMATORY"},
-                {"tour": "WTA", "status": "ELIGIBLE_CONFIRMATORY"},
-            ]
+                {
+                    "tour": "ATP",
+                    "status": "ELIGIBLE_CONFIRMATORY",
+                    "gates": _qa_gates(),
+                },
+                {
+                    "tour": "WTA",
+                    "status": "ELIGIBLE_CONFIRMATORY",
+                    "gates": _qa_gates(),
+                },
+            ],
         },
         "checkpoint_coverage": [],
         "companion_structural_errors": [],
@@ -185,6 +206,16 @@ def test_seal_rejects_nonconfirmatory_tour(tmp_path: Path) -> None:
     qa["qa_report"]["tours"][1]["status"] = "EXPLORATORY_ONLY_COVERAGE"
     _json(paths["market_hist_qa"], _with_artifact_hash(qa))
     with pytest.raises(ValueError, match="QA-eligible ATP and WTA"):
+        _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
+
+
+def test_seal_rejects_inconsistent_qa_gate(tmp_path: Path) -> None:
+    paths = _fixture(tmp_path)
+    qa = json.loads(paths["market_hist_qa"].read_text())
+    qa.pop("artifact_sha256")
+    qa["qa_report"]["tours"][0]["gates"]["passed"] = False
+    _json(paths["market_hist_qa"], _with_artifact_hash(qa))
+    with pytest.raises(ValueError, match="failed frozen coverage gate"):
         _seal(paths, datetime(2026, 9, 10, 12, tzinfo=UTC))
 
 
