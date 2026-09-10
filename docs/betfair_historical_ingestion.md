@@ -1,8 +1,8 @@
 # Betfair Historical Ingestion Runbook
 
-Status: **MARKET-HIST-001 infrastructure**
+Status: **MARKET-HIST-001 + MARKET-HIST-QA-001 infrastructure**
 
-This runbook describes how to turn licensed Betfair Historical Data into an auditable Tennis Genome market artifact without committing purchased source files to Git.
+This runbook describes how to turn licensed Betfair Historical Data into an auditable Tennis Genome market artifact without committing purchased source files to Git, and how to decide whether that artifact is eligible for confirmatory market research before any model-vs-market outcomes are inspected.
 
 ## Required source
 
@@ -40,7 +40,24 @@ MARKET-HIST-001 intentionally reads only the canonical pre-match Parquet table.
 
 It does **not** require the outcome or post-match-stat tables to resolve Betfair markets. If outcome fields such as `a_won`, `score`, `retirement`, or `walkover` appear in the supplied pre-match table, the loader fails closed.
 
-## Run
+## Step 1 — freeze the licensed source bundle
+
+Before reconstruction, hash the exact local Betfair source directory:
+
+```bash
+python -m tennis_genome.market.historical_manifest \
+  --root /data/betfair-tennis \
+  --data-package ADVANCED \
+  --start-date 2019-01-01 \
+  --end-date 2025-12-31 \
+  --output /data/tennis-genome/market-hist-001/source-manifest.json
+```
+
+The manifest records each relative file path, byte size and SHA-256 plus a deterministic aggregate bundle hash. The raw licensed files remain local and outside Git. Re-verification fails if the file set, size, or content changes.
+
+The confirmatory research manifest rejects an interval ending after 2025 because the partial-2026 holdout is already spent.
+
+## Step 2 — reconstruct MARKET-HIST-001
 
 Example for ADVANCED data:
 
@@ -61,9 +78,7 @@ Default join window:
 
 These values are part of the MARKET-HIST-001 record and must not be relaxed after looking at outcome or edge results. If a future resolver changes them, it receives a new resolver/experiment version.
 
-## Outputs
-
-The runner writes:
+## MARKET-HIST outputs
 
 ### `market_hist_001_records.jsonl`
 
@@ -133,16 +148,69 @@ Automatic v1 matching is exact after Unicode/case/punctuation normalization of t
 
 Do not manually choose the candidate that makes a historical result look correct. Any manual alias/identity registry must be versioned separately and established without outcomes or price-performance information.
 
-## After ingestion
+## Step 3 — run MARKET-HIST-QA-001 before edge results
 
-The first downstream experiment is **MARKET-EDGE-001**, not an optimized betting strategy.
+The real-data quality gate must run before model-vs-market outcomes are inspected:
 
-Its order is:
+```bash
+python -m tennis_genome.experiments.market_hist_qa_bundle \
+  --source-manifest /data/tennis-genome/market-hist-001/source-manifest.json \
+  --market-hist-records /data/tennis-genome/market-hist-001/market_hist_001_records.jsonl \
+  --pre-match /data/tennis-genome/canonical/pre_match.parquet \
+  --outcomes /data/tennis-genome/canonical/outcomes.parquet \
+  --source-root /data/betfair-tennis \
+  --output /data/tennis-genome/market-hist-001/market_hist_qa_001.json
+```
 
-1. establish Betfair's own closing probability-quality baseline;
-2. test Profile Gap for incremental information beyond closing market prices;
-3. test the frozen Genome signal secondarily;
-4. quantify paired Brier/log-loss uncertainty and multiplicity;
-5. only then inspect executable decision-point edge/CLV and commission-aware economics.
+The QA outcome table is used only to remove walkovers/retirements from the denominator; it is not used to score model probabilities. MARKET-EDGE receives settled outcomes separately later.
 
-The ingestion artifact itself does not establish edge, expected value, CLV, ROI, or profitability.
+Per tour, confirmatory closing-market eligibility is frozen at:
+
+- at least 60% overall canonical executable-close coverage;
+- at least 50% executable-close coverage in every year 2021–2025;
+- at least 100 executable closes in every year 2021–2025;
+- at least 1,000 earlier usable closes before the first confirmatory evaluation year;
+- at least five evaluation years;
+- all years 2021–2025 represented in the evaluation population.
+
+The denominator is eligible canonical completed matches, not all Betfair markets. Because canonical `event_date` is currently tournament start rather than exact match time, the upper denominator boundary is the declared source end minus 21 days.
+
+The QA bundle also reports observed and executable coverage separately for T-24H, T-6H, T-1H, T-15M and CLOSE_PREPLAY, both overall and by year/tour. These earlier-checkpoint diagnostics constrain later CLV/tradeability research but do not change the primary CLOSE_PREPLAY eligibility gate.
+
+Coverage bias by surface, tournament level, round and ranking band is diagnostic. Spread, liquidity and quote age must not be converted into post-hoc filters for MARKET-EDGE-001.
+
+## Step 4 — run POWER-MDE-001 outcome-blind
+
+Only after the historical market dataset has passed the relevant QA gate, run POWER-MDE-001 using closing Betfair probabilities and frozen Profile Gap/Genome signals **without canonical winners**.
+
+POWER-MDE estimates the signal-coefficient resolution available to the four MARKET-EDGE claims after controlling for market probability. It is a procurement/feasibility diagnostic, not a signal promotion test.
+
+Its report may justify acquiring more historical data or accepting limited resolution. It may not lower MARKET-EDGE significance thresholds or rescue a failed claim.
+
+## Step 5 — only then open MARKET-EDGE-001 outcomes
+
+After QA and outcome-blind power analysis are frozen for the exact source bundle, join the canonical settled outcomes and run MARKET-EDGE-001.
+
+The primary comparison is:
+
+```text
+market control:    alpha + gamma * logit(p_market)
+market + signal:   alpha + gamma * logit(p_market) + beta * z(signal)
+```
+
+with strictly earlier-year training, paired proper-score inference, annual/recent stability checks and the frozen four-claim Holm family.
+
+CLOSE_PREPLAY answers the informational question: **did Tennis Genome retain information the mature market never absorbed?** Earlier checkpoints answer a later tradeability question and are not substitutes for the closing-market test.
+
+## What comes after a surviving market signal
+
+If—and only if—a signal survives MARKET-EDGE, the next research layer is economic:
+
+1. CLV at executable earlier checkpoints;
+2. edge monotonicity versus later CLV;
+3. commission-adjusted historical EV/ROI;
+4. spread/liquidity/fill and time-of-entry realism;
+5. preregistered BET/PASS policy;
+6. genuinely future immutable paper testing.
+
+The ingestion, QA and power artifacts themselves do not establish edge, expected value, CLV, ROI, or profitability.

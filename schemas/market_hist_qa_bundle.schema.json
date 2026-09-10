@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_hist_qa_bundle.schema.json",
+  "title": "MARKET-HIST-QA-001 Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "effective_overall_status",
+    "qa_report",
+    "checkpoint_coverage",
+    "companion_structural_errors",
+    "input_sha256",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-HIST-QA-001"},
+    "effective_overall_status": {
+      "enum": [
+        "ELIGIBLE_CONFIRMATORY",
+        "PARTIAL_TOUR_ELIGIBILITY",
+        "EXPLORATORY_ONLY_COVERAGE",
+        "BLOCKED_STRUCTURAL"
+      ]
+    },
+    "qa_report": {"$ref": "#/$defs/qaReport"},
+    "checkpoint_coverage": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tourCheckpointCoverage"},
+      "maxItems": 2
+    },
+    "companion_structural_errors": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "input_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_manifest", "market_hist_records", "pre_match", "outcomes"],
+      "properties": {
+        "source_manifest": {"$ref": "#/$defs/sha256"},
+        "market_hist_records": {"$ref": "#/$defs/sha256"},
+        "pre_match": {"$ref": "#/$defs/sha256"},
+        "outcomes": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableNumber": {
+      "type": ["number", "null"]
+    },
+    "numericSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "minimum", "p10", "median", "p90", "maximum", "mean"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 0},
+        "minimum": {"$ref": "#/$defs/nullableNumber"},
+        "p10": {"$ref": "#/$defs/nullableNumber"},
+        "median": {"$ref": "#/$defs/nullableNumber"},
+        "p90": {"$ref": "#/$defs/nullableNumber"},
+        "maximum": {"$ref": "#/$defs/nullableNumber"},
+        "mean": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "coverageGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overall_close_coverage_at_least_60pct",
+        "every_recent_year_close_coverage_at_least_50pct",
+        "every_recent_year_at_least_100_rows",
+        "at_least_1000_prior_rows_before_first_evaluation_year",
+        "at_least_five_evaluation_years",
+        "all_2021_2025_years_in_evaluation_population",
+        "passed"
+      ],
+      "properties": {
+        "overall_close_coverage_at_least_60pct": {"type": "boolean"},
+        "every_recent_year_close_coverage_at_least_50pct": {"type": "boolean"},
+        "every_recent_year_at_least_100_rows": {"type": "boolean"},
+        "at_least_1000_prior_rows_before_first_evaluation_year": {"type": "boolean"},
+        "at_least_five_evaluation_years": {"type": "boolean"},
+        "all_2021_2025_years_in_evaluation_population": {"type": "boolean"},
+        "passed": {"type": "boolean"}
+      }
+    },
+    "annualCloseCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["year", "eligible_canonical", "identity_matched", "executable_close", "close_coverage"],
+      "properties": {
+        "year": {"type": "integer", "maximum": 2025},
+        "eligible_canonical": {"type": "integer", "minimum": 0},
+        "identity_matched": {"type": "integer", "minimum": 0},
+        "executable_close": {"type": "integer", "minimum": 0},
+        "close_coverage": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "groupCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimension", "value", "eligible_canonical", "executable_close", "close_coverage"],
+      "properties": {
+        "dimension": {"enum": ["surface", "tournament_level", "round", "rank_band"]},
+        "value": {"type": "string"},
+        "eligible_canonical": {"type": "integer", "minimum": 0},
+        "executable_close": {"type": "integer", "minimum": 0},
+        "close_coverage": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "tourQA": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tour",
+        "status",
+        "eligible_canonical",
+        "identity_matched",
+        "executable_close",
+        "overall_close_coverage",
+        "first_confirmatory_evaluation_year",
+        "confirmatory_evaluation_years",
+        "prior_rows_before_first_evaluation_year",
+        "annual",
+        "group_coverage",
+        "gates"
+      ],
+      "properties": {
+        "tour": {"enum": ["ATP", "WTA"]},
+        "status": {"enum": ["ELIGIBLE_CONFIRMATORY", "EXPLORATORY_ONLY_COVERAGE", "BLOCKED_STRUCTURAL"]},
+        "eligible_canonical": {"type": "integer", "minimum": 0},
+        "identity_matched": {"type": "integer", "minimum": 0},
+        "executable_close": {"type": "integer", "minimum": 0},
+        "overall_close_coverage": {"$ref": "#/$defs/nullableNumber"},
+        "first_confirmatory_evaluation_year": {"type": ["integer", "null"], "maximum": 2025},
+        "confirmatory_evaluation_years": {
+          "type": "array",
+          "items": {"type": "integer", "maximum": 2025},
+          "uniqueItems": true
+        },
+        "prior_rows_before_first_evaluation_year": {"type": "integer", "minimum": 0},
+        "annual": {"type": "array", "items": {"$ref": "#/$defs/annualCloseCoverage"}},
+        "group_coverage": {"type": "array", "items": {"$ref": "#/$defs/groupCoverage"}},
+        "gates": {"$ref": "#/$defs/coverageGates"}
+      }
+    },
+    "qaReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_id",
+        "overall_status",
+        "structural_pass",
+        "structural_errors",
+        "bundle_sha256",
+        "data_package",
+        "requested_start_date",
+        "requested_end_date",
+        "denominator_start_date",
+        "denominator_end_date",
+        "source_market_records",
+        "source_join_status_counts",
+        "checkpoint_counts",
+        "executable_checkpoint_counts",
+        "close_quote_seconds_to_start",
+        "implied_probability_spread",
+        "decimal_price_spread",
+        "market_total_matched",
+        "market_base_rate_available_fraction",
+        "tours"
+      ],
+      "properties": {
+        "experiment_id": {"const": "MARKET-HIST-QA-001"},
+        "overall_status": {
+          "enum": [
+            "ELIGIBLE_CONFIRMATORY",
+            "PARTIAL_TOUR_ELIGIBILITY",
+            "EXPLORATORY_ONLY_COVERAGE",
+            "BLOCKED_STRUCTURAL"
+          ]
+        },
+        "structural_pass": {"type": "boolean"},
+        "structural_errors": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "bundle_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "data_package": {"type": ["string", "null"], "enum": ["ADVANCED", "PRO", null]},
+        "requested_start_date": {"type": ["string", "null"]},
+        "requested_end_date": {"type": ["string", "null"]},
+        "denominator_start_date": {"type": ["string", "null"]},
+        "denominator_end_date": {"type": ["string", "null"]},
+        "source_market_records": {"type": "integer", "minimum": 0},
+        "source_join_status_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "checkpoint_counts": {"$ref": "#/$defs/checkpointCountMap"},
+        "executable_checkpoint_counts": {"$ref": "#/$defs/checkpointCountMap"},
+        "close_quote_seconds_to_start": {"$ref": "#/$defs/numericSummary"},
+        "implied_probability_spread": {"$ref": "#/$defs/numericSummary"},
+        "decimal_price_spread": {"$ref": "#/$defs/numericSummary"},
+        "market_total_matched": {"$ref": "#/$defs/numericSummary"},
+        "market_base_rate_available_fraction": {"$ref": "#/$defs/nullableNumber"},
+        "tours": {"type": "array", "items": {"$ref": "#/$defs/tourQA"}, "maxItems": 2}
+      }
+    },
+    "checkpointCountMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "T-24H": {"type": "integer", "minimum": 0},
+        "T-6H": {"type": "integer", "minimum": 0},
+        "T-1H": {"type": "integer", "minimum": 0},
+        "T-15M": {"type": "integer", "minimum": 0},
+        "CLOSE_PREPLAY": {"type": "integer", "minimum": 0}
+      }
+    },
+    "checkpointCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_name",
+        "eligible_canonical",
+        "observed_matches",
+        "executable_matches",
+        "observed_coverage",
+        "executable_coverage"
+      ],
+      "properties": {
+        "checkpoint_name": {"enum": ["T-24H", "T-6H", "T-1H", "T-15M", "CLOSE_PREPLAY"]},
+        "eligible_canonical": {"type": "integer", "minimum": 0},
+        "observed_matches": {"type": "integer", "minimum": 0},
+        "executable_matches": {"type": "integer", "minimum": 0},
+        "observed_coverage": {"$ref": "#/$defs/nullableNumber"},
+        "executable_coverage": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "annualCheckpointCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["year", "checkpoints"],
+      "properties": {
+        "year": {"type": "integer", "maximum": 2025},
+        "checkpoints": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/checkpointCoverage"},
+          "minItems": 5,
+          "maxItems": 5
+        }
+      }
+    },
+    "tourCheckpointCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tour", "eligible_canonical", "overall", "annual"],
+      "properties": {
+        "tour": {"enum": ["ATP", "WTA"]},
+        "eligible_canonical": {"type": "integer", "minimum": 0},
+        "overall": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/checkpointCoverage"},
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "annual": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/annualCheckpointCoverage"}
+        }
+      }
+    }
+  }
+}
