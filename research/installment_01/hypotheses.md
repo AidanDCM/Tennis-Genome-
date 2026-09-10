@@ -83,11 +83,15 @@ Potential use: abstention.
 
 Counter-hypothesis: nearest-neighbor effects disappear after adequate parametric/GBM baselines.
 
+**Current evidence:** Provisionally supported as a historical development candidate by GENOME-NN-001 on both ATP and WTA. The frozen k=100 challenger improved aggregate Brier and log loss, cleared the annual/recent-direction gates, and survived exclusion of every neighbor sharing either target player. The result is not independently forward-confirmed and does not imply market profitability. See `genome_neighborhood_findings.md`.
+
 ## H-012 Neighborhood density predicts reliability
 
 **Hypothesis:** Dense familiar regions of Match Fingerprint space yield lower error and better calibration than sparse/out-of-distribution regions.
 
 Potential use: uncertainty and PASS decisions.
+
+**Current evidence:** Rejected in its raw GENOME-NN-001 form. Higher k=100 distance was associated with lower, not higher, Core error on both tours, including 2021–2025. Raw `D100` must not be used as an abstention/OOD score. Post-result exploration suggests distance is confounded with Core confidence / match extremity; any conditioned-density hypothesis requires a new preregistered experiment.
 
 ## H-013 Selective prediction improves retained-match accuracy
 
