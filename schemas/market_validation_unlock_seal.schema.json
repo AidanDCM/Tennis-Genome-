@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "market_validation_unlock_seal.schema.json",
+  "title": "MARKET-VALIDATION-RUN-001 Outcome Unlock Seal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "stage",
+    "winner_outcomes_permitted_for_stage_b",
+    "sealed_file_sha256",
+    "qa_artifact_sha256",
+    "qa_effective_overall_status",
+    "qa_tour_status",
+    "power_mde_artifact_sha256",
+    "power_claims",
+    "seal_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "MARKET-VALIDATION-RUN-001"},
+    "stage": {"const": "OUTCOME_LOCKED_COMPLETE"},
+    "winner_outcomes_permitted_for_stage_b": {"const": true},
+    "sealed_file_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_manifest",
+        "market_hist_records",
+        "pre_match",
+        "market_hist_qa",
+        "power_mde",
+        "profile_gap_atp",
+        "profile_gap_wta",
+        "genome_atp",
+        "genome_wta"
+      ],
+      "properties": {
+        "source_manifest": {"$ref": "#/$defs/sha256"},
+        "market_hist_records": {"$ref": "#/$defs/sha256"},
+        "pre_match": {"$ref": "#/$defs/sha256"},
+        "market_hist_qa": {"$ref": "#/$defs/sha256"},
+        "power_mde": {"$ref": "#/$defs/sha256"},
+        "profile_gap_atp": {"$ref": "#/$defs/sha256"},
+        "profile_gap_wta": {"$ref": "#/$defs/sha256"},
+        "genome_atp": {"$ref": "#/$defs/sha256"},
+        "genome_wta": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "qa_artifact_sha256": {"$ref": "#/$defs/sha256"},
+    "qa_effective_overall_status": {"const": "ELIGIBLE_CONFIRMATORY"},
+    "qa_tour_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ATP", "WTA"],
+      "properties": {
+        "ATP": {"const": "ELIGIBLE_CONFIRMATORY"},
+        "WTA": {"const": "ELIGIBLE_CONFIRMATORY"}
+      }
+    },
+    "power_mde_artifact_sha256": {"$ref": "#/$defs/sha256"},
+    "power_claims": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tour", "signal_name", "identifiable_evaluation_years"],
+        "properties": {
+          "tour": {"enum": ["ATP", "WTA"]},
+          "signal_name": {"enum": ["profile_gap", "genome"]},
+          "identifiable_evaluation_years": {
+            "type": "array",
+            "items": {"type": "integer", "maximum": 2025},
+            "contains": {"const": 2025}
+          }
+        }
+      }
+    },
+    "seal_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
