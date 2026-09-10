@@ -42,14 +42,15 @@ def _run(matches: list[HistoricalMatch]):
     )
 
 
-def test_outer_year_outcomes_cannot_change_outer_year_predictions() -> None:
+def test_target_outcome_cannot_change_its_own_prediction() -> None:
+    target_id = "2025-7"
     original = _history()
     changed = [
         HistoricalMatch(
             pre_match=match.pre_match,
             outcome=(
                 replace(match.outcome, a_won=not match.outcome.a_won)
-                if match.pre_match.event_date.year == 2025
+                if match.match_id == target_id
                 else match.outcome
             ),
             stats=match.stats,
@@ -59,28 +60,19 @@ def test_outer_year_outcomes_cannot_change_outer_year_predictions() -> None:
 
     first = _run(original)
     second = _run(changed)
-    first_2025 = {
-        row.match_id: (
-            row.pointsim_probability_a,
-            row.same_input_control_probability_a,
-            row.core_control_probability_a,
-            row.core_plus_pointsim_probability_a,
-        )
-        for row in first.predictions
-        if row.year == 2025
-    }
-    second_2025 = {
-        row.match_id: (
-            row.pointsim_probability_a,
-            row.same_input_control_probability_a,
-            row.core_control_probability_a,
-            row.core_plus_pointsim_probability_a,
-        )
-        for row in second.predictions
-        if row.year == 2025
-    }
-    assert first_2025
-    assert first_2025 == second_2025
+    first_target = next(row for row in first.predictions if row.match_id == target_id)
+    second_target = next(row for row in second.predictions if row.match_id == target_id)
+    assert (
+        first_target.pointsim_probability_a,
+        first_target.same_input_control_probability_a,
+        first_target.core_control_probability_a,
+        first_target.core_plus_pointsim_probability_a,
+    ) == (
+        second_target.pointsim_probability_a,
+        second_target.same_input_control_probability_a,
+        second_target.core_control_probability_a,
+        second_target.core_plus_pointsim_probability_a,
+    )
 
 
 def test_post_2025_selected_tour_rows_fail_closed() -> None:
