@@ -17,6 +17,7 @@ This experiment is deliberately separated from FUSION-CAL-001. It does not use s
 - Retirements excluded in the primary analysis
 - Only information available before the target match may enter the prediction
 - Serve/return state remains date-frozen exactly as in EXP-003
+- The matched primary population requires canonical `best_of` to be exactly 3 or 5. Missing or unsupported formats are excluded and the retained/eligible coverage must be reported; they are never guessed or coerced.
 
 ## Frozen point inputs
 
@@ -127,6 +128,7 @@ Report without changing promotion rules:
 - accuracy
 - ECE-10
 - calibration slope/intercept if available
+- eligible-versus-retained population coverage after the frozen best-of-3/5 requirement
 - best-of-3 versus best-of-5 scores
 - serve-point-history depth slices
 - probability extremity
@@ -143,6 +145,7 @@ Report without changing promotion rules:
 6. Future appended matches must not alter historical serve/return snapshots or historical POINTSIM probabilities.
 7. Selected-tour rows after 2025 must fail closed.
 8. No target-match stats, score, retirement information, or result may enter a pre-match probability.
+9. Missing/unsupported `best_of` is never inferred from tournament, round, tour, or result after the fact.
 
 ## Interpretation limits
 
