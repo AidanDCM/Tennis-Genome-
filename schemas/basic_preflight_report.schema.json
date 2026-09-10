@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/basic_preflight_report.schema.json",
+  "title": "BASIC-PREFLIGHT-001 report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id",
+    "data_package",
+    "requested_start_date",
+    "requested_end_date",
+    "boundary_safe_end_date",
+    "source_file_count",
+    "source_total_bytes",
+    "source_files",
+    "source_bundle_sha256",
+    "pre_match_sha256",
+    "markets_reconstructed",
+    "markets_matched",
+    "markets_unmatched",
+    "markets_ambiguous",
+    "tours",
+    "recommendation_class",
+    "recommended_advanced_start_month",
+    "recommended_advanced_end_date",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "experiment_id": {"const": "BASIC-PREFLIGHT-001"},
+    "data_package": {"const": "BASIC"},
+    "requested_start_date": {"type": "string", "format": "date"},
+    "requested_end_date": {"type": "string", "format": "date"},
+    "boundary_safe_end_date": {"type": "string", "format": "date"},
+    "source_file_count": {"type": "integer", "minimum": 1},
+    "source_total_bytes": {"type": "integer", "minimum": 1},
+    "source_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["relative_path", "size_bytes", "sha256"],
+        "properties": {
+          "relative_path": {"type": "string", "minLength": 1},
+          "size_bytes": {"type": "integer", "minimum": 1},
+          "sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    "source_bundle_sha256": {"$ref": "#/$defs/sha256"},
+    "pre_match_sha256": {"$ref": "#/$defs/sha256"},
+    "markets_reconstructed": {"type": "integer", "minimum": 0},
+    "markets_matched": {"type": "integer", "minimum": 0},
+    "markets_unmatched": {"type": "integer", "minimum": 0},
+    "markets_ambiguous": {"type": "integer", "minimum": 0},
+    "tours": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"$ref": "#/$defs/tour"}
+    },
+    "recommendation_class": {
+      "enum": [
+        "CANDIDATE_MINIMUM_WINDOW",
+        "HIGH_RISK_COVERAGE",
+        "INSUFFICIENT_BASIC_PRIOR_HISTORY"
+      ]
+    },
+    "recommended_advanced_start_month": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "format": "date"}
+      ]
+    },
+    "recommended_advanced_end_date": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "format": "date"}
+      ]
+    },
+    "artifact_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "yearCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "year",
+        "canonical_proxy_rows",
+        "basic_matched_rows",
+        "identity_coverage"
+      ],
+      "properties": {
+        "year": {"type": "integer", "minimum": 2015, "maximum": 2025},
+        "canonical_proxy_rows": {"type": "integer", "minimum": 0},
+        "basic_matched_rows": {"type": "integer", "minimum": 0},
+        "identity_coverage": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "monthCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["month", "basic_matched_rows"],
+      "properties": {
+        "month": {"type": "string", "format": "date"},
+        "basic_matched_rows": {"type": "integer", "minimum": 0}
+      }
+    },
+    "tour": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tour",
+        "canonical_proxy_rows",
+        "basic_matched_rows",
+        "identity_coverage",
+        "yearly",
+        "monthly_matched",
+        "cumulative_prior_before_year",
+        "overall_coverage_pass",
+        "recent_coverage_pass",
+        "recent_count_pass",
+        "latest_start_month_with_1000_prior",
+        "prior_history_pass"
+      ],
+      "properties": {
+        "tour": {"enum": ["ATP", "WTA"]},
+        "canonical_proxy_rows": {"type": "integer", "minimum": 0},
+        "basic_matched_rows": {"type": "integer", "minimum": 0},
+        "identity_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "yearly": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/yearCoverage"}
+        },
+        "monthly_matched": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/monthCount"}
+        },
+        "cumulative_prior_before_year": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "overall_coverage_pass": {"type": "boolean"},
+        "recent_coverage_pass": {"type": "boolean"},
+        "recent_count_pass": {"type": "boolean"},
+        "latest_start_month_with_1000_prior": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date"}
+          ]
+        },
+        "prior_history_pass": {"type": "boolean"}
+      }
+    }
+  }
+}

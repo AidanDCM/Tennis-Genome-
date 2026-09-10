@@ -1,8 +1,8 @@
 # Betfair Historical Ingestion Runbook
 
-Status: **MARKET-HIST-001 + MARKET-HIST-QA-001 infrastructure**
+Status: **BASIC-PREFLIGHT-001 + MARKET-HIST-001 + MARKET-HIST-QA-001 infrastructure**
 
-This runbook describes how to turn licensed Betfair Historical Data into an auditable Tennis Genome market artifact without committing purchased source files to Git, and how to decide whether that artifact is eligible for confirmatory market research before any model-vs-market outcomes are inspected.
+This runbook describes how to estimate the minimum useful Betfair purchase window without inspecting match outcomes, then turn licensed Betfair Historical Data into an auditable Tennis Genome market artifact without committing purchased source files to Git, and finally decide whether that artifact is eligible for confirmatory market research before any model-vs-market outcomes are inspected.
 
 ## Required source
 
@@ -11,18 +11,26 @@ Use Betfair Historical Data for:
 - sport: Tennis;
 - market type: `MATCH_ODDS`;
 - market-file (`M`) stream data;
-- ADVANCED or PRO package for executable-price research.
+- BASIC only for the outcome-blind purchase-window preflight;
+- ADVANCED or PRO for executable-price research.
 
-BASIC may be used for parser/coverage diagnostics but is not eligible for the primary executable-price edge analysis because it does not contain best available back/lay ladders.
+BASIC is not eligible for the primary executable-price edge analysis because it does not contain best available back/lay ladders. ADVANCED is sufficient for the frozen current research because it contains executable best-back/best-lay data; PRO is not required merely to run MARKET-EDGE.
+
+Betfair Stream-format historical data is available from 2015-04-01. The repository rejects a claimed earlier source interval. Australian/New Zealand historical markets begin later and may naturally reduce early coverage.
 
 The repository does not download, redistribute, or commit Betfair historical files. Source acquisition and use remain subject to the user's Betfair licence/terms.
 
 ## Directory layout
 
-Extract the purchased archive outside the Git repository, for example:
+Extract each downloaded archive outside the Git repository, for example:
 
 ```text
-/data/betfair-tennis/
+/data/betfair-tennis-basic/
+  2019/
+    1.xxxxx.bz2
+  ...
+
+/data/betfair-tennis-advanced/
   2019/
     1.xxxxx.bz2
   2020/
@@ -30,32 +38,63 @@ Extract the purchased archive outside the Git repository, for example:
   ...
 ```
 
-The batch runner recursively discovers `.bz2`, `.json`, `.jsonl`, `.txt`, and extensionless market files.
+The runners recursively discover `.bz2`, `.json`, `.jsonl`, `.txt`, and extensionless market files.
 
-Keep the output directory outside the source directory so generated JSON artifacts are never re-read as Betfair Stream API inputs.
+Keep generated output directories outside source directories so JSON reports are never re-read as Betfair Stream API inputs.
 
 ## Canonical pre-match input
 
-MARKET-HIST-001 intentionally reads only the canonical pre-match Parquet table.
+MARKET-HIST and BASIC-PREFLIGHT intentionally read only the canonical pre-match Parquet table for market identity resolution.
 
-It does **not** require the outcome or post-match-stat tables to resolve Betfair markets. If outcome fields such as `a_won`, `score`, `retirement`, or `walkover` appear in the supplied pre-match table, the loader fails closed.
+They do **not** require the outcome or post-match-stat tables to resolve Betfair markets. If outcome fields such as `a_won`, `score`, `retirement`, or `walkover` appear in the supplied pre-match table, the loader fails closed.
 
-## Step 1 — freeze the licensed source bundle
+## Step 0 — BASIC-PREFLIGHT-001 before buying ADVANCED
 
-Before reconstruction, hash the exact local Betfair source directory:
+If BASIC Tennis history is available to the account, download the widest practical BASIC interval through 2025 before paying for ADVANCED. This step is optional operationally but preferred because it can reduce the paid interval.
+
+Run:
+
+```bash
+python -m tennis_genome.experiments.basic_preflight \
+  --betfair-root /data/betfair-tennis-basic \
+  --pre-match /data/tennis-genome/canonical/pre_match.parquet \
+  --start-date 2015-04-01 \
+  --end-date 2025-12-31 \
+  --output /data/tennis-genome/basic-preflight-001.json
+```
+
+BASIC-PREFLIGHT reads no winners, scores, retirements, Profile Gap/Genome outcomes, model-vs-market results, or ADVANCED prices. It reconstructs BASIC Tennis MATCH_ODDS market definitions and uses the same canonical identity resolver as MARKET-HIST.
+
+It reports per-tour/per-year identity coverage, monthly matched counts, cumulative prior history, source hashes, and the **latest** monthly start that still leaves at least 1,000 BASIC-matched rows before 2021. The joint recommendation takes the earlier of ATP/WTA's two latest qualifying dates.
+
+Recommendation classes:
+
+- `CANDIDATE_MINIMUM_WINDOW`: BASIC identity coverage suggests the calculated ADVANCED interval is a plausible minimum purchase;
+- `HIGH_RISK_COVERAGE`: prior-history depth is sufficient but one or more BASIC coverage proxies fail;
+- `INSUFFICIENT_BASIC_PRIOR_HISTORY`: the supplied BASIC history cannot provide 1,000 pre-2021 rows for at least one tour.
+
+This is a procurement screen only. BASIC cannot certify executable closing-price coverage. Even after a positive preflight, ADVANCED must pass the unchanged MARKET-HIST-QA gate.
+
+If BASIC cannot be obtained, skip this step and purchase an ADVANCED interval conservatively enough to include pre-2021 training history plus all of 2021–2025.
+
+## Step 1 — freeze the licensed ADVANCED/PRO source bundle
+
+After the paid interval is chosen and downloaded, hash the exact local source directory:
 
 ```bash
 python -m tennis_genome.market.historical_manifest \
-  --root /data/betfair-tennis \
+  --root /data/betfair-tennis-advanced \
   --data-package ADVANCED \
   --start-date 2019-01-01 \
   --end-date 2025-12-31 \
   --output /data/tennis-genome/market-hist-001/source-manifest.json
 ```
 
-The manifest records each relative file path, byte size and SHA-256 plus a deterministic aggregate bundle hash. The raw licensed files remain local and outside Git. Re-verification fails if the file set, size, or content changes.
+Replace the example start date with the BASIC-PREFLIGHT recommendation when one exists.
 
-The confirmatory research manifest rejects an interval ending after 2025 because the partial-2026 holdout is already spent.
+The confirmatory manifest records each relative file path, byte size and SHA-256 plus a deterministic aggregate bundle hash. The raw licensed files remain local and outside Git. Re-verification fails if the file set, size, or content changes.
+
+The manifest rejects BASIC for confirmatory use, rejects intervals before the provider's 2015-04-01 Stream-data floor, and rejects an interval ending after 2025 because the partial-2026 holdout is already spent.
 
 ## Step 2 — reconstruct MARKET-HIST-001
 
@@ -63,7 +102,7 @@ Example for ADVANCED data:
 
 ```bash
 python -m tennis_genome.market.historical_batch \
-  --betfair-root /data/betfair-tennis \
+  --betfair-root /data/betfair-tennis-advanced \
   --pre-match /data/tennis-genome/canonical/pre_match.parquet \
   --data-package ADVANCED \
   --output-dir /data/tennis-genome/market-hist-001
@@ -158,7 +197,7 @@ python -m tennis_genome.experiments.market_hist_qa_bundle \
   --market-hist-records /data/tennis-genome/market-hist-001/market_hist_001_records.jsonl \
   --pre-match /data/tennis-genome/canonical/pre_match.parquet \
   --outcomes /data/tennis-genome/canonical/outcomes.parquet \
-  --source-root /data/betfair-tennis \
+  --source-root /data/betfair-tennis-advanced \
   --output /data/tennis-genome/market-hist-001/market_hist_qa_001.json
 ```
 
@@ -187,24 +226,31 @@ POWER-MDE estimates the signal-coefficient resolution available to the four MARK
 
 Its report may justify acquiring more historical data or accepting limited resolution. It may not lower MARKET-EDGE significance thresholds or rescue a failed claim.
 
-## Step 5 — only then open MARKET-EDGE-001 outcomes
+## Step 5 — only then open MARKET-EDGE outcomes
 
-After QA and outcome-blind power analysis are frozen for the exact source bundle, join the canonical settled outcomes and run MARKET-EDGE-001.
+After QA and outcome-blind power analysis are frozen for the exact source bundle, join the canonical settled outcomes and run the already-frozen MARKET-EDGE-001 and MARKET-EDGE-ADV-001 experiments.
 
-The primary comparison is:
+The original comparison is:
 
 ```text
 market control:    alpha + gamma * logit(p_market)
 market + signal:   alpha + gamma * logit(p_market) + beta * z(signal)
 ```
 
-with strictly earlier-year training, paired proper-score inference, annual/recent stability checks and the frozen four-claim Holm family.
+The stronger adversary additionally asks whether the signal survives after the control receives frozen honest OOS Strict Core probability:
+
+```text
+strong control:    alpha + gamma_m * logit(p_market) + gamma_c * logit(p_core)
+challenger:        strong control + beta * z(signal)
+```
+
+Both use strictly earlier-year training, paired proper-score inference, annual/recent stability checks and frozen four-claim Holm families.
 
 CLOSE_PREPLAY answers the informational question: **did Tennis Genome retain information the mature market never absorbed?** Earlier checkpoints answer a later tradeability question and are not substitutes for the closing-market test.
 
 ## What comes after a surviving market signal
 
-If—and only if—a signal survives MARKET-EDGE, the next research layer is economic:
+If—and only if—a signal survives the market tests, the next research layer is economic:
 
 1. CLV at executable earlier checkpoints;
 2. edge monotonicity versus later CLV;
@@ -213,4 +259,4 @@ If—and only if—a signal survives MARKET-EDGE, the next research layer is eco
 5. preregistered BET/PASS policy;
 6. genuinely future immutable paper testing.
 
-The ingestion, QA and power artifacts themselves do not establish edge, expected value, CLV, ROI, or profitability.
+The preflight, ingestion, QA and power artifacts themselves do not establish edge, expected value, CLV, ROI, or profitability.
