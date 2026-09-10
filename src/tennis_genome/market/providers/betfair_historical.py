@@ -3,10 +3,11 @@ from __future__ import annotations
 import bz2
 import hashlib
 import json
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, BinaryIO, Iterator
+from typing import Any, BinaryIO
 
 from tennis_genome.market.exchange_snapshot import (
     ExchangeDataPackage,
