@@ -6,7 +6,7 @@ import json
 import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Literal, cast
+from typing import cast
 
 import numpy as np
 from scipy.special import expit
