@@ -4,7 +4,7 @@ import argparse
 import json
 import math
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Literal, cast
@@ -200,7 +200,11 @@ def _record_structural_checks(
         if join_status == "MATCHED" and not isinstance(record.get("join"), dict):
             errors.append(f"record {index}: MATCHED record lacks join object")
 
-        for checkpoint in record.get("checkpoints", []):
+        checkpoints = record.get("checkpoints", [])
+        if not isinstance(checkpoints, list):
+            errors.append(f"record {index}: checkpoints is not a list")
+            continue
+        for checkpoint in checkpoints:
             if not isinstance(checkpoint, dict):
                 errors.append(f"record {index}: checkpoint is not a JSON object")
                 continue
@@ -423,7 +427,10 @@ def _tour_qa(
     )
 
 
-def _blocked_report(errors: list[str], manifest: HistoricalSourceManifest | None) -> MarketHistQAReport:
+def _blocked_report(
+    errors: list[str],
+    manifest: HistoricalSourceManifest | None,
+) -> MarketHistQAReport:
     return MarketHistQAReport(
         experiment_id=_EXPERIMENT_ID,
         overall_status="BLOCKED_STRUCTURAL",
@@ -437,7 +444,10 @@ def _blocked_report(errors: list[str], manifest: HistoricalSourceManifest | None
         denominator_end_date=(
             None
             if manifest is None
-            else (date.fromisoformat(manifest.requested_end_date) - timedelta(days=_END_BUFFER_DAYS)).isoformat()
+            else (
+                date.fromisoformat(manifest.requested_end_date)
+                - timedelta(days=_END_BUFFER_DAYS)
+            ).isoformat()
         ),
         source_market_records=0,
         source_join_status_counts={},
@@ -490,12 +500,7 @@ def run_market_hist_qa(
 
     if errors:
         blocked = _blocked_report(errors, manifest)
-        return MarketHistQAReport(
-            **{
-                **blocked.to_dict(),
-                "source_market_records": len(records),
-            }
-        )
+        return replace(blocked, source_market_records=len(records))
 
     canonical_by_id = canonical.set_index("match_id", drop=False)
     matched_ids: set[str] = set()
@@ -516,19 +521,28 @@ def run_market_hist_qa(
             join = cast(dict[str, Any], record["join"])
             match_id = str(join["match_id"])
             if match_id not in canonical_by_id.index:
-                errors.append(f"matched Betfair market points to unknown canonical match {match_id}")
+                errors.append(
+                    f"matched Betfair market points to unknown canonical match {match_id}"
+                )
             else:
                 canonical_tour = str(canonical_by_id.loc[match_id, "tour"])
                 if str(join.get("tour")) != canonical_tour:
                     errors.append(f"matched Betfair market tour disagrees for {match_id}")
                 matched_ids.add(match_id)
-        for checkpoint in record.get("checkpoints", []):
+        checkpoints = record.get("checkpoints", [])
+        if not isinstance(checkpoints, list):
+            errors.append("MARKET-HIST record checkpoints must be a list")
+            continue
+        for checkpoint in checkpoints:
             name = str(checkpoint.get("checkpoint_name", ""))
             if name in _CHECKPOINTS:
                 checkpoint_counts[name] += 1
                 if checkpoint.get("executable_two_way") is True:
                     executable_counts[name] += 1
-            if name == "CLOSE_PREPLAY" and checkpoint.get("executable_two_way") is True:
+            if (
+                name == "CLOSE_PREPLAY"
+                and checkpoint.get("executable_two_way") is True
+            ):
                 seconds = float(checkpoint["seconds_to_start"])
                 quote_ages.append(seconds)
                 back_a = float(checkpoint["best_back_a"])
@@ -550,14 +564,14 @@ def run_market_hist_qa(
 
     if errors:
         blocked = _blocked_report(errors, manifest)
-        return MarketHistQAReport(
-            **{
-                **blocked.to_dict(),
-                "source_market_records": len(records),
-                "source_join_status_counts": dict(sorted(join_status_counts.items())),
-                "checkpoint_counts": {name: checkpoint_counts[name] for name in _CHECKPOINTS},
-                "executable_checkpoint_counts": {name: executable_counts[name] for name in _CHECKPOINTS},
-            }
+        return replace(
+            blocked,
+            source_market_records=len(records),
+            source_join_status_counts=dict(sorted(join_status_counts.items())),
+            checkpoint_counts={name: checkpoint_counts[name] for name in _CHECKPOINTS},
+            executable_checkpoint_counts={
+                name: executable_counts[name] for name in _CHECKPOINTS
+            },
         )
 
     close_ids = set(close_rows)
@@ -594,7 +608,9 @@ def run_market_hist_qa(
         source_market_records=len(records),
         source_join_status_counts=dict(sorted(join_status_counts.items())),
         checkpoint_counts={name: checkpoint_counts[name] for name in _CHECKPOINTS},
-        executable_checkpoint_counts={name: executable_counts[name] for name in _CHECKPOINTS},
+        executable_checkpoint_counts={
+            name: executable_counts[name] for name in _CHECKPOINTS
+        },
         close_quote_seconds_to_start=_numeric_summary(quote_ages),
         implied_probability_spread=_numeric_summary(probability_spreads),
         decimal_price_spread=_numeric_summary(price_spreads),
