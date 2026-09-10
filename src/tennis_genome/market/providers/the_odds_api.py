@@ -144,7 +144,7 @@ def parse_h2h_snapshot(
         source_event_id=event_id,
         source_market_id=source_market_id,
         source_payload_sha256=payload_hash,
-        is_live=observed_at >= commence_at,
+        is_live=collected_at >= commence_at,
         is_suspended=False,
         identity_resolution_hash=resolution_hash,
     )
