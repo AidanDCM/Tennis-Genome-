@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import product
-from typing import Iterable
 
 
 @dataclass(frozen=True)
@@ -67,7 +67,10 @@ def per_match_brier_losses(
         raise ValueError("y_true and probabilities must have equal non-zero length")
     if any(not 0.0 <= probability <= 1.0 for probability in ps):
         raise ValueError("probabilities must be in [0, 1]")
-    return [(probability - outcome) ** 2 for outcome, probability in zip(ys, ps, strict=True)]
+    return [
+        (probability - outcome) ** 2
+        for outcome, probability in zip(ys, ps, strict=True)
+    ]
 
 
 def per_match_log_losses(
