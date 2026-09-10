@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/market_hist_record.schema.json",
+  "title": "MARKET-HIST-001 Betfair Market Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_market_id",
+    "source_event_id",
+    "source_file",
+    "source_file_sha256",
+    "data_package",
+    "join_status",
+    "normalized_runner_names",
+    "candidate_match_ids",
+    "join",
+    "checkpoints"
+  ],
+  "properties": {
+    "source_market_id": {"type": "string", "minLength": 1},
+    "source_event_id": {"type": "string", "minLength": 1},
+    "source_file": {"type": "string", "minLength": 1},
+    "source_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "data_package": {"enum": ["BASIC", "ADVANCED", "PRO"]},
+    "join_status": {"enum": ["MATCHED", "UNMATCHED", "AMBIGUOUS"]},
+    "normalized_runner_names": {
+      "type": "array",
+      "prefixItems": [{"type": "string"}, {"type": "string"}],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "candidate_match_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "join": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "join_hash",
+            "resolver_version",
+            "source_market_id",
+            "source_event_id",
+            "source_market_time",
+            "match_id",
+            "tour",
+            "source_selection_a_id",
+            "source_selection_b_id",
+            "source_selection_a_name",
+            "source_selection_b_name",
+            "player_a_id",
+            "player_b_id",
+            "tournament_date_offset_days",
+            "days_before_window",
+            "days_after_window"
+          ],
+          "properties": {
+            "join_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "resolver_version": {"type": "string", "minLength": 1},
+            "source_market_id": {"type": "string"},
+            "source_event_id": {"type": "string"},
+            "source_market_time": {"type": "string", "format": "date-time"},
+            "match_id": {"type": "string", "minLength": 1},
+            "tour": {"enum": ["ATP", "WTA"]},
+            "source_selection_a_id": {"type": "integer", "minimum": 1},
+            "source_selection_b_id": {"type": "integer", "minimum": 1},
+            "source_selection_a_name": {"type": "string", "minLength": 1},
+            "source_selection_b_name": {"type": "string", "minLength": 1},
+            "player_a_id": {"type": "string", "minLength": 1},
+            "player_b_id": {"type": "string", "minLength": 1},
+            "tournament_date_offset_days": {"type": "integer"},
+            "days_before_window": {"type": "integer", "minimum": 0},
+            "days_after_window": {"type": "integer", "minimum": 0}
+          }
+        }
+      ]
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/checkpoint"}
+    }
+  },
+  "$defs": {
+    "positivePriceOrNull": {
+      "oneOf": [{"type": "null"}, {"type": "number", "exclusiveMinimum": 1.0}]
+    },
+    "nonNegativeOrNull": {
+      "oneOf": [{"type": "null"}, {"type": "number", "minimum": 0.0}]
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_hash",
+        "checkpoint_id",
+        "join_hash",
+        "source_market_id",
+        "source_event_id",
+        "match_id",
+        "tour",
+        "checkpoint_name",
+        "published_at",
+        "market_time",
+        "seconds_to_start",
+        "checkpoint_lag_seconds",
+        "data_package",
+        "market_base_rate",
+        "market_total_matched",
+        "source_file_sha256",
+        "source_message_sha256",
+        "selection_a_id",
+        "selection_b_id",
+        "selection_a_name",
+        "selection_b_name",
+        "best_back_a",
+        "best_back_size_a",
+        "best_lay_a",
+        "best_lay_size_a",
+        "last_traded_a",
+        "best_back_b",
+        "best_back_size_b",
+        "best_lay_b",
+        "best_lay_size_b",
+        "last_traded_b",
+        "executable_two_way"
+      ],
+      "properties": {
+        "record_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "checkpoint_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "join_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_market_id": {"type": "string", "minLength": 1},
+        "source_event_id": {"type": "string", "minLength": 1},
+        "match_id": {"type": "string", "minLength": 1},
+        "tour": {"enum": ["ATP", "WTA"]},
+        "checkpoint_name": {
+          "enum": ["T-24H", "T-6H", "T-1H", "T-15M", "CLOSE_PREPLAY"]
+        },
+        "published_at": {"type": "string", "format": "date-time"},
+        "market_time": {"type": "string", "format": "date-time"},
+        "seconds_to_start": {"type": "number", "exclusiveMinimum": 0.0},
+        "checkpoint_lag_seconds": {"type": "number", "minimum": 0.0},
+        "data_package": {"enum": ["BASIC", "ADVANCED", "PRO"]},
+        "market_base_rate": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "market_total_matched": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "source_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_message_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "selection_a_id": {"type": "integer", "minimum": 1},
+        "selection_b_id": {"type": "integer", "minimum": 1},
+        "selection_a_name": {"type": "string", "minLength": 1},
+        "selection_b_name": {"type": "string", "minLength": 1},
+        "best_back_a": {"$ref": "#/$defs/positivePriceOrNull"},
+        "best_back_size_a": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "best_lay_a": {"$ref": "#/$defs/positivePriceOrNull"},
+        "best_lay_size_a": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "last_traded_a": {"$ref": "#/$defs/positivePriceOrNull"},
+        "best_back_b": {"$ref": "#/$defs/positivePriceOrNull"},
+        "best_back_size_b": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "best_lay_b": {"$ref": "#/$defs/positivePriceOrNull"},
+        "best_lay_size_b": {"$ref": "#/$defs/nonNegativeOrNull"},
+        "last_traded_b": {"$ref": "#/$defs/positivePriceOrNull"},
+        "executable_two_way": {"type": "boolean"}
+      }
+    }
+  }
+}
