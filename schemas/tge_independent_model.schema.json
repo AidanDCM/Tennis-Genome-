@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tennis-genome.local/schemas/tge_independent_model.schema.json",
+  "title": "TGE Independent Model Spec",
+  "type": "object",
+  "required": [
+    "model_version",
+    "spec_version",
+    "development_data_end_year",
+    "market_blind",
+    "hard_pass_policy_promoted",
+    "atp",
+    "wta"
+  ],
+  "properties": {
+    "model_version": {"const": "TGE-Independent-v1"},
+    "spec_version": {"type": "string"},
+    "development_data_end_year": {"const": 2025},
+    "market_blind": {"const": true},
+    "hard_pass_policy_promoted": {"const": false},
+    "atp": {"$ref": "#/$defs/tourArchitecture"},
+    "wta": {"$ref": "#/$defs/tourArchitecture"}
+  },
+  "$defs": {
+    "tourArchitecture": {
+      "type": "object",
+      "required": [
+        "tour",
+        "probability_path",
+        "calibration",
+        "diagnostics",
+        "excluded_components",
+        "notes"
+      ],
+      "properties": {
+        "tour": {"type": "string", "enum": ["ATP", "WTA"]},
+        "probability_path": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1
+        },
+        "calibration": {"type": "string"},
+        "diagnostics": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "excluded_components": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
