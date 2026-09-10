@@ -14,7 +14,10 @@ from tennis_genome.evaluation.metrics import (
     brier_score,
     expected_calibration_error,
 )
-from tennis_genome.features.foundational import FoundationalSnapshot, walk_forward_foundational_features
+from tennis_genome.features.foundational import (
+    FoundationalSnapshot,
+    walk_forward_foundational_features,
+)
 from tennis_genome.models.core_v1_spec import strict_a_features
 from tennis_genome.models.feature_probability import FeatureProbabilityModel
 from tennis_genome.models.profile_strength import ProfileStrengthModel
@@ -102,6 +105,22 @@ class PromotionDiagnostics:
 
 
 @dataclass(frozen=True)
+class PredictionRow:
+    """Immutable outer-year prediction ledger row for PROFILE-GAP-001."""
+
+    match_id: str
+    year: int
+    outcome_a: bool
+    elo_probability: float
+    profile_probability: float
+    strict_core_probability: float
+    profile_gap_match: float
+    min_prior_matches: int
+    min_prior_points: int
+    complete_14d_duration: bool
+
+
+@dataclass(frozen=True)
 class ProfileGapReport:
     experiment_id: str
     tour: Tour
@@ -118,23 +137,10 @@ class ProfileGapReport:
     depth_slices: tuple[DepthSlice, ...]
     duration_coverage: tuple[DurationCoverageSlice, ...]
     promotion_diagnostics: PromotionDiagnostics
+    predictions: tuple[PredictionRow, ...]
 
 
-@dataclass(frozen=True)
-class _PredictionRow:
-    match_id: str
-    year: int
-    outcome_a: bool
-    elo_probability: float
-    profile_probability: float
-    strict_core_probability: float
-    profile_gap_match: float
-    min_prior_matches: int
-    min_prior_points: int
-    complete_14d_duration: bool
-
-
-def _score(rows: list[_PredictionRow], probability_field: str) -> ModelScore:
+def _score(rows: list[PredictionRow], probability_field: str) -> ModelScore:
     if not rows:
         raise ValueError("cannot score an empty prediction set")
     y_true = [row.outcome_a for row in rows]
@@ -148,7 +154,7 @@ def _score(rows: list[_PredictionRow], probability_field: str) -> ModelScore:
     )
 
 
-def _comparison(rows: list[_PredictionRow]) -> ModelComparison:
+def _comparison(rows: list[PredictionRow]) -> ModelComparison:
     elo = _score(rows, "elo_probability")
     profile = _score(rows, "profile_probability")
     strict_core = _score(rows, "strict_core_probability")
@@ -165,11 +171,11 @@ def _comparison(rows: list[_PredictionRow]) -> ModelComparison:
     )
 
 
-def _gap_quintiles(rows: list[_PredictionRow]) -> tuple[GapQuintile, ...]:
+def _gap_quintiles(rows: list[PredictionRow]) -> tuple[GapQuintile, ...]:
     if not rows:
         return ()
     ordered = sorted(rows, key=lambda row: (row.profile_gap_match, row.match_id))
-    buckets: list[list[_PredictionRow]] = [[] for _ in range(5)]
+    buckets: list[list[PredictionRow]] = [[] for _ in range(5)]
     total = len(ordered)
     for rank, row in enumerate(ordered):
         bucket_index = min((rank * 5) // total, 4)
@@ -216,7 +222,7 @@ def _linear_slope(xs: list[float], ys: list[float]) -> float | None:
     return numerator / denominator
 
 
-def _gap_diagnostic(rows: list[_PredictionRow]) -> GapDiagnostic:
+def _gap_diagnostic(rows: list[PredictionRow]) -> GapDiagnostic:
     quintiles = _gap_quintiles(rows)
     gaps = [row.profile_gap_match for row in rows]
     residuals = [
@@ -242,16 +248,19 @@ def _eligible_matches(
     tour: Tour,
     exclude_retirements: bool,
 ) -> list[HistoricalMatch]:
-    if any(match.pre_match.event_date.year > _PROFILE_GAP_DEVELOPMENT_END_YEAR for match in matches):
+    tour_matches = [match for match in matches if match.pre_match.tour == tour]
+    if any(
+        match.pre_match.event_date.year > _PROFILE_GAP_DEVELOPMENT_END_YEAR
+        for match in tour_matches
+    ):
         raise ValueError(
             "PROFILE-GAP-001 is frozen to 2000-2025 development data; "
             "post-2025 matches, including the spent 2026 holdout, are forbidden"
         )
     return [
         match
-        for match in matches
-        if match.pre_match.tour == tour
-        and not match.outcome.walkover
+        for match in tour_matches
+        if not match.outcome.walkover
         and (not exclude_retirements or not match.outcome.retirement)
     ]
 
@@ -284,7 +293,7 @@ def _prediction_rows_for_year(
     foundational: dict[str, FoundationalSnapshot],
     outcomes: dict[str, bool],
     include_conditional: bool,
-) -> list[_PredictionRow]:
+) -> list[PredictionRow]:
     y_train = [outcomes[pair.match_id] for pair in train_pairs]
     profile_model = ProfileStrengthModel(
         tour,
@@ -300,7 +309,7 @@ def _prediction_rows_for_year(
     )
     profile_predictions = profile_model.predict_pairs(test_pairs)
 
-    rows: list[_PredictionRow] = []
+    rows: list[PredictionRow] = []
     for pair, profile_prediction, core_probability in zip(
         test_pairs,
         profile_predictions,
@@ -314,7 +323,7 @@ def _prediction_rows_for_year(
             pair.player_b.prior_return_points,
         )
         rows.append(
-            _PredictionRow(
+            PredictionRow(
                 match_id=pair.match_id,
                 year=pair.event_date.year,
                 outcome_a=outcomes[pair.match_id],
@@ -337,7 +346,7 @@ def _prediction_rows_for_year(
 
 
 def _depth_slices(
-    rows: list[_PredictionRow],
+    rows: list[PredictionRow],
     *,
     include_point_history: bool,
 ) -> tuple[DepthSlice, ...]:
@@ -366,7 +375,7 @@ def _depth_slices(
     return tuple(result)
 
 
-def _duration_slices(rows: list[_PredictionRow]) -> tuple[DurationCoverageSlice, ...]:
+def _duration_slices(rows: list[PredictionRow]) -> tuple[DurationCoverageSlice, ...]:
     result: list[DurationCoverageSlice] = []
     for complete in (True, False):
         subset = [row for row in rows if row.complete_14d_duration is complete]
@@ -391,6 +400,10 @@ def run_profile_gap(
     """Run preregistered PROFILE-GAP-001 under expanding-year evaluation."""
     if min_train_matches <= 0:
         raise ValueError("min_train_matches must be positive")
+    if include_conditional and tour != "WTA":
+        raise ValueError(
+            "PROFILE-GAP-001 conditional representation is preregistered only for WTA"
+        )
 
     eligible = _eligible_matches(
         matches,
@@ -400,7 +413,7 @@ def run_profile_gap(
     pairs, foundational, outcomes = _aligned_state(eligible)
     years = sorted({pair.event_date.year for pair in pairs})
 
-    all_rows: list[_PredictionRow] = []
+    all_rows: list[PredictionRow] = []
     yearly: list[YearComparison] = []
     for test_year in years:
         train_pairs = [pair for pair in pairs if pair.event_date.year < test_year]
@@ -510,6 +523,7 @@ def run_profile_gap(
             gap_slope_positive=gap_slope_positive,
             recent_gap_direction_not_reversed=recent_direction,
         ),
+        predictions=tuple(all_rows),
     )
 
 
@@ -526,7 +540,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--include-conditional",
         action="store_true",
-        help="Use the preregistered conditional profile representation (WTA diagnostic)",
+        help="Use the preregistered WTA conditional profile representation",
     )
     parser.add_argument(
         "--include-retirements",
