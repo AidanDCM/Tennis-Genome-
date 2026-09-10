@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import cache
 from math import comb
 
 import numpy as np
@@ -50,9 +50,6 @@ def _tiebreak_deuce_probability(
     p_b_serve: float,
 ) -> float:
     """Solve the infinite win-by-two tiebreak tail from 6-6 exactly."""
-    # States are (lead, phase) for lead in {-1, 0, +1}, where phase is the
-    # zero-based point index modulo four.  Six-all occurs after 12 points, so
-    # the initial phase is zero.  Absorbing transitions from +1/-1 terminate.
     states = [(lead, phase) for lead in (-1, 0, 1) for phase in range(4)]
     index = {state: position for position, state in enumerate(states)}
     matrix = np.eye(len(states), dtype=float)
@@ -98,7 +95,7 @@ def tiebreak_win_probability(
         p_b_serve=p_b,
     )
 
-    @lru_cache(maxsize=None)
+    @cache
     def recurse(a_points: int, b_points: int) -> float:
         if a_points >= 7 and a_points - b_points >= 2:
             return 1.0
@@ -138,7 +135,7 @@ def set_win_probability(
         first_server_a=first_server_a,
     )
 
-    @lru_cache(maxsize=None)
+    @cache
     def recurse(a_games: int, b_games: int) -> float:
         if a_games >= 6 and a_games - b_games >= 2:
             return 1.0
@@ -167,7 +164,9 @@ def match_win_probability(set_win_probability_a: float, *, best_of: int) -> floa
         raise ValueError("best_of must be 3 or 5")
     required = best_of // 2 + 1
     return sum(
-        comb(best_of, won_sets) * p_set**won_sets * (1.0 - p_set) ** (best_of - won_sets)
+        comb(best_of, won_sets)
+        * p_set**won_sets
+        * (1.0 - p_set) ** (best_of - won_sets)
         for won_sets in range(required, best_of + 1)
     )
 
