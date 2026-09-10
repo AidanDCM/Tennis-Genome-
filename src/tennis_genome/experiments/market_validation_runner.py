@@ -4,7 +4,7 @@ import argparse
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -115,10 +115,10 @@ def _verify_embedded_artifact_hash(payload: dict[str, Any], *, label: str) -> st
 
 
 def _utc_timestamp(value: datetime | None) -> str:
-    instant = value or datetime.now(timezone.utc)
+    instant = value or datetime.now(UTC)
     if instant.tzinfo is None or instant.utcoffset() is None:
         raise ValueError("created_at must be timezone-aware")
-    return instant.astimezone(timezone.utc).isoformat()
+    return instant.astimezone(UTC).isoformat()
 
 
 def _qa_status(payload: dict[str, Any]) -> dict[str, str]:
