@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import argparse
+import json
 from dataclasses import asdict, dataclass
+from pathlib import Path
 
 from tennis_genome.data.canonical import HistoricalMatch
+from tennis_genome.data.manifest import verify_canonical_manifest
+from tennis_genome.data.parquet import load_canonical_parquet
 from tennis_genome.evaluation.metrics import (
     accuracy,
     binary_log_loss,
@@ -10,6 +15,11 @@ from tennis_genome.evaluation.metrics import (
     expected_calibration_error,
 )
 from tennis_genome.features.foundational import walk_forward_foundational_features
+from tennis_genome.models.core_v1_spec import (
+    HISTORICAL_BENCHMARK_FEATURES,
+    a_plus_b_features,
+    strict_a_features,
+)
 from tennis_genome.models.feature_probability import FeatureProbabilityModel
 
 
@@ -151,3 +161,52 @@ def run_core_holdout(
 
 def report_as_dict(report: CoreHoldoutReport) -> dict[str, object]:
     return asdict(report)
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the sealed partial-2026 Core v1 forward holdout"
+    )
+    parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--pre-match", required=True, type=Path)
+    parser.add_argument("--outcomes", required=True, type=Path)
+    parser.add_argument("--stats", required=True, type=Path)
+    parser.add_argument("--tour", required=True, choices=("ATP", "WTA"))
+    parser.add_argument("--train-end-year", type=int, default=2025)
+    parser.add_argument("--holdout-year", type=int, default=2026)
+    parser.add_argument("--include-retirements", action="store_true")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = _parse_args()
+    verify_canonical_manifest(
+        manifest_path=args.manifest,
+        pre_match_path=args.pre_match,
+        outcome_path=args.outcomes,
+        stats_path=args.stats,
+        require_research_permission=True,
+    )
+    matches = load_canonical_parquet(
+        pre_match_path=args.pre_match,
+        outcome_path=args.outcomes,
+        stats_path=args.stats,
+    )
+    tour = args.tour
+    report = run_core_holdout(
+        matches,
+        benchmark_name="historical_elo_plus_serve_return_control",
+        benchmark_features=HISTORICAL_BENCHMARK_FEATURES,
+        candidates={
+            "core_v1_strict_a_only": strict_a_features(tour),
+            "core_v1_a_plus_b_diagnostic": a_plus_b_features(tour),
+        },
+        train_end_year=args.train_end_year,
+        holdout_year=args.holdout_year,
+        exclude_retirements=not args.include_retirements,
+    )
+    print(json.dumps(report_as_dict(report), indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
