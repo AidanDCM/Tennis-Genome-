@@ -36,6 +36,9 @@ def test_manifest_excludes_post_2025_file_and_structurally_bad_wta_mirror(tmp_pa
         requested_end_date="2025-12-31",
     )
     assert [item.relative_path for item in manifest.files] == ["valuebet-2025.csv"]
-    excluded = {(item.root_key, item.relative_path): item.reason for item in manifest.excluded_files}
+    excluded = {
+        (item.root_key, item.relative_path): item.reason
+        for item in manifest.excluded_files
+    }
     assert excluded[("valuebetennis", "valuebet-2026.csv")] == "OUTSIDE_REQUESTED_INTERVAL"
     assert excluded[("tennis_data_wta", "wta-2024-corrupt.csv")] == "STRUCTURAL_INVALID"
