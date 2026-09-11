@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -e .[dev]
-      - name: Apply mechanical fixes and validate
+      - name: Apply prospective mechanical fixes and validate
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -29,6 +29,12 @@ jobs:
               '"primary": {"predictions": rows_by_tour[tour]},',
               '"primary": {"predictions": [dict(row) for row in rows_by_tour[tour]]},',
           )
+          test_text = test_text.replace(
+              '    _bh_adjust,\n',
+              '    _bh_adjust,\n    _bin_mask,\n',
+          )
+          if 'test_bin_mask_captures_out_of_discovery_range_values' not in test_text:
+              test_text += '''\n\ndef test_bin_mask_captures_out_of_discovery_range_values() -> None:\n    values = pd.Series([-10.0, 0.5, 1.5, 10.0, float("nan")])\n    edges = [0.0, 1.0, 2.0]\n    assert _bin_mask(values, edges, 0).tolist() == [True, True, False, False, False]\n    assert _bin_mask(values, edges, 1).tolist() == [False, False, True, True, False]\n    one_bin = [0.0, 1.0]\n    assert _bin_mask(values, one_bin, 0).tolist() == [True, True, True, True, False]\n'''
           test_path.write_text(test_text)
 
           module_path = Path('src/tennis_genome/experiments/pattern_discovery.py')
@@ -40,16 +46,22 @@ jobs:
               '        f"{spec.candidate_id}|{_BOOTSTRAP_SEED_NAMESPACE}"\n'
               '    )\n',
           )
+          old_bin = '''def _bin_mask(values: pd.Series, edges: list[float], index: int) -> pd.Series:\n    numeric = pd.to_numeric(values, errors="coerce")\n    if index < 0 or index >= len(edges) - 1:\n        raise ValueError("invalid bin index")\n    lower, upper = edges[index], edges[index + 1]\n    if index == len(edges) - 2:\n        return numeric.ge(lower) & numeric.le(upper)\n    return numeric.ge(lower) & numeric.lt(upper)\n'''
+          new_bin = '''def _bin_mask(values: pd.Series, edges: list[float], index: int) -> pd.Series:\n    numeric = pd.to_numeric(values, errors="coerce")\n    if index < 0 or index >= len(edges) - 1:\n        raise ValueError("invalid bin index")\n    finite = numeric.notna() & np.isfinite(numeric)\n    if len(edges) == 2:\n        return finite\n    lower, upper = edges[index], edges[index + 1]\n    if index == 0:\n        return finite & numeric.lt(upper)\n    if index == len(edges) - 2:\n        return finite & numeric.ge(lower)\n    return finite & numeric.ge(lower) & numeric.lt(upper)\n'''
+          if old_bin not in module_text:
+              raise SystemExit('expected _bin_mask block not found')
+          module_text = module_text.replace(old_bin, new_bin)
           module_path.write_text(module_text)
           PY
           ruff format src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
+          ruff check --fix src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
           ruff check src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
           pytest tests/test_pattern_discovery.py
-      - name: Commit validated formatting fixes
+      - name: Commit validated implementation fixes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
           git diff --cached --quiet && exit 0
-          git commit -m "Format and fix pattern discovery tests"
+          git commit -m "Harden and format pattern discovery implementation"
           git push
