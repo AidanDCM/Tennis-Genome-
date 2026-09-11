@@ -1,6 +1,7 @@
 name: PATTERN-CONFIRM-001 Freeze Baseline
 
 # One-shot historical calibration freeze; no prospective outcomes are read here.
+# Rerun marker: chronological null-fixture correction verified before sealing.
 on:
   push:
     branches: [dev/pattern-confirm-001]
