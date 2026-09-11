@@ -26,6 +26,11 @@ from tennis_genome.experiments.pattern_confirm_live_identity import (
     validate_mapping_against_event,
     verify_identity_mapping,
 )
+from tennis_genome.experiments.pattern_confirm_live_state import (
+    ProspectiveStateArtifact,
+    prospective_state_as_dict,
+    verify_prospective_state_artifact,
+)
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
@@ -34,7 +39,7 @@ from tennis_genome.experiments.pattern_confirm_production import (
 )
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v2"
+_VERSION = "pattern-confirm-live-v3"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
@@ -65,6 +70,8 @@ class LiveProspectiveRecord:
     player_a_id: str
     player_b_id: str
     identity_mapping_sha256: str
+    prospective_state_sha256: str
+    prospective_state: ProspectiveStateArtifact
     sportradar_summary_sha256: str
     provider_match_state: str
     provider_snapshot_at: str
@@ -218,8 +225,27 @@ def _require_frozen_model_contract(
         raise ValueError("Core artifact is not the frozen PATTERN-CONFIRM-001 champion")
 
 
+def _validate_state_binding(
+    state: ProspectiveStateArtifact,
+    *,
+    mapping: IdentityMapping,
+    match_id: str,
+    tour: str,
+) -> None:
+    if state.match_id != match_id or state.tour != tour:
+        raise ValueError("prospective state match/tour does not match live row")
+    if state.event_date != mapping.season_start_date:
+        raise ValueError("prospective state date does not match Sportradar season start")
+    target = state.target_pre_match
+    if str(target.get("player_a_id", "")) != mapping.player_a_canonical_id:
+        raise ValueError("prospective state player A does not match identity mapping")
+    if str(target.get("player_b_id", "")) != mapping.player_b_canonical_id:
+        raise ValueError("prospective state player B does not match identity mapping")
+
+
 def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:
     payload = asdict(record)
+    payload["prospective_state"] = prospective_state_as_dict(record.prospective_state)
     payload["core_record"] = prospective_record_as_dict(record.core_record)
     return payload
 
@@ -238,11 +264,20 @@ def verify_live_record(
     unsigned.pop("record_sha256", None)
     if not stored or _sha256_bytes(_canonical_json(unsigned)) != stored:
         raise ValueError("live prospective record digest mismatch")
+    state_payload = payload.get("prospective_state")
+    if not isinstance(state_payload, dict):
+        raise ValueError("live record is missing its sealed prospective state")
+    state = verify_prospective_state_artifact(
+        state_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
     core_payload = payload.get("core_record")
     if not isinstance(core_payload, dict):
         raise ValueError("live record is missing its sealed core record")
     core_record = verify_prospective_record(core_payload)
     normalized = dict(payload)
+    normalized["prospective_state"] = state
     normalized["core_record"] = core_record
     record = LiveProspectiveRecord(**normalized)
     if record.experiment_id != _EXPERIMENT_ID or record.version != _VERSION:
@@ -279,6 +314,18 @@ def verify_live_record(
         raise ValueError("live ledger player B does not match identity mapping")
     if record.scheduled_start != identity_mapping.scheduled_start:
         raise ValueError("live ledger scheduled start does not match identity mapping")
+    if record.prospective_state_sha256 != state.artifact_sha256:
+        raise ValueError("live ledger prospective state hash mismatch")
+    _validate_state_binding(
+        state,
+        mapping=identity_mapping,
+        match_id=record.match_id,
+        tour=record.tour,
+    )
+    if record.core_probability_a != state.core_probability_a:
+        raise ValueError("live Core probability does not match sealed prospective state")
+    if record.profile_gap != state.profile_gap:
+        raise ValueError("live Profile Gap does not match sealed prospective state")
 
     scheduled = _parse_time(record.scheduled_start)
     snapshot = _parse_time(record.provider_snapshot_at)
@@ -362,12 +409,30 @@ def build_live_record(
     )
     validate_mapping_against_event(identity_mapping, event)
 
-    supplied_profile_sha = _required_sha(raw, "profile_model_sha256")
-    supplied_core_sha = _required_sha(raw, "core_model_sha256")
-    if supplied_profile_sha != profile_artifact.artifact_sha256:
-        raise ValueError("profile_model_sha256 does not match frozen Profile artifact")
-    if supplied_core_sha != core_artifact.artifact_sha256:
-        raise ValueError("core_model_sha256 does not match frozen Core artifact")
+    forbidden = {
+        "profile_gap",
+        "core_probability_a",
+        "profile_model_sha256",
+        "core_model_sha256",
+    }
+    supplied_forbidden = sorted(forbidden.intersection(raw))
+    if supplied_forbidden:
+        raise ValueError(
+            "externally supplied model/signal fields are forbidden: "
+            + ", ".join(supplied_forbidden)
+        )
+    state_payload = _required_object(raw, "prospective_state")
+    state = verify_prospective_state_artifact(
+        state_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    _validate_state_binding(
+        state,
+        mapping=identity_mapping,
+        match_id=match_id,
+        tour=tour,
+    )
 
     scheduled_start = _parse_time(identity_mapping.scheduled_start)
     provider_snapshot = _parse_time(raw.get("provider_snapshot_at"))
@@ -388,12 +453,8 @@ def build_live_record(
     odds_a = _decimal_odds(raw, "decimal_odds_a")
     odds_b = _decimal_odds(raw, "decimal_odds_b")
     market_probability = _devig_probability(odds_a, odds_b)
-    core_probability = float(raw.get("core_probability_a"))
-    profile_gap = float(raw.get("profile_gap"))
-    if not math.isfinite(core_probability) or not 0.0 < core_probability < 1.0:
-        raise ValueError("core_probability_a must be finite and in (0, 1)")
-    if not math.isfinite(profile_gap):
-        raise ValueError("profile_gap must be finite")
+    core_probability = state.core_probability_a
+    profile_gap = state.profile_gap
 
     core_record = build_prospective_record(
         {
@@ -428,6 +489,8 @@ def build_live_record(
         "player_a_id": identity_mapping.player_a_canonical_id,
         "player_b_id": identity_mapping.player_b_canonical_id,
         "identity_mapping_sha256": identity_mapping.artifact_sha256,
+        "prospective_state_sha256": state.artifact_sha256,
+        "prospective_state": prospective_state_as_dict(state),
         "sportradar_summary_sha256": summary_sha,
         "provider_match_state": _REQUIRED_MATCH_STATE,
         "provider_snapshot_at": provider_snapshot.isoformat(),
@@ -447,7 +510,11 @@ def build_live_record(
     }
     digest = _sha256_bytes(_canonical_json(unsigned))
     return LiveProspectiveRecord(
-        **{**unsigned, "core_record": core_record},
+        **{
+            **unsigned,
+            "prospective_state": state,
+            "core_record": core_record,
+        },
         record_sha256=digest,
     )
 
