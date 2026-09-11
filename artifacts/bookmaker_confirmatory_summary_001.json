@@ -1,0 +1,52 @@
+{
+  "artifact_id": "BOOKMAKER-CONFIRMATORY-SUMMARY-001",
+  "confirmatory_code_sha": "6d62014eeb1549c0bda09cb5987695ac7c2be2a1",
+  "workflow_run_id": 34623630174,
+  "stage_a_seal_sha256": "b9260e9ab398dc10bdf358e99d5ca26f61ba3ef0970eca1abc48568ed0508b84",
+  "outcomes_sha256": "c509dff1bbe4b1e10944f5b361138790f85ccdb21b7d12aafb03ddc0b1e8c63d",
+  "power_mde_artifact_sha256": "a8ec4df7313ac3127265ee0edc214851e1386fa8a479a69768d4374c7b722479",
+  "validation_bundle_sha256": "be097af8ff9052a1484bdc25fab861d75ada78e21252c7bdb9cfde42ab093a54",
+  "market_edge_001_sha256": "d834edefc6b8b37365c2aebc8fe38dd6ab47bb97f6654c39445795fc6261ea26",
+  "market_edge_adv_001_sha256": "ca9a4f652e00f0cf8e48d8e49a271eff92543aaa5c0da90b54b9b86bfd0bedad",
+  "decision_artifact_sha256": "1655b461aabacedec0a9983d0fe91e48f5a4211319a3ce3ae6a5a7040f78f547",
+  "market_policy": "BOOKMAKER_CLOSE_V1",
+  "family_size": 4,
+  "family_alpha": 0.05,
+  "promotion_rule": "market_incremental_pass AND market_core_incremental_pass",
+  "decisions": [
+    {
+      "label": "ATP:profile_gap",
+      "market_incremental_pass": false,
+      "market_core_incremental_pass": false,
+      "stack_promotion_pass": false,
+      "primary_brier_raw_p": 0.07294635268236588,
+      "primary_brier_holm_p": 0.2917854107294635,
+      "primary_log_loss_raw_p": 0.09789510524473777,
+      "primary_log_loss_holm_p": 0.39158042097895107,
+      "adversarial_brier_raw_p": 0.06544672766361682,
+      "adversarial_brier_holm_p": 0.2617869106544673,
+      "adversarial_log_loss_raw_p": 0.087895605219739,
+      "adversarial_log_loss_holm_p": 0.351582420878956
+    },
+    {
+      "label": "WTA:profile_gap",
+      "market_incremental_pass": false,
+      "market_core_incremental_pass": false,
+      "stack_promotion_pass": false
+    },
+    {
+      "label": "ATP:genome",
+      "market_incremental_pass": false,
+      "market_core_incremental_pass": false,
+      "stack_promotion_pass": false
+    },
+    {
+      "label": "WTA:genome",
+      "market_incremental_pass": false,
+      "market_core_incremental_pass": false,
+      "stack_promotion_pass": false
+    }
+  ],
+  "next_protocol": "PATTERN-DISCOVERY-001",
+  "result_status": "FROZEN_NO_CONFIRMATORY_PROMOTIONS"
+}
