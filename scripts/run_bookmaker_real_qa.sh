@@ -106,7 +106,7 @@ print("combined_outcome_rows", len(outcomes))
 PY
 
 mkdir -p "$REPORT_ROOT/market-book-001"
-python -m tennis_genome.market.bookmaker_batch \
+python -m tennis_genome.market.bookmaker_batch_v2 \
   --source-manifest "$REPORT_ROOT/source-manifest.json" \
   --valuebet-root "$VALUEBET" \
   --tennis-data-atp-root "$ATP_ODDS" \
@@ -114,7 +114,7 @@ python -m tennis_genome.market.bookmaker_batch \
   --pre-match "$COMBINED/pre_match.parquet" \
   --output-dir "$REPORT_ROOT/market-book-001"
 
-python -m tennis_genome.experiments.market_book_qa \
+python -m tennis_genome.experiments.market_book_qa_v2 \
   --source-manifest "$REPORT_ROOT/source-manifest.json" \
   --market-book-records "$REPORT_ROOT/market-book-001/market_book_001_records.jsonl" \
   --pre-match "$COMBINED/pre_match.parquet" \
