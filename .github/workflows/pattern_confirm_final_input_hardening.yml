@@ -1,0 +1,94 @@
+name: PATTERN-CONFIRM-001 Final Input Hardening
+
+on:
+  push:
+    branches: [dev/pattern-confirm-production-hardening]
+    paths:
+      - .github/workflows/pattern_confirm_final_input_hardening.yml
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-production-hardening
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Require explicit provider status and strict booleans
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          identity = Path('src/tennis_genome/experiments/pattern_confirm_live_identity.py')
+          text = identity.read_text()
+          old = '''    provider_status = str(status.get("status", "not_started")).strip().lower()\n    if provider_status in _NON_PREMATCH_STATUSES:\n        raise ValueError("Sportradar event is not in an admissible pre-match state")\n    if provider_status not in {"not_started", "scheduled", ""}:\n        raise ValueError("unrecognized Sportradar pre-match status")\n'''
+          new = '''    provider_status = _required_text(status, "status").lower()\n    if provider_status in _NON_PREMATCH_STATUSES:\n        raise ValueError("Sportradar event is not in an admissible pre-match state")\n    if provider_status not in {"not_started", "scheduled"}:\n        raise ValueError("unrecognized Sportradar pre-match status")\n'''
+          if old not in text:
+              raise SystemExit('expected Sportradar status block not found')
+          text = text.replace(old, new)
+          text = text.replace(
+              '        provider_status=provider_status or "not_started",\n',
+              '        provider_status=provider_status,\n',
+          )
+          identity.write_text(text)
+
+          live = Path('src/tennis_genome/experiments/pattern_confirm_live.py')
+          text = live.read_text()
+          marker = '''def _required_object(raw: dict[str, object], name: str) -> dict[str, object]:\n    value = raw.get(name)\n    if not isinstance(value, dict):\n        raise ValueError(f"{name} must be an object")\n    return value\n\n\n'''
+          helper = '''def _required_object(raw: dict[str, object], name: str) -> dict[str, object]:\n    value = raw.get(name)\n    if not isinstance(value, dict):\n        raise ValueError(f"{name} must be an object")\n    return value\n\n\ndef _required_bool(raw: dict[str, object], name: str) -> bool:\n    value = raw.get(name)\n    if not isinstance(value, bool):\n        raise ValueError(f"{name} must be a JSON boolean")\n    return value\n\n\ndef _optional_bool(raw: dict[str, object], name: str) -> bool | None:\n    value = raw.get(name)\n    if value is None:\n        return None\n    if not isinstance(value, bool):\n        raise ValueError(f"{name} must be a JSON boolean or null")\n    return value\n\n\n'''
+          if marker not in text:
+              raise SystemExit('expected object helper block not found')
+          text = text.replace(marker, helper)
+          old_settlement = '''        retirement = bool(raw.get("retirement", False))\n        walkover = bool(raw.get("walkover", False))\n        outcome_raw = raw.get("outcome_a")\n        outcome = None if outcome_raw is None else bool(outcome_raw)\n        if not retirement and not walkover and outcome is None:\n'''
+          new_settlement = '''        retirement = _required_bool(raw, "retirement")\n        walkover = _required_bool(raw, "walkover")\n        outcome = _optional_bool(raw, "outcome_a")\n        if not retirement and not walkover and outcome is None:\n'''
+          if old_settlement not in text:
+              raise SystemExit('expected settlement boolean block not found')
+          live.write_text(text.replace(old_settlement, new_settlement))
+
+          identity_tests = Path('tests/test_pattern_confirm_live_identity.py')
+          text = identity_tests.read_text()
+          addition = '''\n\ndef test_prematch_event_requires_explicit_provider_status() -> None:\n    payload = _summary()\n    payload.pop("sport_event_status")\n    with pytest.raises(ValueError, match="status must be non-empty"):\n        parse_sportradar_prematch_event(payload)\n\n    payload = _summary()\n    payload["sport_event_status"] = {}\n    with pytest.raises(ValueError, match="status must be non-empty"):\n        parse_sportradar_prematch_event(payload)\n'''
+          if 'def test_prematch_event_requires_explicit_provider_status' not in text:
+              text += addition
+          identity_tests.write_text(text)
+
+          live_tests = Path('tests/test_pattern_confirm_live.py')
+          text = live_tests.read_text()
+          addition = '''\n\n@pytest.mark.parametrize(\n    ("field", "value"),\n    [\n        ("retirement", "false"),\n        ("walkover", 0),\n        ("outcome_a", "false"),\n    ],\n)\ndef test_settlement_requires_real_json_booleans(field: str, value: object) -> None:\n    record = _build()\n    raw: dict[str, object] = {\n        "match_id": record.match_id,\n        "sportradar_event_id": record.sportradar_event_id,\n        "sportradar_timeline": _timeline(),\n        "outcome_a": True,\n        "retirement": False,\n        "walkover": False,\n    }\n    raw[field] = value\n    with pytest.raises(ValueError, match="JSON boolean"):\n        load_live_settlements([raw])\n'''
+          if 'def test_settlement_requires_real_json_booleans' not in text:
+              text += addition
+          live_tests.write_text(text)
+          PY
+      - name: Format, lint and test
+        run: |
+          pip install -e .[dev]
+          ruff format \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          ruff check --fix \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          ruff check .
+          pytest
+      - name: Commit hardening
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          git commit -m "Fail closed on incomplete provider settlement data"
+          git push origin HEAD:dev/pattern-confirm-production-hardening
