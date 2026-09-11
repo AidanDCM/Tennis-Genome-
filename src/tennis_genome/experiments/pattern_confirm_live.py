@@ -38,6 +38,9 @@ _VERSION = "pattern-confirm-live-v2"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
+_FROZEN_PROFILE_ARTIFACT_SHA256 = "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351"
+_FROZEN_CORE_ARTIFACT_SHA256 = "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7"
+_FROZEN_MARKET_CORE_FIT_SHA256 = "622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732"
 _REQUIRED_MATCH_STATE = "PREMATCH"
 _MIN_START_LEAD = timedelta(minutes=5)
 _MAX_SNAPSHOT_STALENESS = timedelta(minutes=5)
@@ -202,6 +205,19 @@ def _devig_probability(odds_a: float, odds_b: float) -> float:
     return q_a / (q_a + q_b)
 
 
+def _require_frozen_model_contract(
+    fit: FrozenMarketCoreFit,
+    profile_artifact: ProfileProductionArtifact,
+    core_artifact: CoreProductionArtifact,
+) -> None:
+    if fit.artifact_sha256 != _FROZEN_MARKET_CORE_FIT_SHA256:
+        raise ValueError("Market+Core fit is not the frozen PATTERN-CONFIRM-001 champion")
+    if profile_artifact.artifact_sha256 != _FROZEN_PROFILE_ARTIFACT_SHA256:
+        raise ValueError("Profile artifact is not the frozen PATTERN-CONFIRM-001 champion")
+    if core_artifact.artifact_sha256 != _FROZEN_CORE_ARTIFACT_SHA256:
+        raise ValueError("Core artifact is not the frozen PATTERN-CONFIRM-001 champion")
+
+
 def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:
     payload = asdict(record)
     payload["core_record"] = prospective_record_as_dict(record.core_record)
@@ -216,6 +232,7 @@ def verify_live_record(
     core_artifact: CoreProductionArtifact,
     identity_mapping: IdentityMapping,
 ) -> LiveProspectiveRecord:
+    _require_frozen_model_contract(fit, profile_artifact, core_artifact)
     stored = str(payload.get("record_sha256", ""))
     unsigned = dict(payload)
     unsigned.pop("record_sha256", None)
@@ -315,6 +332,7 @@ def build_live_record(
     core_artifact: CoreProductionArtifact,
     identity_mapping: IdentityMapping,
 ) -> LiveProspectiveRecord:
+    _require_frozen_model_contract(fit, profile_artifact, core_artifact)
     match_id = _required_text(raw, "match_id")
     tour = _required_text(raw, "tour")
     if tour != "ATP":
@@ -572,6 +590,7 @@ def evaluate_live_family(
     ledger_sha256: str,
     settlement_sha256: str,
 ) -> LiveConfirmationReport:
+    _require_frozen_model_contract(fit, profile_artifact, core_artifact)
     eligible_records: list[ProspectiveRecord] = []
     eligible_outcomes: dict[str, SettledOutcome] = {}
     timing_exclusions: list[TimingExclusion] = []
@@ -651,6 +670,7 @@ def _load_contracts(
     fit = verify_fit_payload(json.loads(fit_path.read_text()))
     profile = verify_profile_artifact(json.loads(profile_path.read_text()))
     core = verify_core_artifact(json.loads(core_path.read_text()))
+    _require_frozen_model_contract(fit, profile, core)
     return fit, profile, core
 
 

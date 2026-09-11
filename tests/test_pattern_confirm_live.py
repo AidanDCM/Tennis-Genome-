@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -37,7 +38,7 @@ def _fit() -> FrozenMarketCoreFit:
         intercept=0.0,
         market_logit_slope=1.0,
         core_logit_slope=0.0,
-        artifact_sha256="f" * 64,
+        artifact_sha256="622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732",
     )
 
 
@@ -60,7 +61,7 @@ def _profile() -> ProfileProductionArtifact:
         elo_initial_rating=1500.0,
         elo_k_factor=32.0,
         elo_scale=400.0,
-        artifact_sha256="3" * 64,
+        artifact_sha256="cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351",
     )
 
 
@@ -82,7 +83,7 @@ def _core() -> CoreProductionArtifact:
         scaler_scale=(1.0,),
         logistic_coefficients=(1.0,),
         logistic_intercept=0.0,
-        artifact_sha256="4" * 64,
+        artifact_sha256="5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7",
     )
 
 
@@ -157,8 +158,8 @@ def _raw(**updates: object) -> dict[str, object]:
         "decimal_odds_b": 2.10,
         "core_probability_a": 0.55,
         "profile_gap": -0.60,
-        "profile_model_sha256": "3" * 64,
-        "core_model_sha256": "4" * 64,
+        "profile_model_sha256": "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351",
+        "core_model_sha256": "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7",
     }
     raw.update(updates)
     return raw
@@ -189,8 +190,14 @@ def test_live_intake_computes_market_and_binds_models_and_identity() -> None:
     record = _build()
     expected = (1 / 1.80) / ((1 / 1.80) + (1 / 2.10))
     assert record.market_probability_a == pytest.approx(expected)
-    assert record.profile_model_sha256 == "3" * 64
-    assert record.core_model_sha256 == "4" * 64
+    assert (
+        record.profile_model_sha256
+        == "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351"
+    )
+    assert (
+        record.core_model_sha256
+        == "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7"
+    )
     assert record.identity_mapping_sha256 == _mapping().artifact_sha256
     assert record.market_event_id == "odds-event-1"
     assert record.sportradar_event_id == "sr:sport_event:123"
@@ -414,3 +421,30 @@ def test_settlement_requires_real_json_booleans(field: str, value: object) -> No
     raw[field] = value
     with pytest.raises(ValueError, match="JSON boolean"):
         load_live_settlements([raw])
+
+
+def test_exact_champion_artifact_hashes_are_runtime_pinned() -> None:
+    with pytest.raises(ValueError, match="Market\+Core fit is not the frozen"):
+        build_live_record(
+            _raw(),
+            fit=replace(_fit(), artifact_sha256="9" * 64),
+            profile_artifact=_profile(),
+            core_artifact=_core(),
+            identity_mapping=_mapping(),
+        )
+    with pytest.raises(ValueError, match="Profile artifact is not the frozen"):
+        build_live_record(
+            _raw(),
+            fit=_fit(),
+            profile_artifact=replace(_profile(), artifact_sha256="9" * 64),
+            core_artifact=_core(),
+            identity_mapping=_mapping(),
+        )
+    with pytest.raises(ValueError, match="Core artifact is not the frozen"):
+        build_live_record(
+            _raw(),
+            fit=_fit(),
+            profile_artifact=_profile(),
+            core_artifact=replace(_core(), artifact_sha256="9" * 64),
+            identity_mapping=_mapping(),
+        )
