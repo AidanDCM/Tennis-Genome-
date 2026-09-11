@@ -7,10 +7,10 @@ import math
 import os
 import re
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Callable
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -297,7 +297,9 @@ def _competition_overlap(market_title: str, sportradar_name: str) -> bool:
     if left in right or right in left:
         return True
     left_tokens = {token for token in left.split() if token not in {"tennis", "atp", "singles"}}
-    right_tokens = {token for token in right.split() if token not in {"tennis", "atp", "singles", "men"}}
+    right_tokens = {
+        token for token in right.split() if token not in {"tennis", "atp", "singles", "men"}
+    }
     return bool(left_tokens and right_tokens and left_tokens & right_tokens)
 
 
@@ -436,15 +438,17 @@ def verify_snapshot(payload: dict[str, object]) -> DryRunSnapshot:
     normalized = dict(payload)
     normalized["queried_utc_dates"] = tuple(payload.get("queried_utc_dates", ()))
     normalized["tennis_sport_keys"] = tuple(payload.get("tennis_sport_keys", ()))
+    raw_candidates = payload.get("odds_candidates", ())
+    if not isinstance(raw_candidates, (list, tuple)):
+        raise ValueError("odds_candidates must be an array")
     normalized["odds_candidates"] = tuple(
-        OddsCandidate(**item)
-        for item in _as_list(payload.get("odds_candidates", []), field="odds_candidates")
-        if isinstance(item, dict)
+        OddsCandidate(**item) for item in raw_candidates if isinstance(item, dict)
     )
+    raw_alignments = payload.get("alignments", ())
+    if not isinstance(raw_alignments, (list, tuple)):
+        raise ValueError("alignments must be an array")
     normalized["alignments"] = tuple(
-        ProviderAlignment(**item)
-        for item in _as_list(payload.get("alignments", []), field="alignments")
-        if isinstance(item, dict)
+        ProviderAlignment(**item) for item in raw_alignments if isinstance(item, dict)
     )
     snapshot = DryRunSnapshot(**normalized)
     if snapshot.version != _VERSION:
@@ -615,9 +619,7 @@ def capture_live_snapshot(
                 "dateFormat": "iso",
             }
         )
-        odds_payloads[sport_key] = get_json(
-            f"{_ODDS_HOST}/v4/sports/{sport_key}/odds/?{query}"
-        )
+        odds_payloads[sport_key] = get_json(f"{_ODDS_HOST}/v4/sports/{sport_key}/odds/?{query}")
 
     queried_dates = _future_utc_dates(captured)
     sportradar_payloads: dict[str, object] = {}

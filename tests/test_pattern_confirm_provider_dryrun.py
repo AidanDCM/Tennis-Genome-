@@ -233,9 +233,7 @@ def test_stale_quotes_cannot_satisfy_transport_compatibility() -> None:
         )
         for i in range(3)
     ]
-    summaries = [
-        _sportradar_summary(i, start=start + timedelta(minutes=20 * i)) for i in range(3)
-    ]
+    summaries = [_sportradar_summary(i, start=start + timedelta(minutes=20 * i)) for i in range(3)]
     first = build_snapshot(
         captured_at=first_time.isoformat(),
         queried_utc_dates=("2026-09-13",),
