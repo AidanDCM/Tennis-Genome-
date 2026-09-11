@@ -270,3 +270,15 @@ def test_timeline_wrong_event_or_naive_timestamp_fails_closed() -> None:
             },
             expected_event_id="sr:sport_event:123",
         )
+
+
+def test_prematch_event_requires_explicit_provider_status() -> None:
+    payload = _summary()
+    payload.pop("sport_event_status")
+    with pytest.raises(ValueError, match="status must be non-empty"):
+        parse_sportradar_prematch_event(payload)
+
+    payload = _summary()
+    payload["sport_event_status"] = {}
+    with pytest.raises(ValueError, match="status must be non-empty"):
+        parse_sportradar_prematch_event(payload)

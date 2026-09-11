@@ -391,3 +391,26 @@ def test_rehashed_semantic_tampering_still_fails_closed() -> None:
             core_artifact=_core(),
             identity_mapping=_mapping(),
         )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("retirement", "false"),
+        ("walkover", 0),
+        ("outcome_a", "false"),
+    ],
+)
+def test_settlement_requires_real_json_booleans(field: str, value: object) -> None:
+    record = _build()
+    raw: dict[str, object] = {
+        "match_id": record.match_id,
+        "sportradar_event_id": record.sportradar_event_id,
+        "sportradar_timeline": _timeline(),
+        "outcome_a": True,
+        "retirement": False,
+        "walkover": False,
+    }
+    raw[field] = value
+    with pytest.raises(ValueError, match="JSON boolean"):
+        load_live_settlements([raw])

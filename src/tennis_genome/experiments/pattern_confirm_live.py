@@ -173,6 +173,22 @@ def _required_object(raw: dict[str, object], name: str) -> dict[str, object]:
     return value
 
 
+def _required_bool(raw: dict[str, object], name: str) -> bool:
+    value = raw.get(name)
+    if not isinstance(value, bool):
+        raise ValueError(f"{name} must be a JSON boolean")
+    return value
+
+
+def _optional_bool(raw: dict[str, object], name: str) -> bool | None:
+    value = raw.get(name)
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        raise ValueError(f"{name} must be a JSON boolean or null")
+    return value
+
+
 def _decimal_odds(raw: dict[str, object], name: str) -> float:
     value = float(raw.get(name))
     if not math.isfinite(value) or value <= 1.0:
@@ -509,10 +525,9 @@ def load_live_settlements(rows: list[dict[str, object]]) -> dict[str, LiveSettle
             timeline_payload,
             expected_event_id=sportradar_event_id,
         )
-        retirement = bool(raw.get("retirement", False))
-        walkover = bool(raw.get("walkover", False))
-        outcome_raw = raw.get("outcome_a")
-        outcome = None if outcome_raw is None else bool(outcome_raw)
+        retirement = _required_bool(raw, "retirement")
+        walkover = _required_bool(raw, "walkover")
+        outcome = _optional_bool(raw, "outcome_a")
         if not retirement and not walkover and outcome is None:
             raise ValueError("settled non-excluded rows require outcome_a")
         result[match_id] = LiveSettlement(

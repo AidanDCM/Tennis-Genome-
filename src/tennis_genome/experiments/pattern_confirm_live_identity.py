@@ -180,10 +180,10 @@ def parse_sportradar_prematch_event(
     competition_id = _required_text(competition, "id")
     competition_name = _required_text(competition, "name")
 
-    provider_status = str(status.get("status", "not_started")).strip().lower()
+    provider_status = _required_text(status, "status").lower()
     if provider_status in _NON_PREMATCH_STATUSES:
         raise ValueError("Sportradar event is not in an admissible pre-match state")
-    if provider_status not in {"not_started", "scheduled", ""}:
+    if provider_status not in {"not_started", "scheduled"}:
         raise ValueError("unrecognized Sportradar pre-match status")
 
     qualifiers = _qualifier_map(
@@ -209,7 +209,7 @@ def parse_sportradar_prematch_event(
         player_b_sportradar_id=away_id,
         player_a_sportradar_name=_required_text(home, "name"),
         player_b_sportradar_name=_required_text(away, "name"),
-        provider_status=provider_status or "not_started",
+        provider_status=provider_status,
     )
 
 
