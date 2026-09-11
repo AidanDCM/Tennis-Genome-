@@ -1,0 +1,53 @@
+{
+  "all_transfer_compatible": true,
+  "artifact_sha256": "0a1e7c86c4ed5b2bb7fdc611baf0118dc7ae3ec1f4727b97dfe64d504329c279",
+  "claims": [
+    {
+      "brier_improvement": 0.0010163703683405967,
+      "corrected_brier": 0.18880227861766272,
+      "corrected_log_loss": 0.5536823926162475,
+      "hypothesis_id": "PC-ATP-PG-LOW",
+      "log_loss_improvement": 0.002469770404102012,
+      "n": 1248,
+      "original_bootstrap_lower": -0.05681102102883317,
+      "original_bootstrap_upper": -0.008650407417183465,
+      "original_mean_residual": -0.032693723911114525,
+      "pooled_baseline_brier": 0.1898186489860033,
+      "pooled_baseline_log_loss": 0.5561521630203495,
+      "pooled_mean_inside_original_interval": true,
+      "pooled_mean_residual": -0.031888418972228896,
+      "proper_scores_improve": true,
+      "residual_delta": 0.0008053049388856287,
+      "same_direction": true,
+      "source_candidate_id": "ATP:single_variable:0914faa2399d38c4",
+      "transfer_compatible": true
+    },
+    {
+      "brier_improvement": 0.0005045682223999981,
+      "corrected_brier": 0.17235350787978204,
+      "corrected_log_loss": 0.513219177737404,
+      "hypothesis_id": "PC-ATP-PG-ABS-HIGH",
+      "log_loss_improvement": 0.002155809126772934,
+      "n": 1325,
+      "original_bootstrap_lower": -0.04493696598158437,
+      "original_bootstrap_upper": -0.0009699301362726131,
+      "original_mean_residual": -0.02322507294705072,
+      "pooled_baseline_brier": 0.17285807610218204,
+      "pooled_baseline_log_loss": 0.5153749868641769,
+      "pooled_mean_inside_original_interval": true,
+      "pooled_mean_residual": -0.02246327692821227,
+      "proper_scores_improve": true,
+      "residual_delta": 0.0007617960188384468,
+      "same_direction": true,
+      "source_candidate_id": "ATP:uncertainty_ood:90451092e0e9a458",
+      "transfer_compatible": true
+    }
+  ],
+  "discovery_artifact_sha256": "6a867c4b4cf236567a10a4567a209fdbbf397da201147f3a8537e71de4675399",
+  "experiment_id": "PATTERN-CONFIRM-001-BASELINE-TRANSFER-AUDIT",
+  "feature_ledger_sha256": "1d71222ab477eec65a06a3e7c76ac0af1c282e6f2a7164e8c47b37afc7192628",
+  "market_core_fit_sha256": "622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732",
+  "outcome_scope": "spent 2023-2025 internal validation only; no prospective outcomes",
+  "residual_ledger_sha256": "3fb6ae9b670dca30e2b5085c0ace72ced926be16e1d8bbfa9874b0c7abcb0c6c",
+  "version": "pattern-confirm-baseline-transfer-v1"
+}
