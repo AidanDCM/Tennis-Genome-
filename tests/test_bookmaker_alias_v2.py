@@ -32,7 +32,13 @@ def test_wrong_initial_does_not_alias() -> None:
     assert not tennis_data_name_matches_canonical("Dimitrov A.", "Grigor Dimitrov")
 
 
-def _state(match_id: str, a: str, b: str, *, event_date: date = date(2025, 1, 1)) -> PreMatchState:
+def _state(
+    match_id: str,
+    a: str,
+    b: str,
+    *,
+    event_date: date = date(2025, 1, 1),
+) -> PreMatchState:
     return PreMatchState(
         match_id=match_id,
         tour="ATP",
@@ -64,7 +70,9 @@ def _roots(tmp_path: Path) -> tuple[Path, Path, Path]:
     return valuebet, atp, wta
 
 
-def test_tennis_data_alias_preserves_price_orientation_and_no_outcome_fields(tmp_path: Path) -> None:
+def test_tennis_data_alias_preserves_price_orientation_and_no_outcome_fields(
+    tmp_path: Path,
+) -> None:
     valuebet, atp, wta = _roots(tmp_path)
     (atp / "atp-2025.csv").write_text(
         "ATP,Date,Winner,Loser,PSW,PSL,Comment\n"
