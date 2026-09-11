@@ -50,8 +50,6 @@ Downstream market joining and QA operate only on sanitized outcome-free quotes.
 
 ## Step 1 — freeze the exact source bundle
 
-Example:
-
 ```bash
 python -m tennis_genome.market.bookmaker_manifest \
   --valuebet-root /data/bookmaker-market/valuebetennis \
@@ -111,7 +109,7 @@ No manual outcome-informed matching is allowed.
 
 It contains no winner, `a_won`, score, retirement, walkover, Profile Gap, Genome, Strict Core output, or model-vs-market result.
 
-`market_book_001_summary.json` reports ingestion, joining, source selection, conflict, overlap and deterministic artifact hashes.
+`market_book_001_summary.json` reports ingestion, joining, source selection, conflict, overlap and deterministic artifact hashes. It is diagnostic; the canonical JSONL records are the market input sealed for confirmatory evaluation.
 
 ## Step 3 — determinism check
 
@@ -145,27 +143,63 @@ Both tours must pass for global `ELIGIBLE_CONFIRMATORY`.
 
 ## Step 5 — outcome-blind POWER-MDE-001
 
-Only after QA passes, run the bookmaker POWER-MDE adapter using the exact selected `market_probability_a` values and frozen Profile Gap/Genome signals, without settled winners.
+Only after QA passes, run the bookmaker adapter for the existing frozen POWER-MDE engine:
+
+```bash
+python -m tennis_genome.experiments.power_mde_bookmaker \
+  --market-book-qa /data/tennis-genome/market-book-001/market_book_qa_001.json \
+  --market-book-records /data/tennis-genome/market-book-001/market_book_001_records.jsonl \
+  --pre-match /data/tennis-genome/canonical/pre_match.parquet \
+  --profile-gap-atp /data/tennis-genome/signals/profile_gap_atp.json \
+  --profile-gap-wta /data/tennis-genome/signals/profile_gap_wta.json \
+  --genome-atp /data/tennis-genome/signals/genome_atp.json \
+  --genome-wta /data/tennis-genome/signals/genome_wta.json \
+  --output /data/tennis-genome/market-book-001/power_mde_001.json
+```
 
 The four claims remain ATP/WTA × Profile Gap/Genome with family size 4, alpha .05, conservative planning alpha .0125, and min prior rows 1000.
 
 Power/MDE may justify acquiring more source coverage. It may not change significance thresholds or source semantics.
 
-## Step 6 — Stage-A seal
+## Step 6 — create the outcome-locked Stage-A seal
 
-Freeze hashes for:
+Stage A has deliberately **no outcomes CLI argument**. It verifies the source manifest, exact QA artifact, exact POWER-MDE artifact, frozen signals and canonical market inputs. The seal binds the SHA-256 of the outcome ledger that QA used for walkover/retirement eligibility without opening winner labels in an evaluator.
 
-- bookmaker source manifest;
-- MARKET-BOOK-001 records/summary;
-- MARKET-BOOK-QA-001 report;
-- POWER-MDE-001 artifact;
-- canonical pre-match table;
-- frozen signal artifacts;
-- applicable preregistration/amendment files.
+```bash
+python -m tennis_genome.experiments.market_validation_bookmaker_run seal \
+  --source-manifest /data/tennis-genome/market-book-001/source-manifest.json \
+  --market-book-records /data/tennis-genome/market-book-001/market_book_001_records.jsonl \
+  --pre-match /data/tennis-genome/canonical/pre_match.parquet \
+  --market-book-qa /data/tennis-genome/market-book-001/market_book_qa_001.json \
+  --power-mde /data/tennis-genome/market-book-001/power_mde_001.json \
+  --profile-gap-atp /data/tennis-genome/signals/profile_gap_atp.json \
+  --profile-gap-wta /data/tennis-genome/signals/profile_gap_wta.json \
+  --genome-atp /data/tennis-genome/signals/genome_atp.json \
+  --genome-wta /data/tennis-genome/signals/genome_wta.json \
+  --output /data/tennis-genome/market-book-001/outcome_unlock_seal.json
+```
 
-The Stage-A seal also binds the exact outcome file hash used by QA for walkover/retirement eligibility. No winner-dependent evaluator is allowed to run until the same outcome-file hash is supplied to Stage B.
+Any sealed non-outcome input changing after this point invalidates Stage B.
 
-## Step 7 — only then run MARKET-EDGE outcomes
+## Step 7 — only then open outcomes and run the hypotheses
+
+```bash
+python -m tennis_genome.experiments.market_validation_bookmaker_run run \
+  --seal /data/tennis-genome/market-book-001/outcome_unlock_seal.json \
+  --source-manifest /data/tennis-genome/market-book-001/source-manifest.json \
+  --market-book-records /data/tennis-genome/market-book-001/market_book_001_records.jsonl \
+  --pre-match /data/tennis-genome/canonical/pre_match.parquet \
+  --market-book-qa /data/tennis-genome/market-book-001/market_book_qa_001.json \
+  --power-mde /data/tennis-genome/market-book-001/power_mde_001.json \
+  --outcomes /data/tennis-genome/canonical/outcomes.parquet \
+  --profile-gap-atp /data/tennis-genome/signals/profile_gap_atp.json \
+  --profile-gap-wta /data/tennis-genome/signals/profile_gap_wta.json \
+  --genome-atp /data/tennis-genome/signals/genome_atp.json \
+  --genome-wta /data/tennis-genome/signals/genome_wta.json \
+  --output /data/tennis-genome/market-book-001/market_validation_results.json
+```
+
+Before either evaluator runs, Stage B re-hashes every sealed file and the supplied outcome ledger. The outcome hash must exactly equal the ledger hash frozen by QA at Stage A.
 
 The primary informational models remain:
 
@@ -174,7 +208,7 @@ control:    alpha + gamma * logit(p_market)
 challenger: alpha + gamma * logit(p_market) + beta * z(signal)
 ```
 
-and the stronger Strict-Core adversary remains separately frozen.
+The primary four-claim engine and the stronger Strict-Core adversarial engine are reused unchanged; only the market-input adapter differs from the Betfair path.
 
 A surviving result means the frozen signal contains information beyond the mature bookmaker close benchmark. It does not by itself establish tradable profit.
 
