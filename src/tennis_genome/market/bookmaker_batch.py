@@ -26,6 +26,7 @@ from tennis_genome.market.providers.bookmaker_historical import (
 )
 
 JoinStatus = Literal["MATCHED", "UNMATCHED", "AMBIGUOUS"]
+StateIndex = dict[tuple[str, tuple[str, str]], tuple[PreMatchState, ...]]
 _BATCH_VERSION = "market-book-001-batch-v1"
 _RESOLVER_VERSION = "bookmaker-canonical-join-v1"
 _MARKET_POLICY = "BOOKMAKER_CLOSE_V1"
@@ -82,6 +83,18 @@ def _pair_key(name_a: str, name_b: str) -> tuple[str, str]:
     return tuple(sorted(normalized))  # type: ignore[return-value]
 
 
+def _build_state_index(states: list[PreMatchState]) -> StateIndex:
+    """Index canonical states by the exact frozen tour + unordered player-pair key."""
+
+    buckets: dict[tuple[str, tuple[str, str]], list[PreMatchState]] = defaultdict(list)
+    for state in states:
+        buckets[(state.tour, _pair_key(state.player_a_name, state.player_b_name))].append(state)
+    return {
+        key: tuple(sorted(values, key=lambda state: (state.event_date, state.match_id)))
+        for key, values in buckets.items()
+    }
+
+
 def _join_hash(
     *,
     quote: SanitizedBookmakerQuote,
@@ -103,15 +116,12 @@ def _join_hash(
 
 def _resolve_quote(
     quote: SanitizedBookmakerQuote,
-    states: list[PreMatchState],
+    state_index: StateIndex,
 ) -> tuple[JoinStatus, tuple[str, ...], BookmakerJoin | None, float | None, float | None]:
     quote_pair = (quote.neutral_player_1_normalized, quote.neutral_player_2_normalized)
+    indexed_states = state_index.get((quote.tour, quote_pair), ())
     candidates: list[tuple[PreMatchState, int]] = []
-    for state in states:
-        if state.tour != quote.tour:
-            continue
-        if _pair_key(state.player_a_name, state.player_b_name) != quote_pair:
-            continue
+    for state in indexed_states:
         offset = (quote.match_date - state.event_date).days
         if -_DAYS_BEFORE <= offset <= _DAYS_AFTER:
             candidates.append((state, offset))
@@ -322,6 +332,7 @@ def build_market_book_records(
         tennis_data_atp_root=tennis_data_atp_root,
         tennis_data_wta_root=tennis_data_wta_root,
     )
+    state_index = _build_state_index(pre_match_states)
     start = date.fromisoformat(manifest.requested_start_date)
     end = date.fromisoformat(manifest.requested_end_date)
     records: list[dict[str, Any]] = []
@@ -329,7 +340,7 @@ def build_market_book_records(
         for quote in _load_manifest_file(item, roots=roots):
             if not start <= quote.match_date <= end:
                 raise ValueError("manifest-included bookmaker row is outside requested interval")
-            status, candidates, join, odds_a, odds_b = _resolve_quote(quote, pre_match_states)
+            status, candidates, join, odds_a, odds_b = _resolve_quote(quote, state_index)
             records.append(
                 _base_record(
                     quote,
