@@ -212,8 +212,14 @@ def verify_live_record(
     normalized = dict(payload)
     normalized["core_record"] = core_record
     record = LiveProspectiveRecord(**normalized)
-    if record.version != _VERSION:
-        raise ValueError("unexpected live prospective record version")
+    if record.experiment_id != _EXPERIMENT_ID or record.version != _VERSION:
+        raise ValueError("unexpected live prospective record contract")
+    if record.market_provider != _MARKET_PROVIDER or record.market_source != _MARKET_SOURCE:
+        raise ValueError("sealed live row violates frozen Pinnacle market contract")
+    if record.event_provider != _EVENT_PROVIDER:
+        raise ValueError("sealed live row violates frozen event-provider contract")
+    if record.provider_match_state != _REQUIRED_MATCH_STATE:
+        raise ValueError("sealed live row was not captured PREMATCH")
     if record.profile_model_sha256 != profile_artifact.artifact_sha256:
         raise ValueError("live ledger mixes Profile production artifact versions")
     if record.core_model_sha256 != core_artifact.artifact_sha256:
@@ -226,10 +232,50 @@ def verify_live_record(
         raise ValueError("live ledger market event does not match identity mapping")
     if record.sportradar_event_id != identity_mapping.sportradar_event_id:
         raise ValueError("live ledger Sportradar event does not match identity mapping")
+    if record.player_a_market_name != identity_mapping.player_a_market_name:
+        raise ValueError("live ledger market player A does not match identity mapping")
+    if record.player_b_market_name != identity_mapping.player_b_market_name:
+        raise ValueError("live ledger market player B does not match identity mapping")
+    if record.player_a_sportradar_id != identity_mapping.player_a_sportradar_id:
+        raise ValueError("live ledger Sportradar player A does not match identity mapping")
+    if record.player_b_sportradar_id != identity_mapping.player_b_sportradar_id:
+        raise ValueError("live ledger Sportradar player B does not match identity mapping")
     if record.player_a_id != identity_mapping.player_a_canonical_id:
         raise ValueError("live ledger player A does not match identity mapping")
     if record.player_b_id != identity_mapping.player_b_canonical_id:
         raise ValueError("live ledger player B does not match identity mapping")
+    if record.scheduled_start != identity_mapping.scheduled_start:
+        raise ValueError("live ledger scheduled start does not match identity mapping")
+
+    scheduled = _parse_time(record.scheduled_start)
+    snapshot = _parse_time(record.provider_snapshot_at)
+    ingested = _parse_time(record.ingested_at)
+    generated = _parse_time(record.prediction_generated_at)
+    committed = _parse_time(record.prediction_committed_at)
+    if snapshot > ingested:
+        raise ValueError("sealed provider snapshot is later than ingestion")
+    if ingested - snapshot > _MAX_SNAPSHOT_STALENESS:
+        raise ValueError("sealed provider snapshot is stale at ingestion")
+    if ingested > generated or generated > committed:
+        raise ValueError("sealed live row timestamps are out of order")
+    if snapshot > scheduled - _MIN_START_LEAD:
+        raise ValueError("sealed market snapshot violates scheduled T-minus-five gate")
+    if committed >= scheduled:
+        raise ValueError("sealed prediction was not committed before scheduled start")
+    if (
+        not math.isfinite(record.decimal_odds_a)
+        or not math.isfinite(record.decimal_odds_b)
+        or record.decimal_odds_a <= 1.0
+        or record.decimal_odds_b <= 1.0
+    ):
+        raise ValueError("sealed decimal odds are invalid")
+    expected_market = _devig_probability(record.decimal_odds_a, record.decimal_odds_b)
+    if record.market_probability_a != expected_market:
+        raise ValueError("sealed market probability does not reproduce from raw odds")
+    if not math.isfinite(record.core_probability_a) or not 0.0 < record.core_probability_a < 1.0:
+        raise ValueError("sealed Core probability is invalid")
+    if not math.isfinite(record.profile_gap):
+        raise ValueError("sealed Profile Gap is invalid")
     if core_record.match_id != record.match_id or core_record.tour != record.tour:
         raise ValueError("sealed core record identity does not match live envelope")
     if core_record.scheduled_start != record.scheduled_start:

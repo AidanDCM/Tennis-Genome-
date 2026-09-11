@@ -3,9 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Iterable
 
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"

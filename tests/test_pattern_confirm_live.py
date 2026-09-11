@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import json
+
 import pytest
 
 from tennis_genome.experiments.pattern_confirm import FrozenMarketCoreFit
@@ -9,6 +12,7 @@ from tennis_genome.experiments.pattern_confirm_live import (
     evaluate_live_family,
     live_record_as_dict,
     load_live_settlements,
+    verify_live_record,
 )
 from tennis_genome.experiments.pattern_confirm_live_identity import (
     build_identity_mapping,
@@ -362,3 +366,28 @@ def test_eligible_verified_start_flows_into_existing_confirmation_engine() -> No
     assert all(
         item["available_qualifying_n"] == 1 for item in report.core_confirmation["hypotheses"]
     )
+
+
+def test_rehashed_semantic_tampering_still_fails_closed() -> None:
+    record = _build()
+    payload = live_record_as_dict(record)
+    payload["player_a_market_name"] = "Wrong Player"
+    unsigned = dict(payload)
+    unsigned.pop("record_sha256")
+    payload["record_sha256"] = hashlib.sha256(
+        json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    with pytest.raises(ValueError, match="market player A"):
+        verify_live_record(
+            payload,
+            fit=_fit(),
+            profile_artifact=_profile(),
+            core_artifact=_core(),
+            identity_mapping=_mapping(),
+        )
