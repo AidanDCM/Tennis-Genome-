@@ -6,8 +6,11 @@ on:
     branches:
       - dev/bookmaker-real-source-preflight-v1
     paths:
+      - "src/tennis_genome/market/providers/bookmaker_historical.py"
       - "src/tennis_genome/experiments/bookmaker_source_preflight.py"
+      - "tests/test_bookmaker_historical.py"
       - "tests/test_bookmaker_source_preflight.py"
+      - "research/installment_01/market_book_001_amendment_001.md"
       - ".github/workflows/bookmaker_real_source_preflight.yml"
 
 permissions:
