@@ -6,13 +6,13 @@ import json
 import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 import numpy as np
 import pandas as pd
 from scipy.stats import ttest_1samp
 
-from tennis_genome.evaluation.metrics import brier_score, binary_log_loss, calibration_bins
+from tennis_genome.evaluation.metrics import binary_log_loss, brier_score, calibration_bins
 
 _EXPERIMENT_ID = "PATTERN-DISCOVERY-001"
 _VERSION = "pattern-discovery-v1"
@@ -144,12 +144,17 @@ def _verify_inputs(
     if enforce_internal_provenance:
         payload = _load_json(results)
         if payload.get("bundle_sha256") != _EXPECTED_BUNDLE_SHA:
-            raise ValueError("confirmatory validation bundle SHA differs from frozen discovery source")
+            raise ValueError(
+                "confirmatory validation bundle SHA differs from frozen discovery source"
+            )
         if payload.get("stage_a_seal_sha256") != _EXPECTED_STAGE_A_SHA:
             raise ValueError("Stage-A seal SHA differs from frozen discovery source")
         if payload.get("outcomes_sha256") != _EXPECTED_OUTCOMES_SHA:
             raise ValueError("outcomes SHA differs from frozen discovery source")
-        if payload.get("stage") != "OUTCOME_OPEN_COMPLETE" or payload.get("outcome_open") is not True:
+        if (
+            payload.get("stage") != "OUTCOME_OPEN_COMPLETE"
+            or payload.get("outcome_open") is not True
+        ):
             raise ValueError("confirmatory source is not a completed outcome-open bundle")
     return observed
 
@@ -173,7 +178,9 @@ def _claims_by_tour(results_payload: dict[str, object]) -> dict[Tour, dict[str, 
         if tour not in result or signal not in {"profile_gap", "genome"}:
             raise ValueError("unexpected adversarial claim label")
         result[tour][signal] = claim
-    if any(set(claims_by_signal) != {"profile_gap", "genome"} for claims_by_signal in result.values()):
+    if any(
+        set(claims_by_signal) != {"profile_gap", "genome"} for claims_by_signal in result.values()
+    ):
         raise ValueError("expected ATP/WTA × Profile Gap/Genome adversarial claims")
     return result
 
@@ -267,7 +274,9 @@ def build_feature_ledger(
         raise ValueError("pre_match parquet contains duplicate match_id")
 
     residual = pd.DataFrame(residual_rows)
-    frame = residual.merge(frame, on="match_id", how="left", validate="one_to_one", suffixes=("", "_pre"))
+    frame = residual.merge(
+        frame, on="match_id", how="left", validate="one_to_one", suffixes=("", "_pre")
+    )
     if frame["tour_pre"].isna().any():
         raise ValueError("residual ledger contains matches missing from pre_match parquet")
     if not (frame["tour"] == frame["tour_pre"]).all():
@@ -289,7 +298,9 @@ def build_feature_ledger(
             p_signal, p_core = profile[match_id]
             g_signal, g_core = genome[match_id]
             if p_core != float(core) or g_core != float(core):
-                raise ValueError(f"{tour} projected Core probability differs from confirmatory residual ledger")
+                raise ValueError(
+                    f"{tour} projected Core probability differs from confirmatory residual ledger"
+                )
             profile_signal.append(p_signal)
             genome_signal.append(g_signal)
         frame.loc[tour_mask, "profile_gap"] = profile_signal
@@ -324,7 +335,9 @@ def build_feature_ledger(
     frame["abs_height_diff"] = frame["height_diff"].abs()
     frame["abs_profile_gap"] = frame["profile_gap"].abs()
     frame["abs_genome_signal"] = frame["genome_signal"].abs()
-    frame["best_of"] = frame.get("best_of", pd.Series(index=frame.index, dtype="object")).astype("string")
+    frame["best_of"] = frame.get("best_of", pd.Series(index=frame.index, dtype="object")).astype(
+        "string"
+    )
     for column in ("surface", "tournament_level", "round"):
         if column not in frame.columns:
             frame[column] = pd.Series(index=frame.index, dtype="string")
@@ -354,10 +367,15 @@ def _bin_mask(values: pd.Series, edges: list[float], index: int) -> pd.Series:
     numeric = pd.to_numeric(values, errors="coerce")
     if index < 0 or index >= len(edges) - 1:
         raise ValueError("invalid bin index")
+    finite = numeric.notna() & np.isfinite(numeric)
+    if len(edges) == 2:
+        return finite
     lower, upper = edges[index], edges[index + 1]
+    if index == 0:
+        return finite & numeric.lt(upper)
     if index == len(edges) - 2:
-        return numeric.ge(lower) & numeric.le(upper)
-    return numeric.ge(lower) & numeric.lt(upper)
+        return finite & numeric.ge(lower)
+    return finite & numeric.ge(lower) & numeric.lt(upper)
 
 
 def _market_band_mask(values: pd.Series, index: int) -> pd.Series:
@@ -373,7 +391,9 @@ def _candidate_id(tour: Tour, family: Family, definition: dict[str, object]) -> 
     return f"{tour}:{family}:{digest}"
 
 
-def _spec(tour: Tour, family: Family, definition: dict[str, object], required: tuple[str, ...]) -> CandidateSpec:
+def _spec(
+    tour: Tour, family: Family, definition: dict[str, object], required: tuple[str, ...]
+) -> CandidateSpec:
     return CandidateSpec(
         candidate_id=_candidate_id(tour, family, definition),
         tour=tour,
@@ -513,14 +533,17 @@ def _mask(frame: pd.DataFrame, spec: CandidateSpec) -> pd.Series:
             second = _market_band_mask(frame["market_probability_a"], int(d["context_value"]))
         return first & second
     if kind == "two_numeric_bins":
-        return _bin_mask(frame[str(d["feature_a"])], list(d["edges_a"]), int(d["bin_a"])) & _bin_mask(
-            frame[str(d["feature_b"])], list(d["edges_b"]), int(d["bin_b"])
-        )
+        return _bin_mask(
+            frame[str(d["feature_a"])], list(d["edges_a"]), int(d["bin_a"])
+        ) & _bin_mask(frame[str(d["feature_b"])], list(d["edges_b"]), int(d["bin_b"]))
     raise ValueError(f"unknown candidate kind {kind}")
 
 
 def _seed(spec: CandidateSpec) -> int:
-    material = f"{_EXPERIMENT_ID}|{spec.tour}|{spec.family}|{spec.candidate_id}|{_BOOTSTRAP_SEED_NAMESPACE}"
+    material = (
+        f"{_EXPERIMENT_ID}|{spec.tour}|{spec.family}|"
+        f"{spec.candidate_id}|{_BOOTSTRAP_SEED_NAMESPACE}"
+    )
     return int.from_bytes(hashlib.sha256(material.encode("utf-8")).digest()[:8], "big")
 
 
@@ -624,9 +647,17 @@ def _evaluate_candidate(
         if not v_cell.loc[v_cell["year"] == year].empty
     }
     abs_total = sum(abs(value) for value in contributions.values())
-    concentration = max((abs(value) for value in contributions.values()), default=0.0) / abs_total if abs_total else None
-    required_missing_discovery = int(discovery_frame[list(spec.required_features)].isna().any(axis=1).sum())
-    required_missing_validation = int(validation_frame[list(spec.required_features)].isna().any(axis=1).sum())
+    concentration = (
+        max((abs(value) for value in contributions.values()), default=0.0) / abs_total
+        if abs_total
+        else None
+    )
+    required_missing_discovery = int(
+        discovery_frame[list(spec.required_features)].isna().any(axis=1).sum()
+    )
+    required_missing_validation = int(
+        validation_frame[list(spec.required_features)].isna().any(axis=1).sum()
+    )
     return {
         "candidate_id": spec.candidate_id,
         "tour": spec.tour,
@@ -680,7 +711,9 @@ def _feature_ledger_rows(frame: pd.DataFrame) -> list[dict[str, object]]:
         "height_cm_b",
     )
     rows: list[dict[str, object]] = []
-    for raw in frame.loc[:, fields].sort_values(["tour", "year", "match_id"]).to_dict(orient="records"):
+    for raw in (
+        frame.loc[:, fields].sort_values(["tour", "year", "match_id"]).to_dict(orient="records")
+    ):
         row: dict[str, object] = {}
         for key, value in raw.items():
             if pd.isna(value):
@@ -762,12 +795,16 @@ def run_pattern_discovery(
             and float(concentration) < 0.5
         )
 
-    evaluated.sort(key=lambda item: (str(item["tour"]), str(item["family"]), str(item["candidate_id"])))
+    evaluated.sort(
+        key=lambda item: (str(item["tour"]), str(item["family"]), str(item["candidate_id"]))
+    )
     counts: dict[str, dict[str, dict[str, int]]] = {}
     for tour in ("ATP", "WTA"):
         counts[tour] = {}
         for family in ("single_variable", "pairwise_context", "uncertainty_ood"):
-            subset = [item for item in evaluated if item["tour"] == tour and item["family"] == family]
+            subset = [
+                item for item in evaluated if item["tour"] == tour and item["family"] == family
+            ]
             counts[tour][family] = {
                 "generated": len(subset),
                 "survivors": sum(bool(item["survivor"]) for item in subset),
@@ -801,14 +838,18 @@ def run_pattern_discovery(
 
 def _write_json(value: object, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8"
+    )
 
 
 def _write_jsonl(rows: list[dict[str, object]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
-            handle.write(json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n")
+            handle.write(
+                json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
+            )
 
 
 def _parse_args() -> argparse.Namespace:

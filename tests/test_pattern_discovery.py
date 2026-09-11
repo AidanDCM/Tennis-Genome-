@@ -9,6 +9,7 @@ import pytest
 
 from tennis_genome.experiments.pattern_discovery import (
     _bh_adjust,
+    _bin_mask,
     build_residual_ledger,
     generate_candidate_specs,
     run_pattern_discovery,
@@ -38,7 +39,7 @@ def _results(rows_by_tour: dict[str, list[dict[str, object]]]) -> dict[str, obje
                 {
                     "tour": tour,
                     "signal_name": signal,
-                    "primary": {"predictions": rows_by_tour[tour]},
+                    "primary": {"predictions": [dict(row) for row in rows_by_tour[tour]]},
                 }
             )
     return {
@@ -140,7 +141,9 @@ def test_candidate_generator_is_deterministic_and_uses_discovery_cutpoints() -> 
     assert first == second
     assert first
     rank_candidates = [
-        item for item in first if item.definition.get("feature") == "rank_diff" and item.family == "single_variable"
+        item
+        for item in first
+        if item.definition.get("feature") == "rank_diff" and item.family == "single_variable"
     ]
     assert rank_candidates
     discovery_max = frame.loc[frame["year"] <= 2022, "rank_diff"].max()
@@ -223,3 +226,12 @@ def test_full_discovery_artifact_is_self_hashed_and_exploratory(tmp_path: Path) 
     ).encode("utf-8")
     assert hashlib.sha256(encoded).hexdigest() == digest
     assert all("survivor" in item for item in artifact["candidates"])
+
+
+def test_bin_mask_captures_out_of_discovery_range_values() -> None:
+    values = pd.Series([-10.0, 0.5, 1.5, 10.0, float("nan")])
+    edges = [0.0, 1.0, 2.0]
+    assert _bin_mask(values, edges, 0).tolist() == [True, True, False, False, False]
+    assert _bin_mask(values, edges, 1).tolist() == [False, False, True, True, False]
+    one_bin = [0.0, 1.0]
+    assert _bin_mask(values, one_bin, 0).tolist() == [True, True, True, True, False]
