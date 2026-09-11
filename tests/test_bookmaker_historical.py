@@ -32,6 +32,31 @@ def test_valuebet_adapter_does_not_emit_outcomes_and_uses_closing_only(tmp_path:
     assert "duree_min" not in payload
 
 
+def test_valuebet_unusable_identity_row_does_not_quarantine_valid_file(tmp_path: Path) -> None:
+    path = tmp_path / "valuebet.csv"
+    path.write_text(
+        "match_id;date;genre;joueur1;joueur2;cote1_cloture;cote2_cloture\n"
+        "1;2023-05-01 00:00:00;atp;Alpha A;Beta B;1.80;2.10\n"
+        "2;2023-05-02 00:00:00;atp;Unknown Player;Unknown Player;1.90;1.90\n"
+        "3;2023-05-03 00:00:00;wta;Gamma C;Delta D;2.20;1.70\n",
+        encoding="utf-8",
+    )
+    quotes = load_valuebetennis_quotes(path)
+    assert [quote.source_row_key for quote in quotes] == ["1", "3"]
+    assert all(quote.quote_valid for quote in quotes)
+
+
+def test_valuebet_malformed_date_still_fails_closed(tmp_path: Path) -> None:
+    path = tmp_path / "valuebet.csv"
+    path.write_text(
+        "match_id;date;genre;joueur1;joueur2;cote1_cloture;cote2_cloture\n"
+        "1;not-a-date;atp;Alpha A;Beta B;1.80;2.10\n",
+        encoding="utf-8",
+    )
+    with pytest.raises((ValueError, TypeError)):
+        load_valuebetennis_quotes(path)
+
+
 def test_tennis_data_winner_loser_orientation_is_neutralized(tmp_path: Path) -> None:
     path = tmp_path / "atp.csv"
     path.write_text(
