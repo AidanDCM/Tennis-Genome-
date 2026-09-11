@@ -105,6 +105,14 @@ def _summary(
                     "name": "ATP Miami, USA Men Singles",
                     "type": "singles",
                 },
+                "season": {
+                    "id": "sr:season:2026-test",
+                    "name": "ATP Miami 2026",
+                    "start_date": "2026-09-07",
+                    "end_date": "2026-09-20",
+                    "year": "2026",
+                    "competition_id": "sr:competition:55",
+                },
             },
             "competitors": [
                 {

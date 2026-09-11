@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
-_VERSION = "pattern-confirm-identity-v1"
+_VERSION = "pattern-confirm-identity-v2"
 _ATP_CATEGORY_ID = "sr:category:3"
 _ALLOWED_METHODS = {
     "EXPLICIT_CROSSWALK",
@@ -47,6 +47,8 @@ class IdentityMapping:
     player_b_sportradar_name: str
     competition_id: str
     competition_name: str
+    season_id: str
+    season_start_date: str
     scheduled_start: str
     method: str
     created_at: str
@@ -61,6 +63,8 @@ class SportradarPrematchEvent:
     competition_id: str
     competition_name: str
     competition_type: str
+    season_id: str
+    season_start_date: str
     player_a_sportradar_id: str
     player_b_sportradar_id: str
     player_a_sportradar_name: str
@@ -117,6 +121,15 @@ def _aware_time(value: object, *, field: str) -> datetime:
 def _normalized_name(value: object) -> str:
     text = str(value).strip().lower()
     return _NAME_TOKEN.sub(" ", text).strip()
+
+
+def _iso_date(value: object, *, field: str) -> str:
+    from datetime import date
+
+    try:
+        return date.fromisoformat(str(value)).isoformat()
+    except ValueError as exc:
+        raise ValueError(f"{field} must be ISO date YYYY-MM-DD") from exc
 
 
 def _as_dict(value: object, *, field: str) -> dict[str, object]:
@@ -179,6 +192,14 @@ def parse_sportradar_prematch_event(
         raise ValueError("PATTERN-CONFIRM-001 requires a singles competition")
     competition_id = _required_text(competition, "id")
     competition_name = _required_text(competition, "name")
+    season = _as_dict(context.get("season"), field="sport_event_context.season")
+    season_id = _required_text(season, "id")
+    season_start_date = _iso_date(
+        season.get("start_date"), field="sport_event_context.season.start_date"
+    )
+    season_competition_id = _required_text(season, "competition_id")
+    if season_competition_id != competition_id:
+        raise ValueError("Sportradar season competition_id does not match competition")
 
     provider_status = _required_text(status, "status").lower()
     if provider_status in _NON_PREMATCH_STATUSES:
@@ -205,6 +226,8 @@ def parse_sportradar_prematch_event(
         competition_id=competition_id,
         competition_name=competition_name,
         competition_type=competition_type,
+        season_id=season_id,
+        season_start_date=season_start_date,
         player_a_sportradar_id=home_id,
         player_b_sportradar_id=away_id,
         player_a_sportradar_name=_required_text(home, "name"),
@@ -258,6 +281,8 @@ def build_identity_mapping(
         "player_b_sportradar_name": sportradar_event.player_b_sportradar_name,
         "competition_id": sportradar_event.competition_id,
         "competition_name": sportradar_event.competition_name,
+        "season_id": sportradar_event.season_id,
+        "season_start_date": sportradar_event.season_start_date,
         "scheduled_start": sportradar_event.scheduled_start,
         "method": method,
         "created_at": created.isoformat(),
@@ -283,6 +308,9 @@ def verify_identity_mapping(payload: dict[str, object]) -> IdentityMapping:
     if mapping.player_a_canonical_id == mapping.player_b_canonical_id:
         raise ValueError("identity mapping canonical player IDs must differ")
     _aware_time(mapping.created_at, field="created_at")
+    _iso_date(mapping.season_start_date, field="season_start_date")
+    if not mapping.season_id.strip():
+        raise ValueError("identity mapping season_id must be non-empty")
     scheduled = _aware_time(mapping.scheduled_start, field="scheduled_start")
     if _aware_time(mapping.created_at, field="created_at") >= scheduled:
         raise ValueError("identity mapping was not created pre-match")
@@ -301,6 +329,10 @@ def validate_mapping_against_event(
         raise ValueError("identity mapping player B does not match Sportradar away competitor")
     if mapping.competition_id != event.competition_id:
         raise ValueError("identity mapping competition does not match Sportradar event")
+    if mapping.season_id != event.season_id:
+        raise ValueError("identity mapping season does not match Sportradar event")
+    if mapping.season_start_date != event.season_start_date:
+        raise ValueError("identity mapping season start does not match Sportradar event")
     if mapping.scheduled_start != event.scheduled_start:
         raise ValueError("identity mapping scheduled start does not match Sportradar event")
 
