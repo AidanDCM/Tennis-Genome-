@@ -147,7 +147,7 @@ def _neutralize(
     return SanitizedBookmakerQuote(
         source_family=source_family,
         source_file=source_file,
-        source_file_sha256=file_hash if False else source_file_sha256,
+        source_file_sha256=source_file_sha256,
         source_row_number=int(source_row_number),
         source_row_key=str(source_row_key),
         match_date=match_date,
