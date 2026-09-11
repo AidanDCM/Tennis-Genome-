@@ -56,8 +56,8 @@ jobs:
       - name: Install, format and test
         run: |
           pip install -e .[dev]
-          ruff check --fix src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
           ruff format src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
+          ruff check --fix src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
           ruff check src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
           pytest tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
       - name: Commit patch
