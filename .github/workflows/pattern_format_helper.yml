@@ -1,0 +1,31 @@
+name: Pattern formatter helper
+
+on:
+  push:
+    branches: [dev/pattern-discovery-001]
+    paths:
+      - .github/workflows/pattern_format_helper.yml
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install ruff
+      - name: Format discovery files
+        run: |
+          ruff format src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
+          ruff check --fix src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pattern-formatted-files
+          path: |
+            src/tennis_genome/experiments/pattern_discovery.py
+            tests/test_pattern_discovery.py
+          retention-days: 1
