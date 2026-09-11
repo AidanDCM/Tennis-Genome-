@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-_PROJECTION_VERSION = "market-signal-projection-v1"
+_PROJECTION_VERSION = "market-signal-projection-v2"
 
 SignalName = Literal["profile_gap", "genome"]
 Tour = Literal["ATP", "WTA"]
@@ -21,6 +21,7 @@ class ProjectionSpec:
     tour: Tour
     signal_name: SignalName
     signal_field: str
+    core_probability_field: str
     expected_parent_sha256: str
 
 
@@ -31,6 +32,7 @@ _FROZEN_SPECS: dict[str, ProjectionSpec] = {
         tour="ATP",
         signal_name="profile_gap",
         signal_field="profile_gap_match",
+        core_probability_field="strict_core_probability",
         expected_parent_sha256="532ff66304914f0962e5747f20790916c70e082efedba695d26717632db946fd",
     ),
     "wta_profile_gap": ProjectionSpec(
@@ -39,6 +41,7 @@ _FROZEN_SPECS: dict[str, ProjectionSpec] = {
         tour="WTA",
         signal_name="profile_gap",
         signal_field="profile_gap_match",
+        core_probability_field="strict_core_probability",
         expected_parent_sha256="343903af5f53cd1d519ebafdabf6ddb2dd0645847ff77e1820a156caf012bc55",
     ),
     "atp_genome": ProjectionSpec(
@@ -47,6 +50,7 @@ _FROZEN_SPECS: dict[str, ProjectionSpec] = {
         tour="ATP",
         signal_name="genome",
         signal_field="full_neighbor_residual",
+        core_probability_field="core_probability_a",
         expected_parent_sha256="37671b15b4f7bb4db98767f09a10f57dd43eb61baeacd2aed0713e8a67b298fa",
     ),
     "wta_genome": ProjectionSpec(
@@ -55,6 +59,7 @@ _FROZEN_SPECS: dict[str, ProjectionSpec] = {
         tour="WTA",
         signal_name="genome",
         signal_field="core_neighbor_residual",
+        core_probability_field="core_probability_a",
         expected_parent_sha256="08df00ce43bed558f8d479f14e74bdb05504864ab0c4310aa3f3979029d0e2a3",
     ),
 }
@@ -86,7 +91,7 @@ def project_signal_report(
     *,
     spec: ProjectionSpec,
 ) -> dict[str, object]:
-    """Project one accepted development report into an outcome-free signal ledger."""
+    """Project one accepted report into a result-free signal/Core ledger."""
 
     parent_path = Path(input_path)
     parent_sha = _sha256_file(parent_path)
@@ -122,13 +127,26 @@ def project_signal_report(
         seen.add(match_id)
         if spec.signal_field not in row:
             raise ValueError(f"signal parent row lacks frozen field {spec.signal_field}")
+        if spec.core_probability_field not in row:
+            raise ValueError(
+                f"signal parent row lacks frozen field {spec.core_probability_field}"
+            )
         try:
             signal = float(row[spec.signal_field])
+            core_probability = float(row[spec.core_probability_field])
         except (TypeError, ValueError) as exc:
-            raise ValueError("signal projection value must be numeric") from exc
+            raise ValueError("signal projection values must be numeric") from exc
         if not math.isfinite(signal):
             raise ValueError("signal projection value must be finite")
-        rows.append({"match_id": match_id, spec.signal_field: signal})
+        if not math.isfinite(core_probability) or not 0.0 < core_probability < 1.0:
+            raise ValueError("Core probability must be finite and in (0, 1)")
+        rows.append(
+            {
+                "match_id": match_id,
+                spec.signal_field: signal,
+                spec.core_probability_field: core_probability,
+            }
+        )
 
     rows.sort(key=lambda row: str(row["match_id"]))
     unsigned: dict[str, object] = {
@@ -139,6 +157,7 @@ def project_signal_report(
         "tour": spec.tour,
         "signal_name": spec.signal_name,
         "signal_field": spec.signal_field,
+        "core_probability_field": spec.core_probability_field,
         "predictions": rows,
     }
     artifact_sha = hashlib.sha256(_canonical_json_bytes(unsigned)).hexdigest()
@@ -152,9 +171,7 @@ def write_projection(payload: dict[str, object], path: str | Path) -> None:
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Create frozen outcome-free market signal projections"
-    )
+    parser = argparse.ArgumentParser(description="Create frozen market signal/Core projections")
     parser.add_argument("--spec", required=True, choices=sorted(_FROZEN_SPECS))
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
@@ -173,6 +190,7 @@ def main() -> None:
                 "tour": payload["tour"],
                 "signal_name": payload["signal_name"],
                 "signal_field": payload["signal_field"],
+                "core_probability_field": payload["core_probability_field"],
                 "source_artifact_sha256": payload["source_artifact_sha256"],
                 "artifact_sha256": payload["artifact_sha256"],
                 "row_count": len(payload["predictions"]),
