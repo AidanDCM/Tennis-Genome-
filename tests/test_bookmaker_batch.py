@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
@@ -127,3 +128,38 @@ def test_conflicting_valuebet_quotes_fail_that_source_and_use_frozen_fallback(
     selected = [r for r in records if r["selected_primary"] is True]
     assert len(selected) == 1
     assert selected[0]["source_family"] == "TENNIS_DATA_UK"
+
+
+def test_indexed_join_preserves_frozen_ambiguity_window(tmp_path: Path) -> None:
+    valuebet, atp, wta = _roots(tmp_path)
+    (valuebet / "valuebet-2025.csv").write_text(
+        "match_id;date;genre;joueur1;joueur2;cote1_cloture;cote2_cloture\n"
+        "1;2025-01-03 00:00:00;atp;Alpha A;Beta B;1.80;2.10\n",
+        encoding="utf-8",
+    )
+    manifest = build_bookmaker_source_manifest(
+        valuebet_root=valuebet,
+        tennis_data_atp_root=atp,
+        tennis_data_wta_root=wta,
+        requested_start_date="2025-01-01",
+        requested_end_date="2025-12-31",
+    )
+    first = _state("m1", "Alpha A", "Beta B")
+    second = replace(
+        _state("m2", "Beta B", "Alpha A"),
+        event_date=date(2025, 1, 7),
+    )
+    unrelated = _state("m3", "Gamma G", "Delta D")
+    records, summary = build_market_book_records(
+        manifest=manifest,
+        pre_match_states=[unrelated, second, first],
+        valuebet_root=valuebet,
+        tennis_data_atp_root=atp,
+        tennis_data_wta_root=wta,
+    )
+    assert len(records) == 1
+    assert records[0]["join_status"] == "AMBIGUOUS"
+    assert records[0]["candidate_match_ids"] == ["m1", "m2"]
+    assert records[0]["join"] is None
+    assert records[0]["selected_primary"] is False
+    assert summary.selected_primary_quotes == 0
