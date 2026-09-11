@@ -1,0 +1,125 @@
+name: PATTERN-CONFIRM Season Identity v2 Autofix
+
+on:
+  push:
+    branches: [dev/pattern-confirm-provider-dryrun]
+    paths:
+      - .github/workflows/pattern_confirm_identity_v2_autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-provider-dryrun
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Bind season ID and source date
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/tennis_genome/experiments/pattern_confirm_live_identity.py')
+          text = path.read_text()
+          text = text.replace('_VERSION = "pattern-confirm-identity-v1"', '_VERSION = "pattern-confirm-identity-v2"')
+          text = text.replace(
+              '''    competition_id: str\n    competition_name: str\n    scheduled_start: str\n''',
+              '''    competition_id: str\n    competition_name: str\n    season_id: str\n    season_start_date: str\n    scheduled_start: str\n''',
+              1,
+          )
+          text = text.replace(
+              '''    competition_name: str\n    competition_type: str\n    player_a_sportradar_id: str\n''',
+              '''    competition_name: str\n    competition_type: str\n    season_id: str\n    season_start_date: str\n    player_a_sportradar_id: str\n''',
+              1,
+          )
+          marker = '''def _normalized_name(value: object) -> str:\n    text = str(value).strip().lower()\n    return _NAME_TOKEN.sub(" ", text).strip()\n\n\n'''
+          replacement = '''def _normalized_name(value: object) -> str:\n    text = str(value).strip().lower()\n    return _NAME_TOKEN.sub(" ", text).strip()\n\n\ndef _iso_date(value: object, *, field: str) -> str:\n    from datetime import date\n\n    try:\n        return date.fromisoformat(str(value)).isoformat()\n    except ValueError as exc:\n        raise ValueError(f"{field} must be ISO date YYYY-MM-DD") from exc\n\n\n'''
+          if marker not in text:
+              raise SystemExit('normalized-name marker not found')
+          text = text.replace(marker, replacement)
+
+          competition_marker = '''    competition_id = _required_text(competition, "id")\n    competition_name = _required_text(competition, "name")\n\n    provider_status = _required_text(status, "status").lower()\n'''
+          competition_replacement = '''    competition_id = _required_text(competition, "id")\n    competition_name = _required_text(competition, "name")\n    season = _as_dict(context.get("season"), field="sport_event_context.season")\n    season_id = _required_text(season, "id")\n    season_start_date = _iso_date(\n        season.get("start_date"), field="sport_event_context.season.start_date"\n    )\n    season_competition_id = _required_text(season, "competition_id")\n    if season_competition_id != competition_id:\n        raise ValueError("Sportradar season competition_id does not match competition")\n\n    provider_status = _required_text(status, "status").lower()\n'''
+          if competition_marker not in text:
+              raise SystemExit('competition marker not found')
+          text = text.replace(competition_marker, competition_replacement)
+
+          return_marker = '''        competition_id=competition_id,\n        competition_name=competition_name,\n        competition_type=competition_type,\n        player_a_sportradar_id=home_id,\n'''
+          return_replacement = '''        competition_id=competition_id,\n        competition_name=competition_name,\n        competition_type=competition_type,\n        season_id=season_id,\n        season_start_date=season_start_date,\n        player_a_sportradar_id=home_id,\n'''
+          if return_marker not in text:
+              raise SystemExit('prematch return marker not found')
+          text = text.replace(return_marker, return_replacement)
+
+          mapping_marker = '''        "competition_id": sportradar_event.competition_id,\n        "competition_name": sportradar_event.competition_name,\n        "scheduled_start": sportradar_event.scheduled_start,\n'''
+          mapping_replacement = '''        "competition_id": sportradar_event.competition_id,\n        "competition_name": sportradar_event.competition_name,\n        "season_id": sportradar_event.season_id,\n        "season_start_date": sportradar_event.season_start_date,\n        "scheduled_start": sportradar_event.scheduled_start,\n'''
+          if mapping_marker not in text:
+              raise SystemExit('mapping marker not found')
+          text = text.replace(mapping_marker, mapping_replacement)
+
+          verify_marker = '''    scheduled = _aware_time(mapping.scheduled_start, field="scheduled_start")\n    if _aware_time(mapping.created_at, field="created_at") >= scheduled:\n'''
+          verify_replacement = '''    _iso_date(mapping.season_start_date, field="season_start_date")\n    if not mapping.season_id.strip():\n        raise ValueError("identity mapping season_id must be non-empty")\n    scheduled = _aware_time(mapping.scheduled_start, field="scheduled_start")\n    if _aware_time(mapping.created_at, field="created_at") >= scheduled:\n'''
+          if verify_marker not in text:
+              raise SystemExit('verify marker not found')
+          text = text.replace(verify_marker, verify_replacement)
+
+          validate_marker = '''    if mapping.competition_id != event.competition_id:\n        raise ValueError("identity mapping competition does not match Sportradar event")\n    if mapping.scheduled_start != event.scheduled_start:\n'''
+          validate_replacement = '''    if mapping.competition_id != event.competition_id:\n        raise ValueError("identity mapping competition does not match Sportradar event")\n    if mapping.season_id != event.season_id:\n        raise ValueError("identity mapping season does not match Sportradar event")\n    if mapping.season_start_date != event.season_start_date:\n        raise ValueError("identity mapping season start does not match Sportradar event")\n    if mapping.scheduled_start != event.scheduled_start:\n'''
+          if validate_marker not in text:
+              raise SystemExit('validate marker not found')
+          text = text.replace(validate_marker, validate_replacement)
+          path.write_text(text)
+
+          for test_path in [
+              Path('tests/test_pattern_confirm_live_identity.py'),
+              Path('tests/test_pattern_confirm_live.py'),
+              Path('tests/test_pattern_confirm_provider_dryrun.py'),
+          ]:
+              content = test_path.read_text()
+              context_marker = '''                "competition": {\n                    "id": "sr:competition:55",\n                    "name": '''
+              if context_marker not in content:
+                  continue
+              # Add the same season object immediately after each competition object by
+              # targeting the common end of the synthetic competition block.
+              if test_path.name == 'test_pattern_confirm_provider_dryrun.py':
+                  old = '''                    "type": "singles",\n                    "gender": "men",\n                },\n            },\n'''
+                  new = '''                    "type": "singles",\n                    "gender": "men",\n                },\n                "season": {\n                    "id": "sr:season:2026-test",\n                    "name": "ATP Miami Open 2026",\n                    "start_date": "2026-09-07",\n                    "end_date": "2026-09-20",\n                    "year": "2026",\n                    "competition_id": "sr:competition:55",\n                },\n            },\n'''
+              else:
+                  old = '''                    "type": "singles",\n                },\n            },\n'''
+                  new = '''                    "type": "singles",\n                },\n                "season": {\n                    "id": "sr:season:2026-test",\n                    "name": "ATP Miami, USA Men Singles 2026",\n                    "start_date": "2026-09-07",\n                    "end_date": "2026-09-20",\n                    "year": "2026",\n                    "competition_id": "sr:competition:55",\n                },\n            },\n'''
+              if old not in content:
+                  raise SystemExit(f'competition fixture marker not found in {test_path}')
+              test_path.write_text(content.replace(old, new))
+          PY
+      - name: Format lint and test
+        run: |
+          pip install -e .[dev]
+          ruff format \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_provider_dryrun.py
+          ruff check --fix \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_provider_dryrun.py
+          ruff check .
+          pytest
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_provider_dryrun.py
+          git commit -m "Bind live identity to Sportradar season source date"
+          git push origin HEAD:dev/pattern-confirm-provider-dryrun
