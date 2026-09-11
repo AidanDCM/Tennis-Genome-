@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
@@ -14,8 +15,9 @@ from tennis_genome.data.canonical import Tour
 from tennis_genome.market.historical_join import normalize_market_player_name
 
 BookmakerSource = Literal["VALUEBETENNIS", "TENNIS_DATA_UK"]
-_NEUTRALIZATION_VERSION = "bookmaker-neutralization-v1"
+_NEUTRALIZATION_VERSION = "bookmaker-neutralization-v2"
 _DEVELOPMENT_END = date(2025, 12, 31)
+_ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 
 
 class BookmakerIdentityError(ValueError):
@@ -88,6 +90,9 @@ def _parse_valuebet_date(value: object) -> date:
 
 
 def _parse_tennis_data_date(value: object) -> date:
+    text = str(value).strip()
+    if _ISO_DATE_RE.fullmatch(text):
+        return date.fromisoformat(text)
     parsed = pd.to_datetime(value, errors="raise", dayfirst=True)
     return parsed.date()
 
