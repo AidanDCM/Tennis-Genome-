@@ -19,6 +19,13 @@ from tennis_genome.experiments.pattern_confirm import (
     verify_fit_payload,
     verify_prospective_record,
 )
+from tennis_genome.experiments.pattern_confirm_live_identity import (
+    IdentityMapping,
+    parse_sportradar_actual_start,
+    parse_sportradar_prematch_event,
+    validate_mapping_against_event,
+    verify_identity_mapping,
+)
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
@@ -27,9 +34,10 @@ from tennis_genome.experiments.pattern_confirm_production import (
 )
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v1"
+_VERSION = "pattern-confirm-live-v2"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
+_EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
 _REQUIRED_MATCH_STATE = "PREMATCH"
 _MIN_START_LEAD = timedelta(minutes=5)
 _MAX_SNAPSHOT_STALENESS = timedelta(minutes=5)
@@ -44,12 +52,17 @@ class LiveProspectiveRecord:
     scheduled_start: str
     market_provider: str
     market_source: str
-    provider_event_id: str
-    player_a_provider_id: str
-    player_b_provider_id: str
+    event_provider: str
+    market_event_id: str
+    sportradar_event_id: str
+    player_a_market_name: str
+    player_b_market_name: str
+    player_a_sportradar_id: str
+    player_b_sportradar_id: str
     player_a_id: str
     player_b_id: str
     identity_mapping_sha256: str
+    sportradar_summary_sha256: str
     provider_match_state: str
     provider_snapshot_at: str
     ingested_at: str
@@ -71,8 +84,11 @@ class LiveProspectiveRecord:
 @dataclass(frozen=True)
 class LiveSettlement:
     match_id: str
-    provider_event_id: str
-    actual_start: str
+    sportradar_event_id: str
+    actual_start: str | None
+    actual_start_source: str
+    actual_start_exclusion_reason: str | None
+    timeline_sha256: str
     outcome_a: bool | None
     retirement: bool
     walkover: bool
@@ -81,10 +97,10 @@ class LiveSettlement:
 @dataclass(frozen=True)
 class TimingExclusion:
     match_id: str
-    provider_event_id: str
+    sportradar_event_id: str
     provider_snapshot_at: str
     prediction_committed_at: str
-    actual_start: str
+    actual_start: str | None
     reason: str
 
 
@@ -94,6 +110,7 @@ class LiveConfirmationReport:
     version: str
     market_provider: str
     market_source: str
+    event_provider: str
     profile_model_sha256: str
     core_model_sha256: str
     market_core_fit_sha256: str
@@ -149,6 +166,13 @@ def _required_sha(raw: dict[str, object], name: str) -> str:
     return value
 
 
+def _required_object(raw: dict[str, object], name: str) -> dict[str, object]:
+    value = raw.get(name)
+    if not isinstance(value, dict):
+        raise ValueError(f"{name} must be an object")
+    return value
+
+
 def _decimal_odds(raw: dict[str, object], name: str) -> float:
     value = float(raw.get(name))
     if not math.isfinite(value) or value <= 1.0:
@@ -174,6 +198,7 @@ def verify_live_record(
     fit: FrozenMarketCoreFit,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
+    identity_mapping: IdentityMapping,
 ) -> LiveProspectiveRecord:
     stored = str(payload.get("record_sha256", ""))
     unsigned = dict(payload)
@@ -187,12 +212,24 @@ def verify_live_record(
     normalized = dict(payload)
     normalized["core_record"] = core_record
     record = LiveProspectiveRecord(**normalized)
+    if record.version != _VERSION:
+        raise ValueError("unexpected live prospective record version")
     if record.profile_model_sha256 != profile_artifact.artifact_sha256:
         raise ValueError("live ledger mixes Profile production artifact versions")
     if record.core_model_sha256 != core_artifact.artifact_sha256:
         raise ValueError("live ledger mixes Core production artifact versions")
     if record.market_core_fit_sha256 != fit.artifact_sha256:
         raise ValueError("live ledger mixes Market+Core fit versions")
+    if record.identity_mapping_sha256 != identity_mapping.artifact_sha256:
+        raise ValueError("live ledger identity mapping hash mismatch")
+    if record.market_event_id != identity_mapping.market_event_id:
+        raise ValueError("live ledger market event does not match identity mapping")
+    if record.sportradar_event_id != identity_mapping.sportradar_event_id:
+        raise ValueError("live ledger Sportradar event does not match identity mapping")
+    if record.player_a_id != identity_mapping.player_a_canonical_id:
+        raise ValueError("live ledger player A does not match identity mapping")
+    if record.player_b_id != identity_mapping.player_b_canonical_id:
+        raise ValueError("live ledger player B does not match identity mapping")
     if core_record.match_id != record.match_id or core_record.tour != record.tour:
         raise ValueError("sealed core record identity does not match live envelope")
     if core_record.scheduled_start != record.scheduled_start:
@@ -214,6 +251,7 @@ def build_live_record(
     fit: FrozenMarketCoreFit,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
+    identity_mapping: IdentityMapping,
 ) -> LiveProspectiveRecord:
     match_id = _required_text(raw, "match_id")
     tour = _required_text(raw, "tour")
@@ -227,14 +265,22 @@ def build_live_record(
     if _required_text(raw, "provider_match_state") != _REQUIRED_MATCH_STATE:
         raise ValueError("market snapshot must be explicitly PREMATCH")
 
-    provider_event_id = _required_text(raw, "provider_event_id")
-    player_a_provider_id = _required_text(raw, "player_a_provider_id")
-    player_b_provider_id = _required_text(raw, "player_b_provider_id")
-    player_a_id = _required_text(raw, "player_a_id")
-    player_b_id = _required_text(raw, "player_b_id")
-    if player_a_provider_id == player_b_provider_id or player_a_id == player_b_id:
-        raise ValueError("player A and B identities must differ")
-    identity_mapping_sha256 = _required_sha(raw, "identity_mapping_sha256")
+    market_event_id = _required_text(raw, "market_event_id")
+    player_a_market_name = _required_text(raw, "player_a_market_name")
+    player_b_market_name = _required_text(raw, "player_b_market_name")
+    if market_event_id != identity_mapping.market_event_id:
+        raise ValueError("market event does not match verified identity mapping")
+    if player_a_market_name != identity_mapping.player_a_market_name:
+        raise ValueError("market player A orientation does not match identity mapping")
+    if player_b_market_name != identity_mapping.player_b_market_name:
+        raise ValueError("market player B orientation does not match identity mapping")
+
+    summary_payload = _required_object(raw, "sportradar_summary")
+    event = parse_sportradar_prematch_event(
+        summary_payload,
+        expected_event_id=identity_mapping.sportradar_event_id,
+    )
+    validate_mapping_against_event(identity_mapping, event)
 
     supplied_profile_sha = _required_sha(raw, "profile_model_sha256")
     supplied_core_sha = _required_sha(raw, "core_model_sha256")
@@ -243,7 +289,7 @@ def build_live_record(
     if supplied_core_sha != core_artifact.artifact_sha256:
         raise ValueError("core_model_sha256 does not match frozen Core artifact")
 
-    scheduled_start = _parse_time(raw.get("scheduled_start"))
+    scheduled_start = _parse_time(identity_mapping.scheduled_start)
     provider_snapshot = _parse_time(raw.get("provider_snapshot_at"))
     ingested = _parse_time(raw.get("ingested_at"))
     generated = _parse_time(raw.get("prediction_generated_at"))
@@ -283,6 +329,7 @@ def build_live_record(
         fit=fit,
     )
     source_sha = _sha256_bytes(_canonical_json(raw))
+    summary_sha = _sha256_bytes(_canonical_json(summary_payload))
     unsigned: dict[str, object] = {
         "experiment_id": _EXPERIMENT_ID,
         "version": _VERSION,
@@ -291,12 +338,17 @@ def build_live_record(
         "scheduled_start": scheduled_start.isoformat(),
         "market_provider": market_provider,
         "market_source": market_source,
-        "provider_event_id": provider_event_id,
-        "player_a_provider_id": player_a_provider_id,
-        "player_b_provider_id": player_b_provider_id,
-        "player_a_id": player_a_id,
-        "player_b_id": player_b_id,
-        "identity_mapping_sha256": identity_mapping_sha256,
+        "event_provider": _EVENT_PROVIDER,
+        "market_event_id": market_event_id,
+        "sportradar_event_id": identity_mapping.sportradar_event_id,
+        "player_a_market_name": player_a_market_name,
+        "player_b_market_name": player_b_market_name,
+        "player_a_sportradar_id": identity_mapping.player_a_sportradar_id,
+        "player_b_sportradar_id": identity_mapping.player_b_sportradar_id,
+        "player_a_id": identity_mapping.player_a_canonical_id,
+        "player_b_id": identity_mapping.player_b_canonical_id,
+        "identity_mapping_sha256": identity_mapping.artifact_sha256,
+        "sportradar_summary_sha256": summary_sha,
         "provider_match_state": _REQUIRED_MATCH_STATE,
         "provider_snapshot_at": provider_snapshot.isoformat(),
         "ingested_at": ingested.isoformat(),
@@ -339,32 +391,57 @@ def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:
     )
 
 
+def load_identity_mappings(rows: list[dict[str, object]]) -> dict[str, IdentityMapping]:
+    result: dict[str, IdentityMapping] = {}
+    for raw in rows:
+        mapping = verify_identity_mapping(raw)
+        if mapping.market_event_id in result:
+            raise ValueError("identity mapping file contains duplicate market_event_id")
+        result[mapping.market_event_id] = mapping
+    return result
+
+
 def append_live_rows(
     *,
     existing_rows: list[dict[str, object]],
     new_rows: list[dict[str, object]],
+    identity_mappings: dict[str, IdentityMapping],
     fit: FrozenMarketCoreFit,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
 ) -> list[LiveProspectiveRecord]:
-    existing = [
-        verify_live_record(
-            row,
-            fit=fit,
-            profile_artifact=profile_artifact,
-            core_artifact=core_artifact,
+    existing: list[LiveProspectiveRecord] = []
+    for row in existing_rows:
+        market_event_id = _required_text(row, "market_event_id")
+        mapping = identity_mappings.get(market_event_id)
+        if mapping is None:
+            raise ValueError("existing live row has no verified identity mapping")
+        existing.append(
+            verify_live_record(
+                row,
+                fit=fit,
+                profile_artifact=profile_artifact,
+                core_artifact=core_artifact,
+                identity_mapping=mapping,
+            )
         )
-        for row in existing_rows
-    ]
-    additions = [
-        build_live_record(
-            row,
-            fit=fit,
-            profile_artifact=profile_artifact,
-            core_artifact=core_artifact,
+
+    additions: list[LiveProspectiveRecord] = []
+    for row in new_rows:
+        market_event_id = _required_text(row, "market_event_id")
+        mapping = identity_mappings.get(market_event_id)
+        if mapping is None:
+            raise ValueError("new live row has no verified identity mapping")
+        additions.append(
+            build_live_record(
+                row,
+                fit=fit,
+                profile_artifact=profile_artifact,
+                core_artifact=core_artifact,
+                identity_mapping=mapping,
+            )
         )
-        for row in new_rows
-    ]
+
     ids = [record.match_id for record in [*existing, *additions]]
     if len(ids) != len(set(ids)):
         raise ValueError("live prospective ledger contains duplicate match_id values")
@@ -380,17 +457,25 @@ def load_live_settlements(rows: list[dict[str, object]]) -> dict[str, LiveSettle
         match_id = _required_text(raw, "match_id")
         if match_id in result:
             raise ValueError("settlements require unique match_id values")
+        sportradar_event_id = _required_text(raw, "sportradar_event_id")
+        timeline_payload = _required_object(raw, "sportradar_timeline")
+        timing = parse_sportradar_actual_start(
+            timeline_payload,
+            expected_event_id=sportradar_event_id,
+        )
         retirement = bool(raw.get("retirement", False))
         walkover = bool(raw.get("walkover", False))
         outcome_raw = raw.get("outcome_a")
         outcome = None if outcome_raw is None else bool(outcome_raw)
         if not retirement and not walkover and outcome is None:
             raise ValueError("settled non-excluded rows require outcome_a")
-        actual_start = _parse_time(raw.get("actual_start")).isoformat()
         result[match_id] = LiveSettlement(
             match_id=match_id,
-            provider_event_id=_required_text(raw, "provider_event_id"),
-            actual_start=actual_start,
+            sportradar_event_id=sportradar_event_id,
+            actual_start=timing.actual_start,
+            actual_start_source=timing.source,
+            actual_start_exclusion_reason=timing.exclusion_reason,
+            timeline_sha256=timing.timeline_sha256,
             outcome_a=outcome,
             retirement=retirement,
             walkover=walkover,
@@ -402,8 +487,10 @@ def _timing_check(
     record: LiveProspectiveRecord,
     settlement: LiveSettlement,
 ) -> str | None:
-    if settlement.provider_event_id != record.provider_event_id:
-        raise ValueError("settlement provider_event_id does not match prospective record")
+    if settlement.sportradar_event_id != record.sportradar_event_id:
+        raise ValueError("settlement Sportradar event ID does not match prospective record")
+    if settlement.actual_start is None:
+        return settlement.actual_start_exclusion_reason or "ACTUAL_START_UNVERIFIED"
     actual_start = _parse_time(settlement.actual_start)
     snapshot = _parse_time(record.provider_snapshot_at)
     committed = _parse_time(record.prediction_committed_at)
@@ -440,7 +527,7 @@ def evaluate_live_family(
             timing_exclusions.append(
                 TimingExclusion(
                     match_id=record.match_id,
-                    provider_event_id=record.provider_event_id,
+                    sportradar_event_id=record.sportradar_event_id,
                     provider_snapshot_at=record.provider_snapshot_at,
                     prediction_committed_at=record.prediction_committed_at,
                     actual_start=settlement.actual_start,
@@ -468,6 +555,7 @@ def evaluate_live_family(
         "version": _VERSION,
         "market_provider": _MARKET_PROVIDER,
         "market_source": _MARKET_SOURCE,
+        "event_provider": _EVENT_PROVIDER,
         "profile_model_sha256": profile_artifact.artifact_sha256,
         "core_model_sha256": core_artifact.artifact_sha256,
         "market_core_fit_sha256": fit.artifact_sha256,
@@ -482,6 +570,7 @@ def evaluate_live_family(
         version=_VERSION,
         market_provider=_MARKET_PROVIDER,
         market_source=_MARKET_SOURCE,
+        event_provider=_EVENT_PROVIDER,
         profile_model_sha256=profile_artifact.artifact_sha256,
         core_model_sha256=core_artifact.artifact_sha256,
         market_core_fit_sha256=fit.artifact_sha256,
@@ -509,6 +598,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--fit", required=True, type=Path)
     parser.add_argument("--profile-artifact", required=True, type=Path)
     parser.add_argument("--core-artifact", required=True, type=Path)
+    parser.add_argument("--identity-mappings", required=True, type=Path)
     sub = parser.add_subparsers(dest="command", required=True)
 
     append = sub.add_parser("append")
@@ -526,10 +616,12 @@ def _parse_args() -> argparse.Namespace:
 def main() -> None:
     args = _parse_args()
     fit, profile, core = _load_contracts(args.fit, args.profile_artifact, args.core_artifact)
+    mappings = load_identity_mappings(_load_jsonl(args.identity_mappings))
     if args.command == "append":
         records = append_live_rows(
             existing_rows=_load_jsonl(args.existing),
             new_rows=_load_jsonl(args.input),
+            identity_mappings=mappings,
             fit=fit,
             profile_artifact=profile,
             core_artifact=core,
@@ -537,15 +629,21 @@ def main() -> None:
         _write_jsonl(args.output, [live_record_as_dict(record) for record in records])
         return
     if args.command == "evaluate":
-        records = [
-            verify_live_record(
-                row,
-                fit=fit,
-                profile_artifact=profile,
-                core_artifact=core,
+        records: list[LiveProspectiveRecord] = []
+        for row in _load_jsonl(args.ledger):
+            market_event_id = _required_text(row, "market_event_id")
+            mapping = mappings.get(market_event_id)
+            if mapping is None:
+                raise ValueError("live ledger row has no verified identity mapping")
+            records.append(
+                verify_live_record(
+                    row,
+                    fit=fit,
+                    profile_artifact=profile,
+                    core_artifact=core,
+                    identity_mapping=mapping,
+                )
             )
-            for row in _load_jsonl(args.ledger)
-        ]
         settlements = load_live_settlements(_load_jsonl(args.settlements))
         report = evaluate_live_family(
             records,
