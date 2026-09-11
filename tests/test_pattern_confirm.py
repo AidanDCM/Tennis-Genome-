@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -83,7 +83,7 @@ def _prospective_record(
     hypothesis_id: str,
     probability: float = 0.60,
 ) -> ProspectiveRecord:
-    start = datetime(2026, 9, 12, 12, tzinfo=timezone.utc) + timedelta(minutes=index)
+    start = datetime(2026, 9, 12, 12, tzinfo=UTC) + timedelta(minutes=index)
     return ProspectiveRecord(
         experiment_id="PATTERN-CONFIRM-001",
         version="pattern-confirm-v1",
