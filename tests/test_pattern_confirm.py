@@ -243,11 +243,10 @@ def test_null_final_sample_fails_to_confirm() -> None:
         )
         for index in range(n)
     ]
-    true_count = n // 2
     outcomes = {
         row.match_id: SettledOutcome(
             match_id=row.match_id,
-            outcome_a=index < true_count,
+            outcome_a=index % 2 == 0,
             retirement=False,
             walkover=False,
         )
