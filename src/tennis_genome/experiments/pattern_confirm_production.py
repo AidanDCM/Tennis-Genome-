@@ -25,6 +25,7 @@ from tennis_genome.models.profile_strength import (
 )
 from tennis_genome.profiles.features import profile_strength_feature_values
 from tennis_genome.profiles.state import MatchProfilePair, walk_forward_player_profiles
+from tennis_genome.ratings.elo import EloConfig
 
 _PROFILE_EXPERIMENT_ID = "PROFILE-PRODUCTION-001"
 _CORE_EXPERIMENT_ID = "CORE-PRODUCTION-001"
@@ -108,11 +109,7 @@ def _eligible(matches: list[HistoricalMatch]) -> list[HistoricalMatch]:
     atp = [match for match in matches if match.pre_match.tour == "ATP"]
     if any(match.pre_match.event_date.year > _TRAINING_END_YEAR for match in atp):
         raise ValueError("production freeze forbids post-2025 ATP training rows")
-    return [
-        match
-        for match in atp
-        if not match.outcome.walkover and not match.outcome.retirement
-    ]
+    return [match for match in atp if not match.outcome.walkover and not match.outcome.retirement]
 
 
 def _training_row_hash(matches: list[HistoricalMatch]) -> str:
@@ -347,8 +344,13 @@ def profile_gap_from_artifact(
     coefficient = np.asarray(artifact.logistic_coefficients, dtype=float)
     score_a = float(np.dot(coefficient, transform(raw_a)))
     score_b = float(np.dot(coefficient, transform(raw_b)))
-    elo_a = elo_strength_coordinate(pair.player_a.elo_rating)
-    elo_b = elo_strength_coordinate(pair.player_b.elo_rating)
+    elo_config = EloConfig(
+        initial_rating=artifact.elo_initial_rating,
+        k_factor=artifact.elo_k_factor,
+        scale=artifact.elo_scale,
+    )
+    elo_a = elo_strength_coordinate(pair.player_a.elo_rating, config=elo_config)
+    elo_b = elo_strength_coordinate(pair.player_b.elo_rating, config=elo_config)
     return (score_a - elo_a) - (score_b - elo_b)
 
 
@@ -396,7 +398,7 @@ def main() -> None:
     verify_canonical_manifest(
         manifest_path=args.manifest,
         pre_match_path=args.pre_match,
-        outcomes_path=args.outcomes,
+        outcome_path=args.outcomes,
         stats_path=args.stats,
     )
     matches = load_canonical_parquet(

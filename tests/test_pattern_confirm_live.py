@@ -107,7 +107,9 @@ def _raw(**updates: object) -> dict[str, object]:
 
 
 def test_live_intake_computes_market_and_binds_models() -> None:
-    record = build_live_record(_raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core())
+    record = build_live_record(
+        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+    )
     expected = (1 / 1.80) / ((1 / 1.80) + (1 / 2.10))
     assert record.market_probability_a == pytest.approx(expected)
     assert record.profile_model_sha256 == "3" * 64
@@ -126,7 +128,15 @@ def test_live_intake_computes_market_and_binds_models() -> None:
         ({"decimal_odds_a": 1.0}, "decimal odds"),
         ({"profile_model_sha256": "9" * 64}, "Profile artifact"),
         ({"core_model_sha256": "9" * 64}, "Core artifact"),
-        ({"provider_snapshot_at": "2026-09-12T12:56:00-04:00"}, "five minutes"),
+        (
+            {
+                "provider_snapshot_at": "2026-09-12T12:56:00-04:00",
+                "ingested_at": "2026-09-12T12:56:20-04:00",
+                "prediction_generated_at": "2026-09-12T12:56:25-04:00",
+                "prediction_committed_at": "2026-09-12T12:56:30-04:00",
+            },
+            "five minutes",
+        ),
         ({"ingested_at": "2026-09-12T12:59:30-04:00"}, "stale"),
     ],
 )
@@ -138,7 +148,9 @@ def test_live_intake_fails_closed(updates: dict[str, object], message: str) -> N
 
 
 def test_append_rejects_cross_batch_duplicate() -> None:
-    first = build_live_record(_raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core())
+    first = build_live_record(
+        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+    )
     from tennis_genome.experiments.pattern_confirm_live import live_record_as_dict
 
     with pytest.raises(ValueError, match="duplicate"):
@@ -152,7 +164,9 @@ def test_append_rejects_cross_batch_duplicate() -> None:
 
 
 def test_actual_start_audit_excludes_moved_early_match() -> None:
-    record = build_live_record(_raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core())
+    record = build_live_record(
+        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+    )
     settlements = load_live_settlements(
         [
             {
@@ -177,13 +191,14 @@ def test_actual_start_audit_excludes_moved_early_match() -> None:
     assert len(report.timing_exclusions) == 1
     assert report.timing_exclusions[0].reason == "PROVIDER_SNAPSHOT_NOT_T_MINUS_5"
     assert all(
-        item["available_qualifying_n"] == 0
-        for item in report.core_confirmation["hypotheses"]
+        item["available_qualifying_n"] == 0 for item in report.core_confirmation["hypotheses"]
     )
 
 
 def test_settlement_identity_mismatch_fails() -> None:
-    record = build_live_record(_raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core())
+    record = build_live_record(
+        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+    )
     settlements = load_live_settlements(
         [
             {

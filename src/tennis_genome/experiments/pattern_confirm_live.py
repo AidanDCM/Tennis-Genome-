@@ -193,8 +193,18 @@ def verify_live_record(
         raise ValueError("live ledger mixes Core production artifact versions")
     if record.market_core_fit_sha256 != fit.artifact_sha256:
         raise ValueError("live ledger mixes Market+Core fit versions")
-    if record.core_record.record_sha256 != core_record.record_sha256:
-        raise ValueError("sealed core record mismatch")
+    if core_record.match_id != record.match_id or core_record.tour != record.tour:
+        raise ValueError("sealed core record identity does not match live envelope")
+    if core_record.scheduled_start != record.scheduled_start:
+        raise ValueError("sealed core record start time does not match live envelope")
+    if core_record.market_probability_a != record.market_probability_a:
+        raise ValueError("sealed core market probability does not match live envelope")
+    if core_record.core_probability_a != record.core_probability_a:
+        raise ValueError("sealed core probability does not match live envelope")
+    if core_record.profile_gap != record.profile_gap:
+        raise ValueError("sealed core Profile Gap does not match live envelope")
+    if core_record.market_core_fit_sha256 != fit.artifact_sha256:
+        raise ValueError("sealed core Market+Core fit does not match live envelope")
     return record
 
 
