@@ -1,0 +1,172 @@
+name: Bookmaker real-source preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/bookmaker-real-source-preflight-v1
+    paths:
+      - "src/tennis_genome/experiments/bookmaker_source_preflight.py"
+      - "tests/test_bookmaker_source_preflight.py"
+      - ".github/workflows/bookmaker_real_source_preflight.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-and-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Run source-preflight regressions
+        run: |
+          pytest -q \
+            tests/test_bookmaker_historical.py \
+            tests/test_bookmaker_manifest.py \
+            tests/test_bookmaker_source_preflight.py
+
+      - name: Acquire frozen public source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/bookmaker-source"
+          VALUEBET="$ROOT/valuebetennis"
+          ATP="$ROOT/tennis-data-atp"
+          WTA="$ROOT/tennis-data-wta"
+          mkdir -p "$VALUEBET" "$ATP" "$WTA"
+
+          for year in 2021 2022 2023 2024 2025; do
+            curl --fail --location --retry 4 --retry-all-errors \
+              --output "$VALUEBET/valuebetennis-matchs-${year}.csv" \
+              "https://www.valuebetennis.com/datasets/valuebetennis-matchs-${year}.csv"
+          done
+
+          TENNIS_DATA_COMMIT="c766bf79b7e2b421680c548b3aafe19db3a88720"
+          for year in $(seq 2015 2024); do
+            curl --fail --location --retry 4 --retry-all-errors \
+              --output "$ATP/atp_singles_results_${year}.csv" \
+              "https://raw.githubusercontent.com/nick-benelli/Tennis-Data/${TENNIS_DATA_COMMIT}/data/atp/tennis-data-uk/atp_singles_results_${year}.csv"
+            curl --fail --location --retry 4 --retry-all-errors \
+              --output "$WTA/wta_singles_results_${year}.csv" \
+              "https://raw.githubusercontent.com/nick-benelli/Tennis-Data/${TENNIS_DATA_COMMIT}/data/wta/tennis-data-uk/wta_singles_results_${year}.csv"
+          done
+
+          find "$ROOT" -type f -name '*.csv' -size 0 -print -quit | grep -q . && {
+            echo "empty source file detected" >&2
+            exit 1
+          } || true
+
+          cat > "$ROOT/SOURCE_ATTRIBUTION.txt" <<'EOF'
+          Valuebetennis season CSVs 2021-2025
+          Source: https://www.valuebetennis.com/en/donnees.htm
+          Direct pattern: https://www.valuebetennis.com/datasets/valuebetennis-matchs-YEAR.csv
+          Licence: CC BY 4.0; attribution required.
+
+          Tennis-Data research mirror
+          Repository: https://github.com/nick-benelli/Tennis-Data
+          Frozen mirror commit: c766bf79b7e2b421680c548b3aafe19db3a88720
+          Original source attribution: https://www.tennis-data.co.uk/
+          Use: research/non-commercial mirror; original source terms remain applicable.
+          EOF
+
+          sha256sum "$VALUEBET"/*.csv "$ATP"/*.csv "$WTA"/*.csv \
+            | sort > "$ROOT/download_sha256.txt"
+
+          echo "BOOKMAKER_SOURCE_ROOT=$ROOT" >> "$GITHUB_ENV"
+          echo "VALUEBET_ROOT=$VALUEBET" >> "$GITHUB_ENV"
+          echo "TENNIS_DATA_ATP_ROOT=$ATP" >> "$GITHUB_ENV"
+          echo "TENNIS_DATA_WTA_ROOT=$WTA" >> "$GITHUB_ENV"
+
+      - name: Freeze exact source manifest
+        run: |
+          mkdir -p "$RUNNER_TEMP/bookmaker-reports"
+          python -m tennis_genome.market.bookmaker_manifest \
+            --valuebet-root "$VALUEBET_ROOT" \
+            --tennis-data-atp-root "$TENNIS_DATA_ATP_ROOT" \
+            --tennis-data-wta-root "$TENNIS_DATA_WTA_ROOT" \
+            --start-date 2015-01-01 \
+            --end-date 2025-12-31 \
+            --output "$RUNNER_TEMP/bookmaker-reports/source-manifest.json" \
+            > "$RUNNER_TEMP/bookmaker-reports/manifest.stdout.json"
+
+      - name: Run outcome-blind source preflight twice
+        run: |
+          python -m tennis_genome.experiments.bookmaker_source_preflight \
+            --source-manifest "$RUNNER_TEMP/bookmaker-reports/source-manifest.json" \
+            --valuebet-root "$VALUEBET_ROOT" \
+            --tennis-data-atp-root "$TENNIS_DATA_ATP_ROOT" \
+            --tennis-data-wta-root "$TENNIS_DATA_WTA_ROOT" \
+            --output "$RUNNER_TEMP/bookmaker-reports/source-preflight-1.json" \
+            > "$RUNNER_TEMP/bookmaker-reports/preflight.stdout.json"
+
+          python -m tennis_genome.experiments.bookmaker_source_preflight \
+            --source-manifest "$RUNNER_TEMP/bookmaker-reports/source-manifest.json" \
+            --valuebet-root "$VALUEBET_ROOT" \
+            --tennis-data-atp-root "$TENNIS_DATA_ATP_ROOT" \
+            --tennis-data-wta-root "$TENNIS_DATA_WTA_ROOT" \
+            --output "$RUNNER_TEMP/bookmaker-reports/source-preflight-2.json" \
+            > /dev/null
+
+          cmp \
+            "$RUNNER_TEMP/bookmaker-reports/source-preflight-1.json" \
+            "$RUNNER_TEMP/bookmaker-reports/source-preflight-2.json"
+
+      - name: Print result-free acquisition summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["RUNNER_TEMP"]) / "bookmaker-reports"
+          manifest = json.loads((root / "source-manifest.json").read_text())
+          report = json.loads((root / "source-preflight-1.json").read_text())
+          print("bundle_sha256:", manifest["bundle_sha256"])
+          print("included_files:", manifest["included_file_count"])
+          print("excluded_files:", len(manifest["excluded_files"]))
+          print("total_rows:", report["total_row_count"])
+          print("valid_quotes:", report["total_valid_quote_count"])
+          print("invalid_quotes:", report["total_invalid_quote_count"])
+          print("source_counts:", report["source_counts"])
+          print("source_valid_quote_counts:", report["source_valid_quote_counts"])
+          print("tour_counts:", report["tour_counts"])
+          print("tour_valid_quote_counts:", report["tour_valid_quote_counts"])
+          print("artifact_sha256:", report["artifact_sha256"])
+          print(
+              "excluded_reasons:",
+              sorted((row["root_key"], row["relative_path"], row["reason"]) for row in manifest["excluded_files"]),
+          )
+          PY
+
+      - name: Preserve exact raw source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookmaker-raw-source-${{ github.sha }}
+          path: |
+            ${{ env.BOOKMAKER_SOURCE_ROOT }}/valuebetennis
+            ${{ env.BOOKMAKER_SOURCE_ROOT }}/tennis-data-atp
+            ${{ env.BOOKMAKER_SOURCE_ROOT }}/tennis-data-wta
+            ${{ env.BOOKMAKER_SOURCE_ROOT }}/SOURCE_ATTRIBUTION.txt
+            ${{ env.BOOKMAKER_SOURCE_ROOT }}/download_sha256.txt
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve outcome-blind preflight reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookmaker-source-preflight-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/bookmaker-reports/source-manifest.json
+            ${{ runner.temp }}/bookmaker-reports/source-preflight-1.json
+          retention-days: 90
+          if-no-files-found: error
