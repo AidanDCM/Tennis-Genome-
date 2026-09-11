@@ -19,60 +19,67 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Patch integrity details
+      - name: Harden sealed-row reverification
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          production = Path('src/tennis_genome/experiments/pattern_confirm_production.py')
-          text = production.read_text()
+          identity = Path('src/tennis_genome/experiments/pattern_confirm_live_identity.py')
+          text = identity.read_text()
           text = text.replace(
-              'from tennis_genome.profiles.features import profile_strength_feature_values\n',
-              'from tennis_genome.profiles.features import profile_strength_feature_values\nfrom tennis_genome.ratings.elo import EloConfig\n',
+              'from dataclasses import asdict, dataclass\nfrom datetime import datetime, timedelta\nfrom typing import Iterable\n',
+              'from collections.abc import Iterable\nfrom dataclasses import asdict, dataclass\nfrom datetime import datetime, timedelta\n',
           )
-          text = text.replace(
-              '    elo_a = elo_strength_coordinate(pair.player_a.elo_rating)\n'
-              '    elo_b = elo_strength_coordinate(pair.player_b.elo_rating)\n',
-              '    elo_config = EloConfig(\n'
-              '        initial_rating=artifact.elo_initial_rating,\n'
-              '        k_factor=artifact.elo_k_factor,\n'
-              '        scale=artifact.elo_scale,\n'
-              '    )\n'
-              '    elo_a = elo_strength_coordinate(pair.player_a.elo_rating, config=elo_config)\n'
-              '    elo_b = elo_strength_coordinate(pair.player_b.elo_rating, config=elo_config)\n',
-          )
-          text = text.replace('        outcomes_path=args.outcomes,\n', '        outcome_path=args.outcomes,\n')
-          production.write_text(text)
+          identity.write_text(text)
 
           live = Path('src/tennis_genome/experiments/pattern_confirm_live.py')
           text = live.read_text()
-          old = '''    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if record.core_record.record_sha256 != core_record.record_sha256:\n        raise ValueError("sealed core record mismatch")\n    return record\n'''
-          new = '''    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if core_record.match_id != record.match_id or core_record.tour != record.tour:\n        raise ValueError("sealed core record identity does not match live envelope")\n    if core_record.scheduled_start != record.scheduled_start:\n        raise ValueError("sealed core record start time does not match live envelope")\n    if core_record.market_probability_a != record.market_probability_a:\n        raise ValueError("sealed core market probability does not match live envelope")\n    if core_record.core_probability_a != record.core_probability_a:\n        raise ValueError("sealed core probability does not match live envelope")\n    if core_record.profile_gap != record.profile_gap:\n        raise ValueError("sealed core Profile Gap does not match live envelope")\n    if core_record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("sealed core Market+Core fit does not match live envelope")\n    return record\n'''
+          old = '''    if record.version != _VERSION:\n        raise ValueError("unexpected live prospective record version")\n    if record.profile_model_sha256 != profile_artifact.artifact_sha256:\n        raise ValueError("live ledger mixes Profile production artifact versions")\n    if record.core_model_sha256 != core_artifact.artifact_sha256:\n        raise ValueError("live ledger mixes Core production artifact versions")\n    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if record.identity_mapping_sha256 != identity_mapping.artifact_sha256:\n        raise ValueError("live ledger identity mapping hash mismatch")\n    if record.market_event_id != identity_mapping.market_event_id:\n        raise ValueError("live ledger market event does not match identity mapping")\n    if record.sportradar_event_id != identity_mapping.sportradar_event_id:\n        raise ValueError("live ledger Sportradar event does not match identity mapping")\n    if record.player_a_id != identity_mapping.player_a_canonical_id:\n        raise ValueError("live ledger player A does not match identity mapping")\n    if record.player_b_id != identity_mapping.player_b_canonical_id:\n        raise ValueError("live ledger player B does not match identity mapping")\n'''
+          new = '''    if record.experiment_id != _EXPERIMENT_ID or record.version != _VERSION:\n        raise ValueError("unexpected live prospective record contract")\n    if record.market_provider != _MARKET_PROVIDER or record.market_source != _MARKET_SOURCE:\n        raise ValueError("sealed live row violates frozen Pinnacle market contract")\n    if record.event_provider != _EVENT_PROVIDER:\n        raise ValueError("sealed live row violates frozen event-provider contract")\n    if record.provider_match_state != _REQUIRED_MATCH_STATE:\n        raise ValueError("sealed live row was not captured PREMATCH")\n    if record.profile_model_sha256 != profile_artifact.artifact_sha256:\n        raise ValueError("live ledger mixes Profile production artifact versions")\n    if record.core_model_sha256 != core_artifact.artifact_sha256:\n        raise ValueError("live ledger mixes Core production artifact versions")\n    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if record.identity_mapping_sha256 != identity_mapping.artifact_sha256:\n        raise ValueError("live ledger identity mapping hash mismatch")\n    if record.market_event_id != identity_mapping.market_event_id:\n        raise ValueError("live ledger market event does not match identity mapping")\n    if record.sportradar_event_id != identity_mapping.sportradar_event_id:\n        raise ValueError("live ledger Sportradar event does not match identity mapping")\n    if record.player_a_market_name != identity_mapping.player_a_market_name:\n        raise ValueError("live ledger market player A does not match identity mapping")\n    if record.player_b_market_name != identity_mapping.player_b_market_name:\n        raise ValueError("live ledger market player B does not match identity mapping")\n    if record.player_a_sportradar_id != identity_mapping.player_a_sportradar_id:\n        raise ValueError("live ledger Sportradar player A does not match identity mapping")\n    if record.player_b_sportradar_id != identity_mapping.player_b_sportradar_id:\n        raise ValueError("live ledger Sportradar player B does not match identity mapping")\n    if record.player_a_id != identity_mapping.player_a_canonical_id:\n        raise ValueError("live ledger player A does not match identity mapping")\n    if record.player_b_id != identity_mapping.player_b_canonical_id:\n        raise ValueError("live ledger player B does not match identity mapping")\n    if record.scheduled_start != identity_mapping.scheduled_start:\n        raise ValueError("live ledger scheduled start does not match identity mapping")\n\n    scheduled = _parse_time(record.scheduled_start)\n    snapshot = _parse_time(record.provider_snapshot_at)\n    ingested = _parse_time(record.ingested_at)\n    generated = _parse_time(record.prediction_generated_at)\n    committed = _parse_time(record.prediction_committed_at)\n    if snapshot > ingested:\n        raise ValueError("sealed provider snapshot is later than ingestion")\n    if ingested - snapshot > _MAX_SNAPSHOT_STALENESS:\n        raise ValueError("sealed provider snapshot is stale at ingestion")\n    if ingested > generated or generated > committed:\n        raise ValueError("sealed live row timestamps are out of order")\n    if snapshot > scheduled - _MIN_START_LEAD:\n        raise ValueError("sealed market snapshot violates scheduled T-minus-five gate")\n    if committed >= scheduled:\n        raise ValueError("sealed prediction was not committed before scheduled start")\n    if (\n        not math.isfinite(record.decimal_odds_a)\n        or not math.isfinite(record.decimal_odds_b)\n        or record.decimal_odds_a <= 1.0\n        or record.decimal_odds_b <= 1.0\n    ):\n        raise ValueError("sealed decimal odds are invalid")\n    expected_market = _devig_probability(record.decimal_odds_a, record.decimal_odds_b)\n    if record.market_probability_a != expected_market:\n        raise ValueError("sealed market probability does not reproduce from raw odds")\n    if not math.isfinite(record.core_probability_a) or not 0.0 < record.core_probability_a < 1.0:\n        raise ValueError("sealed Core probability is invalid")\n    if not math.isfinite(record.profile_gap):\n        raise ValueError("sealed Profile Gap is invalid")\n'''
           if old not in text:
-              raise SystemExit('expected live verification block not found')
+              raise SystemExit('expected live verification contract block not found')
           live.write_text(text.replace(old, new))
 
           tests = Path('tests/test_pattern_confirm_live.py')
           text = tests.read_text()
-          old_case = '''        ({"provider_snapshot_at": "2026-09-12T12:56:00-04:00"}, "five minutes"),\n'''
-          new_case = '''        (\n            {\n                "provider_snapshot_at": "2026-09-12T12:56:00-04:00",\n                "ingested_at": "2026-09-12T12:56:20-04:00",\n                "prediction_generated_at": "2026-09-12T12:56:25-04:00",\n                "prediction_committed_at": "2026-09-12T12:56:30-04:00",\n            },\n            "five minutes",\n        ),\n'''
-          if old_case not in text:
-              raise SystemExit('expected T-minus-five test case not found')
-          tests.write_text(text.replace(old_case, new_case))
+          text = text.replace(
+              'from __future__ import annotations\n\nimport pytest\n',
+              'from __future__ import annotations\n\nimport hashlib\nimport json\n\nimport pytest\n',
+          )
+          text = text.replace(
+              '    load_live_settlements,\n)',
+              '    load_live_settlements,\n    verify_live_record,\n)',
+          )
+          addition = '''\n\ndef test_rehashed_semantic_tampering_still_fails_closed() -> None:\n    record = _build()\n    payload = live_record_as_dict(record)\n    payload["player_a_market_name"] = "Wrong Player"\n    unsigned = dict(payload)\n    unsigned.pop("record_sha256")\n    payload["record_sha256"] = hashlib.sha256(\n        json.dumps(\n            unsigned,\n            sort_keys=True,\n            separators=(",", ":"),\n            ensure_ascii=False,\n            allow_nan=False,\n        ).encode("utf-8")\n    ).hexdigest()\n    with pytest.raises(ValueError, match="market player A"):\n        verify_live_record(\n            payload,\n            fit=_fit(),\n            profile_artifact=_profile(),\n            core_artifact=_core(),\n            identity_mapping=_mapping(),\n        )\n'''
+          if 'def test_rehashed_semantic_tampering_still_fails_closed' not in text:
+              text += addition
+          tests.write_text(text)
           PY
       - name: Install, format and test
         run: |
           pip install -e .[dev]
-          ruff format src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
-          ruff check --fix src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
-          ruff check src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
-          pytest tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
+          ruff format \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          ruff check --fix \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          ruff check .
+          pytest
       - name: Commit patch
         shell: bash
         run: |
           git config user.name "Aidan Miller"
           git config user.email "aidandcmiller@live.com"
-          git add src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
-          git commit -m "Harden production artifact and live envelope verification"
+          git add \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            src/tennis_genome/experiments/pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_live.py \
+            tests/test_pattern_confirm_live_identity.py
+          git commit -m "Reverify sealed live identity and timing semantics"
           git push origin HEAD:dev/pattern-confirm-production-hardening
