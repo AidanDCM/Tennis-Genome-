@@ -85,7 +85,8 @@ def test_frozen_artifacts_reproduce_direct_predictions() -> None:
         row.match_id: row
         for row in walk_forward_foundational_features(matches, exclude_retirements=False)
     }
-    outcomes = [match.outcome.a_won for match in matches]
+    outcome_by_id = {match.match_id: match.outcome.a_won for match in matches}
+    outcomes = [outcome_by_id[pair.match_id] for pair in pairs]
     profile_model = ProfileStrengthModel("ATP").fit(pairs, outcomes)
     core_model = FeatureProbabilityModel(strict_a_features("ATP")).fit(
         [snapshots[pair.match_id] for pair in pairs], outcomes
