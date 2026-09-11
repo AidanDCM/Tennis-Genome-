@@ -1,0 +1,68 @@
+name: PATTERN-CONFIRM-001 Integrity Autofix
+
+on:
+  push:
+    branches: [dev/pattern-confirm-production-hardening]
+    paths:
+      - .github/workflows/pattern_confirm_integrity_autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-production-hardening
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Patch integrity details
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          production = Path('src/tennis_genome/experiments/pattern_confirm_production.py')
+          text = production.read_text()
+          text = text.replace(
+              'from tennis_genome.profiles.features import profile_strength_feature_values\n',
+              'from tennis_genome.profiles.features import profile_strength_feature_values\nfrom tennis_genome.ratings.elo import EloConfig\n',
+          )
+          text = text.replace(
+              '    elo_a = elo_strength_coordinate(pair.player_a.elo_rating)\n'
+              '    elo_b = elo_strength_coordinate(pair.player_b.elo_rating)\n',
+              '    elo_config = EloConfig(\n'
+              '        initial_rating=artifact.elo_initial_rating,\n'
+              '        k_factor=artifact.elo_k_factor,\n'
+              '        scale=artifact.elo_scale,\n'
+              '    )\n'
+              '    elo_a = elo_strength_coordinate(pair.player_a.elo_rating, config=elo_config)\n'
+              '    elo_b = elo_strength_coordinate(pair.player_b.elo_rating, config=elo_config)\n',
+          )
+          text = text.replace('        outcomes_path=args.outcomes,\n', '        outcome_path=args.outcomes,\n')
+          production.write_text(text)
+
+          live = Path('src/tennis_genome/experiments/pattern_confirm_live.py')
+          text = live.read_text()
+          old = '''    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if record.core_record.record_sha256 != core_record.record_sha256:\n        raise ValueError("sealed core record mismatch")\n    return record\n'''
+          new = '''    if record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("live ledger mixes Market+Core fit versions")\n    if core_record.match_id != record.match_id or core_record.tour != record.tour:\n        raise ValueError("sealed core record identity does not match live envelope")\n    if core_record.scheduled_start != record.scheduled_start:\n        raise ValueError("sealed core record start time does not match live envelope")\n    if core_record.market_probability_a != record.market_probability_a:\n        raise ValueError("sealed core market probability does not match live envelope")\n    if core_record.core_probability_a != record.core_probability_a:\n        raise ValueError("sealed core probability does not match live envelope")\n    if core_record.profile_gap != record.profile_gap:\n        raise ValueError("sealed core Profile Gap does not match live envelope")\n    if core_record.market_core_fit_sha256 != fit.artifact_sha256:\n        raise ValueError("sealed core Market+Core fit does not match live envelope")\n    return record\n'''
+          if old not in text:
+              raise SystemExit('expected live verification block not found')
+          live.write_text(text.replace(old, new))
+          PY
+      - name: Install and test
+        run: |
+          pip install -e .[dev]
+          ruff check src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
+          pytest tests/test_pattern_confirm_production.py tests/test_pattern_confirm_live.py
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add src/tennis_genome/experiments/pattern_confirm_production.py src/tennis_genome/experiments/pattern_confirm_live.py
+          git commit -m "Harden production artifact and live envelope verification"
+          git push origin HEAD:dev/pattern-confirm-production-hardening
