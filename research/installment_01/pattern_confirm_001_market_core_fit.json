@@ -1,0 +1,14 @@
+{
+  "artifact_sha256": "622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732",
+  "core_logit_slope": 0.007772537033422927,
+  "experiment_id": "PATTERN-CONFIRM-001",
+  "intercept": -0.04137035601134385,
+  "market_logit_slope": 1.0395770157643376,
+  "source_bundle_sha256": "be097af8ff9052a1484bdc25fab861d75ada78e21252c7bdb9cfde42ab093a54",
+  "source_claim": "ATP/profile_gap/MARKET-EDGE-ADV-001 primary OOS components",
+  "training_end_year": 2025,
+  "training_n": 22604,
+  "training_rows_sha256": "65ede42d1de317214cf1a28699f9fda041d9e37df05b5adabc5a885349873383",
+  "training_start_year": 2016,
+  "version": "pattern-confirm-v1"
+}
