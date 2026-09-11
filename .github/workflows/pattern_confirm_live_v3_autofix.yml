@@ -1,0 +1,162 @@
+name: PATTERN-CONFIRM Live v3 State Binding Autofix
+
+on:
+  push:
+    branches: [dev/pattern-confirm-provider-dryrun]
+    paths:
+      - .github/workflows/pattern_confirm_live_v3_autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-provider-dryrun
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Replace external signals with sealed state
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          live = Path('src/tennis_genome/experiments/pattern_confirm_live.py')
+          text = live.read_text()
+          text = text.replace(
+              'from tennis_genome.experiments.pattern_confirm_live_identity import (\n',
+              'from tennis_genome.experiments.pattern_confirm_live_identity import (\n',
+          )
+          import_marker = '''from tennis_genome.experiments.pattern_confirm_production import (\n    CoreProductionArtifact,\n    ProfileProductionArtifact,\n    verify_core_artifact,\n    verify_profile_artifact,\n)\n'''
+          import_replacement = '''from tennis_genome.experiments.pattern_confirm_live_state import (\n    ProspectiveStateArtifact,\n    prospective_state_as_dict,\n    verify_prospective_state_artifact,\n)\nfrom tennis_genome.experiments.pattern_confirm_production import (\n    CoreProductionArtifact,\n    ProfileProductionArtifact,\n    verify_core_artifact,\n    verify_profile_artifact,\n)\n'''
+          if import_marker not in text:
+              raise SystemExit('production import marker not found')
+          text = text.replace(import_marker, import_replacement)
+          text = text.replace('_VERSION = "pattern-confirm-live-v2"', '_VERSION = "pattern-confirm-live-v3"')
+          dataclass_marker = '''    identity_mapping_sha256: str\n    sportradar_summary_sha256: str\n'''
+          dataclass_replacement = '''    identity_mapping_sha256: str\n    prospective_state_sha256: str\n    prospective_state: ProspectiveStateArtifact\n    sportradar_summary_sha256: str\n'''
+          if dataclass_marker not in text:
+              raise SystemExit('live dataclass marker not found')
+          text = text.replace(dataclass_marker, dataclass_replacement, 1)
+
+          serializer_marker = '''def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:\n    payload = asdict(record)\n    payload["core_record"] = prospective_record_as_dict(record.core_record)\n    return payload\n'''
+          serializer_replacement = '''def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:\n    payload = asdict(record)\n    payload["prospective_state"] = prospective_state_as_dict(record.prospective_state)\n    payload["core_record"] = prospective_record_as_dict(record.core_record)\n    return payload\n'''
+          if serializer_marker not in text:
+              raise SystemExit('serializer marker not found')
+          text = text.replace(serializer_marker, serializer_replacement)
+
+          helper_marker = '''def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:\n'''
+          helper = '''def _validate_state_binding(\n    state: ProspectiveStateArtifact,\n    *,\n    mapping: IdentityMapping,\n    match_id: str,\n    tour: str,\n) -> None:\n    if state.match_id != match_id or state.tour != tour:\n        raise ValueError("prospective state match/tour does not match live row")\n    if state.event_date != mapping.season_start_date:\n        raise ValueError("prospective state date does not match Sportradar season start")\n    target = state.target_pre_match\n    if str(target.get("player_a_id", "")) != mapping.player_a_canonical_id:\n        raise ValueError("prospective state player A does not match identity mapping")\n    if str(target.get("player_b_id", "")) != mapping.player_b_canonical_id:\n        raise ValueError("prospective state player B does not match identity mapping")\n\n\n'''
+          if helper_marker not in text:
+              raise SystemExit('live serializer insertion marker not found')
+          text = text.replace(helper_marker, helper + helper_marker, 1)
+
+          verify_marker = '''    core_payload = payload.get("core_record")\n    if not isinstance(core_payload, dict):\n        raise ValueError("live record is missing its sealed core record")\n    core_record = verify_prospective_record(core_payload)\n    normalized = dict(payload)\n    normalized["core_record"] = core_record\n'''
+          verify_replacement = '''    state_payload = payload.get("prospective_state")\n    if not isinstance(state_payload, dict):\n        raise ValueError("live record is missing its sealed prospective state")\n    state = verify_prospective_state_artifact(\n        state_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n    core_payload = payload.get("core_record")\n    if not isinstance(core_payload, dict):\n        raise ValueError("live record is missing its sealed core record")\n    core_record = verify_prospective_record(core_payload)\n    normalized = dict(payload)\n    normalized["prospective_state"] = state\n    normalized["core_record"] = core_record\n'''
+          if verify_marker not in text:
+              raise SystemExit('verify nested marker not found')
+          text = text.replace(verify_marker, verify_replacement)
+
+          verify_binding_marker = '''    if record.scheduled_start != identity_mapping.scheduled_start:\n        raise ValueError("live ledger scheduled start does not match identity mapping")\n\n    scheduled = _parse_time(record.scheduled_start)\n'''
+          verify_binding_replacement = '''    if record.scheduled_start != identity_mapping.scheduled_start:\n        raise ValueError("live ledger scheduled start does not match identity mapping")\n    if record.prospective_state_sha256 != state.artifact_sha256:\n        raise ValueError("live ledger prospective state hash mismatch")\n    _validate_state_binding(\n        state,\n        mapping=identity_mapping,\n        match_id=record.match_id,\n        tour=record.tour,\n    )\n    if record.core_probability_a != state.core_probability_a:\n        raise ValueError("live Core probability does not match sealed prospective state")\n    if record.profile_gap != state.profile_gap:\n        raise ValueError("live Profile Gap does not match sealed prospective state")\n\n    scheduled = _parse_time(record.scheduled_start)\n'''
+          if verify_binding_marker not in text:
+              raise SystemExit('verify binding marker not found')
+          text = text.replace(verify_binding_marker, verify_binding_replacement)
+
+          supplied_marker = '''    supplied_profile_sha = _required_sha(raw, "profile_model_sha256")\n    supplied_core_sha = _required_sha(raw, "core_model_sha256")\n    if supplied_profile_sha != profile_artifact.artifact_sha256:\n        raise ValueError("profile_model_sha256 does not match frozen Profile artifact")\n    if supplied_core_sha != core_artifact.artifact_sha256:\n        raise ValueError("core_model_sha256 does not match frozen Core artifact")\n\n'''
+          supplied_replacement = '''    forbidden = {\n        "profile_gap",\n        "core_probability_a",\n        "profile_model_sha256",\n        "core_model_sha256",\n    }\n    supplied_forbidden = sorted(forbidden.intersection(raw))\n    if supplied_forbidden:\n        raise ValueError(\n            "externally supplied model/signal fields are forbidden: "\n            + ", ".join(supplied_forbidden)\n        )\n    state_payload = _required_object(raw, "prospective_state")\n    state = verify_prospective_state_artifact(\n        state_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n    _validate_state_binding(\n        state,\n        mapping=identity_mapping,\n        match_id=match_id,\n        tour=tour,\n    )\n\n'''
+          if supplied_marker not in text:
+              raise SystemExit('external model fields marker not found')
+          text = text.replace(supplied_marker, supplied_replacement)
+
+          signal_marker = '''    market_probability = _devig_probability(odds_a, odds_b)\n    core_probability = float(raw.get("core_probability_a"))\n    profile_gap = float(raw.get("profile_gap"))\n    if not math.isfinite(core_probability) or not 0.0 < core_probability < 1.0:\n        raise ValueError("core_probability_a must be finite and in (0, 1)")\n    if not math.isfinite(profile_gap):\n        raise ValueError("profile_gap must be finite")\n\n'''
+          signal_replacement = '''    market_probability = _devig_probability(odds_a, odds_b)\n    core_probability = state.core_probability_a\n    profile_gap = state.profile_gap\n\n'''
+          if signal_marker not in text:
+              raise SystemExit('raw signal marker not found')
+          text = text.replace(signal_marker, signal_replacement)
+
+          unsigned_marker = '''        "identity_mapping_sha256": identity_mapping.artifact_sha256,\n        "sportradar_summary_sha256": summary_sha,\n'''
+          unsigned_replacement = '''        "identity_mapping_sha256": identity_mapping.artifact_sha256,\n        "prospective_state_sha256": state.artifact_sha256,\n        "prospective_state": prospective_state_as_dict(state),\n        "sportradar_summary_sha256": summary_sha,\n'''
+          if unsigned_marker not in text:
+              raise SystemExit('live unsigned marker not found')
+          text = text.replace(unsigned_marker, unsigned_replacement)
+
+          constructor_marker = '''    return LiveProspectiveRecord(\n        **{**unsigned, "core_record": core_record},\n        record_sha256=digest,\n    )\n'''
+          constructor_replacement = '''    return LiveProspectiveRecord(\n        **{\n            **unsigned,\n            "prospective_state": state,\n            "core_record": core_record,\n        },\n        record_sha256=digest,\n    )\n'''
+          if constructor_marker not in text:
+              raise SystemExit('live constructor marker not found')
+          text = text.replace(constructor_marker, constructor_replacement)
+          live.write_text(text)
+
+          tests = Path('tests/test_pattern_confirm_live.py')
+          text = tests.read_text()
+          text = text.replace(
+              'import json\nfrom dataclasses import replace\n\nimport pytest\n',
+              'import json\nfrom dataclasses import replace\nfrom datetime import date\nfrom pathlib import Path\n\nimport pytest\n',
+          )
+          text = text.replace(
+              'from tennis_genome.experiments.pattern_confirm import FrozenMarketCoreFit\n',
+              '''from tennis_genome.data.canonical import (\n    HistoricalMatch,\n    MatchOutcome,\n    MatchStats,\n    PreMatchState,\n)\nfrom tennis_genome.experiments.pattern_confirm import FrozenMarketCoreFit\n''',
+          )
+          text = text.replace(
+              'from tennis_genome.experiments.pattern_confirm_live_identity import (\n',
+              '''from tennis_genome.experiments.pattern_confirm_live_state import (\n    build_prospective_state_artifact,\n    prospective_state_as_dict,\n)\nfrom tennis_genome.experiments.pattern_confirm_live_identity import (\n''',
+          )
+          old_import = '''from tennis_genome.experiments.pattern_confirm_production import (\n    CoreProductionArtifact,\n    ProfileProductionArtifact,\n)\n'''
+          new_import = '''from tennis_genome.experiments.pattern_confirm_production import (\n    verify_core_artifact,\n    verify_profile_artifact,\n)\n\nROOT = Path(__file__).resolve().parents[1]\n'''
+          if old_import not in text:
+              raise SystemExit('test production import marker not found')
+          text = text.replace(old_import, new_import)
+
+          start = text.index('def _profile()')
+          end = text.index('def _summary(')
+          real_models = '''def _profile():\n    return verify_profile_artifact(\n        json.loads((ROOT / "research/installment_01/profile_production_001.json").read_text())\n    )\n\n\ndef _core():\n    return verify_core_artifact(\n        json.loads((ROOT / "research/installment_01/core_production_001.json").read_text())\n    )\n\n\n'''
+          text = text[:start] + real_models + text[end:]
+
+          state_helpers = '''def _pre(\n    match_id: str,\n    event_date: date,\n    *,\n    a: str,\n    b: str,\n    order: int,\n) -> PreMatchState:\n    return PreMatchState(\n        match_id=match_id,\n        tour="ATP",\n        event_date=event_date,\n        source_order=order,\n        tournament_id="sr:season:fixture",\n        tournament_name="Fixture Open",\n        tournament_level="A",\n        surface="Hard",\n        round="R32",\n        best_of=3,\n        player_a_id=a,\n        player_b_id=b,\n        player_a_name=a,\n        player_b_name=b,\n        rank_a=None,\n        rank_b=None,\n        rank_points_a=None,\n        rank_points_b=None,\n        seed_a=None,\n        seed_b=None,\n        entry_a=None,\n        entry_b=None,\n        hand_a="R",\n        hand_b="R",\n        height_cm_a=185,\n        height_cm_b=190,\n        age_years_a=25.0,\n        age_years_b=26.0,\n        ioc_a="USA",\n        ioc_b="USA",\n    )\n\n\ndef _history_match(\n    match_id: str,\n    event_date: date,\n    *,\n    a: str,\n    b: str,\n    order: int,\n    a_won: bool,\n) -> HistoricalMatch:\n    return HistoricalMatch(\n        pre_match=_pre(match_id, event_date, a=a, b=b, order=order),\n        outcome=MatchOutcome(\n            match_id=match_id,\n            a_won=a_won,\n            score=None,\n            retirement=False,\n            walkover=False,\n        ),\n        stats=MatchStats(\n            match_id=match_id,\n            service_points_a=60,\n            service_points_b=58,\n            first_serve_points_won_a=28,\n            second_serve_points_won_a=14,\n            first_serve_points_won_b=25,\n            second_serve_points_won_b=13,\n            duration_minutes=92,\n        ),\n    )\n\n\ndef _state():\n    history = [\n        _history_match(\n            "h1", date(2026, 1, 2), a="canonical-a", b="canonical-c", order=1, a_won=True\n        ),\n        _history_match(\n            "h2", date(2026, 1, 4), a="canonical-b", b="canonical-c", order=2, a_won=False\n        ),\n        _history_match(\n            "h3", date(2026, 2, 1), a="canonical-a", b="canonical-b", order=3, a_won=True\n        ),\n        _history_match(\n            "h4", date(2026, 3, 1), a="canonical-c", b="canonical-a", order=4, a_won=False\n        ),\n    ]\n    target = _pre(\n        "future-1",\n        date(2026, 9, 7),\n        a="canonical-a",\n        b="canonical-b",\n        order=100,\n    )\n    return build_prospective_state_artifact(\n        history=history,\n        target=target,\n        history_source_id="synthetic-sealed-live-state",\n        history_source_sha256="a" * 64,\n        profile_artifact=_profile(),\n        core_artifact=_core(),\n    )\n\n\n'''
+          raw_index = text.index('def _raw(')
+          text = text[:raw_index] + state_helpers + text[raw_index:]
+
+          raw_old = '''        "decimal_odds_a": 1.80,\n        "decimal_odds_b": 2.10,\n        "core_probability_a": 0.55,\n        "profile_gap": -0.60,\n        "profile_model_sha256": "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351",\n        "core_model_sha256": "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7",\n'''
+          raw_new = '''        "decimal_odds_a": 1.80,\n        "decimal_odds_b": 2.10,\n        "prospective_state": prospective_state_as_dict(_state()),\n'''
+          if raw_old not in text:
+              raise SystemExit('test raw signal block not found')
+          text = text.replace(raw_old, raw_new)
+
+          expectation_old = '''    assert record.identity_mapping_sha256 == _mapping().artifact_sha256\n    assert record.market_event_id == "odds-event-1"\n    assert record.sportradar_event_id == "sr:sport_event:123"\n    assert set(record.core_record.matched_hypotheses) == {\n        "PC-ATP-PG-LOW",\n        "PC-ATP-PG-ABS-HIGH",\n    }\n'''
+          expectation_new = '''    assert record.identity_mapping_sha256 == _mapping().artifact_sha256\n    assert record.market_event_id == "odds-event-1"\n    assert record.sportradar_event_id == "sr:sport_event:123"\n    assert record.prospective_state_sha256 == record.prospective_state.artifact_sha256\n    assert record.core_probability_a == record.prospective_state.core_probability_a\n    assert record.profile_gap == record.prospective_state.profile_gap\n'''
+          if expectation_old not in text:
+              raise SystemExit('test expectation block not found')
+          text = text.replace(expectation_old, expectation_new)
+
+          text = text.replace(
+              '        ({"profile_model_sha256": "9" * 64}, "Profile artifact"),\n        ({"core_model_sha256": "9" * 64}, "Core artifact"),\n',
+              '        ({"profile_gap": 0.0}, "externally supplied"),\n        ({"core_probability_a": 0.5}, "externally supplied"),\n',
+          )
+          tests.write_text(text)
+          PY
+      - name: Format lint and test
+        run: |
+          pip install -e .[dev]
+          ruff format \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            tests/test_pattern_confirm_live.py
+          ruff check --fix \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            tests/test_pattern_confirm_live.py
+          ruff check .
+          pytest
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            tests/test_pattern_confirm_live.py
+          git commit -m "Require sealed internally generated signals in live v3"
+          git push origin HEAD:dev/pattern-confirm-provider-dryrun
