@@ -13,7 +13,10 @@ from tennis_genome.experiments.pattern_confirm_production import (
     core_probability_from_artifact,
     profile_gap_from_artifact,
 )
-from tennis_genome.features.foundational import FoundationalSnapshot, walk_forward_foundational_features
+from tennis_genome.features.foundational import (
+    FoundationalSnapshot,
+    walk_forward_foundational_features,
+)
 from tennis_genome.profiles.state import (
     MatchProfilePair,
     PlayerProfileSnapshot,
@@ -96,7 +99,9 @@ def _player_profile_from_dict(payload: dict[str, object]) -> PlayerProfileSnapsh
     normalized = dict(payload)
     normalized["valid_from"] = date.fromisoformat(str(payload["valid_from"]))
     valid_until = payload.get("valid_until")
-    normalized["valid_until"] = None if valid_until is None else date.fromisoformat(str(valid_until))
+    normalized["valid_until"] = (
+        None if valid_until is None else date.fromisoformat(str(valid_until))
+    )
     return PlayerProfileSnapshot(**normalized)
 
 
@@ -156,7 +161,9 @@ def _legal_history(history: list[HistoricalMatch], target_date: date) -> list[Hi
         if match.outcome.walkover or match.outcome.retirement:
             continue
         legal.append(match)
-    legal.sort(key=lambda item: (item.pre_match.event_date, item.pre_match.source_order, item.match_id))
+    legal.sort(
+        key=lambda item: (item.pre_match.event_date, item.pre_match.source_order, item.match_id)
+    )
     return legal
 
 
@@ -277,7 +284,10 @@ def verify_prospective_state_artifact(
         raise ValueError("prospective target event date mismatch")
     if pair.event_date != target.event_date or foundational.event_date != target.event_date:
         raise ValueError("prospective state target dates do not agree")
-    if pair.player_a.player_id != target.player_a_id or pair.player_b.player_id != target.player_b_id:
+    if (
+        pair.player_a.player_id != target.player_a_id
+        or pair.player_b.player_id != target.player_b_id
+    ):
         raise ValueError("prospective Profile player orientation mismatch")
 
     expected_profile = profile_gap_from_artifact(pair, profile_artifact)

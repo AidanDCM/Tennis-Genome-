@@ -238,8 +238,13 @@ def test_retirements_and_walkovers_do_not_update_live_state() -> None:
 
 
 def test_target_identity_cannot_already_exist_in_history() -> None:
-    duplicate = replace(_history()[0], pre_match=replace(_history()[0].pre_match, match_id="target"))
-    duplicate = replace(duplicate, outcome=replace(duplicate.outcome, match_id="target"))
+    base = _history()[0]
+    assert base.stats is not None
+    duplicate = HistoricalMatch(
+        pre_match=replace(base.pre_match, match_id="target"),
+        outcome=replace(base.outcome, match_id="target"),
+        stats=replace(base.stats, match_id="target"),
+    )
     with pytest.raises(ValueError, match="already exists"):
         build_prospective_state_artifact(
             history=[duplicate, *_history()[1:]],
