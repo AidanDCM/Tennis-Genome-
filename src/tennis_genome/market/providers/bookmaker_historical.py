@@ -18,6 +18,10 @@ _NEUTRALIZATION_VERSION = "bookmaker-neutralization-v1"
 _DEVELOPMENT_END = date(2025, 12, 31)
 
 
+class BookmakerIdentityError(ValueError):
+    """A single raw row cannot form a usable neutral contestant pair."""
+
+
 @dataclass(frozen=True)
 class SanitizedBookmakerQuote:
     source_family: BookmakerSource
@@ -102,14 +106,16 @@ def _neutralize(
     odds_left: object,
     odds_right: object,
 ) -> SanitizedBookmakerQuote:
+    if pd.isna(name_left) or pd.isna(name_right):
+        raise BookmakerIdentityError("bookmaker contestant names must be non-missing")
     left_name = str(name_left).strip()
     right_name = str(name_right).strip()
     if not left_name or not right_name:
-        raise ValueError("bookmaker contestant names must be non-empty")
+        raise BookmakerIdentityError("bookmaker contestant names must be non-empty")
     left_norm = normalize_market_player_name(left_name)
     right_norm = normalize_market_player_name(right_name)
     if not left_norm or not right_norm or left_norm == right_norm:
-        raise ValueError("bookmaker contestant names do not form a valid pair")
+        raise BookmakerIdentityError("bookmaker contestant names do not form a valid pair")
     left_odds = _optional_decimal(odds_left)
     right_odds = _optional_decimal(odds_right)
 
@@ -141,7 +147,7 @@ def _neutralize(
     return SanitizedBookmakerQuote(
         source_family=source_family,
         source_file=source_file,
-        source_file_sha256=source_file_sha256,
+        source_file_sha256=file_hash if False else source_file_sha256,
         source_row_number=int(source_row_number),
         source_row_key=str(source_row_key),
         match_date=match_date,
@@ -163,7 +169,7 @@ def load_valuebetennis_quotes(
     source_file: str | None = None,
     source_file_sha256: str | None = None,
 ) -> list[SanitizedBookmakerQuote]:
-    """Load only outcome-free Valuebetennis identity/date/closing-price columns."""
+    """Load outcome-free Valuebetennis market rows, skipping unusable identities only."""
 
     file_path = Path(path)
     file_hash = source_file_sha256 or sha256_file(file_path)
@@ -187,21 +193,25 @@ def load_valuebetennis_quotes(
     quotes: list[SanitizedBookmakerQuote] = []
     for index, row in enumerate(frame.itertuples(index=False), start=2):
         values = row._asdict()
-        quotes.append(
-            _neutralize(
+        match_date = _parse_valuebet_date(values["date"])
+        tour = _tour(values["genre"])
+        try:
+            quote = _neutralize(
                 source_family="VALUEBETENNIS",
                 source_file=relative,
                 source_file_sha256=file_hash,
                 source_row_number=index,
                 source_row_key=str(values["match_id"]),
-                match_date=_parse_valuebet_date(values["date"]),
-                tour=_tour(values["genre"]),
+                match_date=match_date,
+                tour=tour,
                 name_left=values["joueur1"],
                 name_right=values["joueur2"],
                 odds_left=values["cote1_cloture"],
                 odds_right=values["cote2_cloture"],
             )
-        )
+        except BookmakerIdentityError:
+            continue
+        quotes.append(quote)
     return quotes
 
 
@@ -235,8 +245,8 @@ def load_tennis_data_quotes(
     for index, row in enumerate(frame.itertuples(index=False), start=2):
         values = row._asdict()
         match_date = _parse_tennis_data_date(values["Date"])
-        quotes.append(
-            _neutralize(
+        try:
+            quote = _neutralize(
                 source_family="TENNIS_DATA_UK",
                 source_file=relative,
                 source_file_sha256=file_hash,
@@ -249,7 +259,9 @@ def load_tennis_data_quotes(
                 odds_left=values["PSW"],
                 odds_right=values["PSL"],
             )
-        )
+        except BookmakerIdentityError:
+            continue
+        quotes.append(quote)
     return quotes
 
 
