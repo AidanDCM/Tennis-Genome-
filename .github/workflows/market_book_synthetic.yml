@@ -1,0 +1,115 @@
+name: MARKET-BOOK-001 synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev/bookmaker-market-migration-v1
+    paths:
+      - "src/tennis_genome/market/providers/bookmaker_historical.py"
+      - "src/tennis_genome/market/canonical_market.py"
+      - "src/tennis_genome/market/bookmaker_manifest.py"
+      - "src/tennis_genome/market/bookmaker_batch.py"
+      - "src/tennis_genome/experiments/market_book_inputs.py"
+      - "src/tennis_genome/experiments/market_book_qa.py"
+      - "src/tennis_genome/experiments/market_book_gate.py"
+      - "src/tennis_genome/experiments/power_mde_bookmaker.py"
+      - "src/tennis_genome/experiments/market_edge_bookmaker_pipeline.py"
+      - "src/tennis_genome/experiments/market_edge_adv_bookmaker_pipeline.py"
+      - "src/tennis_genome/experiments/market_validation_bookmaker_run.py"
+      - "tests/test_bookmaker_historical.py"
+      - "tests/test_bookmaker_manifest.py"
+      - "tests/test_bookmaker_batch.py"
+      - "tests/test_market_book_qa.py"
+      - "tests/test_market_book_gate.py"
+      - "tests/test_market_book_inputs.py"
+      - "tests/test_market_validation_bookmaker_run.py"
+      - "research/installment_01/market_book_001_protocol.md"
+      - "research/installment_01/market_book_qa_001_protocol.md"
+      - "research/installment_01/market_edge_001_preresult_amendment_007.md"
+      - "docs/bookmaker_historical_ingestion.md"
+      - ".github/workflows/market_book_synthetic.yml"
+  pull_request:
+    paths:
+      - "src/tennis_genome/market/providers/bookmaker_historical.py"
+      - "src/tennis_genome/market/canonical_market.py"
+      - "src/tennis_genome/market/bookmaker_manifest.py"
+      - "src/tennis_genome/market/bookmaker_batch.py"
+      - "src/tennis_genome/experiments/market_book_inputs.py"
+      - "src/tennis_genome/experiments/market_book_qa.py"
+      - "src/tennis_genome/experiments/market_book_gate.py"
+      - "src/tennis_genome/experiments/power_mde_bookmaker.py"
+      - "src/tennis_genome/experiments/market_edge_bookmaker_pipeline.py"
+      - "src/tennis_genome/experiments/market_edge_adv_bookmaker_pipeline.py"
+      - "src/tennis_genome/experiments/market_validation_bookmaker_run.py"
+      - "tests/test_bookmaker_historical.py"
+      - "tests/test_bookmaker_manifest.py"
+      - "tests/test_bookmaker_batch.py"
+      - "tests/test_market_book_qa.py"
+      - "tests/test_market_book_gate.py"
+      - "tests/test_market_book_inputs.py"
+      - "tests/test_market_validation_bookmaker_run.py"
+      - "research/installment_01/market_book_001_protocol.md"
+      - "research/installment_01/market_book_qa_001_protocol.md"
+      - "research/installment_01/market_edge_001_preresult_amendment_007.md"
+      - "docs/bookmaker_historical_ingestion.md"
+      - ".github/workflows/market_book_synthetic.yml"
+
+jobs:
+  bookmaker-market-synthetic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Run bookmaker market regression suite
+        run: |
+          pytest -q \
+            tests/test_bookmaker_historical.py \
+            tests/test_bookmaker_manifest.py \
+            tests/test_bookmaker_batch.py \
+            tests/test_market_book_qa.py \
+            tests/test_market_book_gate.py \
+            tests/test_market_book_inputs.py \
+            tests/test_market_validation_bookmaker_run.py
+
+      - name: Enforce no result fields in sanitizer outputs
+        run: |
+          python - <<'PY'
+          import inspect
+          from tennis_genome.market.providers.bookmaker_historical import SanitizedBookmakerQuote
+
+          fields = set(SanitizedBookmakerQuote.__dataclass_fields__)
+          forbidden = {
+              "winner",
+              "loser",
+              "vainqueur_id",
+              "score",
+              "a_won",
+              "retirement",
+              "walkover",
+              "duree_min",
+          }
+          assert not fields.intersection(forbidden), fields.intersection(forbidden)
+          source = inspect.getsource(SanitizedBookmakerQuote)
+          assert "a_won" not in source
+          PY
+
+      - name: Enforce Stage A has no outcomes argument
+        run: |
+          python - <<'PY'
+          import inspect
+          from tennis_genome.experiments.market_validation_bookmaker_run import (
+              create_bookmaker_outcome_unlock_seal,
+          )
+
+          parameters = inspect.signature(create_bookmaker_outcome_unlock_seal).parameters
+          assert "outcomes" not in parameters
+          assert "outcomes_path" not in parameters
+          PY
