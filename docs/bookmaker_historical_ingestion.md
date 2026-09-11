@@ -64,16 +64,21 @@ python -m tennis_genome.market.bookmaker_manifest \
 
 The manifest records every included relative path, source family, byte size, SHA-256, requested interval, frozen hierarchy, neutralization version, no-vig method, and deterministic aggregate bundle hash.
 
-The manifest rejects a requested end after 2025-12-31 and rejects a source file whose parsed confirmatory rows extend beyond that boundary.
+The manifest rejects a requested end after 2025-12-31. Structurally invalid source files and files wholly outside the requested interval are quarantined in the manifest with a deterministic exclusion reason; a file that straddles the confirmatory interval fails closed rather than being partially consumed.
 
 ## Step 2 — construct MARKET-BOOK-001
 
 ```bash
 python -m tennis_genome.market.bookmaker_batch \
   --source-manifest /data/tennis-genome/market-book-001/source-manifest.json \
+  --valuebet-root /data/bookmaker-market/valuebetennis \
+  --tennis-data-atp-root /data/bookmaker-market/tennis-data-uk/atp \
+  --tennis-data-wta-root /data/bookmaker-market/tennis-data-uk/wta \
   --pre-match /data/tennis-genome/canonical/pre_match.parquet \
   --output-dir /data/tennis-genome/market-book-001
 ```
+
+The absolute source roots are supplied at runtime instead of stored in the manifest so the artifact is portable between machines. The exact relative file set, sizes, and SHA-256 values must still match the manifest before construction proceeds.
 
 The canonical pre-match loader fails closed if outcome fields are present.
 
@@ -102,7 +107,7 @@ No manual outcome-informed matching is allowed.
 - raw implied probability sum / overround;
 - proportional no-vig `market_probability_a/b`;
 - join hash and record hash;
-- overlap diagnostic quote from the non-selected source when independently available.
+- retained non-selected overlap source rows for outcome-blind disagreement diagnostics.
 
 It contains no winner, `a_won`, score, retirement, walkover, Profile Gap, Genome, Strict Core output, or model-vs-market result.
 
@@ -110,7 +115,7 @@ It contains no winner, `a_won`, score, retirement, walkover, Profile Gap, Genome
 
 ## Step 3 — determinism check
 
-Run MARKET-BOOK-001 twice against the exact same manifest/pre-match table. The canonical JSONL payload SHA-256 and summary-reported output hash must be identical.
+Run MARKET-BOOK-001 twice against the exact same manifest/pre-match table and source directories. The canonical record ordering and summary-reported output SHA-256 must be identical.
 
 ## Step 4 — run MARKET-BOOK-QA-001
 
@@ -120,6 +125,9 @@ python -m tennis_genome.experiments.market_book_qa \
   --market-book-records /data/tennis-genome/market-book-001/market_book_001_records.jsonl \
   --pre-match /data/tennis-genome/canonical/pre_match.parquet \
   --outcomes /data/tennis-genome/canonical/outcomes.parquet \
+  --valuebet-root /data/bookmaker-market/valuebetennis \
+  --tennis-data-atp-root /data/bookmaker-market/tennis-data-uk/atp \
+  --tennis-data-wta-root /data/bookmaker-market/tennis-data-uk/wta \
   --output /data/tennis-genome/market-book-001/market_book_qa_001.json
 ```
 
@@ -131,13 +139,13 @@ Frozen eligibility gates per ATP/WTA:
 - >=50% each year 2021-2025;
 - >=100 usable quotes each year 2021-2025;
 - >=1,000 usable pre-2021 joined quotes;
-- all 2021-2025 evaluation years represented.
+- all five evaluation years 2021-2025 represented.
 
 Both tours must pass for global `ELIGIBLE_CONFIRMATORY`.
 
 ## Step 5 — outcome-blind POWER-MDE-001
 
-Only after QA passes, run POWER-MDE using the exact selected `market_probability_a` values and frozen Profile Gap/Genome signals, without settled winners.
+Only after QA passes, run the bookmaker POWER-MDE adapter using the exact selected `market_probability_a` values and frozen Profile Gap/Genome signals, without settled winners.
 
 The four claims remain ATP/WTA × Profile Gap/Genome with family size 4, alpha .05, conservative planning alpha .0125, and min prior rows 1000.
 
@@ -155,7 +163,7 @@ Freeze hashes for:
 - frozen signal artifacts;
 - applicable preregistration/amendment files.
 
-No signal outcome has been inspected yet.
+The Stage-A seal also binds the exact outcome file hash used by QA for walkover/retirement eligibility. No winner-dependent evaluator is allowed to run until the same outcome-file hash is supplied to Stage B.
 
 ## Step 7 — only then run MARKET-EDGE outcomes
 
