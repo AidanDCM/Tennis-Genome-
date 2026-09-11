@@ -3,9 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
-from tennis_genome.experiments.market_validation_decision import build_validation_decision_artifact
+from tennis_genome.experiments import market_validation_decision
 
 
 _LABELS = (
@@ -114,7 +112,9 @@ def _write(tmp_path: Path, payload: dict[str, object]) -> Path:
 
 
 def test_combined_decision_requires_both_frozen_market_tests(tmp_path: Path) -> None:
-    artifact = build_validation_decision_artifact(_write(tmp_path, _bundle()))
+    artifact = market_validation_decision.build_validation_decision_artifact(
+        _write(tmp_path, _bundle())
+    )
     decisions = {row["label"]: row for row in artifact["decisions"]}  # type: ignore[index]
 
     assert decisions["ATP:profile_gap"]["stack_promotion_pass"] is True
@@ -125,7 +125,9 @@ def test_combined_decision_requires_both_frozen_market_tests(tmp_path: Path) -> 
 
 
 def test_combined_decision_emits_all_fixed_reliability_views(tmp_path: Path) -> None:
-    artifact = build_validation_decision_artifact(_write(tmp_path, _bundle()))
+    artifact = market_validation_decision.build_validation_decision_artifact(
+        _write(tmp_path, _bundle())
+    )
     diagnostics = artifact["diagnostics"]  # type: ignore[index]
     atp = diagnostics["ATP:profile_gap"]  # type: ignore[index]
 
@@ -152,5 +154,11 @@ def test_combined_decision_fails_closed_on_missing_claim(tmp_path: Path) -> None
     payload = _bundle()
     family = payload["market_edge_001"]["family_report"]  # type: ignore[index]
     family["claims"] = family["claims"][:-1]  # type: ignore[index]
-    with pytest.raises(ValueError, match="four-claim"):
-        build_validation_decision_artifact(_write(tmp_path, payload))
+    try:
+        market_validation_decision.build_validation_decision_artifact(
+            _write(tmp_path, payload)
+        )
+    except ValueError as exc:
+        assert "four-claim" in str(exc)
+    else:
+        raise AssertionError("missing frozen claim should fail closed")
