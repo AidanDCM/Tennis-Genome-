@@ -5,9 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from tennis_genome.experiments.market_validation_decision import (
-    build_validation_decision_artifact,
-)
+from tennis_genome.experiments.market_validation_decision import build_validation_decision_artifact
 
 
 _LABELS = (
