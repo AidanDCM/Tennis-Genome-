@@ -33,7 +33,7 @@ jobs:
       - name: Install package
         run: pip install -e .[dev]
       - name: Static checks
-        run: ruff check src/tennis_genome/experiments/pattern_confirm_production.py
+        run: ruff check src/tennis_genome/experiments/pattern_confirm_production.py tests/test_pattern_confirm_production.py
       - name: Download pinned ATP 2000-2025 snapshot
         shell: bash
         run: |
@@ -71,13 +71,43 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p frozen
-          python -m tennis_genome.experiments.pattern_confirm_production \
-            --manifest data/research_processed/atp/atp_manifest.json \
-            --pre-match data/research_processed/atp/atp_pre_match.parquet \
-            --outcomes data/research_processed/atp/atp_outcomes.parquet \
-            --stats data/research_processed/atp/atp_stats.parquet \
-            --profile-output frozen/profile_production_001.json \
-            --core-output frozen/core_production_001.json
+          python - <<'PY'
+          import hashlib
+          import json
+          from dataclasses import asdict
+          from pathlib import Path
+
+          from tennis_genome.data.manifest import verify_canonical_manifest
+          from tennis_genome.data.parquet import load_canonical_parquet
+          from tennis_genome.experiments.pattern_confirm_production import freeze_production_artifacts
+
+          root = Path('data/research_processed/atp')
+          manifest = root / 'atp_manifest.json'
+          pre_match = root / 'atp_pre_match.parquet'
+          outcomes = root / 'atp_outcomes.parquet'
+          stats = root / 'atp_stats.parquet'
+          verify_canonical_manifest(
+              manifest_path=manifest,
+              pre_match_path=pre_match,
+              outcome_path=outcomes,
+              stats_path=stats,
+          )
+          matches = load_canonical_parquet(
+              pre_match_path=pre_match,
+              outcome_path=outcomes,
+              stats_path=stats,
+          )
+          profile, core = freeze_production_artifacts(
+              matches,
+              canonical_manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
+          )
+          Path('frozen/profile_production_001.json').write_text(
+              json.dumps(asdict(profile), indent=2, sort_keys=True, allow_nan=False) + '\n'
+          )
+          Path('frozen/core_production_001.json').write_text(
+              json.dumps(asdict(core), indent=2, sort_keys=True, allow_nan=False) + '\n'
+          )
+          PY
       - name: Verify frozen artifacts
         shell: bash
         run: |
