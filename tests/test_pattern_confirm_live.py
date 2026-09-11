@@ -7,7 +7,12 @@ from tennis_genome.experiments.pattern_confirm_live import (
     append_live_rows,
     build_live_record,
     evaluate_live_family,
+    live_record_as_dict,
     load_live_settlements,
+)
+from tennis_genome.experiments.pattern_confirm_live_identity import (
+    build_identity_mapping,
+    parse_sportradar_prematch_event,
 )
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
@@ -77,24 +82,73 @@ def _core() -> CoreProductionArtifact:
     )
 
 
+def _summary(
+    *,
+    event_id: str = "sr:sport_event:123",
+    status: str = "not_started",
+    start: str = "2026-09-12T17:00:00+00:00",
+) -> dict[str, object]:
+    return {
+        "sport_event": {
+            "id": event_id,
+            "start_time": start,
+            "start_time_confirmed": True,
+            "sport_event_context": {
+                "category": {"id": "sr:category:3", "name": "ATP"},
+                "competition": {
+                    "id": "sr:competition:55",
+                    "name": "ATP Miami, USA Men Singles",
+                    "type": "singles",
+                },
+            },
+            "competitors": [
+                {
+                    "id": "sr:competitor:11",
+                    "name": "Paul, Tommy",
+                    "qualifier": "home",
+                    "virtual": False,
+                },
+                {
+                    "id": "sr:competitor:22",
+                    "name": "Fritz, Taylor",
+                    "qualifier": "away",
+                    "virtual": False,
+                },
+            ],
+        },
+        "sport_event_status": {"status": status},
+    }
+
+
+def _mapping():
+    event = parse_sportradar_prematch_event(_summary())
+    return build_identity_mapping(
+        market_event_id="odds-event-1",
+        market_player_a_name="Tommy Paul",
+        market_player_b_name="Taylor Fritz",
+        player_a_canonical_id="canonical-a",
+        player_b_canonical_id="canonical-b",
+        sportradar_event=event,
+        method="EXPLICIT_CROSSWALK",
+        created_at="2026-09-12T15:00:00+00:00",
+    )
+
+
 def _raw(**updates: object) -> dict[str, object]:
     raw: dict[str, object] = {
         "match_id": "future-1",
         "tour": "ATP",
-        "scheduled_start": "2026-09-12T13:00:00-04:00",
         "market_provider": "THE_ODDS_API_V4_PINNACLE_V1",
         "market_source": "PINNACLE_H2H_V1",
-        "provider_event_id": "event-1",
-        "player_a_provider_id": "pa",
-        "player_b_provider_id": "pb",
-        "player_a_id": "canonical-a",
-        "player_b_id": "canonical-b",
-        "identity_mapping_sha256": "5" * 64,
+        "market_event_id": "odds-event-1",
+        "player_a_market_name": "Tommy Paul",
+        "player_b_market_name": "Taylor Fritz",
+        "sportradar_summary": _summary(),
         "provider_match_state": "PREMATCH",
-        "provider_snapshot_at": "2026-09-12T12:54:00-04:00",
-        "ingested_at": "2026-09-12T12:54:20-04:00",
-        "prediction_generated_at": "2026-09-12T12:54:25-04:00",
-        "prediction_committed_at": "2026-09-12T12:54:30-04:00",
+        "provider_snapshot_at": "2026-09-12T16:54:00+00:00",
+        "ingested_at": "2026-09-12T16:54:20+00:00",
+        "prediction_generated_at": "2026-09-12T16:54:25+00:00",
+        "prediction_committed_at": "2026-09-12T16:54:30+00:00",
         "decimal_odds_a": 1.80,
         "decimal_odds_b": 2.10,
         "core_probability_a": 0.55,
@@ -106,14 +160,36 @@ def _raw(**updates: object) -> dict[str, object]:
     return raw
 
 
-def test_live_intake_computes_market_and_binds_models() -> None:
-    record = build_live_record(
-        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+def _build(raw: dict[str, object] | None = None):
+    return build_live_record(
+        _raw() if raw is None else raw,
+        fit=_fit(),
+        profile_artifact=_profile(),
+        core_artifact=_core(),
+        identity_mapping=_mapping(),
     )
+
+
+def _timeline(
+    *,
+    event_id: str = "sr:sport_event:123",
+    actual_start: str | None = "2026-09-12T17:01:00+00:00",
+) -> dict[str, object]:
+    events: list[dict[str, object]] = []
+    if actual_start is not None:
+        events.append({"id": 1, "type": "match_started", "time": actual_start})
+    return {"sport_event": {"id": event_id}, "timeline": events}
+
+
+def test_live_intake_computes_market_and_binds_models_and_identity() -> None:
+    record = _build()
     expected = (1 / 1.80) / ((1 / 1.80) + (1 / 2.10))
     assert record.market_probability_a == pytest.approx(expected)
     assert record.profile_model_sha256 == "3" * 64
     assert record.core_model_sha256 == "4" * 64
+    assert record.identity_mapping_sha256 == _mapping().artifact_sha256
+    assert record.market_event_id == "odds-event-1"
+    assert record.sportradar_event_id == "sr:sport_event:123"
     assert set(record.core_record.matched_hypotheses) == {
         "PC-ATP-PG-LOW",
         "PC-ATP-PG-ABS-HIGH",
@@ -128,35 +204,48 @@ def test_live_intake_computes_market_and_binds_models() -> None:
         ({"decimal_odds_a": 1.0}, "decimal odds"),
         ({"profile_model_sha256": "9" * 64}, "Profile artifact"),
         ({"core_model_sha256": "9" * 64}, "Core artifact"),
+        ({"market_event_id": "wrong"}, "verified identity mapping"),
+        ({"player_a_market_name": "Taylor Fritz"}, "player A orientation"),
         (
             {
-                "provider_snapshot_at": "2026-09-12T12:56:00-04:00",
-                "ingested_at": "2026-09-12T12:56:20-04:00",
-                "prediction_generated_at": "2026-09-12T12:56:25-04:00",
-                "prediction_committed_at": "2026-09-12T12:56:30-04:00",
+                "sportradar_summary": _summary(status="live"),
+            },
+            "pre-match",
+        ),
+        (
+            {
+                "provider_snapshot_at": "2026-09-12T16:56:00+00:00",
+                "ingested_at": "2026-09-12T16:56:20+00:00",
+                "prediction_generated_at": "2026-09-12T16:56:25+00:00",
+                "prediction_committed_at": "2026-09-12T16:56:30+00:00",
             },
             "five minutes",
         ),
-        ({"ingested_at": "2026-09-12T12:59:30-04:00"}, "stale"),
+        ({"ingested_at": "2026-09-12T16:59:30+00:00"}, "stale"),
     ],
 )
 def test_live_intake_fails_closed(updates: dict[str, object], message: str) -> None:
     with pytest.raises(ValueError, match=message):
-        build_live_record(
-            _raw(**updates), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
+        _build(_raw(**updates))
+
+
+def test_append_rejects_missing_mapping_and_cross_batch_duplicate() -> None:
+    first = _build()
+    mapping = _mapping()
+    with pytest.raises(ValueError, match="no verified identity mapping"):
+        append_live_rows(
+            existing_rows=[],
+            new_rows=[_raw()],
+            identity_mappings={},
+            fit=_fit(),
+            profile_artifact=_profile(),
+            core_artifact=_core(),
         )
-
-
-def test_append_rejects_cross_batch_duplicate() -> None:
-    first = build_live_record(
-        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
-    )
-    from tennis_genome.experiments.pattern_confirm_live import live_record_as_dict
-
     with pytest.raises(ValueError, match="duplicate"):
         append_live_rows(
             existing_rows=[live_record_as_dict(first)],
             new_rows=[_raw()],
+            identity_mappings={mapping.market_event_id: mapping},
             fit=_fit(),
             profile_artifact=_profile(),
             core_artifact=_core(),
@@ -164,15 +253,13 @@ def test_append_rejects_cross_batch_duplicate() -> None:
 
 
 def test_actual_start_audit_excludes_moved_early_match() -> None:
-    record = build_live_record(
-        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
-    )
+    record = _build()
     settlements = load_live_settlements(
         [
             {
                 "match_id": record.match_id,
-                "provider_event_id": record.provider_event_id,
-                "actual_start": "2026-09-12T12:57:00-04:00",
+                "sportradar_event_id": record.sportradar_event_id,
+                "sportradar_timeline": _timeline(actual_start="2026-09-12T16:57:00+00:00"),
                 "outcome_a": True,
                 "retirement": False,
                 "walkover": False,
@@ -195,23 +282,48 @@ def test_actual_start_audit_excludes_moved_early_match() -> None:
     )
 
 
-def test_settlement_identity_mismatch_fails() -> None:
-    record = build_live_record(
-        _raw(), fit=_fit(), profile_artifact=_profile(), core_artifact=_core()
-    )
+def test_missing_match_started_is_auditable_exclusion_not_schedule_fallback() -> None:
+    record = _build()
     settlements = load_live_settlements(
         [
             {
                 "match_id": record.match_id,
-                "provider_event_id": "wrong-event",
-                "actual_start": "2026-09-12T13:01:00-04:00",
+                "sportradar_event_id": record.sportradar_event_id,
+                "sportradar_timeline": _timeline(actual_start=None),
+                "outcome_a": True,
+                "retirement": False,
+                "walkover": False,
+            }
+        ]
+    )
+    report = evaluate_live_family(
+        [record],
+        settlements,
+        fit=_fit(),
+        profile_artifact=_profile(),
+        core_artifact=_core(),
+        ledger_sha256="6" * 64,
+        settlement_sha256="7" * 64,
+    )
+    assert report.timing_exclusions[0].reason == "ACTUAL_START_UNVERIFIED"
+    assert report.timing_exclusions[0].actual_start is None
+
+
+def test_settlement_identity_mismatch_fails() -> None:
+    record = _build()
+    settlements = load_live_settlements(
+        [
+            {
+                "match_id": record.match_id,
+                "sportradar_event_id": "sr:sport_event:wrong",
+                "sportradar_timeline": _timeline(event_id="sr:sport_event:wrong"),
                 "outcome_a": False,
                 "retirement": False,
                 "walkover": False,
             }
         ]
     )
-    with pytest.raises(ValueError, match="provider_event_id"):
+    with pytest.raises(ValueError, match="Sportradar event ID"):
         evaluate_live_family(
             [record],
             settlements,
@@ -221,3 +333,32 @@ def test_settlement_identity_mismatch_fails() -> None:
             ledger_sha256="6" * 64,
             settlement_sha256="7" * 64,
         )
+
+
+def test_eligible_verified_start_flows_into_existing_confirmation_engine() -> None:
+    record = _build()
+    settlements = load_live_settlements(
+        [
+            {
+                "match_id": record.match_id,
+                "sportradar_event_id": record.sportradar_event_id,
+                "sportradar_timeline": _timeline(actual_start="2026-09-12T17:01:00+00:00"),
+                "outcome_a": True,
+                "retirement": False,
+                "walkover": False,
+            }
+        ]
+    )
+    report = evaluate_live_family(
+        [record],
+        settlements,
+        fit=_fit(),
+        profile_artifact=_profile(),
+        core_artifact=_core(),
+        ledger_sha256="6" * 64,
+        settlement_sha256="7" * 64,
+    )
+    assert not report.timing_exclusions
+    assert all(
+        item["available_qualifying_n"] == 1 for item in report.core_confirmation["hypotheses"]
+    )
