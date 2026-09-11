@@ -65,6 +65,7 @@ The pre-match Sportradar event must:
 - be a `singles` competition;
 - have exactly one home and one away non-virtual competitor;
 - have `start_time_confirmed=true`;
+- provide an explicit admissible pre-match status (`not_started` or `scheduled`); a missing status fails closed;
 - not already be live, ended, closed, cancelled, abandoned, interrupted, suspended or postponed.
 
 Final actual start is **not** the schedule. It is the earliest `match_started` event in the Sportradar sport-event timeline for the same stable sport-event ID.
@@ -75,6 +76,8 @@ A settled row is timing-eligible only when:
 
 - the Pinnacle provider snapshot is at least five minutes before verified actual start; and
 - `prediction_committed_at` is strictly before verified actual start.
+
+Settlement `retirement`, `walkover`, and non-null `outcome_a` values must be real JSON booleans. String/numeric truthiness is rejected rather than coerced.
 
 ## Live ledger hardening
 
@@ -100,9 +103,17 @@ The sealed row binds:
 
 Loading an existing sealed ledger revalidates semantic invariants rather than trusting the self-hash alone. A row that is altered and then rehashed still fails if its provider/source, player/event mapping, state, timing, raw odds, de-vigged probability or model provenance violates the frozen contract.
 
+The runtime also hard-pins the exact preregistered champion artifact identities. Supplying a different but internally valid/rehashed artifact cannot redefine the experiment:
+
+- Profile artifact SHA-256: `cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351`
+- Core artifact SHA-256: `5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7`
+- Market+Core fit SHA-256: `622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732`
+
+Changing any of these three champion artifacts requires a new explicitly versioned experiment rather than an in-place substitution.
+
 ## Verification execution
 
-Final semantic hardening commit:
+Core semantic hardening commit:
 
 - `e7088fcc92107410738df3e2143a38fa087880b4`
 - message: `Reverify sealed live identity and timing semantics`
@@ -116,7 +127,9 @@ One-shot integrity workflow:
 - full `pytest`: success
 - commit step: success
 
-Immediately before the final semantic patch, normal CI on the integrated identity/timeline implementation reported **371 tests passed**; its only failure was a Ruff import-modernization rule, which the final hardening run corrected before committing `e7088fcc...`.
+Immediately before that semantic patch, normal CI on the integrated identity/timeline implementation reported **371 tests passed**; its only failure was a Ruff import-modernization rule, which the hardening run corrected before committing `e7088fcc...`.
+
+Final input hardening then added explicit provider-status enforcement, strict JSON settlement booleans, and exact runtime pinning of all three champion artifact hashes. The one-shot full-suite hardening workflows completed successfully before those commits were accepted on the branch.
 
 ## Current scientific state
 
