@@ -6,6 +6,7 @@ from typing import Literal, cast
 
 Tour = Literal["ATP", "WTA"]
 _CONFIRMATORY_STATUS = "ELIGIBLE_CONFIRMATORY"
+_RECENT_YEARS = (2021, 2022, 2023, 2024, 2025)
 _REQUIRED_GATES = {
     "overall_close_coverage_at_least_60pct",
     "every_recent_year_close_coverage_at_least_50pct",
@@ -14,6 +15,33 @@ _REQUIRED_GATES = {
     "all_2021_2025_years_in_evaluation_population",
     "passed",
 }
+
+
+def _require_five_evaluation_years(row: dict[str, object], *, tour: Tour) -> None:
+    """Require literal annual evidence for all five frozen evaluation years.
+
+    MARKET-BOOK-QA's first preregistered artifact schema encoded this through the
+    all-2021-2025 gate rather than a redundant second boolean. The downstream
+    confirmatory gate therefore checks the annual rows directly so the original
+    five-evaluation-year requirement is enforced independently and cannot be
+    inferred from a status label alone.
+    """
+
+    annual = row.get("annual")
+    if not isinstance(annual, list):
+        raise ValueError(f"MARKET-BOOK-QA {tour} row lacks annual coverage evidence")
+    represented: set[int] = set()
+    for item in annual:
+        if not isinstance(item, dict):
+            raise ValueError(f"MARKET-BOOK-QA {tour} contains invalid annual coverage")
+        year = int(item.get("year", 0))
+        if year in _RECENT_YEARS and int(item.get("usable_close", 0)) > 0:
+            represented.add(year)
+    missing = [year for year in _RECENT_YEARS if year not in represented]
+    if missing:
+        raise ValueError(
+            f"MARKET-BOOK-QA {tour} lacks five evaluation years; missing={missing}"
+        )
 
 
 def load_confirmatory_market_book_qa(path: str | Path) -> dict[Tour, str]:
@@ -53,6 +81,7 @@ def load_confirmatory_market_book_qa(path: str | Path) -> dict[Tour, str]:
             raise ValueError(f"MARKET-BOOK-QA {tour} gate set differs from frozen design")
         if any(gates[name] is not True for name in _REQUIRED_GATES):
             raise ValueError(f"MARKET-BOOK-QA {tour} has a failed frozen coverage gate")
+        _require_five_evaluation_years(row, tour=tour)
         result[tour] = status
 
     if set(result) != {"ATP", "WTA"}:
