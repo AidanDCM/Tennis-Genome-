@@ -7,11 +7,17 @@ on:
       - dev/bookmaker-real-source-preflight-v1
     paths:
       - "src/tennis_genome/market/providers/bookmaker_historical.py"
+      - "src/tennis_genome/market/bookmaker_alias.py"
       - "src/tennis_genome/market/bookmaker_batch.py"
+      - "src/tennis_genome/market/bookmaker_batch_v2.py"
+      - "src/tennis_genome/experiments/market_book_qa.py"
+      - "src/tennis_genome/experiments/market_book_qa_v2.py"
       - "tests/test_bookmaker_historical.py"
       - "tests/test_bookmaker_batch.py"
+      - "tests/test_bookmaker_alias_v2.py"
       - "research/installment_01/market_book_001_amendment_001.md"
       - "research/installment_01/market_book_001_amendment_002.md"
+      - "research/installment_01/market_book_001_amendment_003.md"
       - "scripts/run_bookmaker_real_qa.sh"
       - ".github/workflows/bookmaker_real_qa.yml"
 
@@ -32,6 +38,9 @@ jobs:
 
       - name: Install package
         run: pip install -e .[dev]
+
+      - name: Run resolver-v2 regressions
+        run: pytest -q tests/test_bookmaker_alias_v2.py tests/test_bookmaker_batch.py tests/test_market_book_qa.py
 
       - name: Run outcome-blind real bookmaker QA
         run: bash scripts/run_bookmaker_real_qa.sh
