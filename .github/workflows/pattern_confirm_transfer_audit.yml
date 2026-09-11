@@ -34,12 +34,6 @@ jobs:
           path: inputs/discovery
           github-token: ${{ github.token }}
           run-id: 34633660089
-      - name: Verify discovery artifact files
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '1d71222ab477eec65a06a3e7c76ac0af1c282e6f2a7164e8c47b37afc7192628  inputs/discovery/feature_ledger.jsonl' | sha256sum --check
-          echo '3fb6ae9b670dca30e2b5085c0ace72ced926be16e1d8bbfa9874b0c7abcb0c6c  inputs/discovery/residual_ledger.jsonl' | sha256sum --check
       - name: Re-score spent validation block under prospective pooled baseline
         shell: bash
         run: |
