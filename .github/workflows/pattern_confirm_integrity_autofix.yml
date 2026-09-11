@@ -52,6 +52,14 @@ jobs:
           if old not in text:
               raise SystemExit('expected live verification block not found')
           live.write_text(text.replace(old, new))
+
+          tests = Path('tests/test_pattern_confirm_live.py')
+          text = tests.read_text()
+          old_case = '''        ({"provider_snapshot_at": "2026-09-12T12:56:00-04:00"}, "five minutes"),\n'''
+          new_case = '''        (\n            {\n                "provider_snapshot_at": "2026-09-12T12:56:00-04:00",\n                "ingested_at": "2026-09-12T12:56:20-04:00",\n                "prediction_generated_at": "2026-09-12T12:56:25-04:00",\n                "prediction_committed_at": "2026-09-12T12:56:30-04:00",\n            },\n            "five minutes",\n        ),\n'''
+          if old_case not in text:
+              raise SystemExit('expected T-minus-five test case not found')
+          tests.write_text(text.replace(old_case, new_case))
           PY
       - name: Install, format and test
         run: |
