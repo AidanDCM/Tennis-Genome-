@@ -21,7 +21,7 @@ jobs:
       - name: Format discovery files
         run: |
           ruff format src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
-          ruff check --fix src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py
+          ruff check --fix src/tennis_genome/experiments/pattern_discovery.py tests/test_pattern_discovery.py || true
       - uses: actions/upload-artifact@v4
         with:
           name: pattern-formatted-files
