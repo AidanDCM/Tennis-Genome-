@@ -1,0 +1,90 @@
+{
+  "artifact_id": "PATTERN-DISCOVERY-SUMMARY-001",
+  "experiment_id": "PATTERN-DISCOVERY-001",
+  "version": "pattern-discovery-v1",
+  "exploratory_only": true,
+  "production_promotion_allowed": false,
+  "workflow_run_id": 34633660089,
+  "code_sha": "6014a691fb53cd7f3dbdd6179ac20419b80002f4",
+  "actions_artifact_id": 10277681971,
+  "actions_artifact_zip_sha256": "fbfabc13d28d6fb0b04d1c8642b812d01b8c149f429a782d04009909f1042b29",
+  "artifact_sha256": "6a867c4b4cf236567a10a4567a209fdbbf397da201147f3a8537e71de4675399",
+  "residual_ledger_sha256": "3fb6ae9b670dca30e2b5085c0ace72ced926be16e1d8bbfa9874b0c7abcb0c6c",
+  "feature_ledger_sha256": "1d71222ab477eec65a06a3e7c76ac0af1c282e6f2a7164e8c47b37afc7192628",
+  "total_candidates": 425,
+  "candidate_counts": {
+    "ATP": {
+      "single_variable": {"generated": 118, "survivors": 1},
+      "pairwise_context": {"generated": 51, "survivors": 1},
+      "uncertainty_ood": {"generated": 43, "survivors": 2}
+    },
+    "WTA": {
+      "single_variable": {"generated": 119, "survivors": 0},
+      "pairwise_context": {"generated": 51, "survivors": 0},
+      "uncertainty_ood": {"generated": 43, "survivors": 0}
+    }
+  },
+  "survivors": [
+    {
+      "candidate_id": "ATP:single_variable:0914faa2399d38c4",
+      "future_rule": "ATP and profile_gap < -0.4045998117259577",
+      "discovery_n": 3060,
+      "discovery_mean_residual": -0.031143878674067826,
+      "bh_adjusted_discovery_p": 0.008182048312351729,
+      "validation_n": 1248,
+      "validation_mean_residual": -0.03269372391111453,
+      "validation_bootstrap_95": [-0.05681102102883317, -0.008650407417183465],
+      "validation_concentration_ratio": 0.3662709662750126,
+      "validation_brier_improvement": 0.001066542751626015,
+      "validation_log_loss_improvement": 0.0026236312103408155,
+      "priority_for_future_confirmation": true
+    },
+    {
+      "candidate_id": "ATP:uncertainty_ood:90451092e0e9a458",
+      "future_rule": "ATP and abs(profile_gap) >= 0.47108555150900466",
+      "discovery_n": 3060,
+      "discovery_mean_residual": -0.022734415112664306,
+      "bh_adjusted_discovery_p": 0.06598136027882753,
+      "validation_n": 1325,
+      "validation_mean_residual": -0.023225072947050746,
+      "validation_bootstrap_95": [-0.04493696598158437, -0.0009699301362726131],
+      "validation_concentration_ratio": 0.43428478589331254,
+      "validation_brier_improvement": 0.0005392167363527101,
+      "validation_log_loss_improvement": 0.0022532374022509183,
+      "priority_for_future_confirmation": true
+    },
+    {
+      "candidate_id": "ATP:pairwise_context:024ccacb399b35e9",
+      "future_rule": "ATP and surface == Clay and profile_gap < -0.25847459234483483",
+      "discovery_n": 1519,
+      "discovery_mean_residual": -0.038016749298630845,
+      "bh_adjusted_discovery_p": 0.043987289715058546,
+      "validation_n": 622,
+      "validation_mean_residual": -0.01930066799562021,
+      "validation_bootstrap_95": [-0.055382210569089096, 0.01758412064478086],
+      "validation_concentration_ratio": 0.4961682738954233,
+      "validation_brier_improvement": 0.000022226486918824895,
+      "validation_log_loss_improvement": -0.0012769427802409306,
+      "priority_for_future_confirmation": false
+    },
+    {
+      "candidate_id": "ATP:uncertainty_ood:fcc0038894ce357e",
+      "future_rule": "ATP and abs(profile_gap) >= 0.34720321530770193 and abs(genome_signal) < 0.02140617852518821",
+      "discovery_n": 1712,
+      "discovery_mean_residual": -0.03451877877835203,
+      "bh_adjusted_discovery_p": 0.043884801278684764,
+      "validation_n": 756,
+      "validation_mean_residual": -0.007867373549838444,
+      "validation_bootstrap_95": [-0.03922749414992089, 0.022876831704983832],
+      "validation_concentration_ratio": 0.39404224909280483,
+      "validation_brier_improvement": -0.0006463059697525142,
+      "validation_log_loss_improvement": -0.0006176792156749045,
+      "priority_for_future_confirmation": false
+    }
+  ],
+  "future_confirmation_priority_rule": "post-discovery selection: validation bootstrap interval excludes zero in discovery direction; all 2023-2025 annual residual sums share that direction; frozen discovery correction improves both Brier and log loss",
+  "future_confirmation_priority_family": [
+    "ATP:single_variable:0914faa2399d38c4",
+    "ATP:uncertainty_ood:90451092e0e9a458"
+  ]
+}
