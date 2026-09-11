@@ -68,18 +68,14 @@ def _sha256_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+def _payload_sha(payload: object) -> str:
+    return _sha256_bytes(_canonical_json(payload))
 
 
 def _self_hash(payload: dict[str, object]) -> str:
     unsigned = dict(payload)
     unsigned.pop("artifact_sha256", None)
-    return _sha256_bytes(_canonical_json(unsigned))
+    return _payload_sha(unsigned)
 
 
 def _load_jsonl(path: Path) -> list[dict[str, object]]:
@@ -127,16 +123,16 @@ def build_transfer_audit(
     if summary.get("experiment_id") != "PATTERN-DISCOVERY-001":
         raise ValueError("unexpected discovery experiment ID")
 
-    feature_sha = _sha256_file(feature_ledger_path)
-    residual_sha = _sha256_file(residual_ledger_path)
-    if feature_sha != str(summary.get("feature_ledger_sha256", "")):
-        raise ValueError("feature ledger hash does not match discovery summary")
-    if residual_sha != str(summary.get("residual_ledger_sha256", "")):
-        raise ValueError("residual ledger hash does not match discovery summary")
-
-    fit = verify_fit_payload(fit_payload)
     features = _load_jsonl(feature_ledger_path)
     residuals = _load_jsonl(residual_ledger_path)
+    feature_sha = _payload_sha(features)
+    residual_sha = _payload_sha(residuals)
+    if feature_sha != str(summary.get("feature_ledger_sha256", "")):
+        raise ValueError("feature ledger canonical payload hash does not match discovery summary")
+    if residual_sha != str(summary.get("residual_ledger_sha256", "")):
+        raise ValueError("residual ledger canonical payload hash does not match discovery summary")
+
+    fit = verify_fit_payload(fit_payload)
     feature_by_id = {str(row.get("match_id", "")): row for row in features}
     residual_by_id = {str(row.get("match_id", "")): row for row in residuals}
     if (
