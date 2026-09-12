@@ -8,9 +8,7 @@ from datetime import date, datetime
 
 from tennis_genome.data.canonical import HistoricalMatch
 from tennis_genome.experiments.pattern_confirm_live_identity import IdentityMapping
-from tennis_genome.experiments.pattern_confirm_live_state import (
-    prospective_state_as_dict,
-)
+from tennis_genome.experiments.pattern_confirm_live_state import prospective_state_as_dict
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
@@ -44,6 +42,7 @@ class SportradarSourcePackage:
     version: str
     captured_at: str
     outcome_scope: str
+    match_id: str
     sportradar_event_id: str
     season_id: str
     season_start_date: str
@@ -89,6 +88,7 @@ def _capture_time(value: datetime) -> str:
 
 def build_live_source_package(
     *,
+    match_id: str,
     base_history: list[HistoricalMatch],
     identity_mapping: IdentityMapping,
     crosswalk_payload: dict[str, object],
@@ -99,6 +99,9 @@ def build_live_source_package(
     captured_at: datetime,
     get_json: Callable[..., object],
 ) -> SportradarSourcePackage:
+    match_id = str(match_id).strip()
+    if not match_id:
+        raise ValueError("match_id must be non-empty")
     target_date = date.fromisoformat(identity_mapping.season_start_date)
     if target_date < _STATE_START:
         raise ValueError("target season predates the post-2025 state source window")
@@ -130,7 +133,7 @@ def build_live_source_package(
         get_json=get_json,
     )
     target_context = build_target_context_artifact(
-        match_id=identity_mapping.market_event_id,
+        match_id=match_id,
         identity_mapping=identity_mapping,
         summary_payload=summary,
         season_info_payload=season_info,
@@ -165,6 +168,7 @@ def build_live_source_package(
         "outcome_scope": (
             "prior completed state only; target/future outcome and settlement are not accessed"
         ),
+        "match_id": match_id,
         "sportradar_event_id": identity_mapping.sportradar_event_id,
         "season_id": identity_mapping.season_id,
         "season_start_date": identity_mapping.season_start_date,
@@ -198,6 +202,10 @@ def verify_source_package(payload: dict[str, object]) -> SportradarSourcePackage
         raise ValueError("unexpected Sportradar source package version")
     if "target/future outcome" not in package.outcome_scope:
         raise ValueError("source package outcome scope is not frozen")
+    if package.match_id != str(package.target_context.get("match_id", "")):
+        raise ValueError("source package target match identity mismatch")
+    if package.match_id != str(package.prospective_state.get("match_id", "")):
+        raise ValueError("source package prospective-state match identity mismatch")
     if package.state_bundle_sha256 != str(package.state_bundle.get("artifact_sha256", "")):
         raise ValueError("source package state-bundle hash mismatch")
     if package.target_context_sha256 != str(
