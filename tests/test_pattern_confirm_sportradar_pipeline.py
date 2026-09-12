@@ -16,6 +16,10 @@ from tennis_genome.experiments.pattern_confirm_production import (
     verify_core_artifact,
     verify_profile_artifact,
 )
+from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
+    crosswalk_as_dict,
+    seal_crosswalk,
+)
 from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
     build_sportradar_prospective_state,
     training_population_hash,
@@ -218,6 +222,14 @@ def _target_context():
     return mapping, context
 
 
+def _crosswalk() -> tuple[dict[str, str], dict[str, object]]:
+    mapping = {
+        "sr:competitor:11": "A",
+        "sr:competitor:22": "B",
+    }
+    return mapping, crosswalk_as_dict(seal_crosswalk(mapping))
+
+
 def test_frozen_base_must_reproduce_training_hash() -> None:
     base = _base()
     profile, core = _toy_models(base)
@@ -242,16 +254,13 @@ def test_sportradar_bundle_and_target_build_internal_state() -> None:
         status="closed",
         winner_id="sr:competitor:11",
     )
-    crosswalk = {
-        "sr:competitor:11": "A",
-        "sr:competitor:22": "B",
-    }
+    crosswalk, crosswalk_payload = _crosswalk()
     bundle = build_state_bundle(summaries=[extension_summary], crosswalk=crosswalk)
     artifact = build_sportradar_prospective_state(
         base_history=base,
         state_bundle_payload=state_bundle_as_dict(bundle),
         target_context_payload=target_context_as_dict(context),
-        crosswalk=crosswalk,
+        crosswalk_payload=crosswalk_payload,
         identity_mapping=mapping,
         profile_artifact=profile,
         core_artifact=core,
@@ -267,10 +276,7 @@ def test_extension_must_be_post_2025_and_pre_target() -> None:
     base = _base()
     profile, core = _toy_models(base)
     mapping, context = _target_context()
-    crosswalk = {
-        "sr:competitor:11": "A",
-        "sr:competitor:22": "B",
-    }
+    crosswalk, crosswalk_payload = _crosswalk()
     for bad_date, message in [
         ("2025-12-01", "pre-2026"),
         ("2026-03-01", "strictly earlier"),
@@ -291,8 +297,29 @@ def test_extension_must_be_post_2025_and_pre_target() -> None:
                 base_history=base,
                 state_bundle_payload=state_bundle_as_dict(bundle),
                 target_context_payload=target_context_as_dict(context),
-                crosswalk=crosswalk,
+                crosswalk_payload=crosswalk_payload,
                 identity_mapping=mapping,
                 profile_artifact=profile,
                 core_artifact=core,
             )
+
+
+def test_target_identity_must_match_sealed_crosswalk() -> None:
+    base = _base()
+    profile, core = _toy_models(base)
+    mapping, context = _target_context()
+    state_mapping = {
+        "sr:competitor:11": "wrong-a",
+        "sr:competitor:22": "B",
+    }
+    bundle = build_state_bundle(summaries=[], crosswalk=state_mapping)
+    with pytest.raises(ValueError, match="target player A identity"):
+        build_sportradar_prospective_state(
+            base_history=base,
+            state_bundle_payload=state_bundle_as_dict(bundle),
+            target_context_payload=target_context_as_dict(context),
+            crosswalk_payload=crosswalk_as_dict(seal_crosswalk(state_mapping)),
+            identity_mapping=mapping,
+            profile_artifact=profile,
+            core_artifact=core,
+        )
