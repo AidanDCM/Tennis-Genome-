@@ -117,7 +117,9 @@ def build_sportradar_prospective_state(
         if match.pre_match.event_date <= _BASE_END:
             raise ValueError("Sportradar state extension contains a pre-2026 event date")
         if match.pre_match.event_date >= target.event_date:
-            raise ValueError("Sportradar state extension is not strictly earlier than target season")
+            raise ValueError(
+                "Sportradar state extension is not strictly earlier than target season"
+            )
 
     base_ids = {match.match_id for match in base}
     extension_ids = {match.match_id for match in extension}
