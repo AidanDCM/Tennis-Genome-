@@ -24,6 +24,9 @@ from tennis_genome.experiments.pattern_confirm_sportradar_state import (
     verify_state_bundle,
     verify_target_context_artifact,
 )
+from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
+    verify_state_capture,
+)
 
 _SOURCE_ID = "CANONICAL_2000_2025_PLUS_SPORTRADAR_TENNIS_V3_STATE_V1"
 _BASE_END = date(2025, 12, 31)
@@ -98,7 +101,7 @@ def verified_frozen_base_history(
 def build_sportradar_prospective_state(
     *,
     base_history: list[HistoricalMatch],
-    state_bundle_payload: dict[str, object],
+    state_capture_payload: dict[str, object],
     target_context_payload: dict[str, object],
     crosswalk_payload: dict[str, object],
     identity_mapping: IdentityMapping,
@@ -117,12 +120,18 @@ def build_sportradar_prospective_state(
     if crosswalk.get(identity_mapping.player_b_sportradar_id) != identity_mapping.player_b_canonical_id:
         raise ValueError("sealed crosswalk does not reproduce target player B identity")
 
-    bundle = verify_state_bundle(state_bundle_payload, crosswalk=crosswalk)
     target_context = verify_target_context_artifact(
         target_context_payload,
         identity_mapping=identity_mapping,
     )
     target = target_pre_match(target_context)
+    state_capture = verify_state_capture(
+        state_capture_payload,
+        crosswalk_payload=crosswalk_payload,
+    )
+    if state_capture.target_state_cutoff_date != target.event_date.isoformat():
+        raise ValueError("season state capture cutoff does not match target season start")
+    bundle = verify_state_bundle(state_capture.state_bundle, crosswalk=crosswalk)
     extension = history_from_state_bundle(bundle)
     for match in extension:
         if match.pre_match.event_date <= _BASE_END:
@@ -144,7 +153,7 @@ def build_sportradar_prospective_state(
             {
                 "base_canonical_manifest_sha256": profile_artifact.canonical_manifest_sha256,
                 "base_training_rows_sha256": profile_artifact.training_rows_sha256,
-                "state_bundle_sha256": bundle.artifact_sha256,
+                "state_capture_sha256": state_capture.artifact_sha256,
                 "crosswalk_sha256": sealed_crosswalk.artifact_sha256,
             }
         )
