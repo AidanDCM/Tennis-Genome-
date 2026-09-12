@@ -8,6 +8,8 @@ from urllib.request import Request, urlopen
 _HOST = "https://api.sportradar.com"
 _LANGUAGE = "en"
 _ALLOWED_ACCESS = {"trial", "production"}
+_SEASON_PAGE_SIZE = 200
+_MAX_SEASON_PAGES = 20
 
 
 def _validate(access_level: str, api_key: str) -> None:
@@ -42,6 +44,89 @@ def _get(
     return get_json(url, headers={"x-api-key": api_key})
 
 
+def _object_payload(value: object, *, field: str) -> dict[str, object]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{field} must be an object")
+    return value
+
+
+def _object_array(payload: dict[str, object], name: str) -> list[dict[str, object]]:
+    raw = payload.get(name)
+    if not isinstance(raw, list):
+        raise ValueError(f"Sportradar {name} must be an array")
+    if any(not isinstance(item, dict) for item in raw):
+        raise ValueError(f"Sportradar {name} contains a non-object row")
+    return list(raw)
+
+
+def fetch_competitions_catalog(
+    *,
+    api_key: str,
+    access_level: str,
+    get_json: Callable[..., object] = _http_json,
+) -> dict[str, object]:
+    payload = _object_payload(
+        _get(
+            "competitions.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Competitions response",
+    )
+    _object_array(payload, "competitions")
+    return payload
+
+
+def fetch_seasons_catalog(
+    *,
+    api_key: str,
+    access_level: str,
+    get_json: Callable[..., object] = _http_json,
+) -> dict[str, object]:
+    payload = _object_payload(
+        _get(
+            "seasons.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Seasons response",
+    )
+    _object_array(payload, "seasons")
+    return payload
+
+
+def fetch_season_summary_pages(
+    season_id: str,
+    *,
+    api_key: str,
+    access_level: str,
+    get_json: Callable[..., object] = _http_json,
+) -> list[tuple[int, dict[str, object]]]:
+    season_id = str(season_id).strip()
+    if not season_id:
+        raise ValueError("season_id must be non-empty")
+    pages: list[tuple[int, dict[str, object]]] = []
+    start = 0
+    for _ in range(_MAX_SEASON_PAGES):
+        payload = _object_payload(
+            _get(
+                f"seasons/{season_id}/summaries.json?start={start}&limit={_SEASON_PAGE_SIZE}",
+                api_key=api_key,
+                access_level=access_level,
+                get_json=get_json,
+            ),
+            field="Sportradar Season Summaries response",
+        )
+        summaries = _object_array(payload, "summaries")
+        pages.append((start, payload))
+        if len(summaries) < _SEASON_PAGE_SIZE:
+            return pages
+        start += _SEASON_PAGE_SIZE
+    raise ValueError("Season Summaries pagination exceeded frozen maximum")
+
+
 def fetch_sport_event_summary(
     sport_event_id: str,
     *,
@@ -49,15 +134,15 @@ def fetch_sport_event_summary(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> dict[str, object]:
-    payload = _get(
-        f"sport_events/{sport_event_id}/summary.json",
-        api_key=api_key,
-        access_level=access_level,
-        get_json=get_json,
+    return _object_payload(
+        _get(
+            f"sport_events/{sport_event_id}/summary.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Sport Event Summary",
     )
-    if not isinstance(payload, dict):
-        raise ValueError("Sportradar Sport Event Summary must be an object")
-    return payload
 
 
 def fetch_season_info(
@@ -67,15 +152,15 @@ def fetch_season_info(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> dict[str, object]:
-    payload = _get(
-        f"seasons/{season_id}/info.json",
-        api_key=api_key,
-        access_level=access_level,
-        get_json=get_json,
+    return _object_payload(
+        _get(
+            f"seasons/{season_id}/info.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Season Info",
     )
-    if not isinstance(payload, dict):
-        raise ValueError("Sportradar Season Info must be an object")
-    return payload
 
 
 def fetch_competitor_profile(
@@ -85,15 +170,15 @@ def fetch_competitor_profile(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> dict[str, object]:
-    payload = _get(
-        f"competitors/{competitor_id}/profile.json",
-        api_key=api_key,
-        access_level=access_level,
-        get_json=get_json,
+    return _object_payload(
+        _get(
+            f"competitors/{competitor_id}/profile.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Competitor Profile",
     )
-    if not isinstance(payload, dict):
-        raise ValueError("Sportradar Competitor Profile must be an object")
-    return payload
 
 
 def fetch_daily_summaries(
@@ -103,20 +188,16 @@ def fetch_daily_summaries(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> list[dict[str, object]]:
-    payload = _get(
-        f"schedules/{day.isoformat()}/summaries.json",
-        api_key=api_key,
-        access_level=access_level,
-        get_json=get_json,
+    payload = _object_payload(
+        _get(
+            f"schedules/{day.isoformat()}/summaries.json",
+            api_key=api_key,
+            access_level=access_level,
+            get_json=get_json,
+        ),
+        field="Sportradar Daily Summaries response",
     )
-    if not isinstance(payload, dict):
-        raise ValueError("Sportradar Daily Summaries response must be an object")
-    raw = payload.get("summaries")
-    if not isinstance(raw, list):
-        raise ValueError("Sportradar Daily Summaries must contain an array")
-    if any(not isinstance(item, dict) for item in raw):
-        raise ValueError("Sportradar Daily Summaries contains a non-object row")
-    return list(raw)
+    return _object_array(payload, "summaries")
 
 
 def fetch_daily_summary_range(
@@ -127,8 +208,8 @@ def fetch_daily_summary_range(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> list[dict[str, object]]:
-    if end_date_exclusive <= start_date:
-        raise ValueError("daily-summary range end must be after start")
+    if end_date_exclusive < start_date:
+        raise ValueError("daily-summary range end cannot precede start")
     rows: list[dict[str, object]] = []
     current = start_date
     while current < end_date_exclusive:
