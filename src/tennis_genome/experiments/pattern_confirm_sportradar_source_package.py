@@ -102,6 +102,7 @@ def build_live_source_package(
     match_id = str(match_id).strip()
     if not match_id:
         raise ValueError("match_id must be non-empty")
+    captured_at_text = _capture_time(captured_at)
     target_date = date.fromisoformat(identity_mapping.season_start_date)
     if target_date < _STATE_START:
         raise ValueError("target season predates the post-2025 state source window")
@@ -164,7 +165,7 @@ def build_live_source_package(
 
     unsigned: dict[str, object] = {
         "version": _VERSION,
-        "captured_at": _capture_time(captured_at),
+        "captured_at": captured_at_text,
         "outcome_scope": (
             "prior completed state only; target/future outcome and settlement are not accessed"
         ),
