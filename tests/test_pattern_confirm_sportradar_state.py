@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import replace
-
 import pytest
 
 from tennis_genome.experiments.pattern_confirm_live_identity import (
@@ -225,7 +223,9 @@ def test_target_context_rejects_wrong_profile_and_unknown_surface() -> None:
             summary_payload=_summary(include_stats=False),
             season_info_payload=_season_info(),
             profile_a_payload=_profile("wrong", dob="1997-05-17", hand="right", height=185),
-            profile_b_payload=_profile("sr:competitor:22", dob="1997-10-28", hand="left", height=196),
+            profile_b_payload=_profile(
+                "sr:competitor:22", dob="1997-10-28", hand="left", height=196
+            ),
         )
     with pytest.raises(ValueError, match="surface"):
         build_target_context_artifact(
@@ -233,8 +233,12 @@ def test_target_context_rejects_wrong_profile_and_unknown_surface() -> None:
             identity_mapping=mapping,
             summary_payload=_summary(include_stats=False),
             season_info_payload=_season_info("synthetic_indoor"),
-            profile_a_payload=_profile("sr:competitor:11", dob="1997-05-17", hand="right", height=185),
-            profile_b_payload=_profile("sr:competitor:22", dob="1997-10-28", hand="left", height=196),
+            profile_a_payload=_profile(
+                "sr:competitor:11", dob="1997-05-17", hand="right", height=185
+            ),
+            profile_b_payload=_profile(
+                "sr:competitor:22", dob="1997-10-28", hand="left", height=196
+            ),
         )
 
 
@@ -372,3 +376,21 @@ def test_state_bundle_self_hash_detects_rehashed_row_change() -> None:
     payload["accepted_count"] = 2
     with pytest.raises(ValueError, match="digest"):
         verify_state_bundle(payload, crosswalk=crosswalk)
+
+
+def test_state_bundle_rejects_statistics_orientation_mismatch() -> None:
+    crosswalk = {
+        "sr:competitor:11": "canonical-a",
+        "sr:competitor:22": "canonical-b",
+    }
+    payload = _summary(
+        event_id="sr:sport_event:stats-swap",
+        status="closed",
+        winner_id="sr:competitor:11",
+    )
+    totals = payload["statistics"]["totals"]["competitors"]
+    totals[0]["id"], totals[1]["id"] = totals[1]["id"], totals[0]["id"]
+    bundle = build_state_bundle(summaries=[payload], crosswalk=crosswalk)
+    assert bundle.accepted_count == 0
+    assert bundle.excluded_count == 1
+    assert "statistics home competitor ID mismatch" in bundle.exclusions[0].reason

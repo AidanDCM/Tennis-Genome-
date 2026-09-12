@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import re
 from dataclasses import asdict, dataclass
 from datetime import date
@@ -133,6 +132,8 @@ def _as_list(value: object, *, field: str) -> list[object]:
 
 
 def _text(value: object) -> str:
+    if value is None:
+        return ""
     return str(value).strip()
 
 
@@ -222,7 +223,9 @@ def _age_years(dob: object, *, event_date: date) -> float | None:
     return days / 365.25
 
 
-def _profile_fields(payload: dict[str, object], expected_id: str, event_date: date) -> dict[str, object]:
+def _profile_fields(
+    payload: dict[str, object], expected_id: str, event_date: date
+) -> dict[str, object]:
     competitor = _as_dict(payload.get("competitor"), field="competitor profile competitor")
     if _required_text(competitor, "id") != expected_id:
         raise ValueError("competitor profile ID mismatch")
@@ -281,7 +284,9 @@ def _historical_from_payload(payload: dict[str, object]) -> HistoricalMatch:
     pre = _as_dict(payload.get("pre_match"), field="state row pre_match")
     outcome = _as_dict(payload.get("outcome"), field="state row outcome")
     stats_raw = payload.get("stats")
-    stats = None if stats_raw is None else MatchStats(**_as_dict(stats_raw, field="state row stats"))
+    stats = (
+        None if stats_raw is None else MatchStats(**_as_dict(stats_raw, field="state row stats"))
+    )
     return HistoricalMatch(
         pre_match=_pre_match_from_payload(pre),
         outcome=MatchOutcome(**outcome),
@@ -348,8 +353,12 @@ def build_target_context_artifact(
         mode = _as_dict(mode_raw, field="sport_event_context.mode")
         best_of = _positive_int(mode.get("best_of"), field="mode.best_of")
 
-    fields_a = _profile_fields(profile_a_payload, identity_mapping.player_a_sportradar_id, event_date)
-    fields_b = _profile_fields(profile_b_payload, identity_mapping.player_b_sportradar_id, event_date)
+    fields_a = _profile_fields(
+        profile_a_payload, identity_mapping.player_a_sportradar_id, event_date
+    )
+    fields_b = _profile_fields(
+        profile_b_payload, identity_mapping.player_b_sportradar_id, event_date
+    )
     state = PreMatchState(
         match_id=_text(match_id),
         tour="ATP",
@@ -423,7 +432,10 @@ def verify_target_context_artifact(
     if artifact.season_start_date != identity_mapping.season_start_date:
         raise ValueError("target context season start mismatch")
     state = _pre_match_from_payload(artifact.pre_match)
-    if state.match_id != artifact.match_id or state.event_date.isoformat() != artifact.season_start_date:
+    if (
+        state.match_id != artifact.match_id
+        or state.event_date.isoformat() != artifact.season_start_date
+    ):
         raise ValueError("target context pre-match identity/date mismatch")
     if state.player_a_id != identity_mapping.player_a_canonical_id:
         raise ValueError("target context canonical player A mismatch")
@@ -436,11 +448,13 @@ def target_pre_match(artifact: TargetContextArtifact) -> PreMatchState:
     return _pre_match_from_payload(artifact.pre_match)
 
 
-def _stats_side(raw: dict[str, object]) -> MatchStats | None:
-    raise RuntimeError("_stats_side is not called directly")
-
-
-def _summary_stats(summary: dict[str, object], match_id: str) -> MatchStats | None:
+def _summary_stats(
+    summary: dict[str, object],
+    match_id: str,
+    *,
+    expected_home_id: str,
+    expected_away_id: str,
+) -> MatchStats | None:
     statistics_raw = summary.get("statistics")
     if statistics_raw is None:
         return None
@@ -452,12 +466,22 @@ def _summary_stats(summary: dict[str, object], match_id: str) -> MatchStats | No
         row = competitors[qualifier]
         return _as_dict(row.get("statistics"), field=f"{qualifier} statistics")
 
+    home_row = competitors["home"]
+    away_row = competitors["away"]
+    if _required_text(home_row, "id") != expected_home_id:
+        raise ValueError("statistics home competitor ID mismatch")
+    if _required_text(away_row, "id") != expected_away_id:
+        raise ValueError("statistics away competitor ID mismatch")
     home = side("home")
     away = side("away")
 
     def derived_service_points(values: dict[str, object], qualifier: str) -> int | None:
-        won = _optional_nonnegative_int(values.get("service_points_won"), field=f"{qualifier} service_points_won")
-        lost = _optional_nonnegative_int(values.get("service_points_lost"), field=f"{qualifier} service_points_lost")
+        won = _optional_nonnegative_int(
+            values.get("service_points_won"), field=f"{qualifier} service_points_won"
+        )
+        lost = _optional_nonnegative_int(
+            values.get("service_points_lost"), field=f"{qualifier} service_points_lost"
+        )
         first = _optional_nonnegative_int(
             values.get("first_serve_points_won"), field=f"{qualifier} first_serve_points_won"
         )
@@ -465,7 +489,9 @@ def _summary_stats(summary: dict[str, object], match_id: str) -> MatchStats | No
             values.get("second_serve_points_won"), field=f"{qualifier} second_serve_points_won"
         )
         if won is not None and first is not None and second is not None and won != first + second:
-            raise ValueError(f"{qualifier} service_points_won is inconsistent with serve components")
+            raise ValueError(
+                f"{qualifier} service_points_won is inconsistent with serve components"
+            )
         if won is None or lost is None:
             return None
         return won + lost
@@ -474,8 +500,12 @@ def _summary_stats(summary: dict[str, object], match_id: str) -> MatchStats | No
         match_id=match_id,
         aces_a=_optional_nonnegative_int(home.get("aces"), field="home aces"),
         aces_b=_optional_nonnegative_int(away.get("aces"), field="away aces"),
-        double_faults_a=_optional_nonnegative_int(home.get("double_faults"), field="home double_faults"),
-        double_faults_b=_optional_nonnegative_int(away.get("double_faults"), field="away double_faults"),
+        double_faults_a=_optional_nonnegative_int(
+            home.get("double_faults"), field="home double_faults"
+        ),
+        double_faults_b=_optional_nonnegative_int(
+            away.get("double_faults"), field="away double_faults"
+        ),
         service_points_a=derived_service_points(home, "home"),
         service_points_b=derived_service_points(away, "away"),
         first_serves_in_a=_optional_nonnegative_int(
@@ -547,7 +577,9 @@ def _state_match_from_summary(
     mode_raw = context.get("mode")
     best_of = None
     if mode_raw is not None:
-        best_of = _positive_int(_as_dict(mode_raw, field="mode").get("best_of"), field="mode.best_of")
+        best_of = _positive_int(
+            _as_dict(mode_raw, field="mode").get("best_of"), field="mode.best_of"
+        )
 
     pre = PreMatchState(
         match_id=event_id,
@@ -589,7 +621,16 @@ def _state_match_from_summary(
         retirement=excluded_finish,
         walkover=winning_reason == "walkover",
     )
-    stats = None if outcome.retirement or outcome.walkover else _summary_stats(summary, event_id)
+    stats = (
+        None
+        if outcome.retirement or outcome.walkover
+        else _summary_stats(
+            summary,
+            event_id,
+            expected_home_id=home_sr,
+            expected_away_id=away_sr,
+        )
+    )
     return HistoricalMatch(pre_match=pre, outcome=outcome, stats=stats)
 
 
