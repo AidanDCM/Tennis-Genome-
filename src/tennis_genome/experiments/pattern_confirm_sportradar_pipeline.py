@@ -14,6 +14,10 @@ from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
 )
+from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
+    crosswalk_mapping,
+    verify_crosswalk,
+)
 from tennis_genome.experiments.pattern_confirm_sportradar_state import (
     history_from_state_bundle,
     target_pre_match,
@@ -96,7 +100,7 @@ def build_sportradar_prospective_state(
     base_history: list[HistoricalMatch],
     state_bundle_payload: dict[str, object],
     target_context_payload: dict[str, object],
-    crosswalk: dict[str, str],
+    crosswalk_payload: dict[str, object],
     identity_mapping: IdentityMapping,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
@@ -106,6 +110,13 @@ def build_sportradar_prospective_state(
         profile_artifact=profile_artifact,
         core_artifact=core_artifact,
     )
+    sealed_crosswalk = verify_crosswalk(crosswalk_payload)
+    crosswalk = crosswalk_mapping(sealed_crosswalk)
+    if crosswalk.get(identity_mapping.player_a_sportradar_id) != identity_mapping.player_a_canonical_id:
+        raise ValueError("sealed crosswalk does not reproduce target player A identity")
+    if crosswalk.get(identity_mapping.player_b_sportradar_id) != identity_mapping.player_b_canonical_id:
+        raise ValueError("sealed crosswalk does not reproduce target player B identity")
+
     bundle = verify_state_bundle(state_bundle_payload, crosswalk=crosswalk)
     target_context = verify_target_context_artifact(
         target_context_payload,
@@ -134,6 +145,7 @@ def build_sportradar_prospective_state(
                 "base_canonical_manifest_sha256": profile_artifact.canonical_manifest_sha256,
                 "base_training_rows_sha256": profile_artifact.training_rows_sha256,
                 "state_bundle_sha256": bundle.artifact_sha256,
+                "crosswalk_sha256": sealed_crosswalk.artifact_sha256,
             }
         )
     )
