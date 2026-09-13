@@ -335,12 +335,15 @@ def build_target_context_artifact(
     )
     sport_event, context = _summary_context(summary_payload)
     competitors = _qualified_competitors(sport_event)
-    home = competitors["home"]
-    away = competitors["away"]
-    if _required_text(home, "id") != identity_mapping.player_a_sportradar_id:
-        raise ValueError("target home competitor does not match identity mapping")
-    if _required_text(away, "id") != identity_mapping.player_b_sportradar_id:
-        raise ValueError("target away competitor does not match identity mapping")
+    by_id = {_required_text(item, "id"): item for item in competitors.values()}
+    expected_ids = {
+        identity_mapping.player_a_sportradar_id,
+        identity_mapping.player_b_sportradar_id,
+    }
+    if set(by_id) != expected_ids:
+        raise ValueError("target competitors do not match identity mapping")
+    player_a_competitor = by_id[identity_mapping.player_a_sportradar_id]
+    player_b_competitor = by_id[identity_mapping.player_b_sportradar_id]
 
     round_raw = context.get("round")
     round_name = None
@@ -379,8 +382,8 @@ def build_target_context_artifact(
         rank_points_a=None,
         rank_points_b=None,
         draw_size=draw_size,
-        seed_a=_positive_int(home.get("seed"), field="home seed"),
-        seed_b=_positive_int(away.get("seed"), field="away seed"),
+        seed_a=_positive_int(player_a_competitor.get("seed"), field="player A seed"),
+        seed_b=_positive_int(player_b_competitor.get("seed"), field="player B seed"),
         entry_a=None,
         entry_b=None,
         hand_a=fields_a["hand"],

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
-_VERSION = "pattern-confirm-identity-v2"
+_VERSION = "pattern-confirm-identity-v3"
 _ATP_CATEGORY_ID = "sr:category:3"
 _ALLOWED_METHODS = {
     "EXPLICIT_CROSSWALK",
@@ -265,6 +265,28 @@ def build_identity_mapping(
     if canonical_a == canonical_b:
         raise ValueError("canonical player IDs must differ")
 
+    # Historical training orients Player A/B by sorted canonical player ID.
+    # Provider home/away is transport metadata only and must never redefine the
+    # fitted model's side convention. Keep every side-specific field attached
+    # to the same real player while restoring the historical canonical order.
+    provider_sides = [
+        (
+            canonical_a,
+            market_a,
+            sportradar_event.player_a_sportradar_id,
+            sportradar_event.player_a_sportradar_name,
+        ),
+        (
+            canonical_b,
+            market_b,
+            sportradar_event.player_b_sportradar_id,
+            sportradar_event.player_b_sportradar_name,
+        ),
+    ]
+    provider_sides.sort(key=lambda item: item[0])
+    canonical_a, market_a, sportradar_a_id, sportradar_a_name = provider_sides[0]
+    canonical_b, market_b, sportradar_b_id, sportradar_b_name = provider_sides[1]
+
     unsigned: dict[str, object] = {
         "version": _VERSION,
         "market_provider": _MARKET_PROVIDER,
@@ -273,12 +295,12 @@ def build_identity_mapping(
         "sportradar_event_id": sportradar_event.sport_event_id,
         "player_a_market_name": market_a,
         "player_b_market_name": market_b,
-        "player_a_sportradar_id": sportradar_event.player_a_sportradar_id,
-        "player_b_sportradar_id": sportradar_event.player_b_sportradar_id,
+        "player_a_sportradar_id": sportradar_a_id,
+        "player_b_sportradar_id": sportradar_b_id,
         "player_a_canonical_id": canonical_a,
         "player_b_canonical_id": canonical_b,
-        "player_a_sportradar_name": sportradar_event.player_a_sportradar_name,
-        "player_b_sportradar_name": sportradar_event.player_b_sportradar_name,
+        "player_a_sportradar_name": sportradar_a_name,
+        "player_b_sportradar_name": sportradar_b_name,
         "competition_id": sportradar_event.competition_id,
         "competition_name": sportradar_event.competition_name,
         "season_id": sportradar_event.season_id,
@@ -307,6 +329,8 @@ def verify_identity_mapping(payload: dict[str, object]) -> IdentityMapping:
         raise ValueError("identity mapping Sportradar competitor IDs must differ")
     if mapping.player_a_canonical_id == mapping.player_b_canonical_id:
         raise ValueError("identity mapping canonical player IDs must differ")
+    if mapping.player_a_canonical_id >= mapping.player_b_canonical_id:
+        raise ValueError("identity mapping does not preserve historical canonical A/B order")
     _aware_time(mapping.created_at, field="created_at")
     _iso_date(mapping.season_start_date, field="season_start_date")
     if not mapping.season_id.strip():
@@ -323,10 +347,19 @@ def validate_mapping_against_event(
 ) -> None:
     if mapping.sportradar_event_id != event.sport_event_id:
         raise ValueError("identity mapping references a different Sportradar event")
-    if mapping.player_a_sportradar_id != event.player_a_sportradar_id:
-        raise ValueError("identity mapping player A does not match Sportradar home competitor")
-    if mapping.player_b_sportradar_id != event.player_b_sportradar_id:
-        raise ValueError("identity mapping player B does not match Sportradar away competitor")
+    event_names = {
+        event.player_a_sportradar_id: event.player_a_sportradar_name,
+        event.player_b_sportradar_id: event.player_b_sportradar_name,
+    }
+    mapped_names = {
+        mapping.player_a_sportradar_id: mapping.player_a_sportradar_name,
+        mapping.player_b_sportradar_id: mapping.player_b_sportradar_name,
+    }
+    if set(mapped_names) != set(event_names):
+        raise ValueError("identity mapping competitors do not match Sportradar event")
+    for competitor_id, mapped_name in mapped_names.items():
+        if mapped_name != event_names[competitor_id]:
+            raise ValueError("identity mapping competitor name does not match Sportradar event")
     if mapping.competition_id != event.competition_id:
         raise ValueError("identity mapping competition does not match Sportradar event")
     if mapping.season_id != event.season_id:

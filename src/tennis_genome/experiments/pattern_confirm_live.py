@@ -43,7 +43,7 @@ from tennis_genome.experiments.pattern_confirm_sportradar_source_package import 
 )
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v4"
+_VERSION = "pattern-confirm-live-v5"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
@@ -215,6 +215,13 @@ def _devig_probability(odds_a: float, odds_b: float) -> float:
     q_a = 1.0 / odds_a
     q_b = 1.0 / odds_b
     return q_a / (q_a + q_b)
+
+
+def _require_unique_live_events(records: list[LiveProspectiveRecord]) -> None:
+    for field in ("match_id", "market_event_id", "sportradar_event_id"):
+        values = [str(getattr(record, field)) for record in records]
+        if len(values) != len(set(values)):
+            raise ValueError(f"live prospective ledger contains duplicate {field} values")
 
 
 def _require_frozen_model_contract(
@@ -449,14 +456,25 @@ def build_live_record(
         raise ValueError("market snapshot must be explicitly PREMATCH")
 
     market_event_id = _required_text(raw, "market_event_id")
-    player_a_market_name = _required_text(raw, "player_a_market_name")
-    player_b_market_name = _required_text(raw, "player_b_market_name")
+    raw_market_a_name = _required_text(raw, "player_a_market_name")
+    raw_market_b_name = _required_text(raw, "player_b_market_name")
     if market_event_id != identity_mapping.market_event_id:
         raise ValueError("market event does not match verified identity mapping")
-    if player_a_market_name != identity_mapping.player_a_market_name:
-        raise ValueError("market player A orientation does not match identity mapping")
-    if player_b_market_name != identity_mapping.player_b_market_name:
-        raise ValueError("market player B orientation does not match identity mapping")
+
+    raw_odds_a = _decimal_odds(raw, "decimal_odds_a")
+    raw_odds_b = _decimal_odds(raw, "decimal_odds_b")
+    canonical_names = (
+        identity_mapping.player_a_market_name,
+        identity_mapping.player_b_market_name,
+    )
+    raw_names = (raw_market_a_name, raw_market_b_name)
+    if raw_names == canonical_names:
+        odds_a, odds_b = raw_odds_a, raw_odds_b
+    elif raw_names == canonical_names[::-1]:
+        odds_a, odds_b = raw_odds_b, raw_odds_a
+    else:
+        raise ValueError("market competitor names do not match verified identity mapping")
+    player_a_market_name, player_b_market_name = canonical_names
 
     summary_payload = _required_object(raw, "sportradar_summary")
     event = parse_sportradar_prematch_event(
@@ -517,8 +535,6 @@ def build_live_record(
     if committed >= scheduled_start:
         raise ValueError("prediction must be committed before scheduled start")
 
-    odds_a = _decimal_odds(raw, "decimal_odds_a")
-    odds_b = _decimal_odds(raw, "decimal_odds_b")
     market_probability = _devig_probability(odds_a, odds_b)
     core_probability = state.core_probability_a
     profile_gap = state.profile_gap
@@ -688,11 +704,10 @@ def append_live_rows(
             )
         )
 
-    ids = [record.match_id for record in [*existing, *additions]]
-    if len(ids) != len(set(ids)):
-        raise ValueError("live prospective ledger contains duplicate match_id values")
+    combined = [*existing, *additions]
+    _require_unique_live_events(combined)
     return sorted(
-        [*existing, *additions],
+        combined,
         key=lambda record: (_parse_time(record.scheduled_start), record.match_id),
     )
 
@@ -757,8 +772,10 @@ def evaluate_live_family(
     settlement_sha256: str,
 ) -> LiveConfirmationReport:
     _require_frozen_model_contract(fit, profile_artifact, core_artifact)
-    eligible_records: list[ProspectiveRecord] = []
+    _require_unique_live_events(records)
+    evaluation_records = [record.core_record for record in records]
     eligible_outcomes: dict[str, SettledOutcome] = {}
+    terminal_exclusions: set[str] = set()
     timing_exclusions: list[TimingExclusion] = []
     for record in records:
         if record.profile_model_sha256 != profile_artifact.artifact_sha256:
@@ -780,8 +797,8 @@ def evaluate_live_family(
                     reason=reason,
                 )
             )
+            terminal_exclusions.add(record.match_id)
             continue
-        eligible_records.append(record.core_record)
         eligible_outcomes[record.match_id] = SettledOutcome(
             match_id=record.match_id,
             outcome_a=settlement.outcome_a,
@@ -790,11 +807,12 @@ def evaluate_live_family(
         )
 
     core_report = evaluate_family(
-        eligible_records,
+        evaluation_records,
         eligible_outcomes,
         fit=fit,
         ledger_sha256=ledger_sha256,
         outcomes_sha256=settlement_sha256,
+        terminal_exclusions=terminal_exclusions,
     )
     unsigned: dict[str, object] = {
         "experiment_id": _EXPERIMENT_ID,
@@ -828,6 +846,61 @@ def evaluate_live_family(
     )
 
 
+def _completed_looks(report_payload: dict[str, object]) -> dict[str, list[dict[str, object]]]:
+    core = report_payload.get("core_confirmation")
+    if not isinstance(core, dict):
+        raise ValueError("look-state is missing core_confirmation")
+    hypotheses = core.get("hypotheses")
+    if not isinstance(hypotheses, list):
+        raise ValueError("look-state is missing hypothesis reports")
+    result: dict[str, list[dict[str, object]]] = {}
+    for raw in hypotheses:
+        if not isinstance(raw, dict):
+            raise ValueError("look-state hypothesis report must be an object")
+        hypothesis_id = str(raw.get("hypothesis_id", ""))
+        looks = raw.get("completed_looks")
+        if not hypothesis_id or not isinstance(looks, list):
+            raise ValueError("look-state hypothesis report is malformed")
+        if not all(isinstance(item, dict) for item in looks):
+            raise ValueError("look-state completed look must be an object")
+        result[hypothesis_id] = list(looks)
+    return result
+
+
+def assert_completed_looks_stable(
+    previous: dict[str, object],
+    current: dict[str, object],
+) -> None:
+    for field in (
+        "experiment_id",
+        "profile_model_sha256",
+        "core_model_sha256",
+        "market_core_fit_sha256",
+    ):
+        if previous.get(field) != current.get(field):
+            raise ValueError(f"look-state frozen field changed: {field}")
+    previous_looks = _completed_looks(previous)
+    current_looks = _completed_looks(current)
+    if set(previous_looks) != set(current_looks):
+        raise ValueError("look-state hypothesis family changed")
+    for hypothesis_id, sealed in previous_looks.items():
+        now = current_looks[hypothesis_id]
+        if len(now) < len(sealed):
+            raise ValueError("a previously completed look disappeared")
+        for index, old_look in enumerate(sealed):
+            if old_look != now[index]:
+                raise ValueError(
+                    f"completed look membership/result changed for {hypothesis_id} look {index + 1}"
+                )
+
+
+def _write_json_atomic(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n")
+    temporary.replace(path)
+
+
 def _load_contracts(
     fit_path: Path,
     profile_path: Path,
@@ -858,6 +931,7 @@ def _parse_args() -> argparse.Namespace:
     evaluate = sub.add_parser("evaluate")
     evaluate.add_argument("--ledger", required=True, type=Path)
     evaluate.add_argument("--settlements", required=True, type=Path)
+    evaluate.add_argument("--look-state", required=True, type=Path)
     evaluate.add_argument("--output", required=True, type=Path)
     return parser.parse_args()
 
@@ -912,9 +986,14 @@ def main() -> None:
             ledger_sha256=_sha256_file(args.ledger),
             settlement_sha256=_sha256_file(args.settlements),
         )
-        args.output.write_text(
-            json.dumps(asdict(report), indent=2, sort_keys=True, allow_nan=False) + "\n"
-        )
+        payload = asdict(report)
+        if args.look_state.exists():
+            previous = json.loads(args.look_state.read_text())
+            if not isinstance(previous, dict):
+                raise ValueError("look-state must be a JSON object")
+            assert_completed_looks_stable(previous, payload)
+        _write_json_atomic(args.look_state, payload)
+        _write_json_atomic(args.output, payload)
         return
     raise RuntimeError("unreachable command")
 

@@ -1,0 +1,12 @@
+{
+  "base_history_content_sha256": "8be80277f80d5ca8bf34ce2df52d3393bc72cc7d92787772772dc2571a5c1f02",
+  "canonicalization_code_sha": "492c068c463056a23dfe10f92f0111763adcd141",
+  "eligible_training_n": 75112,
+  "outcome_sha256": "9ab4a2f850554081bc74eb381479a9529157ab8eb5f24d99cc13be57ee200fa0",
+  "pre_match_sha256": "d1003f47322a58ff92ec1dc98d68168c136a7423a58cfd8e9f43530a6b252442",
+  "schema_version": "canonical-v3",
+  "source_commit": "83733587353df8a41f2fd4f516147d5aa83f5a8d",
+  "source_repo": "Aneeshers/tennis-sackmann-archive",
+  "stats_sha256": "56b542915523a5e78bf7eedf91b6fbfea5a83f0a10498496bd4689747e08c0d9",
+  "training_population_sha256": "c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c"
+}

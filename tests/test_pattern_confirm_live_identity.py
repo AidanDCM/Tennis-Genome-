@@ -75,8 +75,8 @@ def _mapping():
         market_event_id="odds-event-1",
         market_player_a_name="Paul, Tommy",
         market_player_b_name="Fritz, Taylor",
-        player_a_canonical_id="tommy_paul",
-        player_b_canonical_id="taylor_fritz",
+        player_a_canonical_id="atp:id:111",
+        player_b_canonical_id="atp:id:222",
         sportradar_event=event,
         method="EXPLICIT_CROSSWALK",
         created_at="2026-09-12T15:00:00+00:00",
@@ -130,15 +130,15 @@ def test_identity_mapping_rejects_duplicate_players_and_post_start_creation() ->
             market_event_id="odds-event-1",
             market_player_a_name="Paul, Tommy",
             market_player_b_name="Fritz, Taylor",
-            player_a_canonical_id="tommy_paul",
-            player_b_canonical_id="taylor_fritz",
+            player_a_canonical_id="atp:id:111",
+            player_b_canonical_id="atp:id:222",
             sportradar_event=event,
             method="MANUAL_PREMATCH",
             created_at="2026-09-12T17:00:00+00:00",
         )
 
 
-def test_mapping_must_still_match_event_and_orientation() -> None:
+def test_mapping_matches_stable_event_competitors_independent_of_home_away() -> None:
     mapping = _mapping()
     validate_mapping_against_event(mapping, parse_sportradar_prematch_event(_summary()))
 
@@ -150,8 +150,7 @@ def test_mapping_must_still_match_event_and_orientation() -> None:
             away_name="Paul, Tommy",
         )
     )
-    with pytest.raises(ValueError, match="player A"):
-        validate_mapping_against_event(mapping, swapped)
+    validate_mapping_against_event(mapping, swapped)
 
 
 def test_exact_context_resolver_requires_unique_exact_names_not_fuzzy() -> None:
@@ -159,8 +158,8 @@ def test_exact_context_resolver_requires_unique_exact_names_not_fuzzy() -> None:
         market_event_id="odds-event-1",
         market_player_a_name="Paul Tommy",
         market_player_b_name="Fritz Taylor",
-        player_a_canonical_id="tommy_paul",
-        player_b_canonical_id="taylor_fritz",
+        player_a_canonical_id="atp:id:111",
+        player_b_canonical_id="atp:id:222",
         market_scheduled_start="2026-09-12T17:05:00+00:00",
         market_competition_name="ATP Miami USA Men Singles",
         candidate_payloads=[_summary()],
@@ -174,8 +173,8 @@ def test_exact_context_resolver_requires_unique_exact_names_not_fuzzy() -> None:
             market_event_id="odds-event-1",
             market_player_a_name="Tommy Pau",
             market_player_b_name="Taylor Fritz",
-            player_a_canonical_id="tommy_paul",
-            player_b_canonical_id="taylor_fritz",
+            player_a_canonical_id="atp:id:111",
+            player_b_canonical_id="atp:id:222",
             market_scheduled_start="2026-09-12T17:05:00+00:00",
             market_competition_name="ATP Miami USA Men Singles",
             candidate_payloads=[_summary()],
@@ -187,8 +186,8 @@ def test_exact_context_resolver_requires_unique_exact_names_not_fuzzy() -> None:
             market_event_id="odds-event-1",
             market_player_a_name="Paul Tommy",
             market_player_b_name="Fritz Taylor",
-            player_a_canonical_id="tommy_paul",
-            player_b_canonical_id="taylor_fritz",
+            player_a_canonical_id="atp:id:111",
+            player_b_canonical_id="atp:id:222",
             market_scheduled_start="2026-09-12T17:05:00+00:00",
             market_competition_name="ATP Miami USA Men Singles",
             candidate_payloads=[_summary(), _summary(event_id="sr:sport_event:456")],
@@ -201,16 +200,16 @@ def test_exact_context_resolver_orients_market_players_to_sportradar_home_away()
         market_event_id="odds-event-1",
         market_player_a_name="Fritz Taylor",
         market_player_b_name="Paul Tommy",
-        player_a_canonical_id="taylor_fritz",
-        player_b_canonical_id="tommy_paul",
+        player_a_canonical_id="atp:id:222",
+        player_b_canonical_id="atp:id:111",
         market_scheduled_start="2026-09-12T17:00:00+00:00",
         market_competition_name="ATP Miami USA Men Singles",
         candidate_payloads=[_summary()],
         created_at="2026-09-12T15:00:00+00:00",
     )
     assert mapping.player_a_sportradar_id == "sr:competitor:11"
-    assert mapping.player_a_canonical_id == "tommy_paul"
-    assert mapping.player_b_canonical_id == "taylor_fritz"
+    assert mapping.player_a_canonical_id == "atp:id:111"
+    assert mapping.player_b_canonical_id == "atp:id:222"
 
 
 def test_timeline_uses_earliest_match_started_and_never_falls_back() -> None:
@@ -290,3 +289,23 @@ def test_prematch_event_requires_explicit_provider_status() -> None:
     payload["sport_event_status"] = {}
     with pytest.raises(ValueError, match="status must be non-empty"):
         parse_sportradar_prematch_event(payload)
+
+
+def test_identity_mapping_restores_historical_canonical_order_across_home_away() -> None:
+    event = parse_sportradar_prematch_event(_summary())
+    mapping = build_identity_mapping(
+        market_event_id="odds-event-reversed",
+        market_player_a_name="Paul, Tommy",
+        market_player_b_name="Fritz, Taylor",
+        player_a_canonical_id="atp:id:999",
+        player_b_canonical_id="atp:id:111",
+        sportradar_event=event,
+        method="EXPLICIT_CROSSWALK",
+        created_at="2026-09-12T15:00:00+00:00",
+    )
+    assert mapping.player_a_canonical_id == "atp:id:111"
+    assert mapping.player_b_canonical_id == "atp:id:999"
+    assert mapping.player_a_sportradar_id == "sr:competitor:22"
+    assert mapping.player_b_sportradar_id == "sr:competitor:11"
+    assert mapping.player_a_market_name == "Fritz, Taylor"
+    validate_mapping_against_event(mapping, event)
