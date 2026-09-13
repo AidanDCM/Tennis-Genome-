@@ -28,7 +28,8 @@ from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
     verify_state_capture,
 )
 
-_SOURCE_ID = "CANONICAL_2000_2025_PLUS_SPORTRADAR_TENNIS_V3_STATE_V1"
+HISTORY_SOURCE_ID = "CANONICAL_2000_2025_PLUS_SPORTRADAR_TENNIS_V3_STATE_V1"
+HISTORY_SOURCE_CONTRACT = "pattern-confirm-history-source-v2"
 _BASE_END = date(2025, 12, 31)
 
 
@@ -44,6 +45,32 @@ def _canonical_json(value: object) -> bytes:
 
 def _sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def history_source_sha256(
+    *,
+    base_canonical_manifest_sha256: str,
+    base_training_rows_sha256: str,
+    state_capture_sha256: str,
+    state_bundle_sha256: str,
+    target_context_sha256: str,
+    crosswalk_sha256: str,
+) -> str:
+    """Bind the prospective state to its exact frozen upstream provenance."""
+    return _sha256(
+        _canonical_json(
+            {
+                "source_contract": HISTORY_SOURCE_CONTRACT,
+                "history_source_id": HISTORY_SOURCE_ID,
+                "base_canonical_manifest_sha256": base_canonical_manifest_sha256,
+                "base_training_rows_sha256": base_training_rows_sha256,
+                "state_capture_sha256": state_capture_sha256,
+                "state_bundle_sha256": state_bundle_sha256,
+                "target_context_sha256": target_context_sha256,
+                "crosswalk_sha256": crosswalk_sha256,
+            }
+        )
+    )
 
 
 def training_population_hash(matches: list[HistoricalMatch]) -> str:
@@ -152,20 +179,18 @@ def build_sportradar_prospective_state(
     if base_ids & extension_ids:
         raise ValueError("Sportradar extension overlaps frozen base match IDs")
 
-    history_source_sha = _sha256(
-        _canonical_json(
-            {
-                "base_canonical_manifest_sha256": profile_artifact.canonical_manifest_sha256,
-                "base_training_rows_sha256": profile_artifact.training_rows_sha256,
-                "state_capture_sha256": state_capture.artifact_sha256,
-                "crosswalk_sha256": sealed_crosswalk.artifact_sha256,
-            }
-        )
+    history_source_sha = history_source_sha256(
+        base_canonical_manifest_sha256=profile_artifact.canonical_manifest_sha256,
+        base_training_rows_sha256=profile_artifact.training_rows_sha256,
+        state_capture_sha256=state_capture.artifact_sha256,
+        state_bundle_sha256=state_capture.state_bundle_sha256,
+        target_context_sha256=target_context.artifact_sha256,
+        crosswalk_sha256=sealed_crosswalk.artifact_sha256,
     )
     return build_prospective_state_artifact(
         history=[*base, *extension],
         target=target,
-        history_source_id=_SOURCE_ID,
+        history_source_id=HISTORY_SOURCE_ID,
         history_source_sha256=history_source_sha,
         profile_artifact=profile_artifact,
         core_artifact=core_artifact,
