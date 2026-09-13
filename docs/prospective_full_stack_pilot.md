@@ -79,13 +79,10 @@ Settlement is a separate later record:
 python -m tennis_genome.prospective.pilot settle \
   --store prospective/full_stack_forward_001 \
   --prediction-record-sha256 <prediction-record-sha> \
-  --winner-player-id <canonical-player-id> \
-  --finish-status COMPLETED \
-  --actual-start 2026-09-20T14:03:21-04:00 \
-  --settlement-evidence settlement_source.json
+  --settlement-evidence sportradar_settlement_capture.json
 ```
 
-Allowed finish statuses are `COMPLETED`, `RETIREMENT`, `WALKOVER`, and `DEFAULTED`. The canonical winner must be one of the two players sealed into the prediction record. Exact settlement source bytes are retained.
+The v1 pilot settlement capture is Sportradar-derived. Winner, finish status, and actual start are read from the retained `sportradar_timeline`; operator-supplied winner/status/start assertions are rejected. The capture also binds the Sportradar competitor IDs to the canonical A/B IDs already sealed in the prediction. Exact settlement source bytes are retained.
 
 If verified actual start is supplied, the ledger mechanically labels the prediction `PRE_START_VERIFIED` or `COMMIT_NOT_PRE_START` by comparing actual start against the retained local commitment time. If actual start cannot be established, the record remains `ACTUAL_START_UNVERIFIED`. The settlement itself is still retained; an operational failure is evidence, not something to delete.
 

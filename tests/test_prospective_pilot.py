@@ -105,6 +105,93 @@ def _commit_fixture(
     return store, record
 
 
+def _anchor_files(
+    tmp_path: Path,
+    prediction: dict[str, object],
+    *,
+    created_at: str = "2026-09-13T16:05:00+00:00",
+) -> tuple[Path, Path]:
+    run_id = 123456789
+    receipt = {
+        "schema_version": "full-stack-pilot-github-anchor-v1",
+        "provider": "GITHUB_ACTIONS",
+        "repository": "AidanDCM/Tennis-Genome-",
+        "workflow_source_sha": "d" * 40,
+        "workflow_run_id": run_id,
+        "workflow_run_attempt": 1,
+        "workflow_run_url": f"https://github.com/AidanDCM/Tennis-Genome-/actions/runs/{run_id}",
+        "prediction_record_sha256": prediction["record_sha256"],
+        "chain_head_sha256": prediction["record_sha256"],
+        "runner_receipt_created_at_utc": created_at,
+    }
+    run = {
+        "id": run_id,
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "path": ".github/workflows/prospective_evidence_anchor.yml",
+        "head_sha": "d" * 40,
+        "created_at": created_at,
+        "repository": {"full_name": "AidanDCM/Tennis-Genome-"},
+    }
+    receipt_path = tmp_path / "anchor.json"
+    run_path = tmp_path / "run.json"
+    receipt_path.write_text(json.dumps(receipt) + "\n")
+    run_path.write_text(json.dumps(run) + "\n")
+    return receipt_path, run_path
+
+
+def _attest_anchor(
+    tmp_path: Path,
+    store: pilot.ProspectivePilotStore,
+    prediction: dict[str, object],
+    *,
+    created_at: str = "2026-09-13T16:05:00+00:00",
+) -> dict[str, object]:
+    receipt_path, run_path = _anchor_files(tmp_path, prediction, created_at=created_at)
+    return pilot.attest_anchor(
+        store=store,
+        prediction_record_sha256=str(prediction["record_sha256"]),
+        anchor_receipt_path=receipt_path,
+        github_run_metadata_path=run_path,
+    )
+
+
+def _settlement_file(
+    tmp_path: Path,
+    prediction: dict[str, object],
+    *,
+    winner: str = "a",
+    reason: str | None = None,
+    actual_start: str = "2026-09-13T17:01:00+00:00",
+    asserted: dict[str, object] | None = None,
+) -> Path:
+    winner_id = "sr:competitor:a" if winner == "a" else "sr:competitor:b"
+    status: dict[str, object] = {"status": "ended", "winner_id": winner_id}
+    if reason is not None:
+        status["winning_reason"] = reason
+    raw: dict[str, object] = {
+        "schema_version": "full-stack-pilot-sportradar-settlement-v1",
+        "match_id": prediction["match_id"],
+        "sportradar_event_id": "sr:sport_event:pilot-1",
+        "player_a_canonical_id": prediction["player_a_id"],
+        "player_b_canonical_id": prediction["player_b_id"],
+        "player_a_sportradar_id": "sr:competitor:a",
+        "player_b_sportradar_id": "sr:competitor:b",
+        "observed_at": "2026-09-13T18:00:00+00:00",
+        "sportradar_timeline": {
+            "sport_event": {"id": "sr:sport_event:pilot-1"},
+            "sport_event_status": status,
+            "timeline": [{"id": 1, "type": "match_started", "time": actual_start}],
+        },
+    }
+    if asserted:
+        raw.update(asserted)
+    target = tmp_path / f"settlement-{winner}-{reason or 'completed'}.json"
+    target.write_text(json.dumps(raw) + "\n")
+    return target
+
+
 def test_prediction_commit_is_hash_chained_and_retains_exact_evidence(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -150,23 +237,24 @@ def test_settlement_is_separate_and_derives_primary_timing_eligibility(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     store, prediction = _commit_fixture(tmp_path, monkeypatch)
-    settlement_source = tmp_path / "settlement.json"
-    settlement_source.write_text('{"winner_id":"canonical-a","status":"completed"}\n')
+    _attest_anchor(tmp_path, store, prediction)
+    settlement_source = _settlement_file(tmp_path, prediction, winner="a")
 
     settlement = pilot.settle_prediction(
         store=store,
         prediction_record_sha256=str(prediction["record_sha256"]),
-        winner_player_id="canonical-a",
-        finish_status="COMPLETED",
         settlement_evidence_path=settlement_source,
-        actual_start="2026-09-13T17:01:00+00:00",
         now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
     )
 
+    assert settlement["winner_player_id"] == "canonical-a"
+    assert settlement["finish_status"] == "COMPLETED"
     assert settlement["timing_status"] == "PRE_START_VERIFIED"
+    assert settlement["anchor_status"] == "PRE_START_ANCHORED"
     assert settlement["primary_evaluation_eligible"] is True
     report = store.verify()
-    assert report["record_count"] == 2
+    assert report["record_count"] == 3
+    assert report["anchor_count"] == 1
     assert report["settlement_count"] == 1
 
 
@@ -175,20 +263,22 @@ def test_late_commit_is_preserved_but_not_primary_evaluation_eligible(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     store, prediction = _commit_fixture(tmp_path, monkeypatch)
-    settlement_source = tmp_path / "settlement.json"
-    settlement_source.write_text('{"winner_id":"canonical-b","status":"completed"}\n')
+    settlement_source = _settlement_file(
+        tmp_path,
+        prediction,
+        winner="b",
+        actual_start="2026-09-13T15:59:30+00:00",
+    )
 
     settlement = pilot.settle_prediction(
         store=store,
         prediction_record_sha256=str(prediction["record_sha256"]),
-        winner_player_id="canonical-b",
-        finish_status="COMPLETED",
         settlement_evidence_path=settlement_source,
-        actual_start="2026-09-13T15:59:30+00:00",
         now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
     )
 
     assert settlement["timing_status"] == "COMMIT_NOT_PRE_START"
+    assert settlement["anchor_status"] == "ANCHOR_MISSING"
     assert settlement["primary_evaluation_eligible"] is False
     assert store.verify()["status"] == "VERIFIED"
 
@@ -221,3 +311,99 @@ def test_recovery_removes_only_interrupted_temp_and_lock_files(
     assert report["chain_head_sha256"] == prediction["record_sha256"]
     assert "records/orphan.tmp" in report["recovery_removed"]
     assert ".write.lock" in report["recovery_removed"]
+
+
+def test_missing_anchor_excludes_otherwise_valid_completed_match(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, prediction = _commit_fixture(tmp_path, monkeypatch)
+    settlement = pilot.settle_prediction(
+        store=store,
+        prediction_record_sha256=str(prediction["record_sha256"]),
+        settlement_evidence_path=_settlement_file(tmp_path, prediction),
+        now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
+    )
+    assert settlement["timing_status"] == "PRE_START_VERIFIED"
+    assert settlement["anchor_status"] == "ANCHOR_MISSING"
+    assert settlement["primary_evaluation_eligible"] is False
+
+
+def test_late_anchor_is_retained_but_excluded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, prediction = _commit_fixture(tmp_path, monkeypatch)
+    _attest_anchor(
+        tmp_path,
+        store,
+        prediction,
+        created_at="2026-09-13T17:02:00+00:00",
+    )
+    settlement = pilot.settle_prediction(
+        store=store,
+        prediction_record_sha256=str(prediction["record_sha256"]),
+        settlement_evidence_path=_settlement_file(tmp_path, prediction),
+        now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
+    )
+    assert settlement["anchor_status"] == "ANCHOR_NOT_PRE_START"
+    assert settlement["primary_evaluation_eligible"] is False
+
+
+def test_anchor_receipt_mismatch_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, prediction = _commit_fixture(tmp_path, monkeypatch)
+    receipt_path, run_path = _anchor_files(tmp_path, prediction)
+    receipt = json.loads(receipt_path.read_text())
+    receipt["prediction_record_sha256"] = "f" * 64
+    receipt_path.write_text(json.dumps(receipt) + "\n")
+    with pytest.raises(ValueError, match="prediction SHA"):
+        pilot.attest_anchor(
+            store=store,
+            prediction_record_sha256=str(prediction["record_sha256"]),
+            anchor_receipt_path=receipt_path,
+            github_run_metadata_path=run_path,
+        )
+
+
+def test_settlement_rejects_operator_asserted_outcome_fields(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, prediction = _commit_fixture(tmp_path, monkeypatch)
+    _attest_anchor(tmp_path, store, prediction)
+    evidence = _settlement_file(
+        tmp_path,
+        prediction,
+        asserted={"winner_player_id": "canonical-b", "finish_status": "COMPLETED"},
+    )
+    with pytest.raises(ValueError, match="provider evidence"):
+        pilot.settle_prediction(
+            store=store,
+            prediction_record_sha256=str(prediction["record_sha256"]),
+            settlement_evidence_path=evidence,
+            now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
+        )
+
+
+def test_provider_retirement_is_derived_from_retained_timeline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, prediction = _commit_fixture(tmp_path, monkeypatch)
+    _attest_anchor(tmp_path, store, prediction)
+    settlement = pilot.settle_prediction(
+        store=store,
+        prediction_record_sha256=str(prediction["record_sha256"]),
+        settlement_evidence_path=_settlement_file(
+            tmp_path, prediction, winner="b", reason="retirement"
+        ),
+        now=lambda: datetime(2026, 9, 13, 18, 0, tzinfo=UTC),
+    )
+    assert settlement["winner_player_id"] == "canonical-b"
+    assert settlement["finish_status"] == "RETIREMENT"
+    assert settlement["primary_evaluation_eligible"] is False
+
+
+def test_recovery_paths_are_posix_portable(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store, _ = _commit_fixture(tmp_path, monkeypatch)
+    (store.records_dir / "orphan.tmp").write_text("partial")
+    report = store.recover()
+    assert all("\\" not in item for item in report["recovery_removed"])
