@@ -1,0 +1,323 @@
+name: PATTERN-CONFIRM Source Package Binding Autofix
+
+on:
+  push:
+    branches: [dev/pattern-confirm-provider-dryrun]
+    paths:
+      - .github/workflows/pattern_confirm_source_package_binding_autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-provider-dryrun
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Bind verified source package into live envelope
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/tennis_genome/experiments/pattern_confirm_live.py')
+          text = path.read_text()
+
+          text = text.replace(
+              'from tennis_genome.experiments.pattern_confirm_production import (\n'
+              '    CoreProductionArtifact,\n'
+              '    ProfileProductionArtifact,\n'
+              '    verify_core_artifact,\n'
+              '    verify_profile_artifact,\n'
+              ')\n',
+              'from tennis_genome.experiments.pattern_confirm_production import (\n'
+              '    CoreProductionArtifact,\n'
+              '    ProfileProductionArtifact,\n'
+              '    verify_core_artifact,\n'
+              '    verify_profile_artifact,\n'
+              ')\n'
+              'from tennis_genome.experiments.pattern_confirm_sportradar_source_package import (\n'
+              '    SportradarSourcePackage,\n'
+              '    verify_source_package,\n'
+              ')\n',
+          )
+          text = text.replace(
+              '_VERSION = "pattern-confirm-live-v3"',
+              '_VERSION = "pattern-confirm-live-v4"',
+          )
+          text = text.replace(
+              '    identity_mapping_sha256: str\n'
+              '    prospective_state_sha256: str\n',
+              '    identity_mapping_sha256: str\n'
+              '    source_package_sha256: str\n'
+              '    prospective_state_sha256: str\n',
+          )
+
+          marker = '''def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:\n'''
+          helper = '''def _verified_package_state(\n    source_package_payload: dict[str, object],\n    *,\n    identity_mapping: IdentityMapping,\n    crosswalk_payload: dict[str, object],\n    profile_artifact: ProfileProductionArtifact,\n    core_artifact: CoreProductionArtifact,\n) -> tuple[SportradarSourcePackage, ProspectiveStateArtifact]:\n    package = verify_source_package(\n        source_package_payload,\n        identity_mapping=identity_mapping,\n        crosswalk_payload=crosswalk_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n    state = verify_prospective_state_artifact(\n        package.prospective_state,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n    if package.prospective_state_sha256 != state.artifact_sha256:\n        raise ValueError("source package prospective-state hash mismatch")\n    if package.prospective_state != prospective_state_as_dict(state):\n        raise ValueError("source package prospective-state payload mismatch")\n    return package, state\n\n\n'''
+          if helper not in text:
+              if marker not in text:
+                  raise SystemExit('live_record marker missing')
+              text = text.replace(marker, helper + marker)
+
+          old_sig = '''def verify_live_record(\n    payload: dict[str, object],\n    *,\n    fit: FrozenMarketCoreFit,\n    profile_artifact: ProfileProductionArtifact,\n    core_artifact: CoreProductionArtifact,\n    identity_mapping: IdentityMapping,\n) -> LiveProspectiveRecord:\n    _require_frozen_model_contract(fit, profile_artifact, core_artifact)\n'''
+          new_sig = '''def verify_live_record(\n    payload: dict[str, object],\n    *,\n    fit: FrozenMarketCoreFit,\n    profile_artifact: ProfileProductionArtifact,\n    core_artifact: CoreProductionArtifact,\n    identity_mapping: IdentityMapping,\n    source_package_payload: dict[str, object],\n    crosswalk_payload: dict[str, object],\n) -> LiveProspectiveRecord:\n    _require_frozen_model_contract(fit, profile_artifact, core_artifact)\n    package, package_state = _verified_package_state(\n        source_package_payload,\n        identity_mapping=identity_mapping,\n        crosswalk_payload=crosswalk_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n'''
+          if old_sig not in text:
+              raise SystemExit('verify_live_record signature block missing')
+          text = text.replace(old_sig, new_sig)
+
+          old_state = '''    state = verify_prospective_state_artifact(\n        state_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n'''
+          new_state = old_state + '''    if package.prospective_state_sha256 != state.artifact_sha256:\n        raise ValueError("live row state does not match source package state hash")\n    if prospective_state_as_dict(state) != package.prospective_state:\n        raise ValueError("live row state payload does not match source package")\n'''
+          first_index = text.find(old_state)
+          if first_index < 0:
+              raise SystemExit('row state verification block missing')
+          text = text[:first_index] + text[first_index:].replace(old_state, new_state, 1)
+
+          anchor = '''    if record.identity_mapping_sha256 != identity_mapping.artifact_sha256:\n        raise ValueError("live ledger identity mapping hash mismatch")\n'''
+          addition = anchor + '''    if record.source_package_sha256 != package.artifact_sha256:\n        raise ValueError("live ledger source package hash mismatch")\n    if package.match_id != record.match_id:\n        raise ValueError("live ledger match does not match source package")\n'''
+          if anchor not in text:
+              raise SystemExit('identity hash anchor missing')
+          text = text.replace(anchor, addition, 1)
+
+          time_anchor = '''    committed = _parse_time(record.prediction_committed_at)\n'''
+          time_add = time_anchor + '''    package_captured = _parse_time(package.captured_at)\n    if package_captured > generated:\n        raise ValueError("source package was captured after prediction generation")\n    if package_captured >= scheduled:\n        raise ValueError("source package was not captured before scheduled start")\n'''
+          if time_anchor not in text:
+              raise SystemExit('verify time anchor missing')
+          text = text.replace(time_anchor, time_add, 1)
+
+          old_build_sig = '''def build_live_record(\n    raw: dict[str, object],\n    *,\n    fit: FrozenMarketCoreFit,\n    profile_artifact: ProfileProductionArtifact,\n    core_artifact: CoreProductionArtifact,\n    identity_mapping: IdentityMapping,\n) -> LiveProspectiveRecord:\n'''
+          new_build_sig = '''def build_live_record(\n    raw: dict[str, object],\n    *,\n    fit: FrozenMarketCoreFit,\n    profile_artifact: ProfileProductionArtifact,\n    core_artifact: CoreProductionArtifact,\n    identity_mapping: IdentityMapping,\n    source_package_payload: dict[str, object],\n    crosswalk_payload: dict[str, object],\n) -> LiveProspectiveRecord:\n'''
+          if old_build_sig not in text:
+              raise SystemExit('build signature missing')
+          text = text.replace(old_build_sig, new_build_sig)
+
+          old_forbidden = '''    forbidden = {\n        "profile_gap",\n        "core_probability_a",\n        "profile_model_sha256",\n        "core_model_sha256",\n    }\n'''
+          new_forbidden = '''    forbidden = {\n        "profile_gap",\n        "core_probability_a",\n        "profile_model_sha256",\n        "core_model_sha256",\n        "prospective_state",\n        "prospective_state_sha256",\n        "source_package_sha256",\n    }\n'''
+          if old_forbidden not in text:
+              raise SystemExit('forbidden block missing')
+          text = text.replace(old_forbidden, new_forbidden)
+
+          old_build_state = '''    state_payload = _required_object(raw, "prospective_state")\n    state = verify_prospective_state_artifact(\n        state_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n'''
+          new_build_state = '''    package, state = _verified_package_state(\n        source_package_payload,\n        identity_mapping=identity_mapping,\n        crosswalk_payload=crosswalk_payload,\n        profile_artifact=profile_artifact,\n        core_artifact=core_artifact,\n    )\n    if package.match_id != match_id:\n        raise ValueError("source package match does not match live row")\n'''
+          if old_build_state not in text:
+              raise SystemExit('build state block missing')
+          text = text.replace(old_build_state, new_build_state, 1)
+
+          # Add source package capture-time ordering to build path: use the second committed anchor.
+          build_anchor = '''    committed = _parse_time(raw.get("prediction_committed_at"))\n'''
+          build_add = build_anchor + '''    package_captured = _parse_time(package.captured_at)\n    if package_captured > generated:\n        raise ValueError("source package was captured after prediction generation")\n    if package_captured >= scheduled_start:\n        raise ValueError("source package was not captured before scheduled start")\n'''
+          if build_anchor not in text:
+              raise SystemExit('build time anchor missing')
+          text = text.replace(build_anchor, build_add, 1)
+
+          unsigned_anchor = '''        "identity_mapping_sha256": identity_mapping.artifact_sha256,\n        "prospective_state_sha256": state.artifact_sha256,\n'''
+          unsigned_add = '''        "identity_mapping_sha256": identity_mapping.artifact_sha256,\n        "source_package_sha256": package.artifact_sha256,\n        "prospective_state_sha256": state.artifact_sha256,\n'''
+          if unsigned_anchor not in text:
+              raise SystemExit('unsigned package anchor missing')
+          text = text.replace(unsigned_anchor, unsigned_add, 1)
+
+          mapping_marker = '''def append_live_rows(\n'''
+          loader = '''def load_source_package_payloads(\n    rows: list[dict[str, object]],\n) -> dict[str, dict[str, object]]:\n    result: dict[str, dict[str, object]] = {}\n    for raw in rows:\n        match_id = _required_text(raw, "match_id")\n        if match_id in result:\n            raise ValueError("source package file contains duplicate match_id")\n        result[match_id] = raw\n    return result\n\n\ndef _load_json_object(path: Path, *, label: str) -> dict[str, object]:\n    value = json.loads(path.read_text())\n    if not isinstance(value, dict):\n        raise ValueError(f"{label} must be a JSON object")\n    return value\n\n\n'''
+          if loader not in text:
+              if mapping_marker not in text:
+                  raise SystemExit('append marker missing')
+              text = text.replace(mapping_marker, loader + mapping_marker)
+
+          old_append_sig = '''def append_live_rows(\n    *,\n    existing_rows: list[dict[str, object]],\n    new_rows: list[dict[str, object]],\n    identity_mappings: dict[str, IdentityMapping],\n    fit: FrozenMarketCoreFit,\n'''
+          new_append_sig = '''def append_live_rows(\n    *,\n    existing_rows: list[dict[str, object]],\n    new_rows: list[dict[str, object]],\n    identity_mappings: dict[str, IdentityMapping],\n    source_packages: dict[str, dict[str, object]],\n    crosswalk_payload: dict[str, object],\n    fit: FrozenMarketCoreFit,\n'''
+          if old_append_sig not in text:
+              raise SystemExit('append signature missing')
+          text = text.replace(old_append_sig, new_append_sig)
+
+          existing_anchor = '''        if mapping is None:\n            raise ValueError("existing live row has no verified identity mapping")\n        existing.append(\n'''
+          existing_add = '''        if mapping is None:\n            raise ValueError("existing live row has no verified identity mapping")\n        package = source_packages.get(_required_text(row, "match_id"))\n        if package is None:\n            raise ValueError("existing live row has no verified source package")\n        existing.append(\n'''
+          if existing_anchor not in text:
+              raise SystemExit('existing package anchor missing')
+          text = text.replace(existing_anchor, existing_add)
+          verify_call_anchor = '''                identity_mapping=mapping,\n            )\n'''
+          verify_call_add = '''                identity_mapping=mapping,\n                source_package_payload=package,\n                crosswalk_payload=crosswalk_payload,\n            )\n'''
+          # First occurrence after append function, not earlier verify/build internals.
+          append_pos = text.index('def append_live_rows(')
+          suffix = text[append_pos:]
+          if verify_call_anchor not in suffix:
+              raise SystemExit('append verify call anchor missing')
+          suffix = suffix.replace(verify_call_anchor, verify_call_add, 1)
+          text = text[:append_pos] + suffix
+
+          new_anchor = '''        if mapping is None:\n            raise ValueError("new live row has no verified identity mapping")\n        additions.append(\n'''
+          new_add = '''        if mapping is None:\n            raise ValueError("new live row has no verified identity mapping")\n        package = source_packages.get(_required_text(row, "match_id"))\n        if package is None:\n            raise ValueError("new live row has no verified source package")\n        additions.append(\n'''
+          if new_anchor not in text:
+              raise SystemExit('new package anchor missing')
+          text = text.replace(new_anchor, new_add)
+          append_pos = text.index('def append_live_rows(')
+          suffix = text[append_pos:]
+          build_call_anchor = '''                identity_mapping=mapping,\n            )\n'''
+          if build_call_anchor not in suffix:
+              raise SystemExit('append build call anchor missing')
+          suffix = suffix.replace(
+              build_call_anchor,
+              '''                identity_mapping=mapping,\n                source_package_payload=package,\n                crosswalk_payload=crosswalk_payload,\n            )\n''',
+              1,
+          )
+          text = text[:append_pos] + suffix
+
+          args_anchor = '''    parser.add_argument("--identity-mappings", required=True, type=Path)\n'''
+          args_add = args_anchor + '''    parser.add_argument("--crosswalk", required=True, type=Path)\n    parser.add_argument("--source-packages", required=True, type=Path)\n'''
+          if args_anchor not in text:
+              raise SystemExit('CLI args anchor missing')
+          text = text.replace(args_anchor, args_add)
+
+          main_anchor = '''    mappings = load_identity_mappings(_load_jsonl(args.identity_mappings))\n'''
+          main_add = main_anchor + '''    crosswalk_payload = _load_json_object(args.crosswalk, label="crosswalk")\n    source_packages = load_source_package_payloads(_load_jsonl(args.source_packages))\n'''
+          if main_anchor not in text:
+              raise SystemExit('main mapping anchor missing')
+          text = text.replace(main_anchor, main_add)
+
+          append_args_anchor = '''            identity_mappings=mappings,\n            fit=fit,\n'''
+          append_args_add = '''            identity_mappings=mappings,\n            source_packages=source_packages,\n            crosswalk_payload=crosswalk_payload,\n            fit=fit,\n'''
+          if append_args_anchor not in text:
+              raise SystemExit('main append args missing')
+          text = text.replace(append_args_anchor, append_args_add, 1)
+
+          eval_anchor = '''            if mapping is None:\n                raise ValueError("live ledger row has no verified identity mapping")\n            records.append(\n'''
+          eval_add = '''            if mapping is None:\n                raise ValueError("live ledger row has no verified identity mapping")\n            package = source_packages.get(_required_text(row, "match_id"))\n            if package is None:\n                raise ValueError("live ledger row has no verified source package")\n            records.append(\n'''
+          if eval_anchor not in text:
+              raise SystemExit('main eval package anchor missing')
+          text = text.replace(eval_anchor, eval_add)
+          eval_pos = text.index('if args.command == "evaluate":')
+          prefix, suffix = text[:eval_pos], text[eval_pos:]
+          eval_call_anchor = '''                    identity_mapping=mapping,\n                )\n'''
+          if eval_call_anchor not in suffix:
+              raise SystemExit('eval verify call missing')
+          suffix = suffix.replace(
+              eval_call_anchor,
+              '''                    identity_mapping=mapping,\n                    source_package_payload=package,\n                    crosswalk_payload=crosswalk_payload,\n                )\n''',
+              1,
+          )
+          text = prefix + suffix
+          path.write_text(text)
+          PY
+      - name: Update live provenance tests
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('tests/test_pattern_confirm_live.py')
+          text = path.read_text()
+          text = text.replace('from datetime import date\n', 'from datetime import UTC, date, datetime\n')
+          text = text.replace(
+              'from tennis_genome.experiments.pattern_confirm_live_state import (\n'
+              '    build_prospective_state_artifact,\n'
+              '    prospective_state_as_dict,\n'
+              ')\n',
+              '',
+          )
+          production_import = '''from tennis_genome.experiments.pattern_confirm_production import (\n    verify_core_artifact,\n    verify_profile_artifact,\n)\n'''
+          extra_imports = production_import + '''from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (\n    crosswalk_as_dict,\n    seal_crosswalk,\n)\nfrom tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (\n    training_population_hash,\n)\nfrom tennis_genome.experiments.pattern_confirm_sportradar_source_package import (\n    build_live_source_package,\n    source_package_as_dict,\n)\n'''
+          if production_import not in text:
+              raise SystemExit('production import missing')
+          text = text.replace(production_import, extra_imports)
+
+          old_profile = '''def _profile():\n    return verify_profile_artifact(\n        json.loads((ROOT / "research/installment_01/profile_production_001.json").read_text())\n    )\n\n\ndef _core():\n    return verify_core_artifact(\n        json.loads((ROOT / "research/installment_01/core_production_001.json").read_text())\n    )\n'''
+          new_profile = '''def _profile():\n    artifact = verify_profile_artifact(\n        json.loads((ROOT / "research/installment_01/profile_production_001.json").read_text())\n    )\n    base = _base_history()\n    return replace(\n        artifact,\n        training_n=len(base),\n        training_rows_sha256=training_population_hash(base),\n    )\n\n\ndef _core():\n    artifact = verify_core_artifact(\n        json.loads((ROOT / "research/installment_01/core_production_001.json").read_text())\n    )\n    base = _base_history()\n    return replace(\n        artifact,\n        training_n=len(base),\n        training_rows_sha256=training_population_hash(base),\n    )\n'''
+          if old_profile not in text:
+              raise SystemExit('profile/core helper block missing')
+          text = text.replace(old_profile, new_profile)
+
+          # Enrich target context with fields required by the frozen adapter.
+          text = text.replace(
+              '                    "type": "singles",\n                },\n',
+              '                    "type": "singles",\n                    "level": "atp_1000",\n                },\n'
+              '                "round": {"name": "round_of_32"},\n'
+              '                "mode": {"best_of": 3},\n',
+              1,
+          )
+
+          state_start = text.find('def _state():\n')
+          raw_start = text.find('def _raw(**updates: object)')
+          if state_start < 0 or raw_start < 0 or raw_start <= state_start:
+              raise SystemExit('state/raw helper boundaries missing')
+          fixture = '''def _base_history() -> list[HistoricalMatch]:\n    return [\n        _history_match(\n            "b1", date(2025, 1, 2), a="canonical-a", b="canonical-c", order=1, a_won=True\n        ),\n        _history_match(\n            "b2", date(2025, 2, 4), a="canonical-b", b="canonical-c", order=2, a_won=False\n        ),\n        _history_match(\n            "b3", date(2025, 3, 6), a="canonical-a", b="canonical-b", order=3, a_won=True\n        ),\n        _history_match(\n            "b4", date(2025, 4, 8), a="canonical-c", b="canonical-a", order=4, a_won=False\n        ),\n    ]\n\n\ndef _crosswalk_payload() -> dict[str, object]:\n    return crosswalk_as_dict(\n        seal_crosswalk(\n            {\n                "sr:competitor:11": "canonical-a",\n                "sr:competitor:22": "canonical-b",\n            }\n        )\n    )\n\n\ndef _source_package_payload(\n    *, captured_at: datetime | None = None\n) -> dict[str, object]:\n    mapping = _mapping()\n    summary = _summary()\n    season_info = {\n        "season": {\n            "id": mapping.season_id,\n            "competition_id": mapping.competition_id,\n            "competition": {\n                "id": mapping.competition_id,\n                "name": mapping.competition_name,\n                "type": "singles",\n                "level": "atp_1000",\n            },\n            "info": {"surface": "hard", "number_of_competitors": 32},\n        }\n    }\n    profile_a = {\n        "competitor": {\n            "id": mapping.player_a_sportradar_id,\n            "country_code": "USA",\n        },\n        "info": {\n            "date_of_birth": "1998-01-01",\n            "handedness": "right",\n            "height": 185,\n        },\n    }\n    profile_b = {\n        "competitor": {\n            "id": mapping.player_b_sportradar_id,\n            "country_code": "USA",\n        },\n        "info": {\n            "date_of_birth": "1997-01-01",\n            "handedness": "right",\n            "height": 188,\n        },\n    }\n    competitions = {\n        "competitions": [\n            {\n                "id": mapping.competition_id,\n                "name": mapping.competition_name,\n                "type": "singles",\n                "level": "atp_1000",\n                "category": {"id": "sr:category:3", "name": "ATP"},\n            }\n        ]\n    }\n    seasons = {"seasons": []}\n\n    def get_json(url: str, *, headers: dict[str, str]) -> object:\n        assert headers == {"x-api-key": "test-secret"}\n        if "/sport_events/" in url:\n            return summary\n        if f"/seasons/{mapping.season_id}/info.json" in url:\n            return season_info\n        if f"/competitors/{mapping.player_a_sportradar_id}/" in url:\n            return profile_a\n        if f"/competitors/{mapping.player_b_sportradar_id}/" in url:\n            return profile_b\n        if url.endswith("/competitions.json"):\n            return competitions\n        if url.endswith("/seasons.json"):\n            return seasons\n        raise AssertionError(url)\n\n    package = build_live_source_package(\n        match_id="future-1",\n        base_history=_base_history(),\n        identity_mapping=mapping,\n        crosswalk_payload=_crosswalk_payload(),\n        profile_artifact=_profile(),\n        core_artifact=_core(),\n        api_key="test-secret",\n        access_level="trial",\n        captured_at=captured_at\n        or datetime(2026, 9, 12, 16, 53, 30, tzinfo=UTC),\n        get_json=get_json,\n    )\n    return source_package_as_dict(package)\n\n\n'''
+          text = text[:state_start] + fixture + text[raw_start:]
+          text = text.replace(
+              '        "decimal_odds_b": 2.10,\n'
+              '        "prospective_state": prospective_state_as_dict(_state()),\n',
+              '        "decimal_odds_b": 2.10,\n',
+          )
+          old_build = '''def _build(raw: dict[str, object] | None = None):\n    return build_live_record(\n        _raw() if raw is None else raw,\n        fit=_fit(),\n        profile_artifact=_profile(),\n        core_artifact=_core(),\n        identity_mapping=_mapping(),\n    )\n'''
+          new_build = '''def _build(\n    raw: dict[str, object] | None = None,\n    *,\n    source_package_payload: dict[str, object] | None = None,\n):\n    return build_live_record(\n        _raw() if raw is None else raw,\n        fit=_fit(),\n        profile_artifact=_profile(),\n        core_artifact=_core(),\n        identity_mapping=_mapping(),\n        source_package_payload=source_package_payload or _source_package_payload(),\n        crosswalk_payload=_crosswalk_payload(),\n    )\n'''
+          if old_build not in text:
+              raise SystemExit('build helper missing')
+          text = text.replace(old_build, new_build)
+
+          # append_live_rows calls need package/crosswalk companions.
+          text = text.replace(
+              '            identity_mappings={},\n            fit=_fit(),\n',
+              '            identity_mappings={},\n'
+              '            source_packages={"future-1": _source_package_payload()},\n'
+              '            crosswalk_payload=_crosswalk_payload(),\n'
+              '            fit=_fit(),\n',
+          )
+          text = text.replace(
+              '            identity_mappings={mapping.market_event_id: mapping},\n            fit=_fit(),\n',
+              '            identity_mappings={mapping.market_event_id: mapping},\n'
+              '            source_packages={"future-1": _source_package_payload()},\n'
+              '            crosswalk_payload=_crosswalk_payload(),\n'
+              '            fit=_fit(),\n',
+          )
+
+          # Direct verify_live_record gets its companions.
+          verify_anchor = '''            identity_mapping=_mapping(),\n        )\n'''
+          tamper_pos = text.find('def test_rehashed_semantic_tampering_still_fails_closed')
+          if tamper_pos < 0:
+              raise SystemExit('tamper test missing')
+          prefix, suffix = text[:tamper_pos], text[tamper_pos:]
+          if verify_anchor not in suffix:
+              raise SystemExit('tamper verify call missing')
+          suffix = suffix.replace(
+              verify_anchor,
+              '''            identity_mapping=_mapping(),\n            source_package_payload=_source_package_payload(),\n            crosswalk_payload=_crosswalk_payload(),\n        )\n''',
+              1,
+          )
+          text = prefix + suffix
+
+          # Champion hash tests call build_live_record directly three times.
+          champion_pos = text.find('def test_exact_champion_artifact_hashes_are_runtime_pinned')
+          if champion_pos < 0:
+              raise SystemExit('champion test missing')
+          prefix, suffix = text[:champion_pos], text[champion_pos:]
+          suffix = suffix.replace(
+              '            identity_mapping=_mapping(),\n        )\n',
+              '            identity_mapping=_mapping(),\n'
+              '            source_package_payload=_source_package_payload(),\n'
+              '            crosswalk_payload=_crosswalk_payload(),\n'
+              '        )\n',
+          )
+          text = prefix + suffix
+
+          # New provenance-specific tests.
+          if 'test_live_row_requires_source_package_companion' not in text:
+              text += '''\n\ndef test_live_row_requires_source_package_companion() -> None:\n    mapping = _mapping()\n    with pytest.raises(ValueError, match="no verified source package"):\n        append_live_rows(\n            existing_rows=[],\n            new_rows=[_raw()],\n            identity_mappings={mapping.market_event_id: mapping},\n            source_packages={},\n            crosswalk_payload=_crosswalk_payload(),\n            fit=_fit(),\n            profile_artifact=_profile(),\n            core_artifact=_core(),\n        )\n\n\ndef test_source_package_must_exist_before_prediction_generation() -> None:\n    late = _source_package_payload(\n        captured_at=datetime(2026, 9, 12, 16, 54, 26, tzinfo=UTC)\n    )\n    with pytest.raises(ValueError, match="captured after prediction generation"):\n        _build(source_package_payload=late)\n\n\ndef test_caller_cannot_supply_standalone_prospective_state() -> None:\n    package = _source_package_payload()\n    raw = _raw(prospective_state=package["prospective_state"])\n    with pytest.raises(ValueError, match="externally supplied"):\n        _build(raw, source_package_payload=package)\n'''
+          path.write_text(text)
+          PY
+      - name: Format lint and test
+        run: |
+          pip install -e .[dev]
+          ruff format src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_live.py src/tennis_genome/experiments/pattern_confirm_sportradar_pipeline.py src/tennis_genome/experiments/pattern_confirm_sportradar_source_package.py tests/test_pattern_confirm_sportradar_pipeline.py tests/test_pattern_confirm_sportradar_source_package.py
+          ruff check --fix src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_live.py src/tennis_genome/experiments/pattern_confirm_sportradar_pipeline.py src/tennis_genome/experiments/pattern_confirm_sportradar_source_package.py tests/test_pattern_confirm_sportradar_pipeline.py tests/test_pattern_confirm_sportradar_source_package.py
+          ruff check .
+          pytest
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_live.py src/tennis_genome/experiments/pattern_confirm_sportradar_pipeline.py src/tennis_genome/experiments/pattern_confirm_sportradar_source_package.py tests/test_pattern_confirm_sportradar_pipeline.py tests/test_pattern_confirm_sportradar_source_package.py
+          git commit -m "Bind live rows to verified Sportradar source packages"
+          git push origin HEAD:dev/pattern-confirm-provider-dryrun
