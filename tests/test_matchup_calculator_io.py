@@ -19,6 +19,22 @@ def _payload() -> dict[str, object]:
     return payload
 
 
+def _atp_payload() -> dict[str, object]:
+    _, atp_input, _ = _calculator_and_inputs()
+    payload = asdict(atp_input)
+    payload["created_at"] = atp_input.created_at.isoformat()
+    payload["prediction_cutoff_at"] = atp_input.prediction_cutoff_at.isoformat()
+    payload["source_manifest_hashes"] = list(atp_input.source_manifest_hashes)
+    payload["foundational"]["event_date"] = atp_input.foundational.event_date.isoformat()
+    payload["profile_pair"]["event_date"] = atp_input.profile_pair.event_date.isoformat()
+    for side in ("player_a", "player_b"):
+        profile = payload["profile_pair"][side]
+        profile["valid_from"] = profile["valid_from"].isoformat()
+        if profile["valid_until"] is not None:
+            profile["valid_until"] = profile["valid_until"].isoformat()
+    return payload
+
+
 def test_provider_neutral_payload_round_trips_wta_state() -> None:
     original_calculator, _, original = _calculator_and_inputs()
     parsed = matchup_input_from_dict(_payload())
@@ -51,5 +67,19 @@ def test_provider_neutral_payload_rejects_invalid_manifest_hash() -> None:
 def test_provider_neutral_payload_rejects_undeclared_market_input() -> None:
     payload = _payload()
     payload["market_odds_a"] = 1.91
-    with pytest.raises(ValueError, match="undeclared matchup input fields"):
+    with pytest.raises(ValueError, match="market/outcome fields are forbidden"):
+        matchup_input_from_dict(payload)
+
+
+def test_provider_neutral_payload_rejects_nested_market_input() -> None:
+    payload = _atp_payload()
+    payload["profile_pair"]["market_odds_a"] = 1.91
+    with pytest.raises(ValueError, match="market/outcome fields are forbidden"):
+        matchup_input_from_dict(payload)
+
+
+def test_provider_neutral_payload_rejects_undeclared_profile_pair_field() -> None:
+    payload = _atp_payload()
+    payload["profile_pair"]["unexpected_context"] = "ignored-before-hardening"
+    with pytest.raises(ValueError, match="undeclared profile_pair fields"):
         matchup_input_from_dict(payload)
