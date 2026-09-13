@@ -222,7 +222,10 @@ class MatchupCalculator:
 
     @classmethod
     def from_bundle_path(cls, path: Path) -> MatchupCalculator:
+        from .contract import validate_frozen_bundle_contract
+
         bundle = load_bundle(path, verify_banks=True)
+        validate_frozen_bundle_contract(bundle)
         return cls(
             bundle,
             atp_neighbor_bank=load_neighbor_bank(path, bundle.atp.neighbor_bank),
