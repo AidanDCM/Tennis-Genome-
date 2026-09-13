@@ -7,10 +7,10 @@ import json
 import math
 import os
 import platform
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable, Iterator, Sequence
 
 from tennis_genome.calculator.contract import load_validated_matchup_calculator
 from tennis_genome.calculator.io import load_matchup_input
@@ -106,7 +106,9 @@ def runtime_manifest() -> dict[str, object]:
         try:
             versions[distribution] = importlib.metadata.version(distribution)
         except importlib.metadata.PackageNotFoundError as exc:
-            raise RuntimeError(f"required runtime distribution is unavailable: {distribution}") from exc
+            raise RuntimeError(
+                f"required runtime distribution is unavailable: {distribution}"
+            ) from exc
     return {
         "python_implementation": platform.python_implementation(),
         "python_version": platform.python_version(),
@@ -158,7 +160,8 @@ class ProspectivePilotStore:
             fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except FileExistsError as exc:
             raise RuntimeError(
-                "prospective pilot store is locked; recover only after confirming no writer is active"
+                "prospective pilot store is locked; recover only after confirming "
+                "no writer is active"
             ) from exc
         try:
             os.write(fd, f"{os.getpid()}\n".encode("ascii"))
@@ -242,12 +245,16 @@ class ProspectivePilotStore:
             unsigned = dict(record)
             unsigned.pop("record_sha256", None)
             if _record_sha256(unsigned) != observed_sha:
-                raise ValueError(f"prospective record digest mismatch at sequence {expected_sequence}")
+                raise ValueError(
+                    f"prospective record digest mismatch at sequence {expected_sequence}"
+                )
             if record.get("previous_record_sha256") != expected_previous:
                 raise ValueError(f"prospective hash chain mismatch at sequence {expected_sequence}")
             expected_name = f"{expected_sequence:08d}-{observed_sha}.json"
             if paths[expected_sequence - 1].name != expected_name:
-                raise ValueError(f"prospective record filename mismatch at sequence {expected_sequence}")
+                raise ValueError(
+                    f"prospective record filename mismatch at sequence {expected_sequence}"
+                )
 
             evidence_hashes = record.get("evidence_sha256", [])
             if not isinstance(evidence_hashes, list) or not evidence_hashes:
@@ -268,13 +275,17 @@ class ProspectivePilotStore:
                 prediction_id = str(record.get("prediction_id", ""))
                 match_id = str(record.get("match_id", ""))
                 if not prediction_id or prediction_id in prediction_ids:
-                    raise ValueError(f"duplicate/empty prediction_id at sequence {expected_sequence}")
+                    raise ValueError(
+                        f"duplicate/empty prediction_id at sequence {expected_sequence}"
+                    )
                 if not match_id or match_id in match_ids:
                     raise ValueError(f"duplicate/empty match_id at sequence {expected_sequence}")
                 prediction_ids.add(prediction_id)
                 match_ids.add(match_id)
                 committed_at = _parse_time(str(record["committed_at"]), field="committed_at")
-                scheduled_start = _parse_time(str(record["scheduled_start"]), field="scheduled_start")
+                scheduled_start = _parse_time(
+                    str(record["scheduled_start"]), field="scheduled_start"
+                )
                 if committed_at >= scheduled_start:
                     raise ValueError("prediction commitment does not precede scheduled start")
                 p_a = float(record["final_probability_a"])
@@ -310,14 +321,24 @@ class ProspectivePilotStore:
                     raise ValueError(f"unrecognized finish status: {status}")
                 settled_at = _parse_time(str(record["settled_at"]), field="settled_at")
                 actual_raw = record.get("actual_start")
-                actual_start = None if actual_raw is None else _parse_time(str(actual_raw), field="actual_start")
+                actual_start = (
+                    None
+                    if actual_raw is None
+                    else _parse_time(str(actual_raw), field="actual_start")
+                )
                 if actual_start is not None and settled_at < actual_start:
                     raise ValueError("settlement was recorded before actual start")
-                committed_at = _parse_time(str(prediction["committed_at"]), field="prediction.committed_at")
+                committed_at = _parse_time(
+                    str(prediction["committed_at"]), field="prediction.committed_at"
+                )
                 expected_timing = (
                     "ACTUAL_START_UNVERIFIED"
                     if actual_start is None
-                    else ("PRE_START_VERIFIED" if committed_at < actual_start else "COMMIT_NOT_PRE_START")
+                    else (
+                        "PRE_START_VERIFIED"
+                        if committed_at < actual_start
+                        else "COMMIT_NOT_PRE_START"
+                    )
                 )
                 if record.get("timing_status") != expected_timing:
                     raise ValueError("settlement timing status does not reproduce")
@@ -382,15 +403,22 @@ def commit_prediction(
 
         if any(
             record.get("record_type") == "PREDICTION_COMMIT"
-            and (record.get("prediction_id") == matchup.prediction_id or record.get("match_id") == matchup.match_id)
+            and (
+                record.get("prediction_id") == matchup.prediction_id
+                or record.get("match_id") == matchup.match_id
+            )
             for record in store.records()
         ):
-            raise ValueError("pilot allows only one committed prediction per prediction_id/match_id")
+            raise ValueError(
+                "pilot allows only one committed prediction per prediction_id/match_id"
+            )
 
         source_by_sha = {_sha256_file(path): path for path in source_evidence_paths}
         expected_source = set(matchup.source_manifest_hashes)
         if set(source_by_sha) != expected_source:
-            raise ValueError("source evidence SHA-256 set must exactly match matchup source_manifest_hashes")
+            raise ValueError(
+                "source evidence SHA-256 set must exactly match matchup source_manifest_hashes"
+            )
 
         input_sha = store._store_evidence_file(input_path)
         source_shas = [
@@ -410,7 +438,14 @@ def commit_prediction(
 
         evidence = list(
             dict.fromkeys(
-                [input_sha, *source_shas, schedule_sha, bundle_file_sha, calculation_sha, runtime_sha]
+                [
+                    input_sha,
+                    *source_shas,
+                    schedule_sha,
+                    bundle_file_sha,
+                    calculation_sha,
+                    runtime_sha,
+                ]
             )
         )
         return store._append_record(
@@ -477,7 +512,9 @@ def settle_prediction(
         if settled_at.tzinfo is None or settled_at.utcoffset() is None:
             raise ValueError("settlement clock must return a timezone-aware datetime")
         settled_at = settled_at.astimezone(UTC)
-        parsed_actual = None if actual_start is None else _parse_time(actual_start, field="actual_start")
+        parsed_actual = (
+            None if actual_start is None else _parse_time(actual_start, field="actual_start")
+        )
         if parsed_actual is not None and settled_at < parsed_actual:
             raise ValueError("settlement cannot be recorded before actual start")
 
