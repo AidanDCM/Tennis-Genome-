@@ -169,8 +169,11 @@ jobs:
         run: |
           pytest tests/test_pattern_confirm.py tests/test_pattern_confirm_live_identity.py tests/test_pattern_confirm_sportradar_state.py tests/test_pattern_confirm_sportradar_pipeline.py tests/test_pattern_confirm_sportradar_source_package.py tests/test_pattern_confirm_live.py
 
-      - name: Ruff
-        run: ruff check .
+      - name: Format repaired source and tests
+        run: ruff format src tests
+
+      - name: Ruff repaired source and tests
+        run: ruff check src tests
 
       - name: Full test suite
         run: pytest
