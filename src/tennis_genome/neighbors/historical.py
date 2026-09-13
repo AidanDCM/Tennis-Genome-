@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 import numpy as np
 from sklearn.impute import SimpleImputer
@@ -19,6 +20,7 @@ class ResidualRecord:
 @dataclass(frozen=True)
 class NeighborCandidate:
     match_id: str
+    event_date: date
     distance: float
     residual_favorite: float
     player_a_id: str
@@ -53,7 +55,14 @@ def _shares_player(target: GenomeVector, candidate: NeighborCandidate) -> bool:
 
 
 class HistoricalGenomeIndex:
-    """Fold-fitted standardized Euclidean index over historical Genome rows."""
+    """Leakage-safe historical Genome candidate pool.
+
+    The constructor validates only immutable schema/population properties. Numeric
+    preprocessing is deliberately deferred until a query supplies its target
+    chronology. That lets the index prove that every candidate is strictly earlier
+    than every target and that no target match is present before the imputer,
+    scaler, or nearest-neighbor model sees any historical values.
+    """
 
     def __init__(self, records: list[ResidualRecord]) -> None:
         if not records:
@@ -70,25 +79,14 @@ class HistoricalGenomeIndex:
             if genome.tour != tour:
                 raise ValueError("historical Genome index cannot mix tours")
 
-        imputer = SimpleImputer(
-            strategy="median",
-            add_indicator=False,
-            keep_empty_features=True,
-        )
-        historical_raw = _raw_matrix([record.genome for record in records])
-        historical_imputed = imputer.fit_transform(historical_raw)
-        scaler = StandardScaler()
-        historical_standardized = scaler.fit_transform(historical_imputed)
+        match_ids = [record.genome.match_id for record in records]
+        if len(match_ids) != len(set(match_ids)):
+            raise ValueError("historical Genome index contains duplicate match IDs")
 
         self.records = tuple(records)
         self.feature_names = feature_names
         self.tour = tour
-        self._imputer = imputer
-        self._scaler = scaler
-        self._historical_standardized = np.asarray(
-            historical_standardized,
-            dtype=float,
-        )
+        self._record_match_ids = frozenset(match_ids)
 
     @property
     def size(self) -> int:
@@ -100,12 +98,30 @@ class HistoricalGenomeIndex:
         if genome.feature_names != self.feature_names:
             raise ValueError("target Genome feature schema differs from historical index")
 
-    def _transform_targets(self, targets: list[GenomeVector]) -> np.ndarray:
+    def _validate_query_chronology(self, targets: list[GenomeVector]) -> None:
         for genome in targets:
             self._validate_target(genome)
-        raw = _raw_matrix(targets)
-        imputed = self._imputer.transform(raw)
-        return np.asarray(self._scaler.transform(imputed), dtype=float)
+
+        target_ids = {genome.match_id for genome in targets}
+        overlap = sorted(target_ids.intersection(self._record_match_ids))
+        if overlap:
+            raise ValueError(
+                "target match ID is already present in historical Genome index: "
+                + ", ".join(overlap[:5])
+            )
+
+        earliest_target_date = min(genome.event_date for genome in targets)
+        invalid = sorted(
+            record.genome.match_id
+            for record in self.records
+            if record.genome.event_date >= earliest_target_date
+        )
+        if invalid:
+            raise ValueError(
+                "historical Genome index requires every candidate to be strictly "
+                "earlier than every queried target; invalid match IDs: "
+                + ", ".join(invalid[:5])
+            )
 
     def query_candidates(
         self,
@@ -117,7 +133,27 @@ class HistoricalGenomeIndex:
             raise ValueError("candidate_limit must be positive")
         if not targets:
             return []
-        target_matrix = self._transform_targets(targets)
+
+        # Temporal/self-neighbor safety is checked before any historical values are
+        # used to fit imputation, scaling, or nearest-neighbor preprocessing.
+        self._validate_query_chronology(targets)
+
+        imputer = SimpleImputer(
+            strategy="median",
+            add_indicator=False,
+            keep_empty_features=True,
+        )
+        historical_raw = _raw_matrix([record.genome for record in self.records])
+        historical_imputed = imputer.fit_transform(historical_raw)
+        scaler = StandardScaler()
+        historical_standardized = np.asarray(
+            scaler.fit_transform(historical_imputed),
+            dtype=float,
+        )
+        target_raw = _raw_matrix(targets)
+        target_imputed = imputer.transform(target_raw)
+        target_matrix = np.asarray(scaler.transform(target_imputed), dtype=float)
+
         count = min(candidate_limit, self.size)
         model = NearestNeighbors(
             n_neighbors=count,
@@ -125,7 +161,7 @@ class HistoricalGenomeIndex:
             metric="euclidean",
             n_jobs=-1,
         )
-        model.fit(self._historical_standardized)
+        model.fit(historical_standardized)
         distances, indices = model.kneighbors(target_matrix, return_distance=True)
 
         result: list[tuple[NeighborCandidate, ...]] = []
@@ -137,6 +173,7 @@ class HistoricalGenomeIndex:
                 candidates.append(
                     NeighborCandidate(
                         match_id=genome.match_id,
+                        event_date=genome.event_date,
                         distance=float(distance),
                         residual_favorite=float(record.residual_favorite),
                         player_a_id=genome.player_a_id,
@@ -158,6 +195,10 @@ class HistoricalGenomeIndex:
         self._validate_target(target)
         if k <= 0:
             raise ValueError("k must be positive")
+        if any(candidate.match_id == target.match_id for candidate in candidates):
+            raise ValueError("target match cannot be its own historical neighbor")
+        if any(candidate.event_date >= target.event_date for candidate in candidates):
+            raise ValueError("historical neighbor is not strictly earlier than target")
         selected_pool = [
             candidate
             for candidate in candidates
