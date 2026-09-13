@@ -251,7 +251,11 @@ def _crosswalk_payload() -> dict[str, object]:
     )
 
 
-def _source_package_payload(*, captured_at: datetime | None = None) -> dict[str, object]:
+def _source_package_payload(
+    *,
+    captured_at: datetime | None = None,
+    match_id: str = "future-1",
+) -> dict[str, object]:
     mapping = _mapping()
     summary = _summary()
     season_info = {
@@ -319,7 +323,7 @@ def _source_package_payload(*, captured_at: datetime | None = None) -> dict[str,
         raise AssertionError(url)
 
     package = build_live_source_package(
-        match_id="future-1",
+        match_id=match_id,
         base_history=_base_history(),
         identity_mapping=mapping,
         crosswalk_payload=_crosswalk_payload(),
@@ -411,7 +415,7 @@ def test_live_intake_computes_market_and_binds_models_and_identity() -> None:
         ({"profile_gap": 0.0}, "externally supplied"),
         ({"core_probability_a": 0.5}, "externally supplied"),
         ({"market_event_id": "wrong"}, "verified identity mapping"),
-        ({"player_a_market_name": "Taylor Fritz"}, "player A orientation"),
+        ({"player_a_market_name": "Taylor Fritz"}, "competitor names"),
         (
             {
                 "sportradar_summary": _summary(status="live"),
@@ -685,3 +689,40 @@ def test_caller_cannot_supply_standalone_prospective_state() -> None:
     raw = _raw(prospective_state=package["prospective_state"])
     with pytest.raises(ValueError, match="externally supplied"):
         _build(raw, source_package_payload=package)
+
+
+def test_market_side_swap_is_reoriented_to_canonical_player_a() -> None:
+    canonical = _build()
+    swapped = _build(
+        _raw(
+            player_a_market_name="Taylor Fritz",
+            player_b_market_name="Tommy Paul",
+            decimal_odds_a=2.10,
+            decimal_odds_b=1.80,
+        )
+    )
+    assert swapped.player_a_id == canonical.player_a_id
+    assert swapped.player_b_id == canonical.player_b_id
+    assert swapped.market_probability_a == pytest.approx(canonical.market_probability_a)
+    assert swapped.decimal_odds_a == canonical.decimal_odds_a
+    assert swapped.decimal_odds_b == canonical.decimal_odds_b
+
+
+def test_duplicate_provider_event_is_rejected_even_with_new_internal_id() -> None:
+    first = _build()
+    second_package = _source_package_payload(match_id="future-2")
+    mapping = _mapping()
+    with pytest.raises(ValueError, match="duplicate (market_event_id|sportradar_event_id)"):
+        append_live_rows(
+            existing_rows=[live_record_as_dict(first)],
+            new_rows=[_raw(match_id="future-2")],
+            identity_mappings={mapping.market_event_id: mapping},
+            source_packages={
+                "future-1": _source_package_payload(),
+                "future-2": second_package,
+            },
+            crosswalk_payload=_crosswalk_payload(),
+            fit=_fit(),
+            profile_artifact=_profile(),
+            core_artifact=_core(),
+        )

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import asdict
 from datetime import date
 
 from tennis_genome.data.canonical import HistoricalMatch
@@ -29,7 +30,10 @@ from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
 )
 
 HISTORY_SOURCE_ID = "CANONICAL_2000_2025_PLUS_SPORTRADAR_TENNIS_V3_STATE_V1"
-HISTORY_SOURCE_CONTRACT = "pattern-confirm-history-source-v2"
+HISTORY_SOURCE_CONTRACT = "pattern-confirm-history-source-v3"
+FROZEN_BASE_HISTORY_CONTENT_SHA256 = (
+    "8be80277f80d5ca8bf34ce2df52d3393bc72cc7d92787772772dc2571a5c1f02"
+)
 _BASE_END = date(2025, 12, 31)
 
 
@@ -51,6 +55,7 @@ def history_source_sha256(
     *,
     base_canonical_manifest_sha256: str,
     base_training_rows_sha256: str,
+    base_history_content_sha256: str,
     state_capture_sha256: str,
     state_bundle_sha256: str,
     target_context_sha256: str,
@@ -64,6 +69,7 @@ def history_source_sha256(
                 "history_source_id": HISTORY_SOURCE_ID,
                 "base_canonical_manifest_sha256": base_canonical_manifest_sha256,
                 "base_training_rows_sha256": base_training_rows_sha256,
+                "base_history_content_sha256": base_history_content_sha256,
                 "state_capture_sha256": state_capture_sha256,
                 "state_bundle_sha256": state_bundle_sha256,
                 "target_context_sha256": target_context_sha256,
@@ -86,11 +92,34 @@ def training_population_hash(matches: list[HistoricalMatch]) -> str:
     return _sha256(_canonical_json(rows))
 
 
+def training_content_hash(matches: list[HistoricalMatch]) -> str:
+    rows: list[dict[str, object]] = []
+    for match in matches:
+        pre_match = asdict(match.pre_match)
+        pre_match["event_date"] = match.pre_match.event_date.isoformat()
+        rows.append(
+            {
+                "pre_match": pre_match,
+                "outcome": asdict(match.outcome),
+                "stats": None if match.stats is None else asdict(match.stats),
+            }
+        )
+    rows.sort(
+        key=lambda row: (
+            str(row["pre_match"]["event_date"]),
+            int(row["pre_match"]["source_order"]),
+            str(row["pre_match"]["match_id"]),
+        )
+    )
+    return _sha256(_canonical_json(rows))
+
+
 def verified_frozen_base_history(
     base_history: list[HistoricalMatch],
     *,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
+    expected_content_sha256: str | None = None,
 ) -> list[HistoricalMatch]:
     if profile_artifact.training_end_year != 2025 or core_artifact.training_end_year != 2025:
         raise ValueError("production artifacts do not share the frozen 2025 training cutoff")
@@ -113,6 +142,10 @@ def verified_frozen_base_history(
         raise ValueError("frozen base history does not reproduce training N")
     if training_population_hash(eligible) != profile_artifact.training_rows_sha256:
         raise ValueError("frozen base history does not reproduce training-row hash")
+    if expected_content_sha256 is not None:
+        actual_content_sha256 = training_content_hash(eligible)
+        if actual_content_sha256 != expected_content_sha256:
+            raise ValueError("frozen base history does not reproduce full content hash")
     eligible.sort(
         key=lambda match: (
             match.pre_match.event_date,
@@ -132,12 +165,15 @@ def build_sportradar_prospective_state(
     identity_mapping: IdentityMapping,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
+    expected_base_history_content_sha256: str | None = None,
 ) -> ProspectiveStateArtifact:
     base = verified_frozen_base_history(
         base_history,
         profile_artifact=profile_artifact,
         core_artifact=core_artifact,
+        expected_content_sha256=expected_base_history_content_sha256,
     )
+    base_history_content_sha256 = training_content_hash(base)
     sealed_crosswalk = verify_crosswalk(crosswalk_payload)
     crosswalk = crosswalk_mapping(sealed_crosswalk)
     if (
@@ -182,6 +218,7 @@ def build_sportradar_prospective_state(
     history_source_sha = history_source_sha256(
         base_canonical_manifest_sha256=profile_artifact.canonical_manifest_sha256,
         base_training_rows_sha256=profile_artifact.training_rows_sha256,
+        base_history_content_sha256=base_history_content_sha256,
         state_capture_sha256=state_capture.artifact_sha256,
         state_bundle_sha256=state_capture.state_bundle_sha256,
         target_context_sha256=target_context.artifact_sha256,

@@ -295,3 +295,43 @@ def test_retirements_and_walkovers_are_auditable_exclusions() -> None:
     assert report.excluded_walkover_n == 1
     assert report.status == "ACCUMULATING"
     assert report.completed_looks == ()
+
+
+def test_unsettled_earlier_match_blocks_fixed_look_membership() -> None:
+    hypothesis = HYPOTHESES[0]
+    look_n = hypothesis.look_ns[0]
+    records = [
+        _prospective_record(
+            index,
+            hypothesis_id=hypothesis.hypothesis_id,
+            probability=0.60,
+        )
+        for index in range(look_n + 1)
+    ]
+    outcomes = {
+        row.match_id: SettledOutcome(
+            match_id=row.match_id,
+            outcome_a=index < 235,
+            retirement=False,
+            walkover=False,
+        )
+        for index, row in enumerate(records)
+        if index != 0
+    }
+
+    report = evaluate_hypothesis(records, outcomes, hypothesis)
+    assert report.status == "ACCUMULATING"
+    assert report.available_qualifying_n == 0
+    assert report.completed_looks == ()
+
+    outcomes[records[0].match_id] = SettledOutcome(
+        match_id=records[0].match_id,
+        outcome_a=True,
+        retirement=False,
+        walkover=False,
+    )
+    report = evaluate_hypothesis(records, outcomes, hypothesis)
+    assert len(report.completed_looks) == 1
+    look = report.completed_looks[0]
+    assert look.match_ids == tuple(row.match_id for row in records[:look_n])
+    assert len(look.input_sha256) == 64
