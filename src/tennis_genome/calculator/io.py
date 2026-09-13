@@ -10,6 +10,23 @@ from tennis_genome.ratings.serve_return import ServeReturnSnapshot
 
 from .types import MatchupInput
 
+_ALLOWED_TOP_LEVEL_FIELDS = frozenset(
+    {
+        "prediction_id",
+        "match_id",
+        "tour",
+        "player_a_id",
+        "player_b_id",
+        "created_at",
+        "prediction_cutoff_at",
+        "foundational",
+        "source_manifest_hashes",
+        "best_of",
+        "profile_pair",
+        "serve_return",
+    }
+)
+
 
 def _datetime(value: object, *, field: str) -> datetime:
     try:
@@ -79,6 +96,10 @@ def _serve_return(payload: object) -> ServeReturnSnapshot:
 
 
 def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
+    unknown = sorted(set(payload).difference(_ALLOWED_TOP_LEVEL_FIELDS))
+    if unknown:
+        raise ValueError("undeclared matchup input fields: " + ", ".join(unknown))
+
     tour = str(payload.get("tour", ""))
     profile_payload = payload.get("profile_pair")
     serve_payload = payload.get("serve_return")
