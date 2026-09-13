@@ -1,4 +1,4 @@
-name: Calculator boundary hardening v4
+name: Calculator boundary hardening v5
 
 on:
   push:
@@ -146,17 +146,18 @@ jobs:
             tests/test_matchup_calculator_io.py \
             tests/test_manual_market_comparison.py \
             tests/test_pattern_confirm_live.py
+      - name: Remove temporary patcher from lint scope
+        run: rm scripts/apply_calculator_boundary_hardening.py
       - name: Ruff
         run: ruff check .
       - name: Full pytest
         run: pytest -q
-      - name: Remove one-shot machinery
+      - name: Remove one-shot workflows
         run: |
-          rm scripts/apply_calculator_boundary_hardening.py
-          rm .github/workflows/calculator_boundary_hardening.yml
-          rm .github/workflows/calculator_boundary_hardening_v2.yml
-          rm .github/workflows/calculator_boundary_hardening_v3.yml
-          rm .github/workflows/calculator_boundary_hardening_v4.yml
+          rm -f .github/workflows/calculator_boundary_hardening.yml
+          rm -f .github/workflows/calculator_boundary_hardening_v2.yml
+          rm -f .github/workflows/calculator_boundary_hardening_v3.yml
+          rm -f .github/workflows/calculator_boundary_hardening_v4.yml
       - name: Commit verified hardening
         run: |
           git config user.name 'Aidan Miller'
