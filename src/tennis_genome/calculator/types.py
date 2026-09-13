@@ -92,6 +92,20 @@ class FairDecimalOdds:
 
 
 @dataclass(frozen=True)
+class CoreLogitDriver:
+    """One exact additive strict-Core logit term after frozen preprocessing."""
+
+    feature: str
+    contribution: float
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "feature": self.feature,
+            "contribution": self.contribution,
+        }
+
+
+@dataclass(frozen=True)
 class MatchupCalculation:
     """Human-facing wrapper around the frozen market-blind prediction."""
 
@@ -100,6 +114,8 @@ class MatchupCalculation:
     player_b_id: str
     fair_decimal_odds: FairDecimalOdds
     production_bundle_sha256: str
+    core_logit_intercept: float
+    core_logit_drivers: tuple[CoreLogitDriver, ...]
     assessment_status: str = "DIAGNOSTIC_ONLY_NO_HARD_PASS"
 
     def __post_init__(self) -> None:
@@ -107,6 +123,11 @@ class MatchupCalculation:
             raise ValueError("calculation player IDs must be non-empty")
         if self.player_a_id == self.player_b_id:
             raise ValueError("calculation player IDs must be distinct")
+        if not _SHA256_RE.fullmatch(self.production_bundle_sha256):
+            raise ValueError("production bundle SHA must be lowercase SHA-256 hex")
+        names = [driver.feature for driver in self.core_logit_drivers]
+        if not names or len(names) != len(set(names)):
+            raise ValueError("Core logit driver names must be non-empty and unique")
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -118,5 +139,10 @@ class MatchupCalculation:
                 "player_b": self.fair_decimal_odds.player_b,
             },
             "production_bundle_sha256": self.production_bundle_sha256,
+            "core_explanation": {
+                "scale": "strict_core_logit_additive_terms",
+                "intercept": self.core_logit_intercept,
+                "drivers": [driver.to_dict() for driver in self.core_logit_drivers],
+            },
             "assessment_status": self.assessment_status,
         }
