@@ -622,6 +622,18 @@ def test_settlement_rejects_operator_asserted_outcome_flags() -> None:
         load_live_settlements([raw])
 
 
+def test_settlement_observation_cannot_precede_actual_start() -> None:
+    record = _build()
+    raw = {
+        "match_id": record.match_id,
+        "sportradar_event_id": record.sportradar_event_id,
+        "sportradar_timeline": _timeline(),
+        "observed_at": "2026-09-12T17:00:00+00:00",
+    }
+    with pytest.raises(ValueError, match="cannot precede verified actual start"):
+        load_live_settlements([raw])
+
+
 def test_settlement_requires_terminal_provider_status() -> None:
     record = _build()
     raw = {

@@ -43,7 +43,7 @@ from tennis_genome.experiments.pattern_confirm_sportradar_source_package import 
 )
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v5"
+_VERSION = "pattern-confirm-live-v6"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
@@ -731,6 +731,8 @@ def load_live_settlements(rows: list[dict[str, object]]) -> dict[str, LiveSettle
                 "settlement outcome/finish flags must be provider-derived, not operator supplied"
             )
         observed_at = _parse_time(_required_text(raw, "observed_at"))
+        if timing.actual_start is not None and observed_at < _parse_time(timing.actual_start):
+            raise ValueError("settlement observed_at cannot precede verified actual start")
         status_payload = _required_object(timeline_payload, "sport_event_status")
         provider_status = _required_text(status_payload, "status").lower()
         if provider_status not in {"ended", "closed"}:
