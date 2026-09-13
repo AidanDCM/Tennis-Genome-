@@ -4,7 +4,10 @@ from dataclasses import replace
 
 import pytest
 
-from tennis_genome.calculator.contract import validate_frozen_bundle_contract
+from tennis_genome.calculator.contract import (
+    FROZEN_PRODUCTION_BUNDLE_SHA256,
+    validate_frozen_bundle_contract,
+)
 from tennis_genome.independent.production import (
     ACCEPTED_CANONICAL_CONTENT,
     CANDIDATE_LIMIT,
@@ -35,6 +38,7 @@ def _valid_frozen_bundle():
     )
     return replace(
         bundle,
+        artifact_sha256=FROZEN_PRODUCTION_BUNDLE_SHA256,
         production_version=PRODUCTION_VERSION,
         development_end_year=DEVELOPMENT_END_YEAR,
         source_repo=PINNED_SOURCE_REPO,
@@ -47,8 +51,15 @@ def _valid_frozen_bundle():
 def test_frozen_bundle_contract_accepts_expected_architecture() -> None:
     bundle = _valid_frozen_bundle()
     validate_frozen_bundle_contract(bundle)
+    assert bundle.artifact_sha256 == FROZEN_PRODUCTION_BUNDLE_SHA256
     assert bundle.atp.neighbor_bank.k == PRIMARY_K
     assert bundle.wta.neighbor_bank.candidate_limit == CANDIDATE_LIMIT
+
+
+def test_frozen_bundle_contract_rejects_different_bundle_digest() -> None:
+    bundle = replace(_valid_frozen_bundle(), artifact_sha256="0" * 64)
+    with pytest.raises(ValueError, match="bundle SHA-256 is not the sealed"):
+        validate_frozen_bundle_contract(bundle)
 
 
 def test_frozen_bundle_contract_rejects_source_commit_change() -> None:
