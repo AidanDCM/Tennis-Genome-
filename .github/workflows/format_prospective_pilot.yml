@@ -24,6 +24,18 @@ jobs:
           python -m pip install -e . --no-deps
       - name: Format and fix
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/tennis_genome/prospective/pilot.py')
+          text = path.read_text()
+          text = text.replace(
+              '                "prospective pilot store is locked; recover only after confirming no writer is active"\n',
+              '                "prospective pilot store is locked; recover only after confirming "\n'
+              '                "no writer is active"\n',
+              1,
+          )
+          path.write_text(text)
+          PY
           ruff format src/tennis_genome/prospective tests/test_prospective_pilot.py
           ruff check --fix src/tennis_genome/prospective tests/test_prospective_pilot.py
       - name: Ruff
