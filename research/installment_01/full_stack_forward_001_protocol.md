@@ -2,6 +2,8 @@
 
 Status: **REGISTERED PRE-RESULT / N=0**. This protocol is separate from PATTERN-CONFIRM-001. No record collected under the prospective pilot existed when this protocol was written.
 
+**Operational Amendment 001 — 2026-09-13, pre-result at N=0:** formal cohort eligibility now mechanically requires a verified local `ANCHOR_ATTESTATION` backed by retained GitHub run metadata, and settlement winner/status/actual-start facts are derived from retained Sportradar timeline evidence. This amendment changes evidence-integrity enforcement only. It does not alter the frozen model, sample size, metrics, bootstrap gate, tour separation, or any betting rule.
+
 ## Question
 
 Does the frozen final TGE-Independent-v1 probability stack retain useful probabilistic performance on a genuinely untouched prospective cohort, and does the full stack add reproducible predictive value over its frozen strict-Core component?
@@ -12,7 +14,7 @@ This protocol tests probability quality. It does **not** test sportsbook edge, e
 
 All predictions must use the sealed TGE-Independent-v1 production bundle through the supported JSON/file-loading path. Production neighbor banks must pass their frozen byte hashes. Inputs must pass the calculator's canonical-order, finite-value, development-cutoff, Profile-validity and chronology gates. The runtime is CPython 3.11.16 with `requirements/runtime.lock`.
 
-The prediction, exact input/source evidence, runtime/code fingerprint and later settlement must be retained by `FULL-STACK-PILOT-001-ledger-v1`. The local ledger is application-level append-only/tamper-evident, not a trusted external timestamp by itself. Each formal-cohort prediction must also be anchored before start by the registered `Prospective Evidence Anchor` GitHub Actions workflow. A calculation not durably committed and independently anchored before start is not repaired or reconstructed afterward.
+The prediction, exact input/source evidence, runtime/code fingerprint and later settlement must be retained by `FULL-STACK-PILOT-001-ledger-v1`. The local ledger is application-level append-only/tamper-evident, not a trusted external timestamp by itself. Each formal-cohort prediction must also be anchored before start by the registered `Prospective Evidence Anchor` GitHub Actions workflow, with the exact receipt and corresponding GitHub workflow-run metadata retained in an `ANCHOR_ATTESTATION` record. A calculation not durably committed and independently anchored before start is not repaired or reconstructed afterward.
 
 ## Prospective cohort
 
@@ -26,11 +28,13 @@ A match is primary-eligible only when all of the following are true:
 - the sealed production bundle and historical banks were verified at calculation time;
 - the exact input and declared source-manifest evidence were retained;
 - the prediction record passes the ledger/hash-chain verifier;
-- a `Prospective Evidence Anchor` workflow run was dispatched for that prediction record and chain head, the run still resolves at audit time, and its server-side GitHub Actions `created_at` precedes verified actual start;
-- the anchor receipt's prediction SHA and chain-head SHA match the retained local ledger, and the run's workflow source SHA contains the registered anchor workflow version;
-- the local commitment time is strictly before independently retained actual-start evidence;
-- the match finished normally with `finish_status=COMPLETED`;
-- the settlement winner is one of the two canonical competitors and the settlement record/evidence passes verification.
+- an `ANCHOR_ATTESTATION` record exists for that prediction and retains both the GitHub anchor receipt and corresponding GitHub workflow-run metadata;
+- the anchor verifier confirms the expected repository, `workflow_dispatch` event, successful completion, registered anchor-workflow path, run ID, workflow source SHA, prediction-record SHA and immediate chain-head SHA;
+- the GitHub workflow-run server-side `created_at` retained in the attestation is strictly before verified actual start;
+- the local prediction commitment time is strictly before verified actual start;
+- winner, finish status and actual start are derived from retained Sportradar timeline evidence bound to the two canonical competitors;
+- the match finished normally with provider-derived `finish_status=COMPLETED`;
+- the settlement record/evidence passes the ledger verifier.
 
 Retirements, walkovers, defaults, missing/late anchors, actual-start-unverified rows, late commitments, corrupt/incomplete records and duplicate predictions remain in the operational evidence trail but do not enter the primary scoring cohort. They must not be silently deleted.
 
