@@ -1,0 +1,226 @@
+name: PATTERN-CONFIRM Prospective Correctness Repair v4
+
+on:
+  push:
+    branches:
+      - dev/pattern-confirm-correctness-repair
+    paths:
+      - .github/workflows/pattern_confirm_correctness_repair_v4.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pattern-confirm-correctness-repair-v4
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      ORIGINAL_FREEZE_CODE_SHA: 492c068c463056a23dfe10f92f0111763adcd141
+      FROZEN_TRAINING_ROWS_SHA256: c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-correctness-repair
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Narrow duplicate seed patch target
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_pattern_confirm_correctness_repair.py")
+          text = path.read_text()
+          old = '''    count = text.count(old)\n    if count != 1:\n        raise RuntimeError(f"{path}: expected one replacement, found {count}: {old[:80]!r}")\n    target.write_text(text.replace(old, new, 1))'''
+          new = '''    count = text.count(old)\n    if count == 2 and "seed_a=_positive_int(home.get" in old:\n        target.write_text(text.replace(old, new, 1))\n        return\n    if count != 1:\n        raise RuntimeError(f"{path}: expected one replacement, found {count}: {old[:80]!r}")\n    target.write_text(text.replace(old, new, 1))'''
+          if text.count(old) != 1:
+              raise RuntimeError("could not narrow repair patcher")
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Apply correctness patch set
+        run: python scripts/apply_pattern_confirm_correctness_repair.py
+
+      - name: Download exact pinned ATP 2000-2025 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/frozen-history/raw" "$RUNNER_TEMP/frozen-history/processed"
+          for year in $(seq 2000 2025); do
+            filename="atp_matches_${year}.csv"
+            curl --fail --location --silent --show-error --retry 4 --retry-all-errors \
+              --output "$RUNNER_TEMP/frozen-history/raw/$filename" \
+              "https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/atp/${filename}"
+          done
+          test "$(find "$RUNNER_TEMP/frozen-history/raw" -type f | wc -l)" -eq 26
+
+      - name: Rebuild canonical history with original freeze code
+        shell: bash
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/original-freeze-code" "$ORIGINAL_FREEZE_CODE_SHA"
+          args=()
+          for year in $(seq 2000 2025); do
+            args+=(--input "$RUNNER_TEMP/frozen-history/raw/atp_matches_${year}.csv")
+          done
+          PYTHONPATH="$RUNNER_TEMP/original-freeze-code/src" \
+            python -m tennis_genome.pipeline.build_dataset \
+              "${args[@]}" \
+              --tour ATP \
+              --output-dir "$RUNNER_TEMP/frozen-history/processed" \
+              --source-id "sackmann-archive-${ARCHIVE_COMMIT}-atp-2000-2025" \
+              --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+              --source-version "$ARCHIVE_COMMIT" \
+              --license-name "CC BY-NC-SA 4.0" \
+              --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/" \
+              --allowed-use-status research_allowed \
+              > "$RUNNER_TEMP/frozen-history/build_output.json"
+
+      - name: Verify rebuilt canonical files and seal full-content digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from tennis_genome.data.manifest import verify_canonical_manifest
+          from tennis_genome.data.parquet import load_canonical_parquet
+          from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
+              training_content_hash,
+              training_population_hash,
+          )
+
+          root = Path(os.environ["RUNNER_TEMP"]) / "frozen-history" / "processed"
+          manifest_path = root / "atp_manifest.json"
+          pre_match = root / "atp_pre_match.parquet"
+          outcomes = root / "atp_outcomes.parquet"
+          stats = root / "atp_stats.parquet"
+          manifest = verify_canonical_manifest(
+              manifest_path=manifest_path,
+              pre_match_path=pre_match,
+              outcome_path=outcomes,
+              stats_path=stats,
+          )
+          if manifest["source_metadata"]["source_version"] != os.environ["ARCHIVE_COMMIT"]:
+              raise RuntimeError("canonical rebuild is not bound to the pinned source commit")
+          if manifest["schema_version"] != "canonical-v3":
+              raise RuntimeError("canonical rebuild schema changed")
+
+          matches = load_canonical_parquet(
+              pre_match_path=pre_match,
+              outcome_path=outcomes,
+              stats_path=stats,
+          )
+          eligible = [
+              match
+              for match in matches
+              if match.pre_match.tour == "ATP"
+              and not match.outcome.walkover
+              and not match.outcome.retirement
+          ]
+          if len(eligible) != 75112:
+              raise RuntimeError(f"unexpected eligible ATP N: {len(eligible)}")
+          population_sha = training_population_hash(eligible)
+          if population_sha != os.environ["FROZEN_TRAINING_ROWS_SHA256"]:
+              raise RuntimeError(
+                  "original freeze code/source do not reproduce frozen training population"
+              )
+
+          content_sha = training_content_hash(eligible)
+          print("FROZEN_BASE_HISTORY_CONTENT_SHA256", content_sha)
+          derivation = {
+              "source_repo": os.environ["ARCHIVE_REPO"],
+              "source_commit": os.environ["ARCHIVE_COMMIT"],
+              "canonicalization_code_sha": os.environ["ORIGINAL_FREEZE_CODE_SHA"],
+              "schema_version": manifest["schema_version"],
+              "eligible_training_n": len(eligible),
+              "training_population_sha256": population_sha,
+              "pre_match_sha256": manifest["pre_match_sha256"],
+              "outcome_sha256": manifest["outcome_sha256"],
+              "stats_sha256": manifest["stats_sha256"],
+              "base_history_content_sha256": content_sha,
+          }
+          Path("research/installment_01/pattern_confirm_001_base_history_derivation.json").write_text(
+              json.dumps(derivation, indent=2, sort_keys=True) + "\n"
+          )
+
+          placeholder = "__FROZEN_BASE_HISTORY_CONTENT_SHA256__"
+          for path in [
+              Path("src/tennis_genome/experiments/pattern_confirm_sportradar_pipeline.py"),
+              Path("research/installment_01/pattern_confirm_001_preresult_amendment_010.md"),
+          ]:
+              text = path.read_text()
+              if text.count(placeholder) != 1:
+                  raise RuntimeError(f"{path}: expected one digest placeholder")
+              path.write_text(text.replace(placeholder, content_sha))
+
+          amendment = Path(
+              "research/installment_01/pattern_confirm_001_preresult_amendment_010.md"
+          )
+          text = amendment.read_text()
+          old = (
+              "The digest is generated from the exact pinned ATP 2000-2025 source after "
+              "reproducing the frozen 75,112-row population and the existing production champions."
+          )
+          new = (
+              "The digest is generated at N=0 from the exact pinned ATP 2000-2025 source using "
+              "the original production-freeze code commit `492c068c463056a23dfe10f92f0111763adcd141`. "
+              "The rebuild verifies the canonical-v3 files against their own file hashes and "
+              "reproduces the frozen 75,112-row population/hash before the complete semantic "
+              "content digest is sealed. The prior manifest wrapper hash is retained as historical "
+              "provenance but is not used as the new content identity because the manifest embeds "
+              "a volatile `built_at_utc` field."
+          )
+          if old not in text:
+              raise RuntimeError("amendment derivation sentence not found")
+          amendment.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Targeted regression tests
+        run: |
+          pytest \
+            tests/test_pattern_confirm.py \
+            tests/test_pattern_confirm_live_identity.py \
+            tests/test_pattern_confirm_sportradar_state.py \
+            tests/test_pattern_confirm_sportradar_pipeline.py \
+            tests/test_pattern_confirm_sportradar_source_package.py \
+            tests/test_pattern_confirm_live.py
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Full test suite
+        run: pytest
+
+      - name: Remove one-shot repair machinery
+        run: |
+          rm scripts/apply_pattern_confirm_correctness_repair.py
+          rm .github/workflows/pattern_confirm_correctness_repair.yml
+          rm .github/workflows/pattern_confirm_correctness_repair_v2.yml
+          rm .github/workflows/pattern_confirm_correctness_repair_v3.yml
+          rm .github/workflows/pattern_confirm_correctness_repair_v4.yml
+
+      - name: Commit verified repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add -A
+          git commit -m "Repair PATTERN-CONFIRM prospective correctness boundaries"
+          git push origin HEAD:dev/pattern-confirm-correctness-repair
