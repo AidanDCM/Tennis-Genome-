@@ -8,32 +8,37 @@ from datetime import date, datetime
 
 from tennis_genome.data.canonical import HistoricalMatch
 from tennis_genome.experiments.pattern_confirm_live_identity import IdentityMapping
-from tennis_genome.experiments.pattern_confirm_live_state import prospective_state_as_dict
+from tennis_genome.experiments.pattern_confirm_live_state import (
+    prospective_state_as_dict,
+    verify_prospective_state_artifact,
+)
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_client import (
     fetch_competitor_profile,
-    fetch_daily_summary_range,
     fetch_season_info,
     fetch_sport_event_summary,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
-    crosswalk_mapping,
     verify_crosswalk,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
     build_sportradar_prospective_state,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_state import (
-    build_state_bundle,
     build_target_context_artifact,
-    state_bundle_as_dict,
     target_context_as_dict,
+    verify_target_context_artifact,
+)
+from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
+    capture_season_state,
+    state_capture_as_dict,
+    verify_state_capture,
 )
 
-_VERSION = "pattern-confirm-sportradar-source-package-v1"
+_VERSION = "pattern-confirm-sportradar-source-package-v2"
 _STATE_START = date(2026, 1, 1)
 
 
@@ -48,14 +53,19 @@ class SportradarSourcePackage:
     season_start_date: str
     identity_mapping_sha256: str
     crosswalk_sha256: str
+    state_capture_sha256: str
     state_bundle_sha256: str
     target_context_sha256: str
     prospective_state_sha256: str
-    state_source_count: int
+    selected_season_count: int
+    fetched_page_count: int
+    fetched_summary_count: int
+    cutoff_eligible_summary_count: int
+    cutoff_excluded_summary_count: int
     state_accepted_count: int
-    state_excluded_count: int
+    state_parser_excluded_count: int
     target_context: dict[str, object]
-    state_bundle: dict[str, object]
+    state_capture: dict[str, object]
     prospective_state: dict[str, object]
     artifact_sha256: str
 
@@ -86,6 +96,17 @@ def _capture_time(value: datetime) -> str:
     return value.isoformat()
 
 
+def _nested_state_counts(state_capture: dict[str, object]) -> tuple[int, int]:
+    bundle = state_capture.get("state_bundle")
+    if not isinstance(bundle, dict):
+        raise ValueError("state capture is missing nested state bundle")
+    accepted = bundle.get("accepted_count")
+    excluded = bundle.get("excluded_count")
+    if not isinstance(accepted, int) or not isinstance(excluded, int):
+        raise ValueError("state capture nested counts must be integers")
+    return accepted, excluded
+
+
 def build_live_source_package(
     *,
     match_id: str,
@@ -108,7 +129,6 @@ def build_live_source_package(
         raise ValueError("target season predates the post-2025 state source window")
 
     sealed_crosswalk = verify_crosswalk(crosswalk_payload)
-    crosswalk = crosswalk_mapping(sealed_crosswalk)
     summary = fetch_sport_event_summary(
         identity_mapping.sportradar_event_id,
         api_key=api_key,
@@ -141,20 +161,22 @@ def build_live_source_package(
         profile_a_payload=profile_a,
         profile_b_payload=profile_b,
     )
+    target_payload = target_context_as_dict(target_context)
 
-    prior_summaries = fetch_daily_summary_range(
-        _STATE_START,
-        target_date,
+    state_capture = capture_season_state(
+        target_cutoff_date=target_date,
+        crosswalk_payload=crosswalk_payload,
         api_key=api_key,
         access_level=access_level,
         get_json=get_json,
     )
-    state_bundle = build_state_bundle(summaries=prior_summaries, crosswalk=crosswalk)
-    state_payload = state_bundle_as_dict(state_bundle)
-    target_payload = target_context_as_dict(target_context)
+    state_capture_payload = state_capture_as_dict(state_capture)
+    state_accepted_count, state_parser_excluded_count = _nested_state_counts(
+        state_capture_payload
+    )
     prospective_state = build_sportradar_prospective_state(
         base_history=base_history,
-        state_bundle_payload=state_payload,
+        state_capture_payload=state_capture_payload,
         target_context_payload=target_payload,
         crosswalk_payload=crosswalk_payload,
         identity_mapping=identity_mapping,
@@ -175,14 +197,19 @@ def build_live_source_package(
         "season_start_date": identity_mapping.season_start_date,
         "identity_mapping_sha256": identity_mapping.artifact_sha256,
         "crosswalk_sha256": sealed_crosswalk.artifact_sha256,
-        "state_bundle_sha256": state_bundle.artifact_sha256,
+        "state_capture_sha256": state_capture.artifact_sha256,
+        "state_bundle_sha256": state_capture.state_bundle_sha256,
         "target_context_sha256": target_context.artifact_sha256,
         "prospective_state_sha256": prospective_state.artifact_sha256,
-        "state_source_count": state_bundle.source_count,
-        "state_accepted_count": state_bundle.accepted_count,
-        "state_excluded_count": state_bundle.excluded_count,
+        "selected_season_count": state_capture.selected_season_count,
+        "fetched_page_count": state_capture.fetched_page_count,
+        "fetched_summary_count": state_capture.fetched_summary_count,
+        "cutoff_eligible_summary_count": state_capture.cutoff_eligible_summary_count,
+        "cutoff_excluded_summary_count": state_capture.cutoff_excluded_summary_count,
+        "state_accepted_count": state_accepted_count,
+        "state_parser_excluded_count": state_parser_excluded_count,
         "target_context": target_payload,
-        "state_bundle": state_payload,
+        "state_capture": state_capture_payload,
         "prospective_state": prospective_payload,
     }
     return SportradarSourcePackage(
@@ -195,7 +222,14 @@ def source_package_as_dict(package: SportradarSourcePackage) -> dict[str, object
     return asdict(package)
 
 
-def verify_source_package(payload: dict[str, object]) -> SportradarSourcePackage:
+def verify_source_package(
+    payload: dict[str, object],
+    *,
+    identity_mapping: IdentityMapping,
+    crosswalk_payload: dict[str, object],
+    profile_artifact: ProfileProductionArtifact,
+    core_artifact: CoreProductionArtifact,
+) -> SportradarSourcePackage:
     if str(payload.get("artifact_sha256", "")) != _self_hash(payload):
         raise ValueError("Sportradar source package digest mismatch")
     package = SportradarSourcePackage(**payload)
@@ -203,18 +237,67 @@ def verify_source_package(payload: dict[str, object]) -> SportradarSourcePackage
         raise ValueError("unexpected Sportradar source package version")
     if "target/future outcome" not in package.outcome_scope:
         raise ValueError("source package outcome scope is not frozen")
+    if package.identity_mapping_sha256 != identity_mapping.artifact_sha256:
+        raise ValueError("source package identity mapping mismatch")
     if package.match_id != str(package.target_context.get("match_id", "")):
         raise ValueError("source package target match identity mismatch")
     if package.match_id != str(package.prospective_state.get("match_id", "")):
         raise ValueError("source package prospective-state match identity mismatch")
-    if package.state_bundle_sha256 != str(package.state_bundle.get("artifact_sha256", "")):
-        raise ValueError("source package state-bundle hash mismatch")
-    if package.target_context_sha256 != str(
-        package.target_context.get("artifact_sha256", "")
-    ):
+    if package.sportradar_event_id != identity_mapping.sportradar_event_id:
+        raise ValueError("source package Sportradar event mismatch")
+    if package.season_id != identity_mapping.season_id:
+        raise ValueError("source package season mismatch")
+    if package.season_start_date != identity_mapping.season_start_date:
+        raise ValueError("source package season-start mismatch")
+
+    sealed_crosswalk = verify_crosswalk(crosswalk_payload)
+    if package.crosswalk_sha256 != sealed_crosswalk.artifact_sha256:
+        raise ValueError("source package crosswalk mismatch")
+    target = verify_target_context_artifact(
+        package.target_context,
+        identity_mapping=identity_mapping,
+    )
+    capture = verify_state_capture(
+        package.state_capture,
+        crosswalk_payload=crosswalk_payload,
+    )
+    state = verify_prospective_state_artifact(
+        package.prospective_state,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    if package.target_context_sha256 != target.artifact_sha256:
         raise ValueError("source package target-context hash mismatch")
-    if package.prospective_state_sha256 != str(
-        package.prospective_state.get("artifact_sha256", "")
-    ):
+    if package.state_capture_sha256 != capture.artifact_sha256:
+        raise ValueError("source package state-capture hash mismatch")
+    if package.state_bundle_sha256 != capture.state_bundle_sha256:
+        raise ValueError("source package state-bundle hash mismatch")
+    if package.prospective_state_sha256 != state.artifact_sha256:
         raise ValueError("source package prospective-state hash mismatch")
+    if capture.target_state_cutoff_date != package.season_start_date:
+        raise ValueError("source package state cutoff mismatch")
+
+    state_accepted_count, state_parser_excluded_count = _nested_state_counts(
+        package.state_capture
+    )
+    expected_counts = (
+        capture.selected_season_count,
+        capture.fetched_page_count,
+        capture.fetched_summary_count,
+        capture.cutoff_eligible_summary_count,
+        capture.cutoff_excluded_summary_count,
+        state_accepted_count,
+        state_parser_excluded_count,
+    )
+    actual_counts = (
+        package.selected_season_count,
+        package.fetched_page_count,
+        package.fetched_summary_count,
+        package.cutoff_eligible_summary_count,
+        package.cutoff_excluded_summary_count,
+        package.state_accepted_count,
+        package.state_parser_excluded_count,
+    )
+    if actual_counts != expected_counts:
+        raise ValueError("source package state-capture accounting mismatch")
     return package
