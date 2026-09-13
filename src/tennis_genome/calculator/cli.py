@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .engine import MatchupCalculator
+from .contract import load_validated_matchup_calculator
 from .io import load_matchup_input
 
 
@@ -34,7 +34,7 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    calculator = MatchupCalculator.from_bundle_path(args.bundle)
+    calculator = load_validated_matchup_calculator(args.bundle)
     matchup = load_matchup_input(args.input)
     result = calculator.calculate(matchup)
     rendered = json.dumps(result.to_dict(), indent=2, sort_keys=True) + "\n"
