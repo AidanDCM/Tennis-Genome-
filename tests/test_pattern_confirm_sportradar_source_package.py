@@ -98,7 +98,7 @@ def _match(match_id: str, when: date, a: str, b: str, order: int, won: bool) -> 
     )
 
 
-def _base():
+def _base() -> list[HistoricalMatch]:
     return [
         _match("b1", date(2025, 1, 2), "A", "C", 1, True),
         _match("b2", date(2025, 2, 3), "B", "C", 2, False),
@@ -118,6 +118,7 @@ def _event(
     event_id: str,
     season_id: str,
     season_start: str,
+    start_time: str,
     status: str,
     winner_id: str | None = None,
 ) -> dict[str, object]:
@@ -127,7 +128,7 @@ def _event(
     return {
         "sport_event": {
             "id": event_id,
-            "start_time": "2026-01-05T17:00:00+00:00",
+            "start_time": start_time,
             "start_time_confirmed": True,
             "sport_event_context": {
                 "category": {"id": "sr:category:3", "name": "ATP"},
@@ -173,6 +174,7 @@ def _target_setup():
         event_id="sr:sport_event:target",
         season_id="sr:season:target",
         season_start="2026-01-02",
+        start_time="2026-01-05T17:00:00+00:00",
         status="not_started",
     )
     parsed = parse_sportradar_prematch_event(summary)
@@ -189,11 +191,8 @@ def _target_setup():
     return mapping, summary
 
 
-def test_source_package_fetches_only_prior_state_and_target_prematch_sources() -> None:
-    base = _base()
-    profile, core = _models(base)
-    mapping, target_summary = _target_setup()
-    crosswalk = crosswalk_as_dict(
+def _crosswalk() -> dict[str, object]:
+    return crosswalk_as_dict(
         seal_crosswalk(
             {
                 "sr:competitor:11": "A",
@@ -201,10 +200,18 @@ def test_source_package_fetches_only_prior_state_and_target_prematch_sources() -
             }
         )
     )
+
+
+def test_source_package_uses_complete_prior_seasons_and_no_target_outcome_sources() -> None:
+    base = _base()
+    profile, core = _models(base)
+    mapping, target_summary = _target_setup()
+    crosswalk = _crosswalk()
     prior = _event(
         event_id="sr:sport_event:prior",
         season_id="sr:season:prior",
         season_start="2026-01-01",
+        start_time="2026-01-01T17:00:00+00:00",
         status="closed",
         winner_id="sr:competitor:11",
     )
@@ -229,6 +236,33 @@ def test_source_package_fetches_only_prior_state_and_target_prematch_sources() -
         "competitor": {"id": mapping.player_b_sportradar_id, "country_code": "USA"},
         "info": {"date_of_birth": "1997-01-01", "handedness": "right", "height": 188},
     }
+    competitions = {
+        "competitions": [
+            {
+                "id": mapping.competition_id,
+                "name": mapping.competition_name,
+                "type": "singles",
+                "level": "atp_250",
+                "category": {"id": "sr:category:3", "name": "ATP"},
+            }
+        ]
+    }
+    seasons = {
+        "seasons": [
+            {
+                "id": "sr:season:prior",
+                "competition_id": mapping.competition_id,
+                "start_date": "2026-01-01",
+                "disabled": False,
+            },
+            {
+                "id": mapping.season_id,
+                "competition_id": mapping.competition_id,
+                "start_date": mapping.season_start_date,
+                "disabled": False,
+            },
+        ]
+    }
     calls: list[str] = []
 
     def get_json(url: str, *, headers: dict[str, str]) -> object:
@@ -236,13 +270,17 @@ def test_source_package_fetches_only_prior_state_and_target_prematch_sources() -
         assert headers == {"x-api-key": "secret"}
         if "/sport_events/" in url:
             return target_summary
-        if "/seasons/" in url:
+        if f"/seasons/{mapping.season_id}/info.json" in url:
             return season_info
         if f"/competitors/{mapping.player_a_sportradar_id}/" in url:
             return profile_a
         if f"/competitors/{mapping.player_b_sportradar_id}/" in url:
             return profile_b
-        if "/schedules/2026-01-01/" in url:
+        if url.endswith("/competitions.json"):
+            return competitions
+        if url.endswith("/seasons.json"):
+            return seasons
+        if "/seasons/sr:season:prior/summaries.json?start=0&limit=200" in url:
             return {"summaries": [prior]}
         raise AssertionError(f"unexpected provider request: {url}")
 
@@ -259,41 +297,49 @@ def test_source_package_fetches_only_prior_state_and_target_prematch_sources() -
         get_json=get_json,
     )
     assert package.match_id == "future-1"
-    assert package.state_source_count == 1
+    assert package.selected_season_count == 1
+    assert package.fetched_page_count == 1
+    assert package.fetched_summary_count == 1
+    assert package.cutoff_eligible_summary_count == 1
+    assert package.cutoff_excluded_summary_count == 0
     assert package.state_accepted_count == 1
-    assert package.state_excluded_count == 0
+    assert package.state_parser_excluded_count == 0
     assert package.prospective_state["match_id"] == "future-1"
     assert package.prospective_state["history_n"] == 3
     assert all("timeline" not in url for url in calls)
     assert all("result" not in url for url in calls)
-    assert len([url for url in calls if "/schedules/" in url]) == 1
-    verified = verify_source_package(source_package_as_dict(package))
+    assert all("/schedules/" not in url for url in calls)
+    assert len([url for url in calls if "/summaries.json?start=" in url]) == 1
+    verified = verify_source_package(
+        source_package_as_dict(package),
+        identity_mapping=mapping,
+        crosswalk_payload=crosswalk,
+        profile_artifact=profile,
+        core_artifact=core,
+    )
     assert verified.artifact_sha256 == package.artifact_sha256
 
 
 def test_source_package_tamper_and_naive_capture_time_fail_closed() -> None:
-    payload = {
-        "artifact_sha256": "0" * 64,
-    }
-    with pytest.raises(ValueError, match="digest"):
-        verify_source_package(payload)
-
     base = _base()
     profile, core = _models(base)
     mapping, _ = _target_setup()
+    crosswalk = _crosswalk()
+    with pytest.raises(ValueError, match="digest"):
+        verify_source_package(
+            {"artifact_sha256": "0" * 64},
+            identity_mapping=mapping,
+            crosswalk_payload=crosswalk,
+            profile_artifact=profile,
+            core_artifact=core,
+        )
+
     with pytest.raises(ValueError, match="timezone-aware"):
         build_live_source_package(
             match_id="future-1",
             base_history=base,
             identity_mapping=mapping,
-            crosswalk_payload=crosswalk_as_dict(
-                seal_crosswalk(
-                    {
-                        "sr:competitor:11": "A",
-                        "sr:competitor:22": "B",
-                    }
-                )
-            ),
+            crosswalk_payload=crosswalk,
             profile_artifact=profile,
             core_artifact=core,
             api_key="secret",
