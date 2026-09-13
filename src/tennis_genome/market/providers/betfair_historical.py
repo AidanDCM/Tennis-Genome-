@@ -295,9 +295,7 @@ def iter_betfair_exchange_snapshots(
             try:
                 message = json.loads(raw_message)
             except json.JSONDecodeError as exc:
-                raise ValueError(
-                    f"invalid Betfair JSON at message index {message_index}"
-                ) from exc
+                raise ValueError(f"invalid Betfair JSON at message index {message_index}") from exc
             if not isinstance(message, dict) or message.get("op") != "mcm":
                 continue
             if "pt" not in message:

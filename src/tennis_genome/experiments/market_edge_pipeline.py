@@ -59,9 +59,7 @@ def _build_claim(
     )
     forbidden = [row.match_id for row in rows if row.year > _DEVELOPMENT_END_YEAR]
     if forbidden:
-        raise ValueError(
-            "MARKET-EDGE-001 is frozen through 2025; post-2025 rows are forbidden"
-        )
+        raise ValueError("MARKET-EDGE-001 is frozen through 2025; post-2025 rows are forbidden")
     return rows, ClaimCoverage(
         tour=tour,
         signal_name=signal_name,

@@ -93,9 +93,7 @@ def test_same_day_matches_do_not_update_each_other() -> None:
         ),
     ]
 
-    snapshots = {
-        item.match_id: item for item in walk_forward_foundational_features(matches)
-    }
+    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
 
     assert snapshots["m1"].h2h_count == 0
     assert snapshots["m2"].h2h_count == 0
@@ -123,9 +121,7 @@ def test_later_date_sees_prior_workload_form_and_h2h() -> None:
         ),
     ]
 
-    snapshots = {
-        item.match_id: item for item in walk_forward_foundational_features(matches)
-    }
+    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
     later = snapshots["m2"]
 
     assert later.h2h_count == 1
@@ -159,9 +155,7 @@ def test_long_rest_gap_survives_recent_workload_pruning() -> None:
         ),
     ]
 
-    snapshots = {
-        item.match_id: item for item in walk_forward_foundational_features(matches)
-    }
+    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
     target = snapshots["target"]
 
     # A's 100-day gap remains available even though its rolling workload row was pruned.
@@ -197,9 +191,7 @@ def test_unknown_duration_is_not_treated_as_zero_workload() -> None:
         ),
     ]
 
-    snapshots = {
-        item.match_id: item for item in walk_forward_foundational_features(matches)
-    }
+    snapshots = {item.match_id: item for item in walk_forward_foundational_features(matches)}
     target = snapshots["target"]
 
     assert target.minutes_14_diff is None

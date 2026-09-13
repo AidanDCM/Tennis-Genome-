@@ -207,8 +207,7 @@ def _rows(
     )
     outcomes = {match.match_id: match.outcome.a_won for match in matches}
     return [
-        _Row(snapshot=snapshot, outcome_a=outcomes[snapshot.match_id])
-        for snapshot in snapshots
+        _Row(snapshot=snapshot, outcome_a=outcomes[snapshot.match_id]) for snapshot in snapshots
     ]
 
 
@@ -231,9 +230,7 @@ def run_family_lab(
 
     predicted_rows: list[_Row] = []
     predictions: defaultdict[str, list[float]] = defaultdict(list)
-    family_year_wins: dict[str, list[int]] = {
-        family: [0, 0, 0] for family in FAMILY_FEATURES
-    }
+    family_year_wins: dict[str, list[int]] = {family: [0, 0, 0] for family in FAMILY_FEATURES}
 
     decomposition_names = {
         "elo_only": ("elo_logit",),
@@ -264,9 +261,7 @@ def run_family_lab(
         for family, names in FAMILY_FEATURES.items():
             add_probs = _fit_predict(train, test, CORE_FEATURES + names)
             excluded = set(names)
-            without = tuple(
-                feature for feature in full_features if feature not in excluded
-            )
+            without = tuple(feature for feature in full_features if feature not in excluded)
             without_probs = _fit_predict(train, test, without)
             predictions[f"add:{family}"].extend(add_probs)
             predictions[f"without:{family}"].extend(without_probs)
@@ -279,9 +274,7 @@ def run_family_lab(
                 wins[1] += 1
 
         for name, feature_names in decomposition_names.items():
-            predictions[f"decomp:{name}"].extend(
-                _fit_predict(train, test, feature_names)
-            )
+            predictions[f"decomp:{name}"].extend(_fit_predict(train, test, feature_names))
 
         predicted_rows.extend(test)
 
@@ -310,18 +303,13 @@ def run_family_lab(
                 evaluated_years=wins[2],
                 full_minus_family=without_score,
                 ablation_brier_contribution=without_score.brier - full_score.brier,
-                ablation_log_loss_contribution=(
-                    without_score.log_loss - full_score.log_loss
-                ),
-                ablation_accuracy_contribution=(
-                    full_score.accuracy - without_score.accuracy
-                ),
+                ablation_log_loss_contribution=(without_score.log_loss - full_score.log_loss),
+                ablation_accuracy_contribution=(full_score.accuracy - without_score.accuracy),
             )
         )
 
     decomp_scores = {
-        name: _score(y_all, predictions[f"decomp:{name}"])
-        for name in decomposition_names
+        name: _score(y_all, predictions[f"decomp:{name}"]) for name in decomposition_names
     }
     elo_only = decomp_scores["elo_only"]
     decomposition = ServeReturnDecomposition(
@@ -329,21 +317,13 @@ def run_family_lab(
         elo_plus_serve=decomp_scores["elo_plus_serve"],
         elo_plus_return=decomp_scores["elo_plus_return"],
         elo_plus_serve_and_return=decomp_scores["elo_plus_serve_and_return"],
-        serve_brier_improvement=(
-            elo_only.brier - decomp_scores["elo_plus_serve"].brier
-        ),
-        return_brier_improvement=(
-            elo_only.brier - decomp_scores["elo_plus_return"].brier
-        ),
+        serve_brier_improvement=(elo_only.brier - decomp_scores["elo_plus_serve"].brier),
+        return_brier_improvement=(elo_only.brier - decomp_scores["elo_plus_return"].brier),
         combined_brier_improvement=(
             elo_only.brier - decomp_scores["elo_plus_serve_and_return"].brier
         ),
-        serve_log_loss_improvement=(
-            elo_only.log_loss - decomp_scores["elo_plus_serve"].log_loss
-        ),
-        return_log_loss_improvement=(
-            elo_only.log_loss - decomp_scores["elo_plus_return"].log_loss
-        ),
+        serve_log_loss_improvement=(elo_only.log_loss - decomp_scores["elo_plus_serve"].log_loss),
+        return_log_loss_improvement=(elo_only.log_loss - decomp_scores["elo_plus_return"].log_loss),
         combined_log_loss_improvement=(
             elo_only.log_loss - decomp_scores["elo_plus_serve_and_return"].log_loss
         ),

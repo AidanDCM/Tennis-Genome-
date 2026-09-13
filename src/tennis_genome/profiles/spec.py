@@ -178,6 +178,5 @@ def conditional_profile_fields(tour: Tour) -> tuple[str, ...]:
     return tuple(
         permission.field_name
         for permission in PROFILE_FIELD_PERMISSIONS
-        if (permission.atp_role if tour == "ATP" else permission.wta_role)
-        == "conditional"
+        if (permission.atp_role if tour == "ATP" else permission.wta_role) == "conditional"
     )

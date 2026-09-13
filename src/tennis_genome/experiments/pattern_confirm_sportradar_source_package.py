@@ -26,9 +26,11 @@ from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
     verify_crosswalk,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
+    FROZEN_BASE_HISTORY_CONTENT_SHA256,
     HISTORY_SOURCE_ID,
     build_sportradar_prospective_state,
     history_source_sha256,
+    training_content_hash,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_state import (
     build_target_context_artifact,
@@ -43,7 +45,7 @@ from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
     verify_state_capture,
 )
 
-_VERSION = "pattern-confirm-sportradar-source-package-v2"
+_VERSION = "pattern-confirm-sportradar-source-package-v3"
 _STATE_START = date(2026, 1, 1)
 
 
@@ -62,6 +64,7 @@ class SportradarSourcePackage:
     state_bundle_sha256: str
     target_context_sha256: str
     prospective_state_sha256: str
+    base_history_content_sha256: str
     selected_season_count: int
     fetched_page_count: int
     fetched_summary_count: int
@@ -187,6 +190,21 @@ def build_live_source_package(
     )
     state_capture_payload = state_capture_as_dict(state_capture)
     state_accepted_count, state_parser_excluded_count = _nested_state_counts(state_capture_payload)
+    uses_frozen_production_history = (
+        profile_artifact.artifact_sha256
+        == "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351"
+        and core_artifact.artifact_sha256
+        == "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7"
+        and profile_artifact.training_n == 75112
+        and core_artifact.training_n == 75112
+        and profile_artifact.training_rows_sha256
+        == "c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c"
+        and core_artifact.training_rows_sha256
+        == "c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c"
+    )
+    expected_base_content = (
+        FROZEN_BASE_HISTORY_CONTENT_SHA256 if uses_frozen_production_history else None
+    )
     prospective_state = build_sportradar_prospective_state(
         base_history=base_history,
         state_capture_payload=state_capture_payload,
@@ -195,7 +213,16 @@ def build_live_source_package(
         identity_mapping=identity_mapping,
         profile_artifact=profile_artifact,
         core_artifact=core_artifact,
+        expected_base_history_content_sha256=expected_base_content,
     )
+    base_eligible = [
+        match
+        for match in base_history
+        if match.pre_match.tour == "ATP"
+        and not match.outcome.walkover
+        and not match.outcome.retirement
+    ]
+    base_history_content_sha256 = training_content_hash(base_eligible)
     prospective_payload = prospective_state_as_dict(prospective_state)
 
     unsigned: dict[str, object] = {
@@ -214,6 +241,7 @@ def build_live_source_package(
         "state_bundle_sha256": state_capture.state_bundle_sha256,
         "target_context_sha256": target_context.artifact_sha256,
         "prospective_state_sha256": prospective_state.artifact_sha256,
+        "base_history_content_sha256": base_history_content_sha256,
         "selected_season_count": state_capture.selected_season_count,
         "fetched_page_count": state_capture.fetched_page_count,
         "fetched_summary_count": state_capture.fetched_summary_count,
@@ -270,6 +298,27 @@ def verify_source_package(
         raise ValueError("source package Profile/Core training-row hashes differ")
     if profile_artifact.canonical_manifest_sha256 != core_artifact.canonical_manifest_sha256:
         raise ValueError("source package Profile/Core canonical manifest hashes differ")
+    if len(package.base_history_content_sha256) != 64 or any(
+        char not in "0123456789abcdef" for char in package.base_history_content_sha256
+    ):
+        raise ValueError("source package base-history content hash is invalid")
+    uses_frozen_production_history = (
+        profile_artifact.artifact_sha256
+        == "cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351"
+        and core_artifact.artifact_sha256
+        == "5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7"
+        and profile_artifact.training_n == 75112
+        and core_artifact.training_n == 75112
+        and profile_artifact.training_rows_sha256
+        == "c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c"
+        and core_artifact.training_rows_sha256
+        == "c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c"
+    )
+    if (
+        uses_frozen_production_history
+        and package.base_history_content_sha256 != FROZEN_BASE_HISTORY_CONTENT_SHA256
+    ):
+        raise ValueError("source package does not bind the frozen base-history content")
 
     sealed_crosswalk = verify_crosswalk(crosswalk_payload)
     if package.crosswalk_sha256 != sealed_crosswalk.artifact_sha256:
@@ -301,6 +350,7 @@ def verify_source_package(
     expected_history_source_sha = history_source_sha256(
         base_canonical_manifest_sha256=profile_artifact.canonical_manifest_sha256,
         base_training_rows_sha256=profile_artifact.training_rows_sha256,
+        base_history_content_sha256=package.base_history_content_sha256,
         state_capture_sha256=capture.artifact_sha256,
         state_bundle_sha256=capture.state_bundle_sha256,
         target_context_sha256=target.artifact_sha256,

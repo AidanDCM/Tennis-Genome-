@@ -98,8 +98,6 @@ def raise_for_quality_errors(issues: list[QualityIssue]) -> None:
     errors = [issue for issue in issues if issue.severity == "error"]
     if not errors:
         return
-    preview = "; ".join(
-        f"{issue.code}:{issue.match_id or '-'}" for issue in errors[:10]
-    )
+    preview = "; ".join(f"{issue.code}:{issue.match_id or '-'}" for issue in errors[:10])
     suffix = "" if len(errors) <= 10 else f" (+{len(errors) - 10} more)"
     raise ValueError(f"canonical dataset failed quality checks: {preview}{suffix}")

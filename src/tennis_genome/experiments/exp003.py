@@ -165,9 +165,7 @@ def _predict_year(
         [[row.elo_logit, row.serve_return_edge] for row in train],
         y_train,
     )
-    baseline_probs = baseline.predict_proba(
-        [[row.elo_logit] for row in test]
-    )[:, 1].tolist()
+    baseline_probs = baseline.predict_proba([[row.elo_logit] for row in test])[:, 1].tolist()
     challenger_probs = challenger.predict_proba(
         [[row.elo_logit, row.serve_return_edge] for row in test]
     )[:, 1].tolist()
@@ -248,9 +246,7 @@ def run_exp003(
     history_slices: list[HistorySlice] = []
     for threshold in (0, 250, 1000):
         indices = [
-            index
-            for index, row in enumerate(predicted_rows)
-            if row.min_prior_points >= threshold
+            index for index, row in enumerate(predicted_rows) if row.min_prior_points >= threshold
         ]
         if not indices:
             continue
@@ -266,12 +262,8 @@ def run_exp003(
                 elo_calibrated=baseline_slice,
                 elo_serve_return=challenger_slice,
                 brier_improvement=baseline_slice.brier - challenger_slice.brier,
-                log_loss_improvement=(
-                    baseline_slice.log_loss - challenger_slice.log_loss
-                ),
-                accuracy_change=(
-                    challenger_slice.accuracy - baseline_slice.accuracy
-                ),
+                log_loss_improvement=(baseline_slice.log_loss - challenger_slice.log_loss),
+                accuracy_change=(challenger_slice.accuracy - baseline_slice.accuracy),
             )
         )
 

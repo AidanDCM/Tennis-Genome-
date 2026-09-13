@@ -68,16 +68,22 @@ def _state() -> tuple[MatchProfilePair, object]:
 
 
 def test_canonical_orientation_uses_ids_for_exact_elo_tie() -> None:
-    assert canonical_orientation_sign(
-        elo_logit=0.0,
-        player_a_id="a",
-        player_b_id="b",
-    ) == 1
-    assert canonical_orientation_sign(
-        elo_logit=0.0,
-        player_a_id="b",
-        player_b_id="a",
-    ) == -1
+    assert (
+        canonical_orientation_sign(
+            elo_logit=0.0,
+            player_a_id="a",
+            player_b_id="b",
+        )
+        == 1
+    )
+    assert (
+        canonical_orientation_sign(
+            elo_logit=0.0,
+            player_a_id="b",
+            player_b_id="a",
+        )
+        == -1
+    )
 
 
 def test_probability_and_outcome_round_trip_through_canonical_orientation() -> None:
@@ -113,11 +119,7 @@ def test_swapping_players_preserves_canonical_genome_vector() -> None:
         player_b=pair.player_a,
     )
     swapped_core = {
-        name: (
-            None
-            if getattr(foundational, name) is None
-            else -float(getattr(foundational, name))
-        )
+        name: (None if getattr(foundational, name) is None else -float(getattr(foundational, name)))
         for name in strict_a_features("ATP")
     }
     swapped_foundational = replace(foundational, **swapped_core)
@@ -167,13 +169,9 @@ def test_future_append_does_not_change_existing_genome_vector() -> None:
     )
 
     def target_genome(matches: list[HistoricalMatch]):
-        pairs = {
-            pair.match_id: pair
-            for pair in walk_forward_player_profiles(matches)
-        }
+        pairs = {pair.match_id: pair for pair in walk_forward_player_profiles(matches)}
         foundational = {
-            snapshot.match_id: snapshot
-            for snapshot in walk_forward_foundational_features(matches)
+            snapshot.match_id: snapshot for snapshot in walk_forward_foundational_features(matches)
         }
         return build_genome_vector(pairs["target"], foundational["target"])
 

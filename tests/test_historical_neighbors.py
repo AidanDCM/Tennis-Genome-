@@ -86,10 +86,7 @@ def test_neighbor_summary_uses_registered_unweighted_residual_mean() -> None:
 
     assert summary is not None
     assert summary.k == 2
-    selected_residuals = [
-        candidate.residual_favorite
-        for candidate in candidates[:2]
-    ]
+    selected_residuals = [candidate.residual_favorite for candidate in candidates[:2]]
     assert summary.mean_residual == pytest.approx(sum(selected_residuals) / 2)
     assert summary.kth_distance >= summary.nearest_distance
 
@@ -140,12 +137,15 @@ def test_shared_player_sensitivity_returns_none_when_too_few_clean_neighbors() -
     )
     candidates = index.query_candidates([target], candidate_limit=2)[0]
 
-    assert index.summarize(
-        target,
-        candidates,
-        k=1,
-        exclude_shared_players=True,
-    ) is None
+    assert (
+        index.summarize(
+            target,
+            candidates,
+            k=1,
+            exclude_shared_players=True,
+        )
+        is None
+    )
 
 
 def test_target_values_never_refit_historical_preprocessing() -> None:

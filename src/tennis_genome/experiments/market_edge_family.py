@@ -77,9 +77,7 @@ def run_market_edge_family(
 
     brier_adjusted = holm_adjust(
         {
-            claim_label(report.tour, report.signal_name): (
-                report.brier_inference.sign_flip.p_value
-            )
+            claim_label(report.tour, report.signal_name): (report.brier_inference.sign_flip.p_value)
             for report in reports
         }
     )
@@ -109,9 +107,7 @@ def run_market_edge_family(
                 holm_brier_pass=brier.adjusted_p_value < 0.05,
                 holm_log_loss_pass=log_loss.adjusted_p_value < 0.05,
                 market_incremental_pass=bool(
-                    pre_holm
-                    and brier.adjusted_p_value < 0.05
-                    and log_loss.adjusted_p_value < 0.05
+                    pre_holm and brier.adjusted_p_value < 0.05 and log_loss.adjusted_p_value < 0.05
                 ),
             )
         )

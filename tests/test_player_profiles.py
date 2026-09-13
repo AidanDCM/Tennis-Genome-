@@ -263,48 +263,25 @@ def test_profile_differences_match_existing_foundational_state():
         ),
     ]
 
-    profile = {
-        pair.match_id: pair for pair in walk_forward_player_profiles(matches)
-    }["target"]
+    profile = {pair.match_id: pair for pair in walk_forward_player_profiles(matches)}["target"]
     foundational = {
-        snapshot.match_id: snapshot
-        for snapshot in walk_forward_foundational_features(matches)
+        snapshot.match_id: snapshot for snapshot in walk_forward_foundational_features(matches)
     }["target"]
     a = profile.player_a
     b = profile.player_b
 
     p_a = expected_score(a.elo_rating, b.elo_rating)
     assert foundational.elo_logit == pytest.approx(_logit(p_a))
-    assert foundational.serve_rating_diff == pytest.approx(
-        a.serve_rating - b.serve_rating
-    )
-    assert foundational.return_rating_diff == pytest.approx(
-        a.return_rating - b.return_rating
-    )
-    assert foundational.form_result_30_diff == pytest.approx(
-        a.form_result_30 - b.form_result_30
-    )
-    assert foundational.form_result_90_diff == pytest.approx(
-        a.form_result_90 - b.form_result_90
-    )
-    assert foundational.form_point_30_diff == pytest.approx(
-        a.form_point_30 - b.form_point_30
-    )
-    assert foundational.form_point_90_diff == pytest.approx(
-        a.form_point_90 - b.form_point_90
-    )
-    assert foundational.event_gap_days_diff == pytest.approx(
-        a.event_gap_days - b.event_gap_days
-    )
-    assert foundational.minutes_7_diff == pytest.approx(
-        log1p(a.minutes_7) - log1p(b.minutes_7)
-    )
-    assert foundational.minutes_14_diff == pytest.approx(
-        log1p(a.minutes_14) - log1p(b.minutes_14)
-    )
-    assert foundational.minutes_28_diff == pytest.approx(
-        log1p(a.minutes_28) - log1p(b.minutes_28)
-    )
+    assert foundational.serve_rating_diff == pytest.approx(a.serve_rating - b.serve_rating)
+    assert foundational.return_rating_diff == pytest.approx(a.return_rating - b.return_rating)
+    assert foundational.form_result_30_diff == pytest.approx(a.form_result_30 - b.form_result_30)
+    assert foundational.form_result_90_diff == pytest.approx(a.form_result_90 - b.form_result_90)
+    assert foundational.form_point_30_diff == pytest.approx(a.form_point_30 - b.form_point_30)
+    assert foundational.form_point_90_diff == pytest.approx(a.form_point_90 - b.form_point_90)
+    assert foundational.event_gap_days_diff == pytest.approx(a.event_gap_days - b.event_gap_days)
+    assert foundational.minutes_7_diff == pytest.approx(log1p(a.minutes_7) - log1p(b.minutes_7))
+    assert foundational.minutes_14_diff == pytest.approx(log1p(a.minutes_14) - log1p(b.minutes_14))
+    assert foundational.minutes_28_diff == pytest.approx(log1p(a.minutes_28) - log1p(b.minutes_28))
     assert foundational.matches_14_diff == pytest.approx(a.matches_14 - b.matches_14)
     assert foundational.matches_28_diff == pytest.approx(a.matches_28 - b.matches_28)
     assert foundational.previous_event_minutes_diff == pytest.approx(

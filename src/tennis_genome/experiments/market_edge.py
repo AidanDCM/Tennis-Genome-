@@ -257,9 +257,7 @@ def _fit_offset_model(
 
 
 def _predict_control(row: MarketSignalRow, fit: OffsetFit) -> float:
-    return _sigmoid(
-        fit.intercept + fit.market_logit_slope * _logit(row.market_probability_a)
-    )
+    return _sigmoid(fit.intercept + fit.market_logit_slope * _logit(row.market_probability_a))
 
 
 def _predict_challenger(row: MarketSignalRow, fit: OffsetFit) -> float:
@@ -473,11 +471,7 @@ def run_market_edge_claim(
             )
         )
     yearly = tuple(yearly_results)
-    recent_rows = [
-        row
-        for row in predictions
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    recent_rows = [row for row in predictions if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
     recent = _comparison(recent_rows) if recent_rows else None
     year_wins = sum(item.joint_proper_score_win for item in yearly)
     year_fraction = year_wins / len(yearly)

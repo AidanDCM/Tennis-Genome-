@@ -115,9 +115,7 @@ def walk_forward_serve_return(
 
     for event_date, grouped in groupby(ordered, key=lambda match: match.pre_match.event_date):
         day_matches = [
-            match
-            for match in grouped
-            if _eligible(match, exclude_retirements=exclude_retirements)
+            match for match in grouped if _eligible(match, exclude_retirements=exclude_retirements)
         ]
         serve_deltas: defaultdict[str, float] = defaultdict(float)
         return_deltas: defaultdict[str, float] = defaultdict(float)
@@ -174,9 +172,7 @@ def walk_forward_serve_return(
                 won, total = observation
                 observed_rate = won / total
                 point_weight = min(total / config.reference_points, 1.0)
-                combined_delta = (
-                    config.learning_rate * point_weight * (observed_rate - expected)
-                )
+                combined_delta = config.learning_rate * point_weight * (observed_rate - expected)
                 serve_deltas[server_id] += 0.5 * combined_delta
                 return_deltas[receiver_id] -= 0.5 * combined_delta
                 serve_point_additions[server_id] += total

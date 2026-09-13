@@ -81,8 +81,7 @@ def test_tennis_data_winner_loser_orientation_is_neutralized(tmp_path: Path) -> 
 def test_tennis_data_iso_date_is_not_reinterpreted_day_first(tmp_path: Path) -> None:
     path = tmp_path / "wta.csv"
     path.write_text(
-        "WTA,Date,Winner,Loser,PSW,PSL\n"
-        "1,2021-02-01,Cornet A.,Tomljanovic A.,1.80,2.10\n",
+        "WTA,Date,Winner,Loser,PSW,PSL\n1,2021-02-01,Cornet A.,Tomljanovic A.,1.80,2.10\n",
         encoding="utf-8",
     )
     quotes = load_tennis_data_quotes(path, tour="WTA")
@@ -94,8 +93,7 @@ def test_tennis_data_iso_date_is_not_reinterpreted_day_first(tmp_path: Path) -> 
 def test_tennis_data_legacy_non_iso_date_remains_day_first(tmp_path: Path) -> None:
     path = tmp_path / "wta.csv"
     path.write_text(
-        "WTA,Date,Winner,Loser,PSW,PSL\n"
-        "1,3/2/21,Alpha A,Beta B,1.80,2.10\n",
+        "WTA,Date,Winner,Loser,PSW,PSL\n1,3/2/21,Alpha A,Beta B,1.80,2.10\n",
         encoding="utf-8",
     )
     quotes = load_tennis_data_quotes(path, tour="WTA")
@@ -106,8 +104,7 @@ def test_tennis_data_legacy_non_iso_date_remains_day_first(tmp_path: Path) -> No
 def test_tennis_data_malformed_date_still_fails_closed(tmp_path: Path) -> None:
     path = tmp_path / "wta.csv"
     path.write_text(
-        "WTA,Date,Winner,Loser,PSW,PSL\n"
-        "1,not-a-date,Alpha A,Beta B,1.80,2.10\n",
+        "WTA,Date,Winner,Loser,PSW,PSL\n1,not-a-date,Alpha A,Beta B,1.80,2.10\n",
         encoding="utf-8",
     )
     with pytest.raises((ValueError, TypeError)):
@@ -117,8 +114,7 @@ def test_tennis_data_malformed_date_still_fails_closed(tmp_path: Path) -> None:
 def test_tennis_data_tour_marker_mismatch_fails_closed(tmp_path: Path) -> None:
     path = tmp_path / "bad_wta_2024.csv"
     path.write_text(
-        "ATP,Date,Winner,Loser,PSW,PSL\n"
-        "1,1/1/24,Alpha A,Beta B,1.80,2.10\n",
+        "ATP,Date,Winner,Loser,PSW,PSL\n1,1/1/24,Alpha A,Beta B,1.80,2.10\n",
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="tour marker"):

@@ -85,8 +85,7 @@ def test_profile_gap_conditional_representation_is_wta_only():
 
 def test_wta_conditional_profile_gap_runs_without_promoting_age_fields():
     wta_history = [
-        replace(match, pre_match=replace(match.pre_match, tour="WTA"))
-        for match in _history()
+        replace(match, pre_match=replace(match.pre_match, tour="WTA")) for match in _history()
     ]
     report = run_profile_gap(
         wta_history,

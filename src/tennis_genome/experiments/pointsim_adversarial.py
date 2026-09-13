@@ -316,11 +316,7 @@ def _comparison(rows: list[PredictionRow]) -> Comparison:
 
 
 def _recent(rows: list[PredictionRow]) -> list[PredictionRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _gate(

@@ -54,9 +54,7 @@ def walk_forward_elo(
 
     for event_date, grouped in groupby(ordered, key=lambda match: match.pre_match.event_date):
         day_matches = [
-            match
-            for match in grouped
-            if _eligible(match, exclude_retirements=exclude_retirements)
+            match for match in grouped if _eligible(match, exclude_retirements=exclude_retirements)
         ]
         deltas: defaultdict[str, float] = defaultdict(float)
 

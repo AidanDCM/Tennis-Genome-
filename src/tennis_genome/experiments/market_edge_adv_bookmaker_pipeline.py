@@ -140,9 +140,7 @@ def build_bookmaker_market_edge_adversarial_artifact(
             BookmakerAdversarialClaimCoverage(
                 tour=tour,
                 signal_name=signal_name,
-                bookmaker_close_rows_for_tour=sum(
-                    row.tour == tour for row in close_rows.values()
-                ),
+                bookmaker_close_rows_for_tour=sum(row.tour == tour for row in close_rows.values()),
                 frozen_core_signal_rows=len(model_values),
                 settled_outcome_rows=len(outcomes),
                 matched_claim_rows=len(rows),

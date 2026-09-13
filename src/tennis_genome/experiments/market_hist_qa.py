@@ -292,8 +292,7 @@ def _group_coverage(
     frame = eligible.copy()
     frame["covered"] = frame["match_id"].isin(close_ids)
     frame["rank_band"] = [
-        _rank_band(a, b)
-        for a, b in zip(frame["rank_a"], frame["rank_b"], strict=True)
+        _rank_band(a, b) for a, b in zip(frame["rank_a"], frame["rank_b"], strict=True)
     ]
     dimensions = (
         ("surface", "surface"),
@@ -373,9 +372,7 @@ def _tour_qa(
         prior_before_first = prior_rows
     else:
         evaluation_years = tuple(
-            year
-            for year in years
-            if year >= first_eval and close_counts_by_year.get(year, 0) > 0
+            year for year in years if year >= first_eval and close_counts_by_year.get(year, 0) > 0
         )
         prior_before_first = sum(
             count for year, count in close_counts_by_year.items() if year < first_eval
@@ -445,8 +442,7 @@ def _blocked_report(
             None
             if manifest is None
             else (
-                date.fromisoformat(manifest.requested_end_date)
-                - timedelta(days=_END_BUFFER_DAYS)
+                date.fromisoformat(manifest.requested_end_date) - timedelta(days=_END_BUFFER_DAYS)
             ).isoformat()
         ),
         source_market_records=0,
@@ -539,10 +535,7 @@ def run_market_hist_qa(
                 checkpoint_counts[name] += 1
                 if checkpoint.get("executable_two_way") is True:
                     executable_counts[name] += 1
-            if (
-                name == "CLOSE_PREPLAY"
-                and checkpoint.get("executable_two_way") is True
-            ):
+            if name == "CLOSE_PREPLAY" and checkpoint.get("executable_two_way") is True:
                 seconds = float(checkpoint["seconds_to_start"])
                 quote_ages.append(seconds)
                 back_a = float(checkpoint["best_back_a"])
@@ -569,9 +562,7 @@ def run_market_hist_qa(
             source_market_records=len(records),
             source_join_status_counts=dict(sorted(join_status_counts.items())),
             checkpoint_counts={name: checkpoint_counts[name] for name in _CHECKPOINTS},
-            executable_checkpoint_counts={
-                name: executable_counts[name] for name in _CHECKPOINTS
-            },
+            executable_checkpoint_counts={name: executable_counts[name] for name in _CHECKPOINTS},
         )
 
     close_ids = set(close_rows)
@@ -608,9 +599,7 @@ def run_market_hist_qa(
         source_market_records=len(records),
         source_join_status_counts=dict(sorted(join_status_counts.items())),
         checkpoint_counts={name: checkpoint_counts[name] for name in _CHECKPOINTS},
-        executable_checkpoint_counts={
-            name: executable_counts[name] for name in _CHECKPOINTS
-        },
+        executable_checkpoint_counts={name: executable_counts[name] for name in _CHECKPOINTS},
         close_quote_seconds_to_start=_numeric_summary(quote_ages),
         implied_probability_spread=_numeric_summary(probability_spreads),
         decimal_price_spread=_numeric_summary(price_spreads),

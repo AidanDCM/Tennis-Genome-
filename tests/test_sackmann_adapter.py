@@ -257,9 +257,7 @@ def test_multi_file_adapter_is_independent_of_input_order(tmp_path: Path):
     forward = load_sackmann_csvs([older, newer], tour="ATP")
     reversed_inputs = load_sackmann_csvs([newer, older], tour="ATP")
 
-    assert [match.match_id for match in forward] == [
-        match.match_id for match in reversed_inputs
-    ]
+    assert [match.match_id for match in forward] == [match.match_id for match in reversed_inputs]
     assert [match.pre_match.source_order for match in forward] == [0, 1]
     assert [match.pre_match.source_order for match in reversed_inputs] == [0, 1]
     assert [match.pre_match.event_date.year for match in forward] == [2024, 2025]

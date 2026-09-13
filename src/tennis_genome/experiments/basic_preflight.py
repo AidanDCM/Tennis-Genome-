@@ -169,9 +169,7 @@ def _reject_rich_price_ladders(root: Path) -> None:
                     for runner_change in runner_changes:
                         if not isinstance(runner_change, dict):
                             continue
-                        forbidden = sorted(
-                            _FORBIDDEN_RICH_PRICE_FIELDS.intersection(runner_change)
-                        )
+                        forbidden = sorted(_FORBIDDEN_RICH_PRICE_FIELDS.intersection(runner_change))
                         if forbidden:
                             fields = ", ".join(forbidden)
                             raise ValueError(
@@ -199,9 +197,7 @@ def _source_digests(root: Path) -> tuple[SourceFileDigest, ...]:
 
 
 def _bundle_sha256(files: tuple[SourceFileDigest, ...]) -> str:
-    return hashlib.sha256(
-        _canonical_json_bytes([asdict(item) for item in files])
-    ).hexdigest()
+    return hashlib.sha256(_canonical_json_bytes([asdict(item) for item in files])).hexdigest()
 
 
 def _safe_states(
@@ -212,9 +208,7 @@ def _safe_states(
     tour: Tour,
 ) -> list[PreMatchState]:
     return [
-        state
-        for state in states
-        if state.tour == tour and start <= state.event_date <= safe_end
+        state for state in states if state.tour == tour and start <= state.event_date <= safe_end
     ]
 
 
@@ -231,10 +225,7 @@ def _latest_start_month(
     ]
     qualifying: list[date] = []
     for candidate in candidates:
-        count = sum(
-            candidate <= state.event_date <= cutoff
-            for state in matched_states
-        )
+        count = sum(candidate <= state.event_date <= cutoff for state in matched_states)
         if count >= _MIN_PRIOR_ROWS:
             qualifying.append(candidate)
     if not qualifying:
@@ -279,8 +270,7 @@ def _tour_report(
         for month in _month_range(start, safe_end)
     )
     cumulative = {
-        str(year): sum(state.event_date.year < year for state in matched_states)
-        for year in years
+        str(year): sum(state.event_date.year < year for state in matched_states) for year in years
     }
 
     denominator_total = len(safe)
@@ -347,11 +337,7 @@ def build_basic_preflight_report(
 
     matched_records = [record for record in records if record.join is not None]
     matched_ids = [record.join.match_id for record in matched_records if record.join is not None]
-    duplicate_matches = [
-        match_id
-        for match_id, count in Counter(matched_ids).items()
-        if count > 1
-    ]
+    duplicate_matches = [match_id for match_id, count in Counter(matched_ids).items() if count > 1]
     if duplicate_matches:
         raise ValueError(
             "multiple BASIC source markets joined to canonical match IDs: "
@@ -378,14 +364,10 @@ def build_basic_preflight_report(
         recommended_start = min(value for value in starts if value is not None)
         recommended_end = _DEVELOPMENT_END.isoformat()
         proxy_pass = all(
-            item.overall_coverage_pass
-            and item.recent_coverage_pass
-            and item.recent_count_pass
+            item.overall_coverage_pass and item.recent_coverage_pass and item.recent_count_pass
             for item in tours
         )
-        recommendation_class = (
-            "CANDIDATE_MINIMUM_WINDOW" if proxy_pass else "HIGH_RISK_COVERAGE"
-        )
+        recommendation_class = "CANDIDATE_MINIMUM_WINDOW" if proxy_pass else "HIGH_RISK_COVERAGE"
 
     base_payload: dict[str, object] = {
         "experiment_id": _EXPERIMENT_ID,

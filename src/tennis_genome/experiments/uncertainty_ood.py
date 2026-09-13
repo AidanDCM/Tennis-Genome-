@@ -187,9 +187,7 @@ class _RiskRow:
 
 def _project_core(genome: GenomeVector) -> GenomeVector:
     indexes = [
-        index
-        for index, name in enumerate(genome.feature_names)
-        if name.startswith("core::")
+        index for index, name in enumerate(genome.feature_names) if name.startswith("core::")
     ]
     if not indexes:
         raise ValueError("Genome has no strict-Core features")
@@ -208,9 +206,7 @@ def _project_core(genome: GenomeVector) -> GenomeVector:
 
 def _alignment_vector(genome: GenomeVector, *, tour: Tour) -> GenomeVector:
     if genome.feature_version != GENOME_VERSION:
-        raise RuntimeError(
-            "UNCERTAINTY-OOD-001 requires the merged Genome v1 representation"
-        )
+        raise RuntimeError("UNCERTAINTY-OOD-001 requires the merged Genome v1 representation")
     if tour == "ATP":
         return genome
     if tour == "WTA":
@@ -225,10 +221,7 @@ def _aligned_base_rows(
     min_core_train_matches: int,
 ) -> list[_BaseRow]:
     eligible = _eligible_matches(matches, tour=tour, exclude_retirements=True)
-    if any(
-        match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR
-        for match in eligible
-    ):
+    if any(match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR for match in eligible):
         raise ValueError("post-2025 data are forbidden in UNCERTAINTY-OOD-001")
 
     oof = generate_oof_predictions(
@@ -319,9 +312,7 @@ def _build_distance_rows(
                 k=_PRIMARY_K,
             )
             if summary is None:
-                raise RuntimeError(
-                    "registered k=100 unavailable despite historical pool gate"
-                )
+                raise RuntimeError("registered k=100 unavailable despite historical pool gate")
             result.append(
                 _DistanceRow(
                     base=row,
@@ -355,27 +346,18 @@ def _condition_distances(
             continue
         model = LinearRegression()
         x_prior = [_conditioning_x(row) for row in prior]
-        y_prior = [
-            math.log(max(row.raw_mean_distance_100, 1e-12))
-            for row in prior
-        ]
+        y_prior = [math.log(max(row.raw_mean_distance_100, 1e-12)) for row in prior]
         model.fit(x_prior, y_prior)
         fitted_prior = model.predict(x_prior).tolist()
         residuals = [
-            observed - predicted
-            for observed, predicted in zip(y_prior, fitted_prior, strict=True)
+            observed - predicted for observed, predicted in zip(y_prior, fitted_prior, strict=True)
         ]
         mean_residual = sum(residuals) / len(residuals)
-        variance = (
-            sum((value - mean_residual) ** 2 for value in residuals)
-            / len(residuals)
-        )
+        variance = sum((value - mean_residual) ** 2 for value in residuals) / len(residuals)
         residual_sd = math.sqrt(variance)
         if not math.isfinite(residual_sd) or residual_sd <= 0.0:
             continue
-        predictions = model.predict(
-            [_conditioning_x(row) for row in current]
-        ).tolist()
+        predictions = model.predict([_conditioning_x(row) for row in current]).tolist()
         for row, expected in zip(current, predictions, strict=True):
             observed = math.log(max(row.raw_mean_distance_100, 1e-12))
             result.append(
@@ -420,9 +402,7 @@ def _build_risk_rows(
     tour: Tour,
     min_risk_train_rows: int,
 ) -> list[_RiskRow]:
-    conditioned = [
-        row for row in rows if row.conditioned_unfamiliarity is not None
-    ]
+    conditioned = [row for row in rows if row.conditioned_unfamiliarity is not None]
     result: list[_RiskRow] = []
     years = sorted({row.base.year for row in conditioned})
     for test_year in years:
@@ -435,9 +415,7 @@ def _build_risk_rows(
             [_risk_features(row, tour=tour) for row in prior],
             [_brier_contribution(row) for row in prior],
         )
-        predictions = model.predict(
-            [_risk_features(row, tour=tour) for row in current]
-        ).tolist()
+        predictions = model.predict([_risk_features(row, tour=tour) for row in current]).tolist()
         for row, predicted in zip(current, predictions, strict=True):
             result.append(
                 _RiskRow(
@@ -456,10 +434,7 @@ def _linear_slope(xs: list[float], ys: list[float]) -> float | None:
     denominator = sum((value - mean_x) ** 2 for value in xs)
     if denominator <= 0.0:
         return None
-    numerator = sum(
-        (x - mean_x) * (y - mean_y)
-        for x, y in zip(xs, ys, strict=True)
-    )
+    numerator = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys, strict=True))
     return numerator / denominator
 
 
@@ -490,10 +465,7 @@ def _signal_diagnostic(
         row
         for row in rows
         if row.conditioned_unfamiliarity is not None
-        and (
-            field != "point_depth"
-            or row.base.min_prior_point_exposure is not None
-        )
+        and (field != "point_depth" or row.base.min_prior_point_exposure is not None)
     ]
     if not available:
         return SignalDiagnostic(
@@ -521,24 +493,15 @@ def _signal_diagnostic(
         briers = [_brier_contribution(row) for row in bucket]
         log_losses = [_log_loss_contribution(row) for row in bucket]
         abs_residuals = [
-            abs(
-                (1.0 if row.base.outcome_a else 0.0)
-                - row.base.core_probability_a
-            )
+            abs((1.0 if row.base.outcome_a else 0.0) - row.base.core_probability_a)
             for row in bucket
         ]
-        correct = [
-            (row.base.core_probability_a >= 0.5) == row.base.outcome_a
-            for row in bucket
-        ]
+        correct = [(row.base.core_probability_a >= 0.5) == row.base.outcome_a for row in bucket]
         quintiles.append(
             SignalQuintile(
                 quintile=index,
                 n=len(bucket),
-                mean_signal=(
-                    sum(_signal_value(row, field) for row in bucket)
-                    / len(bucket)
-                ),
+                mean_signal=(sum(_signal_value(row, field) for row in bucket) / len(bucket)),
                 brier_contribution=sum(briers) / len(bucket),
                 log_loss_contribution=sum(log_losses) / len(bucket),
                 mean_absolute_residual=sum(abs_residuals) / len(bucket),
@@ -550,28 +513,15 @@ def _signal_diagnostic(
     brier_values = [_brier_contribution(row) for row in available]
     log_loss_values = [_log_loss_contribution(row) for row in available]
     abs_values = [
-        abs(
-            (1.0 if row.base.outcome_a else 0.0)
-            - row.base.core_probability_a
-        )
-        for row in available
+        abs((1.0 if row.base.outcome_a else 0.0) - row.base.core_probability_a) for row in available
     ]
     q5_minus_q1_brier = None
     q5_minus_q1_log = None
     q5_minus_q1_abs = None
     if len(quintiles) >= 2:
-        q5_minus_q1_brier = (
-            quintiles[-1].brier_contribution
-            - quintiles[0].brier_contribution
-        )
-        q5_minus_q1_log = (
-            quintiles[-1].log_loss_contribution
-            - quintiles[0].log_loss_contribution
-        )
-        q5_minus_q1_abs = (
-            quintiles[-1].mean_absolute_residual
-            - quintiles[0].mean_absolute_residual
-        )
+        q5_minus_q1_brier = quintiles[-1].brier_contribution - quintiles[0].brier_contribution
+        q5_minus_q1_log = quintiles[-1].log_loss_contribution - quintiles[0].log_loss_contribution
+        q5_minus_q1_abs = quintiles[-1].mean_absolute_residual - quintiles[0].mean_absolute_residual
     return SignalDiagnostic(
         n=len(available),
         brier_slope=_linear_slope(xs, brier_values),
@@ -631,12 +581,8 @@ def _selective_comparison(rows: list[_RiskRow]) -> SelectiveComparison:
                 confidence_baseline=baseline_score,
                 uncertainty_model=risk_score,
                 brier_improvement=baseline_score.brier - risk_score.brier,
-                log_loss_improvement=(
-                    baseline_score.log_loss - risk_score.log_loss
-                ),
-                accuracy_change=(
-                    risk_score.accuracy - baseline_score.accuracy
-                ),
+                log_loss_improvement=(baseline_score.log_loss - risk_score.log_loss),
+                accuracy_change=(risk_score.accuracy - baseline_score.accuracy),
             )
         )
     return SelectiveComparison(
@@ -646,19 +592,11 @@ def _selective_comparison(rows: list[_RiskRow]) -> SelectiveComparison:
 
 
 def _recent_distance_rows(rows: list[_DistanceRow]) -> list[_DistanceRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.base.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.base.year <= _RECENT_END_YEAR]
 
 
 def _recent_risk_rows(rows: list[_RiskRow]) -> list[_RiskRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.distance.base.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.distance.base.year <= _RECENT_END_YEAR]
 
 
 def _positive_signal_pass(
@@ -701,39 +639,24 @@ def _negative_signal_pass(
         recent.brier_slope,
         recent.log_loss_slope,
     ]
-    return all(
-        value is not None and value < 0.0
-        for value in required
-    )
+    return all(value is not None and value < 0.0 for value in required)
 
 
 def _coverage_map(
     comparison: SelectiveComparison,
 ) -> dict[float, SelectiveCoverage]:
-    return {
-        item.requested_coverage: item
-        for item in comparison.coverage
-    }
+    return {item.requested_coverage: item for item in comparison.coverage}
 
 
 def _mean_operational_improvements(
     comparison: SelectiveComparison,
 ) -> tuple[int, int, float, float]:
     by_coverage = _coverage_map(comparison)
-    selected = [
-        by_coverage[value]
-        for value in _PRIMARY_OPERATIONAL_COVERAGES
-    ]
+    selected = [by_coverage[value] for value in _PRIMARY_OPERATIONAL_COVERAGES]
     brier_wins = sum(item.brier_improvement > 0.0 for item in selected)
     log_wins = sum(item.log_loss_improvement > 0.0 for item in selected)
-    mean_brier = (
-        sum(item.brier_improvement for item in selected)
-        / len(selected)
-    )
-    mean_log = (
-        sum(item.log_loss_improvement for item in selected)
-        / len(selected)
-    )
+    mean_brier = sum(item.brier_improvement for item in selected) / len(selected)
+    mean_log = sum(item.log_loss_improvement for item in selected) / len(selected)
     return brier_wins, log_wins, mean_brier, mean_log
 
 
@@ -741,13 +664,9 @@ def _monotone_brier_through_25(
     comparison: SelectiveComparison,
 ) -> bool:
     by_coverage = _coverage_map(comparison)
-    values = [
-        by_coverage[coverage].uncertainty_model.brier
-        for coverage in (1.0, 0.75, 0.50, 0.25)
-    ]
+    values = [by_coverage[coverage].uncertainty_model.brier for coverage in (1.0, 0.75, 0.50, 0.25)]
     return all(
-        later <= earlier + 1e-12
-        for earlier, later in zip(values[:-1], values[1:], strict=True)
+        later <= earlier + 1e-12 for earlier, later in zip(values[:-1], values[1:], strict=True)
     )
 
 
@@ -845,21 +764,13 @@ def run_uncertainty_ood(
 
     selective = _selective_comparison(risk_rows)
     recent_risk = _recent_risk_rows(risk_rows)
-    recent_selective = (
-        _selective_comparison(recent_risk)
-        if recent_risk
-        else None
-    )
+    recent_selective = _selective_comparison(recent_risk) if recent_risk else None
 
-    brier_wins, log_wins, mean_brier, mean_log = (
-        _mean_operational_improvements(selective)
-    )
+    brier_wins, log_wins, mean_brier, mean_log = _mean_operational_improvements(selective)
     recent_mean_brier = None
     recent_mean_log = None
     if recent_selective is not None:
-        _, _, recent_mean_brier, recent_mean_log = (
-            _mean_operational_improvements(recent_selective)
-        )
+        _, _, recent_mean_brier, recent_mean_log = _mean_operational_improvements(recent_selective)
 
     combined_pass = bool(
         brier_wins >= 2
@@ -881,17 +792,11 @@ def run_uncertainty_ood(
             core_probability_a=row.distance.base.core_probability_a,
             predicted_brier_risk=row.predicted_brier_risk,
             core_confidence=row.distance.base.core_confidence,
-            conditioned_unfamiliarity=float(
-                row.distance.conditioned_unfamiliarity
-            ),
+            conditioned_unfamiliarity=float(row.distance.conditioned_unfamiliarity),
             disagreement=row.distance.base.disagreement,
-            alignment_missing_fraction=(
-                row.distance.base.alignment_vector.missing_fraction
-            ),
+            alignment_missing_fraction=(row.distance.base.alignment_vector.missing_fraction),
             min_prior_matches=row.distance.base.min_prior_matches,
-            min_prior_point_exposure=(
-                row.distance.base.min_prior_point_exposure
-            ),
+            min_prior_point_exposure=(row.distance.base.min_prior_point_exposure),
             raw_mean_distance_100=row.distance.raw_mean_distance_100,
             historical_pool_size=row.distance.historical_pool_size,
         )
@@ -902,11 +807,7 @@ def run_uncertainty_ood(
         experiment_id="UNCERTAINTY-OOD-001",
         tour=tour,
         development_end_year=_DEVELOPMENT_END_YEAR,
-        alignment_representation=(
-            "full_genome"
-            if tour == "ATP"
-            else "strict_core_geometry"
-        ),
+        alignment_representation=("full_genome" if tour == "ATP" else "strict_core_geometry"),
         primary_k=_PRIMARY_K,
         min_core_train_matches=min_core_train_matches,
         min_neighbor_pool=min_neighbor_pool,
@@ -957,16 +858,12 @@ def run_uncertainty_ood(
             ),
             operational_brier_win_count=brier_wins,
             operational_log_loss_win_count=log_wins,
-            operational_coverage_count=len(
-                _PRIMARY_OPERATIONAL_COVERAGES
-            ),
+            operational_coverage_count=len(_PRIMARY_OPERATIONAL_COVERAGES),
             mean_operational_brier_improvement=mean_brier,
             mean_operational_log_loss_improvement=mean_log,
             recent_mean_operational_brier_improvement=recent_mean_brier,
             recent_mean_operational_log_loss_improvement=recent_mean_log,
-            monotone_uncertainty_brier_through_25pct=(
-                _monotone_brier_through_25(selective)
-            ),
+            monotone_uncertainty_brier_through_25pct=(_monotone_brier_through_25(selective)),
             combined_uncertainty_pass=combined_pass,
         ),
         predictions=ledger,
@@ -975,9 +872,7 @@ def run_uncertainty_ood(
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=(
-            "Run UNCERTAINTY-OOD-001 on frozen 2000-2025 development data"
-        )
+        description=("Run UNCERTAINTY-OOD-001 on frozen 2000-2025 development data")
     )
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--pre-match", required=True, type=Path)

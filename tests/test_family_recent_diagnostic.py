@@ -22,6 +22,5 @@ def test_recent_diagnostic_reports_exact_recent_year_block() -> None:
     assert all(item.n > 0 for item in report.families)
     assert all(len(item.yearly) == 3 for item in report.families)
     assert all(
-        tuple(year.year for year in item.yearly) == report.recent_years
-        for item in report.families
+        tuple(year.year for year in item.yearly) == report.recent_years for item in report.families
     )

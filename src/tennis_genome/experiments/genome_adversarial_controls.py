@@ -174,9 +174,7 @@ def _project_genome(
     feature_prefix: str,
 ) -> GenomeVector:
     indexes = [
-        index
-        for index, name in enumerate(genome.feature_names)
-        if name.startswith(feature_prefix)
+        index for index, name in enumerate(genome.feature_names) if name.startswith(feature_prefix)
     ]
     if not indexes:
         raise ValueError(f"Genome has no features with prefix {feature_prefix!r}")
@@ -215,9 +213,7 @@ def _core_genome(row: object) -> GenomeVector:
 def _full_genome(row: object) -> GenomeVector:
     genome = row.genome
     if genome.feature_version != GENOME_VERSION:
-        raise RuntimeError(
-            "GENOME-ADV-001 requires the merged GENOME-NN-001 full representation"
-        )
+        raise RuntimeError("GENOME-ADV-001 requires the merged GENOME-NN-001 full representation")
     return genome
 
 
@@ -267,10 +263,7 @@ def _build_control_evidence(
         if any(row.year >= test_year for row in historical):
             raise RuntimeError("future/non-historical row entered GENOME-ADV-001 pool")
 
-        indexes = {
-            name: _build_index(historical, name)
-            for name in ("probability", "core", "full")
-        }
+        indexes = {name: _build_index(historical, name) for name in ("probability", "core", "full")}
         candidate_sets = {
             name: indexes[name].query_candidates(
                 _target_vectors(targets, name),
@@ -322,9 +315,7 @@ def _fit_meta_model(
         LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000),
     )
     if signal_field is None:
-        x_train = [
-            [_logit_probability(row.core_probability_favorite)] for row in train
-        ]
+        x_train = [[_logit_probability(row.core_probability_favorite)] for row in train]
     else:
         x_train = [
             [
@@ -382,9 +373,7 @@ def _comparison(rows: list[_MetaPredictionRow]) -> FourModelComparison:
         core_neighborhood=core,
         full_genome=full,
         full_vs_probability_brier_improvement=probability.brier - full.brier,
-        full_vs_probability_log_loss_improvement=(
-            probability.log_loss - full.log_loss
-        ),
+        full_vs_probability_log_loss_improvement=(probability.log_loss - full.log_loss),
         full_vs_core_brier_improvement=core.brier - full.brier,
         full_vs_core_log_loss_improvement=core.log_loss - full.log_loss,
     )
@@ -409,9 +398,7 @@ def _meta_predictions(
 
         models = {
             "control": _fit_meta_model(train, signal_field=None),
-            "probability": _fit_meta_model(
-                train, signal_field="probability_neighbor_residual"
-            ),
+            "probability": _fit_meta_model(train, signal_field="probability_neighbor_residual"),
             "core": _fit_meta_model(train, signal_field="core_neighbor_residual"),
             "full": _fit_meta_model(train, signal_field="full_neighbor_residual"),
         }
@@ -462,16 +449,13 @@ def _meta_predictions(
                 year=test_year,
                 comparison=comparison,
                 full_joint_win_vs_probability=(
-                    comparison.full_genome.brier
-                    < comparison.probability_neighborhood.brier
+                    comparison.full_genome.brier < comparison.probability_neighborhood.brier
                     and comparison.full_genome.log_loss
                     < comparison.probability_neighborhood.log_loss
                 ),
                 full_joint_win_vs_core=(
-                    comparison.full_genome.brier
-                    < comparison.core_neighborhood.brier
-                    and comparison.full_genome.log_loss
-                    < comparison.core_neighborhood.log_loss
+                    comparison.full_genome.brier < comparison.core_neighborhood.brier
+                    and comparison.full_genome.log_loss < comparison.core_neighborhood.log_loss
                 ),
             )
         )
@@ -519,8 +503,7 @@ def _signal_diagnostic(
                 quintile=index,
                 n=len(bucket),
                 mean_signal=(
-                    sum(float(getattr(row, signal_field)) for row in bucket)
-                    / len(bucket)
+                    sum(float(getattr(row, signal_field)) for row in bucket) / len(bucket)
                 ),
                 mean_realized_core_residual=(
                     sum(row.core_residual_favorite for row in bucket) / len(bucket)
@@ -530,8 +513,7 @@ def _signal_diagnostic(
     spread = None
     if len(quintiles) >= 2:
         spread = (
-            quintiles[-1].mean_realized_core_residual
-            - quintiles[0].mean_realized_core_residual
+            quintiles[-1].mean_realized_core_residual - quintiles[0].mean_realized_core_residual
         )
     return SignalDiagnostic(
         n=len(rows),
@@ -545,19 +527,11 @@ def _signal_diagnostic(
 
 
 def _recent_evidence(rows: list[_ControlEvidenceRow]) -> list[_ControlEvidenceRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _recent_predictions(rows: list[_MetaPredictionRow]) -> list[_MetaPredictionRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _gate(
@@ -592,8 +566,7 @@ def _gate(
             recent_log_loss = None
         else:
             recent_brier = (
-                recent_comparison.full_genome.brier
-                <= recent_comparison.core_neighborhood.brier
+                recent_comparison.full_genome.brier <= recent_comparison.core_neighborhood.brier
             )
             recent_log_loss = (
                 recent_comparison.full_genome.log_loss
@@ -678,9 +651,7 @@ def run_genome_adversarial_controls(
 
     comparison = _comparison(predictions)
     recent_predictions = _recent_predictions(predictions)
-    recent_comparison = (
-        _comparison(recent_predictions) if recent_predictions else None
-    )
+    recent_comparison = _comparison(recent_predictions) if recent_predictions else None
     recent_evidence = _recent_evidence(evidence)
 
     gate_a = _gate(
@@ -704,9 +675,7 @@ def run_genome_adversarial_controls(
             outcome_a=row.outcome_a,
             core_probability_a=row.core_probability_a,
             calibration_control_probability_a=row.calibration_control_probability_a,
-            probability_neighborhood_probability_a=(
-                row.probability_neighborhood_probability_a
-            ),
+            probability_neighborhood_probability_a=(row.probability_neighborhood_probability_a),
             core_neighborhood_probability_a=row.core_neighborhood_probability_a,
             full_genome_probability_a=row.full_genome_probability_a,
             probability_neighbor_residual=(

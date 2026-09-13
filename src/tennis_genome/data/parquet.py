@@ -127,12 +127,8 @@ def _stats_from_row(values: dict[str, object]) -> MatchStats:
         first_serves_in_b=_optional_int(values.get("first_serves_in_b")),
         first_serve_points_won_a=_optional_int(values.get("first_serve_points_won_a")),
         first_serve_points_won_b=_optional_int(values.get("first_serve_points_won_b")),
-        second_serve_points_won_a=_optional_int(
-            values.get("second_serve_points_won_a")
-        ),
-        second_serve_points_won_b=_optional_int(
-            values.get("second_serve_points_won_b")
-        ),
+        second_serve_points_won_a=_optional_int(values.get("second_serve_points_won_a")),
+        second_serve_points_won_b=_optional_int(values.get("second_serve_points_won_b")),
         service_games_a=_optional_int(values.get("service_games_a")),
         service_games_b=_optional_int(values.get("service_games_b")),
         break_points_saved_a=_optional_int(values.get("break_points_saved_a")),

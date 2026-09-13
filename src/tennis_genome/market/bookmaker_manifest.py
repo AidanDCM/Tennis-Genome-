@@ -247,12 +247,8 @@ def build_bookmaker_source_manifest(
                 )
             )
 
-    included_tuple = tuple(
-        sorted(included, key=lambda item: (item.root_key, item.relative_path))
-    )
-    excluded_tuple = tuple(
-        sorted(excluded, key=lambda item: (item.root_key, item.relative_path))
-    )
+    included_tuple = tuple(sorted(included, key=lambda item: (item.root_key, item.relative_path)))
+    excluded_tuple = tuple(sorted(excluded, key=lambda item: (item.root_key, item.relative_path)))
     if not included_tuple:
         raise ValueError("bookmaker source bundle contains no in-scope usable source files")
     payload = _manifest_payload(

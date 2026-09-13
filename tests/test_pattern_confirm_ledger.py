@@ -70,9 +70,7 @@ def test_append_rejects_cross_batch_duplicate(fit: FrozenMarketCoreFit) -> None:
 
 
 def test_append_rejects_tampered_existing_row(fit: FrozenMarketCoreFit) -> None:
-    existing = prospective_record_as_dict(
-        build_prospective_record(_raw("existing", 14), fit=fit)
-    )
+    existing = prospective_record_as_dict(build_prospective_record(_raw("existing", 14), fit=fit))
     existing["profile_gap"] = -0.7
     with pytest.raises(ValueError, match="digest mismatch"):
         append_prospective_rows([existing], [_raw("new", 15)], fit=fit)

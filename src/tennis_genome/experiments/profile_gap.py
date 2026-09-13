@@ -185,22 +185,16 @@ def _gap_quintiles(rows: list[PredictionRow]) -> tuple[GapQuintile, ...]:
     for index, bucket in enumerate(buckets, start=1):
         if not bucket:
             continue
-        residuals = [
-            (1.0 if row.outcome_a else 0.0) - row.elo_probability
-            for row in bucket
-        ]
+        residuals = [(1.0 if row.outcome_a else 0.0) - row.elo_probability for row in bucket]
         result.append(
             GapQuintile(
                 quintile=index,
                 n=len(bucket),
                 mean_gap=sum(row.profile_gap_match for row in bucket) / len(bucket),
                 mean_elo_residual=sum(residuals) / len(bucket),
-                mean_elo_probability=(
-                    sum(row.elo_probability for row in bucket) / len(bucket)
-                ),
+                mean_elo_probability=(sum(row.elo_probability for row in bucket) / len(bucket)),
                 realized_a_win_rate=(
-                    sum(1.0 if row.outcome_a else 0.0 for row in bucket)
-                    / len(bucket)
+                    sum(1.0 if row.outcome_a else 0.0 for row in bucket) / len(bucket)
                 ),
             )
         )
@@ -215,25 +209,17 @@ def _linear_slope(xs: list[float], ys: list[float]) -> float | None:
     denominator = sum((value - mean_x) ** 2 for value in xs)
     if denominator <= 0.0:
         return None
-    numerator = sum(
-        (x - mean_x) * (y - mean_y)
-        for x, y in zip(xs, ys, strict=True)
-    )
+    numerator = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys, strict=True))
     return numerator / denominator
 
 
 def _gap_diagnostic(rows: list[PredictionRow]) -> GapDiagnostic:
     quintiles = _gap_quintiles(rows)
     gaps = [row.profile_gap_match for row in rows]
-    residuals = [
-        (1.0 if row.outcome_a else 0.0) - row.elo_probability
-        for row in rows
-    ]
+    residuals = [(1.0 if row.outcome_a else 0.0) - row.elo_probability for row in rows]
     top_minus_bottom: float | None = None
     if len(quintiles) >= 2:
-        top_minus_bottom = (
-            quintiles[-1].mean_elo_residual - quintiles[0].mean_elo_residual
-        )
+        top_minus_bottom = quintiles[-1].mean_elo_residual - quintiles[0].mean_elo_residual
     return GapDiagnostic(
         n=len(rows),
         residual_slope_on_gap=_linear_slope(gaps, residuals),
@@ -260,8 +246,7 @@ def _eligible_matches(
     return [
         match
         for match in tour_matches
-        if not match.outcome.walkover
-        and (not exclude_retirements or not match.outcome.retirement)
+        if not match.outcome.walkover and (not exclude_retirements or not match.outcome.retirement)
     ]
 
 
@@ -401,9 +386,7 @@ def run_profile_gap(
     if min_train_matches <= 0:
         raise ValueError("min_train_matches must be positive")
     if include_conditional and tour != "WTA":
-        raise ValueError(
-            "PROFILE-GAP-001 conditional representation is preregistered only for WTA"
-        )
+        raise ValueError("PROFILE-GAP-001 conditional representation is preregistered only for WTA")
 
     eligible = _eligible_matches(
         matches,
@@ -447,11 +430,7 @@ def run_profile_gap(
         raise ValueError("no chronological predictions are available for PROFILE-GAP-001")
 
     comparison = _comparison(all_rows)
-    recent_rows = [
-        row
-        for row in all_rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    recent_rows = [row for row in all_rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
     recent_comparison = _comparison(recent_rows) if recent_rows else None
     gap = _gap_diagnostic(all_rows)
     recent_gap = _gap_diagnostic(recent_rows) if recent_rows else None
@@ -469,12 +448,10 @@ def run_profile_gap(
         else None
     )
     gap_top_positive = bool(
-        gap.top_minus_bottom_residual is not None
-        and gap.top_minus_bottom_residual > 0.0
+        gap.top_minus_bottom_residual is not None and gap.top_minus_bottom_residual > 0.0
     )
     gap_slope_positive = bool(
-        gap.residual_slope_on_gap is not None
-        and gap.residual_slope_on_gap > 0.0
+        gap.residual_slope_on_gap is not None and gap.residual_slope_on_gap > 0.0
     )
     recent_direction = (
         bool(

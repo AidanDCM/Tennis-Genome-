@@ -131,6 +131,8 @@ class SettledOutcome:
 class LookResult:
     look_index: int
     n: int
+    match_ids: tuple[str, ...]
+    input_sha256: str
     z: float
     boundary: float
     mean_residual: float
@@ -287,9 +289,7 @@ def freeze_market_core_fit(results: dict[str, object]) -> FrozenMarketCoreFit:
         [1.0 if bool(item["outcome_a"]) else 0.0 for item in rows],
         dtype=float,
     )
-    design = np.column_stack(
-        [np.ones(len(rows), dtype=float), market_logits, core_logits]
-    )
+    design = np.column_stack([np.ones(len(rows), dtype=float), market_logits, core_logits])
     if int(np.linalg.matrix_rank(design)) < design.shape[1]:
         raise ValueError("frozen Market + Core design is rank deficient")
 
@@ -368,10 +368,7 @@ def matching_hypotheses(profile_gap: float) -> tuple[str, ...]:
     for hypothesis in HYPOTHESES:
         if hypothesis.rule == "profile_gap_lt" and profile_gap < hypothesis.threshold:
             matches.append(hypothesis.hypothesis_id)
-        elif (
-            hypothesis.rule == "abs_profile_gap_ge"
-            and abs(profile_gap) >= hypothesis.threshold
-        ):
+        elif hypothesis.rule == "abs_profile_gap_ge" and abs(profile_gap) >= hypothesis.threshold:
             matches.append(hypothesis.hypothesis_id)
     return tuple(matches)
 
@@ -468,9 +465,7 @@ def _load_jsonl(path: Path) -> list[dict[str, object]]:
 
 def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:
     path.write_text(
-        "".join(
-            json.dumps(row, sort_keys=True, allow_nan=False) + "\n" for row in rows
-        )
+        "".join(json.dumps(row, sort_keys=True, allow_nan=False) + "\n" for row in rows)
     )
 
 
@@ -522,6 +517,21 @@ def _score_look(
     look_n: int,
 ) -> LookResult:
     subset = records[:look_n]
+    look_input = {
+        "hypothesis_id": hypothesis.hypothesis_id,
+        "look_index": look_index + 1,
+        "records": [
+            {
+                "match_id": row.match_id,
+                "record_sha256": row.record_sha256,
+                "outcome_a": outcomes[row.match_id].outcome_a,
+                "retirement": outcomes[row.match_id].retirement,
+                "walkover": outcomes[row.match_id].walkover,
+            }
+            for row in subset
+        ],
+    }
+    input_sha256 = _sha256_bytes(_canonical_json(look_input))
     y = [bool(outcomes[row.match_id].outcome_a) for row in subset]
     baseline = [row.market_core_probability_a for row in subset]
     residual = np.asarray(
@@ -536,10 +546,7 @@ def _score_look(
     if not math.isfinite(sample_sd) or sample_sd <= 0.0:
         raise ValueError("residual sample SD must be positive")
     z = -mean_residual / (sample_sd / math.sqrt(look_n))
-    corrected = [
-        _clip_probability(probability + hypothesis.correction)
-        for probability in baseline
-    ]
+    corrected = [_clip_probability(probability + hypothesis.correction) for probability in baseline]
     baseline_brier = brier_score(y, baseline)
     corrected_brier = brier_score(y, corrected)
     baseline_log_loss = binary_log_loss(y, baseline)
@@ -553,6 +560,8 @@ def _score_look(
     return LookResult(
         look_index=look_index + 1,
         n=look_n,
+        match_ids=tuple(row.match_id for row in subset),
+        input_sha256=input_sha256,
         z=float(z),
         boundary=boundary,
         mean_residual=mean_residual,
@@ -573,25 +582,41 @@ def evaluate_hypothesis(
     records: list[ProspectiveRecord],
     outcomes: dict[str, SettledOutcome],
     hypothesis: PatternHypothesis,
+    *,
+    terminal_exclusions: set[str] | None = None,
 ) -> HypothesisReport:
+    terminal_exclusions = terminal_exclusions or set()
     chronological = sorted(
-        [
-            record
-            for record in records
-            if hypothesis.hypothesis_id in record.matched_hypotheses
-            and record.match_id in outcomes
-        ],
+        [record for record in records if hypothesis.hypothesis_id in record.matched_hypotheses],
         key=lambda record: (
             _parse_aware_datetime(record.scheduled_start),
             record.match_id,
         ),
     )
-    retirement_n = sum(outcomes[row.match_id].retirement for row in chronological)
-    walkover_n = sum(outcomes[row.match_id].walkover for row in chronological)
+
+    # Never skip an unresolved earlier qualifying match and pull a later match
+    # into an interim look. Explicit terminal exclusions are resolved but do not
+    # contribute N; otherwise the first missing settlement closes the prefix.
+    resolved_prefix: list[ProspectiveRecord] = []
+    for record in chronological:
+        if record.match_id in terminal_exclusions:
+            resolved_prefix.append(record)
+            continue
+        if record.match_id not in outcomes:
+            break
+        resolved_prefix.append(record)
+
+    retirement_n = sum(
+        outcomes[row.match_id].retirement for row in resolved_prefix if row.match_id in outcomes
+    )
+    walkover_n = sum(
+        outcomes[row.match_id].walkover for row in resolved_prefix if row.match_id in outcomes
+    )
     eligible = [
         row
-        for row in chronological
-        if not outcomes[row.match_id].retirement
+        for row in resolved_prefix
+        if row.match_id in outcomes
+        and not outcomes[row.match_id].retirement
         and not outcomes[row.match_id].walkover
         and outcomes[row.match_id].outcome_a is not None
     ]
@@ -639,11 +664,18 @@ def evaluate_family(
     fit: FrozenMarketCoreFit,
     ledger_sha256: str,
     outcomes_sha256: str,
+    terminal_exclusions: set[str] | None = None,
 ) -> ConfirmationReport:
     if any(record.market_core_fit_sha256 != fit.artifact_sha256 for record in records):
         raise ValueError("prospective ledger mixes frozen Market + Core fit versions")
     reports = tuple(
-        evaluate_hypothesis(records, outcomes, hypothesis) for hypothesis in HYPOTHESES
+        evaluate_hypothesis(
+            records,
+            outcomes,
+            hypothesis,
+            terminal_exclusions=terminal_exclusions,
+        )
+        for hypothesis in HYPOTHESES
     )
     unsigned: dict[str, object] = {
         "experiment_id": _EXPERIMENT_ID,
@@ -709,8 +741,7 @@ def main() -> None:
             raise ValueError("validation results must be a JSON object")
         fit = freeze_market_core_fit(payload)
         args.output.write_text(
-            json.dumps(fit_as_dict(fit), indent=2, sort_keys=True, allow_nan=False)
-            + "\n"
+            json.dumps(fit_as_dict(fit), indent=2, sort_keys=True, allow_nan=False) + "\n"
         )
         return
 
@@ -744,8 +775,7 @@ def main() -> None:
             outcomes_sha256=_sha256_file(args.outcomes),
         )
         args.output.write_text(
-            json.dumps(report_as_dict(report), indent=2, sort_keys=True, allow_nan=False)
-            + "\n"
+            json.dumps(report_as_dict(report), indent=2, sort_keys=True, allow_nan=False) + "\n"
         )
         return
 

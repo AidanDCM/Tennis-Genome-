@@ -167,9 +167,7 @@ def _window_minutes(
     days: int,
 ) -> float | None:
     relevant = [
-        duration
-        for prior_date, duration in values
-        if 0 < (event_date - prior_date).days <= days
+        duration for prior_date, duration in values if 0 < (event_date - prior_date).days <= days
     ]
     if not relevant:
         return 0.0
@@ -189,12 +187,8 @@ def _window_values(
     minutes_7 = _window_minutes(values, event_date, days=7)
     minutes_14 = _window_minutes(values, event_date, days=14)
     minutes_28 = _window_minutes(values, event_date, days=28)
-    matches_14 = sum(
-        1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 14
-    )
-    matches_28 = sum(
-        1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 28
-    )
+    matches_14 = sum(1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 14)
+    matches_28 = sum(1 for prior_date, _ in values if 0 < (event_date - prior_date).days <= 28)
     return (
         minutes_7,
         minutes_14,
@@ -266,9 +260,7 @@ def walk_forward_foundational_features(
     manufacturing it from match numbers or CSV row order.
     """
     eligible = [
-        match
-        for match in matches
-        if _eligible(match, exclude_retirements=exclude_retirements)
+        match for match in matches if _eligible(match, exclude_retirements=exclude_retirements)
     ]
     elo_map = {
         prediction.match_id: prediction
@@ -357,16 +349,8 @@ def walk_forward_foundational_features(
 
             prior_date_a = last_event_date.get(player_a)
             prior_date_b = last_event_date.get(player_b)
-            gap_a = (
-                float((event_date - prior_date_a).days)
-                if prior_date_a is not None
-                else None
-            )
-            gap_b = (
-                float((event_date - prior_date_b).days)
-                if prior_date_b is not None
-                else None
-            )
+            gap_a = float((event_date - prior_date_a).days) if prior_date_a is not None else None
+            gap_b = float((event_date - prior_date_b).days) if prior_date_b is not None else None
             prev_a = last_event_minutes.get(player_a)
             prev_b = last_event_minutes.get(player_b)
 
@@ -395,15 +379,13 @@ def walk_forward_foundational_features(
             age_x_short_gap: float | None = None
             if state.age_years_a is not None and state.age_years_b is not None:
                 if minutes_14_a is not None and minutes_14_b is not None:
-                    age_x_minutes = (
-                        (state.age_years_a - 27.0) * log1p(minutes_14_a)
-                        - (state.age_years_b - 27.0) * log1p(minutes_14_b)
-                    )
+                    age_x_minutes = (state.age_years_a - 27.0) * log1p(minutes_14_a) - (
+                        state.age_years_b - 27.0
+                    ) * log1p(minutes_14_b)
                 if gap_a is not None and gap_b is not None:
-                    age_x_short_gap = (
-                        (state.age_years_a - 27.0) * float(gap_a <= 7.0)
-                        - (state.age_years_b - 27.0) * float(gap_b <= 7.0)
-                    )
+                    age_x_short_gap = (state.age_years_a - 27.0) * float(gap_a <= 7.0) - (
+                        state.age_years_b - 27.0
+                    ) * float(gap_b <= 7.0)
 
             left_diff = _left_indicator(state.hand_a) - _left_indicator(state.hand_b)
             opposite = _known_opposite_hands(state.hand_a, state.hand_b)
@@ -451,9 +433,7 @@ def walk_forward_foundational_features(
                     form_result_90_diff=result_90_a - result_90_b,
                     form_point_30_diff=point_30_a - point_30_b,
                     form_point_90_diff=point_90_a - point_90_b,
-                    event_gap_days_diff=(
-                        None if gap_a is None or gap_b is None else gap_a - gap_b
-                    ),
+                    event_gap_days_diff=(None if gap_a is None or gap_b is None else gap_a - gap_b),
                     minutes_7_diff=_log1p_difference(minutes_7_a, minutes_7_b),
                     minutes_14_diff=_log1p_difference(minutes_14_a, minutes_14_b),
                     minutes_28_diff=_log1p_difference(minutes_28_a, minutes_28_b),
@@ -554,9 +534,7 @@ def walk_forward_foundational_features(
         for player_id in day_players:
             last_event_date[player_id] = event_date
             last_event_minutes[player_id] = (
-                None
-                if player_id in day_missing_minutes
-                else day_minutes[player_id]
+                None if player_id in day_missing_minutes else day_minutes[player_id]
             )
 
     return snapshots

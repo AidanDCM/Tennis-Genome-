@@ -66,11 +66,7 @@ def _family_features(families: tuple[str, ...]) -> tuple[str, ...]:
 
 def strict_a_features(tour: Tour) -> tuple[str, ...]:
     if tour == "ATP":
-        return (
-            ELO_FEATURES
-            + SERVE_RETURN_FEATURES
-            + _family_features(ATP_A_FAMILIES)
-        )
+        return ELO_FEATURES + SERVE_RETURN_FEATURES + _family_features(ATP_A_FAMILIES)
     if tour == "WTA":
         return ELO_FEATURES + _family_features(WTA_A_FAMILIES)
     raise ValueError(f"unsupported tour: {tour}")
@@ -80,9 +76,5 @@ def a_plus_b_features(tour: Tour) -> tuple[str, ...]:
     if tour == "ATP":
         return strict_a_features(tour) + _family_features(ATP_B_FAMILIES)
     if tour == "WTA":
-        return (
-            strict_a_features(tour)
-            + SERVE_RETURN_FEATURES
-            + _family_features(WTA_B_FAMILIES)
-        )
+        return strict_a_features(tour) + SERVE_RETURN_FEATURES + _family_features(WTA_B_FAMILIES)
     raise ValueError(f"unsupported tour: {tour}")

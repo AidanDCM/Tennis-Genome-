@@ -22,6 +22,7 @@ from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
     build_sportradar_prospective_state,
+    training_content_hash,
     training_population_hash,
     verified_frozen_base_history,
 )
@@ -359,4 +360,32 @@ def test_target_identity_must_match_sealed_crosswalk() -> None:
             identity_mapping=mapping,
             profile_artifact=profile,
             core_artifact=core,
+        )
+
+
+def test_frozen_base_full_content_hash_rejects_feature_bearing_mutation() -> None:
+    base = _base()
+    profile, core = _toy_models(base)
+    expected = training_content_hash(base)
+    assert (
+        verified_frozen_base_history(
+            base,
+            profile_artifact=profile,
+            core_artifact=core,
+            expected_content_sha256=expected,
+        )
+        == base
+    )
+    assert base[0].stats is not None
+    changed = [
+        replace(base[0], stats=replace(base[0].stats, duration_minutes=9999)),
+        base[1],
+    ]
+    assert training_population_hash(changed) == training_population_hash(base)
+    with pytest.raises(ValueError, match="full content hash"):
+        verified_frozen_base_history(
+            changed,
+            profile_artifact=profile,
+            core_artifact=core,
+            expected_content_sha256=expected,
         )

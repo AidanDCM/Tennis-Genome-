@@ -173,9 +173,7 @@ def _window_minutes(
     days: int,
 ) -> float | None:
     relevant = [
-        duration
-        for prior_date, duration in history
-        if 0 < (event_date - prior_date).days <= days
+        duration for prior_date, duration in history if 0 < (event_date - prior_date).days <= days
     ]
     if not relevant:
         return 0.0
@@ -193,12 +191,8 @@ def _workload_state(
     minutes_7 = _window_minutes(history, event_date, days=7)
     minutes_14 = _window_minutes(history, event_date, days=14)
     minutes_28 = _window_minutes(history, event_date, days=28)
-    matches_14 = sum(
-        1 for prior_date, _ in history if 0 < (event_date - prior_date).days <= 14
-    )
-    matches_28 = sum(
-        1 for prior_date, _ in history if 0 < (event_date - prior_date).days <= 28
-    )
+    matches_14 = sum(1 for prior_date, _ in history if 0 < (event_date - prior_date).days <= 14)
+    matches_28 = sum(1 for prior_date, _ in history if 0 < (event_date - prior_date).days <= 28)
     return minutes_7, minutes_14, minutes_28, matches_14, matches_28
 
 
@@ -254,9 +248,7 @@ def _profile_for_side(
         event_date,
     )
     prior_date = last_event_date.get(player_id)
-    event_gap_days = (
-        float((event_date - prior_date).days) if prior_date is not None else None
-    )
+    event_gap_days = float((event_date - prior_date).days) if prior_date is not None else None
     previous_minutes = last_event_minutes.get(player_id)
 
     return PlayerProfileSnapshot(
@@ -320,9 +312,7 @@ def walk_forward_player_profiles(
     allowed to update the next state.
     """
     eligible = [
-        match
-        for match in matches
-        if _eligible(match, exclude_retirements=exclude_retirements)
+        match for match in matches if _eligible(match, exclude_retirements=exclude_retirements)
     ]
     elo_map = {
         snapshot.match_id: snapshot

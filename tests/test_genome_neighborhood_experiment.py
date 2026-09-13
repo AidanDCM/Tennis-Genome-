@@ -60,11 +60,7 @@ def _synthetic_match(year: int, index: int) -> HistoricalMatch:
 
 
 def _history() -> list[HistoricalMatch]:
-    return [
-        _synthetic_match(year, index)
-        for year in range(2010, 2016)
-        for index in range(120)
-    ]
+    return [_synthetic_match(year, index) for year in range(2010, 2016) for index in range(120)]
 
 
 def test_genome_experiment_runs_nested_chronology_with_registered_k() -> None:

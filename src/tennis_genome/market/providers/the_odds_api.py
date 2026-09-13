@@ -45,9 +45,7 @@ def _find_h2h_market(bookmaker: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(markets, list):
         raise ValueError("bookmaker.markets must be a list")
     matches = [
-        market
-        for market in markets
-        if isinstance(market, dict) and market.get("key") == "h2h"
+        market for market in markets if isinstance(market, dict) and market.get("key") == "h2h"
     ]
     if len(matches) != 1:
         raise ValueError("bookmaker must contain exactly one h2h market")

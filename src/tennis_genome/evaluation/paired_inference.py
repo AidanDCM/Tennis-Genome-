@@ -51,10 +51,7 @@ def _paired_differences(
     candidate = _as_float_list(candidate_losses, name="candidate_losses")
     if len(baseline) != len(candidate):
         raise ValueError("baseline_losses and candidate_losses must have equal length")
-    return [
-        base - challenger
-        for base, challenger in zip(baseline, candidate, strict=True)
-    ]
+    return [base - challenger for base, challenger in zip(baseline, candidate, strict=True)]
 
 
 def per_match_brier_losses(
@@ -67,10 +64,7 @@ def per_match_brier_losses(
         raise ValueError("y_true and probabilities must have equal non-zero length")
     if any(not 0.0 <= probability <= 1.0 for probability in ps):
         raise ValueError("probabilities must be in [0, 1]")
-    return [
-        (probability - outcome) ** 2
-        for outcome, probability in zip(ys, ps, strict=True)
-    ]
+    return [(probability - outcome) ** 2 for outcome, probability in zip(ys, ps, strict=True)]
 
 
 def per_match_log_losses(
@@ -91,9 +85,7 @@ def per_match_log_losses(
     losses: list[float] = []
     for outcome, probability in zip(ys, ps, strict=True):
         clipped = min(max(probability, epsilon), 1.0 - epsilon)
-        losses.append(
-            -(outcome * math.log(clipped) + (1.0 - outcome) * math.log(1.0 - clipped))
-        )
+        losses.append(-(outcome * math.log(clipped) + (1.0 - outcome) * math.log(1.0 - clipped)))
     return losses
 
 
@@ -108,10 +100,7 @@ def _percentile(sorted_values: list[float], quantile: float) -> float:
     if lower_index == upper_index:
         return sorted_values[lower_index]
     fraction = position - lower_index
-    return (
-        sorted_values[lower_index] * (1.0 - fraction)
-        + sorted_values[upper_index] * fraction
-    )
+    return sorted_values[lower_index] * (1.0 - fraction) + sorted_values[upper_index] * fraction
 
 
 def paired_bootstrap_improvement(
@@ -184,10 +173,10 @@ def paired_sign_flip_test(
         extreme = 0
         total = 0
         for signs in product((-1.0, 1.0), repeat=n_pairs):
-            statistic = sum(
-                sign * difference
-                for sign, difference in zip(signs, differences, strict=True)
-            ) / n_pairs
+            statistic = (
+                sum(sign * difference for sign, difference in zip(signs, differences, strict=True))
+                / n_pairs
+            )
             total += 1
             if abs(statistic) >= threshold:
                 extreme += 1
@@ -202,10 +191,10 @@ def paired_sign_flip_test(
     rng = random.Random(seed)
     extreme = 0
     for _ in range(n_resamples):
-        statistic = sum(
-            difference if rng.random() < 0.5 else -difference
-            for difference in differences
-        ) / n_pairs
+        statistic = (
+            sum(difference if rng.random() < 0.5 else -difference for difference in differences)
+            / n_pairs
+        )
         if abs(statistic) >= threshold:
             extreme += 1
     return PairedPermutationResult(

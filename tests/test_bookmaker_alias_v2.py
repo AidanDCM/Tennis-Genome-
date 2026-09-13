@@ -108,8 +108,7 @@ def test_tennis_data_alias_preserves_price_orientation_and_no_outcome_fields(
 def test_alias_resolution_fails_closed_when_two_matches_fit_window(tmp_path: Path) -> None:
     valuebet, atp, wta = _roots(tmp_path)
     (atp / "atp-2025.csv").write_text(
-        "ATP,Date,Winner,Loser,PSW,PSL\n"
-        "1,3/1/25,Dimitrov G.,Nishioka Y.,1.60,2.50\n",
+        "ATP,Date,Winner,Loser,PSW,PSL\n1,3/1/25,Dimitrov G.,Nishioka Y.,1.60,2.50\n",
         encoding="utf-8",
     )
     manifest = build_bookmaker_source_manifest(
@@ -142,8 +141,7 @@ def test_valuebet_exact_priority_is_unchanged_in_v2(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (atp / "atp-2025.csv").write_text(
-        "ATP,Date,Winner,Loser,PSW,PSL\n"
-        "1,2/1/25,Dimitrov G.,Nishioka Y.,1.60,2.50\n",
+        "ATP,Date,Winner,Loser,PSW,PSL\n1,2/1/25,Dimitrov G.,Nishioka Y.,1.60,2.50\n",
         encoding="utf-8",
     )
     manifest = build_bookmaker_source_manifest(

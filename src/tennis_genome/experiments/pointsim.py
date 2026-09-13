@@ -181,8 +181,7 @@ def _eligible_matches(
     return [
         match
         for match in tour_matches
-        if not match.outcome.walkover
-        and (not exclude_retirements or not match.outcome.retirement)
+        if not match.outcome.walkover and (not exclude_retirements or not match.outcome.retirement)
     ]
 
 
@@ -351,12 +350,10 @@ def _walk_forward_predictions(
                 core_control=m0_score,
                 core_plus_pointsim=m1_score,
                 mechanics_joint_win=(
-                    s1_score.brier < s0_score.brier
-                    and s1_score.log_loss < s0_score.log_loss
+                    s1_score.brier < s0_score.brier and s1_score.log_loss < s0_score.log_loss
                 ),
                 incremental_joint_win=(
-                    m1_score.brier < m0_score.brier
-                    and m1_score.log_loss < m0_score.log_loss
+                    m1_score.brier < m0_score.brier and m1_score.log_loss < m0_score.log_loss
                 ),
             )
         )
@@ -368,11 +365,7 @@ def _walk_forward_predictions(
 
 
 def _recent(rows: list[PredictionRow]) -> list[PredictionRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _gate(

@@ -81,9 +81,7 @@ def test_builder_separates_pre_match_and_outcome_tables(tmp_path: Path):
     assert manifest["source_metadata"]["source_id"] == "test-source"
     assert manifest["source_metadata"]["allowed_use_status"] == "research_allowed"
     assert manifest["source_file_count"] == 1
-    assert manifest["source_files"] == [
-        {"filename": "source.csv", "sha256": sha256_file(source)}
-    ]
+    assert manifest["source_files"] == [{"filename": "source.csv", "sha256": sha256_file(source)}]
     assert (output / "atp_manifest.json").exists()
 
 

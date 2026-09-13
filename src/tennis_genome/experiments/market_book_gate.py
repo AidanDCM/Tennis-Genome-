@@ -41,9 +41,7 @@ def _require_five_evaluation_years(row: dict[str, object], *, tour: Tour) -> Non
             represented.add(year)
     missing = [year for year in _RECENT_YEARS if year not in represented]
     if missing:
-        raise ValueError(
-            f"MARKET-BOOK-QA {tour} lacks five evaluation years; missing={missing}"
-        )
+        raise ValueError(f"MARKET-BOOK-QA {tour} lacks five evaluation years; missing={missing}")
 
 
 def load_confirmatory_market_book_qa(path: str | Path) -> dict[Tour, str]:

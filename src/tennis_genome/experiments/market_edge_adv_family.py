@@ -79,9 +79,7 @@ def run_market_edge_adversarial_family(
 
     brier_adjusted = holm_adjust(
         {
-            claim_label(report.tour, report.signal_name): (
-                report.brier_inference.sign_flip.p_value
-            )
+            claim_label(report.tour, report.signal_name): (report.brier_inference.sign_flip.p_value)
             for report in reports
         }
     )

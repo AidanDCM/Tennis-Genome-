@@ -133,9 +133,7 @@ def build_bookmaker_market_edge_artifact(
             BookmakerClaimCoverage(
                 tour=tour,
                 signal_name=signal_name,
-                bookmaker_close_rows_for_tour=sum(
-                    row.tour == tour for row in close_rows.values()
-                ),
+                bookmaker_close_rows_for_tour=sum(row.tour == tour for row in close_rows.values()),
                 signal_rows=len(signals),
                 settled_outcome_rows=len(outcomes),
                 matched_claim_rows=len(rows),

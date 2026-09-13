@@ -162,15 +162,10 @@ def _qa_tour_status(qa: dict[str, Any]) -> dict[str, str]:
 
     if set(result) != {"ATP", "WTA"}:
         raise ValueError("MARKET-HIST-QA must report ATP and WTA")
-    blocked = [
-        tour
-        for tour in ("ATP", "WTA")
-        if result[tour] != _CONFIRMATORY_QA_STATUS
-    ]
+    blocked = [tour for tour in ("ATP", "WTA") if result[tour] != _CONFIRMATORY_QA_STATUS]
     if blocked:
         raise ValueError(
-            "MARKET-VALIDATION-RUN-001 requires QA-confirmatory ATP and WTA; "
-            f"blocked={blocked}"
+            f"MARKET-VALIDATION-RUN-001 requires QA-confirmatory ATP and WTA; blocked={blocked}"
         )
     return dict(sorted(result.items()))
 
@@ -241,9 +236,7 @@ def _power_claims(power: dict[str, Any]) -> tuple[PowerClaimSeal, ...]:
                 identifiable.add(year)
         missing_recent = [year for year in _RECENT_YEARS if year not in identifiable]
         if missing_recent:
-            raise ValueError(
-                f"POWER-MDE {key} lacks identifiable plans for years {missing_recent}"
-            )
+            raise ValueError(f"POWER-MDE {key} lacks identifiable plans for years {missing_recent}")
         result.append(
             PowerClaimSeal(
                 tour=key[0],

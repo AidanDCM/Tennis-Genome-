@@ -65,8 +65,7 @@ def _base_rows() -> list[BaseProbabilityRow]:
 def test_fusion_never_uses_target_year_outcomes_to_predict_target_year() -> None:
     original = _base_rows()
     altered = [
-        replace(row, outcome_a=not row.outcome_a) if row.year == 2015 else row
-        for row in original
+        replace(row, outcome_a=not row.outcome_a) if row.year == 2015 else row for row in original
     ]
 
     first, _ = _fusion_oof_from_base_rows(original, min_fusion_train_rows=100)

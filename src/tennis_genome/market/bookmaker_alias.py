@@ -23,9 +23,7 @@ def parse_tennis_data_abbreviation(value: str) -> TennisDataAlias | None:
         return None
     final = raw_tokens[-1]
     letters = _letters(final)
-    abbreviated = "." in final or (
-        bool(letters) and letters.isupper() and 1 <= len(letters) <= 3
-    )
+    abbreviated = "." in final or (bool(letters) and letters.isupper() and 1 <= len(letters) <= 3)
     if not abbreviated or not letters:
         return None
     surname = normalize_market_player_name(" ".join(raw_tokens[:-1])).split()

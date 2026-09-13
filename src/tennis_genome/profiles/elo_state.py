@@ -51,9 +51,7 @@ def walk_forward_elo_state(
         key=lambda match: match.pre_match.event_date,
     ):
         day_matches = [
-            match
-            for match in grouped
-            if _eligible(match, exclude_retirements=exclude_retirements)
+            match for match in grouped if _eligible(match, exclude_retirements=exclude_retirements)
         ]
         deltas: defaultdict[str, float] = defaultdict(float)
         count_additions: defaultdict[str, int] = defaultdict(int)

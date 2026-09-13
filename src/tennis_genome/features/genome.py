@@ -134,10 +134,7 @@ def build_genome_vector(
         pair.player_b,
         include_conditional=False,
     )
-    profile_means = [
-        _mean_optional(a, b)
-        for a, b in zip(a_values, b_values, strict=True)
-    ]
+    profile_means = [_mean_optional(a, b) for a, b in zip(a_values, b_values, strict=True)]
 
     feature_names = tuple(f"core::{name}" for name in core_names) + tuple(
         f"profile_mean::{name}" for name in profile_names

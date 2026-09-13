@@ -113,6 +113,6 @@ class FeatureProbabilityModel:
         snapshot_list = list(snapshots)
         if not snapshot_list:
             return []
-        return self._pipeline.predict_proba(
-            _snapshot_matrix(snapshot_list, self.feature_names)
-        )[:, 1].tolist()
+        return self._pipeline.predict_proba(_snapshot_matrix(snapshot_list, self.feature_names))[
+            :, 1
+        ].tolist()

@@ -216,9 +216,7 @@ def load_historical_source_manifest(path: str | Path) -> HistoricalSourceManifes
     for item in files:
         if item.size_bytes <= 0:
             raise ValueError("source manifest contains non-positive file size")
-        if len(item.sha256) != 64 or any(
-            char not in "0123456789abcdef" for char in item.sha256
-        ):
+        if len(item.sha256) != 64 or any(char not in "0123456789abcdef" for char in item.sha256):
             raise ValueError("source manifest contains invalid file SHA-256")
     if len({item.relative_path for item in files}) != len(files):
         raise ValueError("source manifest contains duplicate relative paths")

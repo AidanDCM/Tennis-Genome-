@@ -259,10 +259,7 @@ def _base_probability_rows(
     exclude_retirements: bool,
 ) -> list[BaseProbabilityRow]:
     selected = [match for match in matches if match.pre_match.tour == tour]
-    if any(
-        match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR
-        for match in selected
-    ):
+    if any(match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR for match in selected):
         raise ValueError("post-2025 selected-tour data are forbidden in FUSION-CAL-001")
 
     report = run_genome_adversarial_controls(
@@ -399,11 +396,7 @@ def _fusion_oof_from_base_rows(
 
 
 def _recent(rows: list[FusionPredictionRow]) -> list[FusionPredictionRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _fusion_gate(
@@ -472,10 +465,7 @@ def _disagreement_quintiles(
                 n=len(bucket),
                 mean_absolute_probability_disagreement=(
                     sum(
-                        abs(
-                            row.core_control_probability_a
-                            - row.alignment_probability_a
-                        )
+                        abs(row.core_control_probability_a - row.alignment_probability_a)
                         for row in bucket
                     )
                     / len(bucket)
@@ -522,9 +512,7 @@ def _calibration_rows_for_candidate(
     calibrated: dict[str, list[tuple[FusionPredictionRow, float]]] = {
         name: [] for name in _CALIBRATORS
     }
-    yearly: dict[str, list[CalibrationYearResult]] = {
-        name: [] for name in _CALIBRATORS
-    }
+    yearly: dict[str, list[CalibrationYearResult]] = {name: [] for name in _CALIBRATORS}
     years = sorted({row.year for row in rows})
 
     for test_year in years:
@@ -569,9 +557,7 @@ def _calibration_rows_for_candidate(
                     and item.score.log_loss < identity_score.log_loss
                 ),
             )
-            calibrated[name].extend(
-                zip(current, year_predictions[name], strict=True)
-            )
+            calibrated[name].extend(zip(current, year_predictions[name], strict=True))
 
     return calibrated, yearly
 
@@ -626,9 +612,7 @@ def _calibration_result(
             if recent_rows
             else None
         )
-        joint_wins = sum(
-            result.joint_win_vs_identity is True for result in yearly[name]
-        )
+        joint_wins = sum(result.joint_win_vs_identity is True for result in yearly[name])
         evaluated = len(yearly[name]) if name != "identity" else 0
         win_rate = joint_wins / evaluated if evaluated else 0.0
         brier_improvement = identity_score.brier - score.brier
@@ -639,9 +623,7 @@ def _calibration_result(
             recent_log_improvement = None
         else:
             recent_brier_improvement = identity_recent_score.brier - recent_score.brier
-            recent_log_improvement = (
-                identity_recent_score.log_loss - recent_score.log_loss
-            )
+            recent_log_improvement = identity_recent_score.log_loss - recent_score.log_loss
         passed = bool(
             name != "identity"
             and brier_improvement > 0.0
@@ -743,9 +725,7 @@ def run_fusion_calibration(
     selected_calibration = next(
         result for result in calibration if result.candidate == selected_candidate
     )
-    alignment_representation = (
-        "full_genome" if tour == "ATP" else "strict_core_geometry"
-    )
+    alignment_representation = "full_genome" if tour == "ATP" else "strict_core_geometry"
     decision = ArchitectureDecision(
         fusion_promoted=gate.passed,
         selected_probability_candidate=selected_candidate,
@@ -754,8 +734,7 @@ def run_fusion_calibration(
             "two-view fusion passed all preregistered gates"
             if gate.passed
             else (
-                "two-view fusion failed at least one preregistered gate; "
-                "retain incumbent alignment"
+                "two-view fusion failed at least one preregistered gate; retain incumbent alignment"
             )
         ),
     )

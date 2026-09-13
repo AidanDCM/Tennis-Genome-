@@ -128,9 +128,7 @@ def project_signal_report(
         if spec.signal_field not in row:
             raise ValueError(f"signal parent row lacks frozen field {spec.signal_field}")
         if spec.core_probability_field not in row:
-            raise ValueError(
-                f"signal parent row lacks frozen field {spec.core_probability_field}"
-            )
+            raise ValueError(f"signal parent row lacks frozen field {spec.core_probability_field}")
         try:
             signal = float(row[spec.signal_field])
             core_probability = float(row[spec.core_probability_field])

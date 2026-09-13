@@ -55,8 +55,7 @@ def _rows(*, tour: str = "ATP", signal_effect: float = 0.35) -> list[MarketCoreS
 def test_same_year_outcomes_do_not_change_same_year_predictions() -> None:
     original = _rows()
     mutated = [
-        replace(row, outcome_a=not row.outcome_a) if row.year == 2025 else row
-        for row in original
+        replace(row, outcome_a=not row.outcome_a) if row.year == 2025 else row for row in original
     ]
     first = generate_adversarial_predictions(
         original,

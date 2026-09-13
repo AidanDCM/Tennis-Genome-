@@ -23,8 +23,7 @@ def test_manifest_excludes_post_2025_file_and_structurally_bad_wta_mirror(tmp_pa
         encoding="utf-8",
     )
     (wta / "wta-2024-corrupt.csv").write_text(
-        "ATP,Date,Winner,Loser,PSW,PSL\n"
-        "1,1/1/24,Alpha A,Beta B,1.80,2.10\n",
+        "ATP,Date,Winner,Loser,PSW,PSL\n1,1/1/24,Alpha A,Beta B,1.80,2.10\n",
         encoding="utf-8",
     )
 
@@ -37,8 +36,7 @@ def test_manifest_excludes_post_2025_file_and_structurally_bad_wta_mirror(tmp_pa
     )
     assert [item.relative_path for item in manifest.files] == ["valuebet-2025.csv"]
     excluded = {
-        (item.root_key, item.relative_path): item.reason
-        for item in manifest.excluded_files
+        (item.root_key, item.relative_path): item.reason for item in manifest.excluded_files
     }
     assert excluded[("valuebetennis", "valuebet-2026.csv")] == "OUTSIDE_REQUESTED_INTERVAL"
     assert excluded[("tennis_data_wta", "wta-2024-corrupt.csv")] == "STRUCTURAL_INVALID"

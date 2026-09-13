@@ -164,9 +164,7 @@ def run_exp002(
     whose surface is unavailable to the surface-specialized model.
     """
     config = config or EloConfig()
-    known_surface_matches = [
-        match for match in matches if match.pre_match.surface != "Unknown"
-    ]
+    known_surface_matches = [match for match in matches if match.pre_match.surface != "Unknown"]
     if not known_surface_matches:
         raise ValueError("EXP-002 requires at least one known-surface match")
 
@@ -185,16 +183,12 @@ def run_exp002(
         exclude_retirements=exclude_retirements,
     )
 
-    outcomes_by_id = {
-        match.match_id: match.outcome.a_won for match in known_surface_matches
-    }
+    outcomes_by_id = {match.match_id: match.outcome.a_won for match in known_surface_matches}
     surface_name_by_id: dict[str, Surface] = {
         match.match_id: match.pre_match.surface for match in known_surface_matches
     }
     elo_by_id = {prediction.match_id: prediction for prediction in elo_predictions}
-    surface_by_id = {
-        prediction.match_id: prediction for prediction in surface_predictions
-    }
+    surface_by_id = {prediction.match_id: prediction for prediction in surface_predictions}
     common_ids = sorted(
         set(elo_by_id).intersection(surface_by_id),
         key=lambda match_id: (elo_by_id[match_id].event_date, match_id),

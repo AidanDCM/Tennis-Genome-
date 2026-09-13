@@ -261,10 +261,7 @@ def _calibration_line(
     epsilon = 1e-6
     logits = [
         [math.log(p / (1.0 - p))]
-        for p in (
-            min(max(float(value), epsilon), 1.0 - epsilon)
-            for value in probabilities
-        )
+        for p in (min(max(float(value), epsilon), 1.0 - epsilon) for value in probabilities)
     ]
     model = LogisticRegression(C=1e6, solver="lbfgs", max_iter=1000)
     model.fit(logits, [int(value) for value in outcomes])
@@ -302,9 +299,7 @@ def calibrate_oof_predictions(
         raise ValueError("min_calibration_predictions must be positive")
 
     calibrated_rows: list[_CalibratedRow] = []
-    yearly_results: dict[str, list[CalibrationYearResult]] = {
-        name: [] for name in CALIBRATOR_NAMES
-    }
+    yearly_results: dict[str, list[CalibrationYearResult]] = {name: [] for name in CALIBRATOR_NAMES}
     years = sorted({row.year for row in oof})
 
     for year in years:
@@ -344,17 +339,14 @@ def calibrate_oof_predictions(
                 _CalibratedRow(
                     oof=row,
                     probabilities={
-                        name: method_probabilities[name][index]
-                        for name in CALIBRATOR_NAMES
+                        name: method_probabilities[name][index] for name in CALIBRATOR_NAMES
                     },
                 )
             )
 
     if not calibrated_rows:
         raise ValueError("no nested calibration years are available")
-    return calibrated_rows, {
-        name: tuple(results) for name, results in yearly_results.items()
-    }
+    return calibrated_rows, {name: tuple(results) for name, results in yearly_results.items()}
 
 
 def _method_result(
@@ -389,9 +381,7 @@ def _favorite_summary(
     for row in rows:
         probability = row.probabilities[calibrator]
         favorite_probabilities.append(max(probability, 1.0 - probability))
-        favorite_wins.append(
-            row.oof.outcome_a if probability >= 0.5 else not row.oof.outcome_a
-        )
+        favorite_wins.append(row.oof.outcome_a if probability >= 0.5 else not row.oof.outcome_a)
     return (
         sum(favorite_probabilities) / len(favorite_probabilities),
         sum(favorite_wins) / len(favorite_wins),
@@ -431,8 +421,7 @@ def selective_curve(
                 mean_favorite_probability=mean_favorite,
                 realized_favorite_win_rate=realized_favorite,
                 minimum_confidence=min(
-                    abs(row.probabilities[calibrator] - 0.5)
-                    for row in selected
+                    abs(row.probabilities[calibrator] - 0.5) for row in selected
                 ),
             )
         )
@@ -464,21 +453,15 @@ def disagreement_report(rows: list[_CalibratedRow]) -> DisagreementReport:
 
     bucket_results: list[DisagreementBucket] = []
     for quintile in range(1, 6):
-        indices = [
-            index
-            for index, bucket in enumerate(disagreement_buckets)
-            if bucket == quintile
-        ]
+        indices = [index for index, bucket in enumerate(disagreement_buckets) if bucket == quintile]
         if not indices:
             continue
         bucket_results.append(
             DisagreementBucket(
                 quintile=quintile,
                 n=len(indices),
-                mean_disagreement=sum(disagreements[i] for i in indices)
-                / len(indices),
-                mean_probability_confidence=sum(confidences[i] for i in indices)
-                / len(indices),
+                mean_disagreement=sum(disagreements[i] for i in indices) / len(indices),
+                mean_probability_confidence=sum(confidences[i] for i in indices) / len(indices),
                 strict_core_score=_score(
                     [outcomes[i] for i in indices],
                     [strict[i] for i in indices],
@@ -532,14 +515,8 @@ def run_calibration_selective_lab(
         oof,
         min_calibration_predictions=min_calibration_predictions,
     )
-    methods = tuple(
-        _method_result(name, calibrated, yearly[name])
-        for name in CALIBRATOR_NAMES
-    )
-    selective = tuple(
-        selective_curve(calibrated, calibrator=name)
-        for name in CALIBRATOR_NAMES
-    )
+    methods = tuple(_method_result(name, calibrated, yearly[name]) for name in CALIBRATOR_NAMES)
+    selective = tuple(selective_curve(calibrated, calibrator=name) for name in CALIBRATOR_NAMES)
     return CalibrationSelectiveReport(
         experiment_id="CAL-SEL-001",
         tour=tour,

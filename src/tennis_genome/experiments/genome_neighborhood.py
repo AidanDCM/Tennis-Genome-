@@ -273,10 +273,7 @@ def _eligible_matches(
     exclude_retirements: bool,
 ) -> list[HistoricalMatch]:
     tour_matches = [match for match in matches if match.pre_match.tour == tour]
-    if any(
-        match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR
-        for match in tour_matches
-    ):
+    if any(match.pre_match.event_date.year > _DEVELOPMENT_END_YEAR for match in tour_matches):
         raise ValueError(
             "GENOME-NN-001 is frozen to 2000-2025 development data; "
             "post-2025 matches, including the spent 2026 holdout, are forbidden"
@@ -284,8 +281,7 @@ def _eligible_matches(
     return [
         match
         for match in tour_matches
-        if not match.outcome.walkover
-        and (not exclude_retirements or not match.outcome.retirement)
+        if not match.outcome.walkover and (not exclude_retirements or not match.outcome.retirement)
     ]
 
 
@@ -317,8 +313,7 @@ def _build_core_ledger(
 ) -> list[_CoreLedgerRow]:
     pairs, foundational, outcomes = _aligned_state(matches)
     genomes = {
-        pair.match_id: build_genome_vector(pair, foundational[pair.match_id])
-        for pair in pairs
+        pair.match_id: build_genome_vector(pair, foundational[pair.match_id]) for pair in pairs
     }
     years = sorted({pair.event_date.year for pair in pairs})
     rows: list[_CoreLedgerRow] = []
@@ -431,18 +426,14 @@ def _build_neighbor_evidence(
                     nearest_distance_100=summary_100.nearest_distance,
                     mean_distance_100=summary_100.mean_distance,
                     kth_distance_100=summary_100.kth_distance,
-                    shared_player_fraction_100=(
-                        summary_100.shared_player_fraction
-                    ),
+                    shared_player_fraction_100=(summary_100.shared_player_fraction),
                     nonsharing_neighbor_residual_100=(
                         None if nonsharing is None else nonsharing.mean_residual
                     ),
                     genome_missing_fraction=row.genome.missing_fraction,
                     neighbor_ids_digest_100=_ids_digest(summary_100.neighbor_ids),
                     nonsharing_neighbor_ids_digest_100=(
-                        None
-                        if nonsharing is None
-                        else _ids_digest(nonsharing.neighbor_ids)
+                        None if nonsharing is None else _ids_digest(nonsharing.neighbor_ids)
                     ),
                 )
             )
@@ -538,10 +529,8 @@ def _meta_predictions(
                 year=test_year,
                 comparison=comparison,
                 joint_genome_win=(
-                    comparison.genome_challenger.brier
-                    < comparison.meta_control.brier
-                    and comparison.genome_challenger.log_loss
-                    < comparison.meta_control.log_loss
+                    comparison.genome_challenger.brier < comparison.meta_control.brier
+                    and comparison.genome_challenger.log_loss < comparison.meta_control.log_loss
                 ),
             )
         )
@@ -557,10 +546,7 @@ def _linear_slope(xs: list[float], ys: list[float]) -> float | None:
     denominator = sum((value - mean_x) ** 2 for value in xs)
     if denominator <= 0.0:
         return None
-    numerator = sum(
-        (x - mean_x) * (y - mean_y)
-        for x, y in zip(xs, ys, strict=True)
-    )
+    numerator = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys, strict=True))
     return numerator / denominator
 
 
@@ -604,8 +590,7 @@ def _signal_diagnostic(
                 quintile=index,
                 n=len(bucket),
                 mean_neighbor_residual=(
-                    sum(float(getattr(row, signal_field)) for row in bucket)
-                    / len(bucket)
+                    sum(float(getattr(row, signal_field)) for row in bucket) / len(bucket)
                 ),
                 mean_realized_core_residual=(
                     sum(row.core_residual_favorite for row in bucket) / len(bucket)
@@ -615,8 +600,7 @@ def _signal_diagnostic(
     top_minus_bottom = None
     if len(quintiles) >= 2:
         top_minus_bottom = (
-            quintiles[-1].mean_realized_core_residual
-            - quintiles[0].mean_realized_core_residual
+            quintiles[-1].mean_realized_core_residual - quintiles[0].mean_realized_core_residual
         )
     return SignalDiagnostic(
         n=len(available),
@@ -652,11 +636,7 @@ def _density_diagnostic(rows: list[_NeighborEvidenceRow]) -> DensityDiagnostic:
         if not bucket:
             continue
         brier_values = [
-            (
-                row.core_probability_favorite
-                - (1.0 if row.outcome_favorite else 0.0)
-            )
-            ** 2
+            (row.core_probability_favorite - (1.0 if row.outcome_favorite else 0.0)) ** 2
             for row in bucket
         ]
         log_losses = [_core_log_loss_contribution(row) for row in bucket]
@@ -664,30 +644,25 @@ def _density_diagnostic(rows: list[_NeighborEvidenceRow]) -> DensityDiagnostic:
             DensityQuintile(
                 quintile=index,
                 n=len(bucket),
-                mean_distance=(
-                    sum(row.mean_distance_100 for row in bucket) / len(bucket)
-                ),
+                mean_distance=(sum(row.mean_distance_100 for row in bucket) / len(bucket)),
                 core_brier_contribution=sum(brier_values) / len(bucket),
                 core_log_loss_contribution=sum(log_losses) / len(bucket),
                 core_accuracy=(
                     sum(
-                        (row.core_probability_favorite >= 0.5)
-                        == row.outcome_favorite
+                        (row.core_probability_favorite >= 0.5) == row.outcome_favorite
                         for row in bucket
                     )
                     / len(bucket)
                 ),
                 mean_absolute_core_residual=(
-                    sum(abs(row.core_residual_favorite) for row in bucket)
-                    / len(bucket)
+                    sum(abs(row.core_residual_favorite) for row in bucket) / len(bucket)
                 ),
             )
         )
     top_minus_bottom = None
     if len(quintiles) >= 2:
         top_minus_bottom = (
-            quintiles[-1].core_log_loss_contribution
-            - quintiles[0].core_log_loss_contribution
+            quintiles[-1].core_log_loss_contribution - quintiles[0].core_log_loss_contribution
         )
     return DensityDiagnostic(
         n=len(rows),
@@ -705,19 +680,11 @@ def _density_diagnostic(rows: list[_NeighborEvidenceRow]) -> DensityDiagnostic:
 
 
 def _recent_rows(rows: list[_NeighborEvidenceRow]) -> list[_NeighborEvidenceRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _recent_predictions(rows: list[_MetaPredictionRow]) -> list[_MetaPredictionRow]:
-    return [
-        row
-        for row in rows
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    return [row for row in rows if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
 
 
 def _shared_player_sensitivity(
@@ -725,11 +692,7 @@ def _shared_player_sensitivity(
     *,
     min_meta_train_rows: int,
 ) -> SharedPlayerSensitivity:
-    eligible = [
-        row
-        for row in evidence
-        if row.nonsharing_neighbor_residual_100 is not None
-    ]
+    eligible = [row for row in evidence if row.nonsharing_neighbor_residual_100 is not None]
     predictions, yearly = _meta_predictions(
         eligible,
         signal_field="nonsharing_neighbor_residual_100",
@@ -742,9 +705,7 @@ def _shared_player_sensitivity(
         primary_neighbor_rows=len(evidence),
         coverage=(len(eligible) / len(evidence) if evidence else 0.0),
         comparison=_comparison(predictions) if predictions else None,
-        recent_comparison=(
-            _comparison(recent_predictions) if recent_predictions else None
-        ),
+        recent_comparison=(_comparison(recent_predictions) if recent_predictions else None),
         yearly=yearly,
         residual=_signal_diagnostic(
             eligible,
@@ -829,9 +790,7 @@ def run_genome_neighborhood(
 
     comparison = _comparison(predictions)
     recent_predictions = _recent_predictions(predictions)
-    recent_comparison = (
-        _comparison(recent_predictions) if recent_predictions else None
-    )
+    recent_comparison = _comparison(recent_predictions) if recent_predictions else None
     residual = _signal_diagnostic(
         evidence,
         signal_field="neighbor_residual_100",
@@ -846,9 +805,7 @@ def run_genome_neighborhood(
         else None
     )
     density = _density_diagnostic(evidence)
-    recent_density = (
-        _density_diagnostic(recent_evidence) if recent_evidence else None
-    )
+    recent_density = _density_diagnostic(recent_evidence) if recent_evidence else None
     shared = _shared_player_sensitivity(
         evidence,
         min_meta_train_rows=min_meta_train_rows,
@@ -857,14 +814,12 @@ def run_genome_neighborhood(
     joint_wins = sum(item.joint_genome_win for item in yearly)
     joint_win_rate = joint_wins / len(yearly) if yearly else 0.0
     recent_brier_ok = (
-        recent_comparison.genome_challenger.brier
-        <= recent_comparison.meta_control.brier
+        recent_comparison.genome_challenger.brier <= recent_comparison.meta_control.brier
         if recent_comparison is not None
         else None
     )
     recent_log_loss_ok = (
-        recent_comparison.genome_challenger.log_loss
-        <= recent_comparison.meta_control.log_loss
+        recent_comparison.genome_challenger.log_loss <= recent_comparison.meta_control.log_loss
         if recent_comparison is not None
         else None
     )
@@ -898,16 +853,14 @@ def run_genome_neighborhood(
     )
 
     density_log_slope_positive = bool(
-        density.log_loss_slope_on_distance is not None
-        and density.log_loss_slope_on_distance > 0.0
+        density.log_loss_slope_on_distance is not None and density.log_loss_slope_on_distance > 0.0
     )
     density_abs_slope_positive = bool(
         density.absolute_residual_slope_on_distance is not None
         and density.absolute_residual_slope_on_distance > 0.0
     )
     density_spread_positive = bool(
-        density.top_minus_bottom_log_loss is not None
-        and density.top_minus_bottom_log_loss > 0.0
+        density.top_minus_bottom_log_loss is not None and density.top_minus_bottom_log_loss > 0.0
     )
     recent_density_direction = (
         bool(
@@ -940,15 +893,9 @@ def run_genome_neighborhood(
             neighbor_residual_100=evidence_by_id[row.match_id].neighbor_residual_100,
             mean_distance_100=evidence_by_id[row.match_id].mean_distance_100,
             kth_distance_100=evidence_by_id[row.match_id].kth_distance_100,
-            shared_player_fraction_100=(
-                evidence_by_id[row.match_id].shared_player_fraction_100
-            ),
-            genome_missing_fraction=(
-                evidence_by_id[row.match_id].genome_missing_fraction
-            ),
-            neighbor_ids_digest_100=(
-                evidence_by_id[row.match_id].neighbor_ids_digest_100
-            ),
+            shared_player_fraction_100=(evidence_by_id[row.match_id].shared_player_fraction_100),
+            genome_missing_fraction=(evidence_by_id[row.match_id].genome_missing_fraction),
+            neighbor_ids_digest_100=(evidence_by_id[row.match_id].neighbor_ids_digest_100),
             nonsharing_neighbor_ids_digest_100=(
                 evidence_by_id[row.match_id].nonsharing_neighbor_ids_digest_100
             ),

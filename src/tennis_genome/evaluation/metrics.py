@@ -122,8 +122,7 @@ def expected_calibration_error(
     bins = calibration_bins(ys, ps, n_bins=n_bins)
     total = len(ys)
     return sum(
-        (bucket.n / total) * abs(bucket.mean_probability - bucket.observed_rate)
-        for bucket in bins
+        (bucket.n / total) * abs(bucket.mean_probability - bucket.observed_rate) for bucket in bins
     )
 
 

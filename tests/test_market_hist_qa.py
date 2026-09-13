@@ -125,9 +125,7 @@ def _build_case(
                 join_hash = _sha(f"join:{match_id}")
                 market_time = datetime(year, 6, 15, 18, 0, tzinfo=UTC)
                 close_executable = not (
-                    tour == "WTA"
-                    and year == 2024
-                    and index >= int(count * wta_2024_close_fraction)
+                    tour == "WTA" and year == 2024 and index >= int(count * wta_2024_close_fraction)
                 )
                 checkpoints = [
                     _checkpoint(
@@ -187,9 +185,7 @@ def _build_case(
                         )
                     )
                 record_source_hash = (
-                    "f" * 64
-                    if tamper_record_source_hash and not market_lines
-                    else source_hash
+                    "f" * 64 if tamper_record_source_hash and not market_lines else source_hash
                 )
                 market_lines.append(
                     json.dumps(
@@ -227,9 +223,7 @@ def _build_case(
                 "rank_b": 30,
             }
         )
-        outcome_rows.append(
-            {"match_id": boundary_id, "retirement": False, "walkover": False}
-        )
+        outcome_rows.append({"match_id": boundary_id, "retirement": False, "walkover": False})
 
     records_path = root / "market_hist_001_records.jsonl"
     records_path.write_text("\n".join(market_lines) + "\n", encoding="utf-8")
@@ -367,9 +361,7 @@ def test_checkpoint_provenance_mismatch_blocks_companion(
 ) -> None:
     lines = eligible_case.records.read_text(encoding="utf-8").splitlines()
     first = json.loads(lines[0])
-    earlier = next(
-        item for item in first["checkpoints"] if item["checkpoint_name"] == "T-15M"
-    )
+    earlier = next(item for item in first["checkpoints"] if item["checkpoint_name"] == "T-15M")
     earlier["match_id"] = "wrong-match"
     lines[0] = json.dumps(first, sort_keys=True)
     altered = tmp_path / "altered.jsonl"

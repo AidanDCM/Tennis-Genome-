@@ -77,22 +77,12 @@ def run_recent_family_diagnostic(
         raise ValueError("no chronological years are available for recent diagnostics")
 
     full_features = CORE_FEATURES + _all_family_features()
-    family_yearly: dict[str, list[YearDelta]] = {
-        family: [] for family in FAMILY_FEATURES
-    }
+    family_yearly: dict[str, list[YearDelta]] = {family: [] for family in FAMILY_FEATURES}
     family_y: dict[str, list[bool]] = {family: [] for family in FAMILY_FEATURES}
-    family_core_probs: dict[str, list[float]] = {
-        family: [] for family in FAMILY_FEATURES
-    }
-    family_add_probs: dict[str, list[float]] = {
-        family: [] for family in FAMILY_FEATURES
-    }
-    family_full_probs: dict[str, list[float]] = {
-        family: [] for family in FAMILY_FEATURES
-    }
-    family_without_probs: dict[str, list[float]] = {
-        family: [] for family in FAMILY_FEATURES
-    }
+    family_core_probs: dict[str, list[float]] = {family: [] for family in FAMILY_FEATURES}
+    family_add_probs: dict[str, list[float]] = {family: [] for family in FAMILY_FEATURES}
+    family_full_probs: dict[str, list[float]] = {family: [] for family in FAMILY_FEATURES}
+    family_without_probs: dict[str, list[float]] = {family: [] for family in FAMILY_FEATURES}
 
     for test_year in recent_years:
         train = [row for row in rows if row.year < test_year]
@@ -121,15 +111,9 @@ def run_recent_family_diagnostic(
                     year=test_year,
                     n=len(test),
                     add_one_brier_improvement=core_score.brier - add_score.brier,
-                    add_one_log_loss_improvement=(
-                        core_score.log_loss - add_score.log_loss
-                    ),
-                    ablation_brier_contribution=(
-                        without_score.brier - full_score.brier
-                    ),
-                    ablation_log_loss_contribution=(
-                        without_score.log_loss - full_score.log_loss
-                    ),
+                    add_one_log_loss_improvement=(core_score.log_loss - add_score.log_loss),
+                    ablation_brier_contribution=(without_score.brier - full_score.brier),
+                    ablation_log_loss_contribution=(without_score.log_loss - full_score.log_loss),
                 )
             )
             family_y[family].extend(y_year)
@@ -154,12 +138,8 @@ def run_recent_family_diagnostic(
                 add_one_brier_improvement=core.brier - add.brier,
                 add_one_log_loss_improvement=core.log_loss - add.log_loss,
                 ablation_brier_contribution=without.brier - full.brier,
-                ablation_log_loss_contribution=(
-                    without.log_loss - full.log_loss
-                ),
-                brier_winning_years=sum(
-                    item.add_one_brier_improvement > 0.0 for item in yearly
-                ),
+                ablation_log_loss_contribution=(without.log_loss - full.log_loss),
+                brier_winning_years=sum(item.add_one_brier_improvement > 0.0 for item in yearly),
                 log_loss_winning_years=sum(
                     item.add_one_log_loss_improvement > 0.0 for item in yearly
                 ),

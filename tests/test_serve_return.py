@@ -134,8 +134,7 @@ def test_exp003_runs_only_after_prior_year_training_population_exists():
             matches.append(
                 _match(
                     match_id=f"m{match_number}",
-                    event_date=date(start.year + year_offset, 1, 1)
-                    + timedelta(days=index),
+                    event_date=date(start.year + year_offset, 1, 1) + timedelta(days=index),
                     player_a=player_a,
                     player_b=player_b,
                     a_won=a_won,

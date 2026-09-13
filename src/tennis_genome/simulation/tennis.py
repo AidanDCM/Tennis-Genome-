@@ -111,9 +111,9 @@ def tiebreak_win_probability(
             p_a_serve=p_a,
             p_b_serve=p_b,
         )
-        return p_a_point * recurse(a_points + 1, b_points) + (
-            1.0 - p_a_point
-        ) * recurse(a_points, b_points + 1)
+        return p_a_point * recurse(a_points + 1, b_points) + (1.0 - p_a_point) * recurse(
+            a_points, b_points + 1
+        )
 
     return recurse(0, 0)
 
@@ -147,9 +147,9 @@ def set_win_probability(
         game_index = a_games + b_games
         server_a = first_server_a if game_index % 2 == 0 else not first_server_a
         p_a_game = hold_a if server_a else 1.0 - hold_b
-        return p_a_game * recurse(a_games + 1, b_games) + (
-            1.0 - p_a_game
-        ) * recurse(a_games, b_games + 1)
+        return p_a_game * recurse(a_games + 1, b_games) + (1.0 - p_a_game) * recurse(
+            a_games, b_games + 1
+        )
 
     return recurse(0, 0)
 
@@ -164,9 +164,7 @@ def match_win_probability(set_win_probability_a: float, *, best_of: int) -> floa
         raise ValueError("best_of must be 3 or 5")
     required = best_of // 2 + 1
     return sum(
-        comb(best_of, won_sets)
-        * p_set**won_sets
-        * (1.0 - p_set) ** (best_of - won_sets)
+        comb(best_of, won_sets) * p_set**won_sets * (1.0 - p_set) ** (best_of - won_sets)
         for won_sets in range(required, best_of + 1)
     )
 

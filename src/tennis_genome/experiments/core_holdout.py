@@ -137,9 +137,7 @@ def run_core_holdout(
                 feature_names=feature_names,
                 score=score,
                 brier_improvement_vs_benchmark=benchmark_score.brier - score.brier,
-                log_loss_improvement_vs_benchmark=(
-                    benchmark_score.log_loss - score.log_loss
-                ),
+                log_loss_improvement_vs_benchmark=(benchmark_score.log_loss - score.log_loss),
                 accuracy_change_vs_benchmark=score.accuracy - benchmark_score.accuracy,
             )
         )

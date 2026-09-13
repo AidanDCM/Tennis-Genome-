@@ -100,9 +100,7 @@ def load_closing_market_rows(path: str | Path) -> dict[str, ClosingMarketRow]:
             if not checkpoints:
                 continue
             if len(checkpoints) != 1:
-                raise ValueError(
-                    f"multiple CLOSE_PREPLAY checkpoints at line {line_number}"
-                )
+                raise ValueError(f"multiple CLOSE_PREPLAY checkpoints at line {line_number}")
             checkpoint = checkpoints[0]
             if checkpoint.get("data_package") not in {"ADVANCED", "PRO"}:
                 continue

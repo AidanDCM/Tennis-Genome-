@@ -100,6 +100,5 @@ def verify_crosswalk(payload: dict[str, object]) -> SportradarCanonicalCrosswalk
 
 def crosswalk_mapping(crosswalk: SportradarCanonicalCrosswalk) -> dict[str, str]:
     return {
-        entry.sportradar_competitor_id: entry.canonical_player_id
-        for entry in crosswalk.entries
+        entry.sportradar_competitor_id: entry.canonical_player_id for entry in crosswalk.entries
     }

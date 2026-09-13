@@ -46,11 +46,7 @@ def _calibrated_row(index: int, probability: float) -> _CalibratedRow:
 
 
 def test_nested_calibration_uses_only_prior_oof_years() -> None:
-    oof = [
-        _oof_row(index, year)
-        for year in (2022, 2023, 2024)
-        for index in range(12)
-    ]
+    oof = [_oof_row(index, year) for year in (2022, 2023, 2024) for index in range(12)]
 
     rows, yearly = calibrate_oof_predictions(
         oof,
@@ -141,13 +137,8 @@ def test_full_lab_produces_all_calibrators_and_never_uses_2026() -> None:
     )
 
     assert {item.name for item in report.calibrators} == set(CALIBRATOR_NAMES)
-    assert {item.calibrator for item in report.selective_prediction} == set(
-        CALIBRATOR_NAMES
-    )
-    assert all(
-        len(item.coverage) == len(COVERAGE_LEVELS)
-        for item in report.selective_prediction
-    )
+    assert {item.calibrator for item in report.selective_prediction} == set(CALIBRATOR_NAMES)
+    assert all(len(item.coverage) == len(COVERAGE_LEVELS) for item in report.selective_prediction)
     assert max(report.base_oof_years) == 2025
     assert max(report.calibration_years) == 2025
     assert 2026 not in report.base_oof_years

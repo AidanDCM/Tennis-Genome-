@@ -145,9 +145,7 @@ def test_combined_decision_emits_all_fixed_reliability_views(tmp_path: Path) -> 
         "challenger_probability_a",
     }
     assert all(
-        bucket["n"] > 0
-        for buckets in atp["market_edge_adv_001"].values()
-        for bucket in buckets
+        bucket["n"] > 0 for buckets in atp["market_edge_adv_001"].values() for bucket in buckets
     )
 
 
@@ -156,9 +154,7 @@ def test_combined_decision_fails_closed_on_missing_claim(tmp_path: Path) -> None
     family = payload["market_edge_001"]["family_report"]  # type: ignore[index]
     family["claims"] = family["claims"][:-1]  # type: ignore[index]
     try:
-        market_validation_decision.build_validation_decision_artifact(
-            _write(tmp_path, payload)
-        )
+        market_validation_decision.build_validation_decision_artifact(_write(tmp_path, payload))
     except ValueError as exc:
         assert "four-claim" in str(exc)
     else:

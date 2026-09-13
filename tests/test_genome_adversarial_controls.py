@@ -67,11 +67,7 @@ def _synthetic_match(year: int, index: int) -> HistoricalMatch:
 
 
 def _history() -> list[HistoricalMatch]:
-    return [
-        _synthetic_match(year, index)
-        for year in range(2010, 2016)
-        for index in range(120)
-    ]
+    return [_synthetic_match(year, index) for year in range(2010, 2016) for index in range(120)]
 
 
 def test_three_registered_representations_are_distinct_and_full_is_frozen() -> None:
@@ -133,12 +129,8 @@ def test_all_registered_neighbor_signals_exist_for_every_meta_prediction() -> No
         assert row.probability_neighbor_residual == pytest.approx(
             float(row.probability_neighbor_residual)
         )
-        assert row.core_neighbor_residual == pytest.approx(
-            float(row.core_neighbor_residual)
-        )
-        assert row.full_neighbor_residual == pytest.approx(
-            float(row.full_neighbor_residual)
-        )
+        assert row.core_neighbor_residual == pytest.approx(float(row.core_neighbor_residual))
+        assert row.full_neighbor_residual == pytest.approx(float(row.full_neighbor_residual))
 
 
 def test_genome_adversarial_controls_reject_spent_post_2025_data() -> None:

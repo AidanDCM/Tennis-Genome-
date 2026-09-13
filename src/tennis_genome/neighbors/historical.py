@@ -46,10 +46,7 @@ def _raw_matrix(genomes: list[GenomeVector]) -> list[list[float]]:
 
 def _shares_player(target: GenomeVector, candidate: NeighborCandidate) -> bool:
     target_players = {target.player_a_id, target.player_b_id}
-    return (
-        candidate.player_a_id in target_players
-        or candidate.player_b_id in target_players
-    )
+    return candidate.player_a_id in target_players or candidate.player_b_id in target_players
 
 
 class HistoricalGenomeIndex:
@@ -171,9 +168,7 @@ class HistoricalGenomeIndex:
         return NeighborSummary(
             target_match_id=target.match_id,
             k=k,
-            mean_residual=(
-                sum(candidate.residual_favorite for candidate in selected) / k
-            ),
+            mean_residual=(sum(candidate.residual_favorite for candidate in selected) / k),
             nearest_distance=distances[0],
             mean_distance=sum(distances) / k,
             kth_distance=distances[-1],

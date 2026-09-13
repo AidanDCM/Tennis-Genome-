@@ -180,12 +180,8 @@ def build_market_edge_adversarial_artifact(
         raise ValueError("MARKET-EDGE-ADV-001 canonical input contains post-2025 rows")
 
     model_sets: dict[tuple[Tour, SignalName], dict[str, FrozenCoreSignalValue]] = {
-        ("ATP", "profile_gap"): load_profile_gap_core_signal(
-            paths["profile_gap_atp"], tour="ATP"
-        ),
-        ("WTA", "profile_gap"): load_profile_gap_core_signal(
-            paths["profile_gap_wta"], tour="WTA"
-        ),
+        ("ATP", "profile_gap"): load_profile_gap_core_signal(paths["profile_gap_atp"], tour="ATP"),
+        ("WTA", "profile_gap"): load_profile_gap_core_signal(paths["profile_gap_wta"], tour="WTA"),
         ("ATP", "genome"): load_genome_core_signal(paths["genome_atp"], tour="ATP"),
         ("WTA", "genome"): load_genome_core_signal(paths["genome_wta"], tour="WTA"),
     }

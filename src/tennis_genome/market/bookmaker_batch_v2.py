@@ -284,9 +284,7 @@ def build_market_book_records(
         for quote in _load_manifest_file(item, roots=roots):
             if not start <= quote.match_date <= end:
                 raise ValueError("manifest-included bookmaker row is outside requested interval")
-            status, candidates, join, odds_a, odds_b = _resolve_quote(
-                quote, pair_index, date_index
-            )
+            status, candidates, join, odds_a, odds_b = _resolve_quote(quote, pair_index, date_index)
             records.append(
                 _base_record(
                     quote,
@@ -306,9 +304,7 @@ def build_market_book_records(
     join_counts = Counter(str(record["join_status"]) for record in finalized)
     source_counts = Counter(str(record["source_family"]) for record in finalized)
     selected_counts = Counter(
-        str(record["source_family"])
-        for record in finalized
-        if record["selected_primary"] is True
+        str(record["source_family"]) for record in finalized if record["selected_primary"] is True
     )
     summary = BookmakerMarketSummary(
         batch_version=_BATCH_VERSION,

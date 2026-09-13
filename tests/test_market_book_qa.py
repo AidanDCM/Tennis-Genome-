@@ -60,9 +60,7 @@ def _make_case(
                         "event_date": date(year, 6, 15),
                     }
                 )
-                outcome_rows.append(
-                    {"match_id": match_id, "retirement": False, "walkover": False}
-                )
+                outcome_rows.append({"match_id": match_id, "retirement": False, "walkover": False})
                 specs.append((match_id, tour, year, player_a, player_b, row_number))
                 row_number += 1
     source = valuebet / "valuebet.csv"
@@ -144,8 +142,7 @@ def _make_case(
     records_path = root / "records.jsonl"
     records_path.write_text(
         "".join(
-            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n"
-            for record in records
+            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in records
         ),
         encoding="utf-8",
     )

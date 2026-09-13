@@ -104,8 +104,7 @@ def test_conflicting_valuebet_quotes_fail_that_source_and_use_frozen_fallback(
         encoding="utf-8",
     )
     (atp / "atp-2025.csv").write_text(
-        "ATP,Date,Winner,Loser,PSW,PSL\n"
-        "1,2/1/25,Alpha A,Beta B,1.85,2.05\n",
+        "ATP,Date,Winner,Loser,PSW,PSL\n1,2/1/25,Alpha A,Beta B,1.85,2.05\n",
         encoding="utf-8",
     )
     manifest = build_bookmaker_source_manifest(

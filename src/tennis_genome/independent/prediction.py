@@ -82,8 +82,7 @@ def reject_market_or_outcome_fields(payload: Mapping[str, Any]) -> None:
     forbidden = sorted(_forbidden_keys(payload))
     if forbidden:
         raise ValueError(
-            "market/outcome fields are forbidden inside TGE-Independent-v1: "
-            + ", ".join(forbidden)
+            "market/outcome fields are forbidden inside TGE-Independent-v1: " + ", ".join(forbidden)
         )
 
 

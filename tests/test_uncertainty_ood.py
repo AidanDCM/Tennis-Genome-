@@ -109,9 +109,7 @@ def test_distance_conditioning_never_fits_target_year_distribution() -> None:
 
     first_a = next(row for row in first if row.base.match_id == "target-a")
     altered_a = next(row for row in altered if row.base.match_id == "target-a")
-    assert first_a.conditioned_unfamiliarity == pytest.approx(
-        altered_a.conditioned_unfamiliarity
-    )
+    assert first_a.conditioned_unfamiliarity == pytest.approx(altered_a.conditioned_unfamiliarity)
 
 
 def _synthetic_match(year: int, index: int, *, tour: str = "ATP") -> HistoricalMatch:

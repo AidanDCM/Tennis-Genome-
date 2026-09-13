@@ -133,13 +133,9 @@ def test_profile_strength_logit_and_gap_identities_hold():
     prediction = model.predict_pair(pairs[0])
 
     profile_logit = log(prediction.probability_a / (1.0 - prediction.probability_a))
-    elo_logit = log(
-        prediction.elo_probability_a / (1.0 - prediction.elo_probability_a)
-    )
+    elo_logit = log(prediction.elo_probability_a / (1.0 - prediction.elo_probability_a))
 
-    assert profile_logit == pytest.approx(
-        prediction.profile_score_a - prediction.profile_score_b
-    )
+    assert profile_logit == pytest.approx(prediction.profile_score_a - prediction.profile_score_b)
     assert elo_logit == pytest.approx(prediction.elo_score_a - prediction.elo_score_b)
     assert prediction.profile_gap_match == pytest.approx(profile_logit - elo_logit)
 

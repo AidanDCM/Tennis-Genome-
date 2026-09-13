@@ -36,8 +36,7 @@ def test_walk_forward_predictions_are_future_outcome_invariant() -> None:
     original, _ = _walk_forward(rows, min_adversary_train_rows=8)
 
     changed = [
-        replace(row, outcome_a=not row.outcome_a) if row.year == 2005 else row
-        for row in rows
+        replace(row, outcome_a=not row.outcome_a) if row.year == 2005 else row for row in rows
     ]
     mutated, _ = _walk_forward(changed, min_adversary_train_rows=8)
 

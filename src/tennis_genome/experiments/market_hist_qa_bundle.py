@@ -161,9 +161,7 @@ def _checkpoint_match_sets(
             continue
         for checkpoint_index, checkpoint in enumerate(checkpoints, start=1):
             if not isinstance(checkpoint, dict):
-                errors.append(
-                    f"record {record_index} checkpoint {checkpoint_index}: not an object"
-                )
+                errors.append(f"record {record_index} checkpoint {checkpoint_index}: not an object")
                 continue
             name_text = str(checkpoint.get("checkpoint_name", ""))
             if name_text not in _CHECKPOINTS:
@@ -305,9 +303,7 @@ def build_market_hist_qa_bundle(
         except (ValueError, KeyError, TypeError, OSError, json.JSONDecodeError) as exc:
             companion_errors.append(f"checkpoint coverage validation failed: {exc}")
 
-    effective_status = (
-        "BLOCKED_STRUCTURAL" if companion_errors else qa.overall_status
-    )
+    effective_status = "BLOCKED_STRUCTURAL" if companion_errors else qa.overall_status
     paths = {
         "source_manifest": Path(source_manifest_path),
         "market_hist_records": Path(market_hist_records_path),

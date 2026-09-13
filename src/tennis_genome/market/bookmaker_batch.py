@@ -359,9 +359,7 @@ def build_market_book_records(
     join_counts = Counter(str(record["join_status"]) for record in finalized)
     source_counts = Counter(str(record["source_family"]) for record in finalized)
     selected_counts = Counter(
-        str(record["source_family"])
-        for record in finalized
-        if record["selected_primary"] is True
+        str(record["source_family"]) for record in finalized if record["selected_primary"] is True
     )
     summary = BookmakerMarketSummary(
         batch_version=_BATCH_VERSION,
@@ -385,8 +383,7 @@ def write_market_book_records(records: list[dict[str, Any]], path: str | Path) -
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
         "".join(
-            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n"
-            for record in records
+            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in records
         ),
         encoding="utf-8",
     )

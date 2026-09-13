@@ -229,9 +229,7 @@ def test_live_or_mismatched_market_cannot_be_compared() -> None:
 
 
 def test_market_schemas_keep_raw_and_derived_records_separate() -> None:
-    raw_schema = json.loads(
-        Path("schemas/market_snapshot.schema.json").read_text(encoding="utf-8")
-    )
+    raw_schema = json.loads(Path("schemas/market_snapshot.schema.json").read_text(encoding="utf-8"))
     comparison_schema = json.loads(
         Path("schemas/market_comparison.schema.json").read_text(encoding="utf-8")
     )

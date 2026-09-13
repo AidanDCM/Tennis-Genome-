@@ -287,14 +287,10 @@ def _fit_model(
 
     market_core_corr = _correlation(market_logits, core_logits) if include_core else None
     market_signal_corr = (
-        _correlation(market_logits, z_signal)
-        if include_signal and z_signal is not None
-        else None
+        _correlation(market_logits, z_signal) if include_signal and z_signal is not None else None
     )
     core_signal_corr = (
-        _correlation(core_logits, z_signal)
-        if include_signal and z_signal is not None
-        else None
+        _correlation(core_logits, z_signal) if include_signal and z_signal is not None else None
     )
     years = [row.year for row in rows]
     core_index = 2 if include_core else None
@@ -302,9 +298,7 @@ def _fit_model(
     return AdversarialFit(
         intercept=float(result.x[0]),
         market_logit_slope=float(result.x[1]),
-        core_logit_slope=(
-            None if core_index is None else float(result.x[core_index])
-        ),
+        core_logit_slope=(None if core_index is None else float(result.x[core_index])),
         beta=None if beta_index is None else float(result.x[beta_index]),
         signal_mean=signal_mean,
         signal_sd=signal_sd,
@@ -469,11 +463,7 @@ def _window_summary(
                 challenger_fit=first.challenger_fit,
             )
         )
-    recent_rows = [
-        row
-        for row in predictions
-        if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR
-    ]
+    recent_rows = [row for row in predictions if _RECENT_START_YEAR <= row.year <= _RECENT_END_YEAR]
     return WindowSummary(
         training_window=training_window,
         prediction_n=len(predictions),
@@ -630,12 +620,8 @@ def run_market_edge_adversarial_claim(
         and concentration_pass
     )
     diagnostics = PromotionDiagnostics(
-        aggregate_brier_positive=(
-            primary.comparison.brier_improvement_vs_market_core > 0.0
-        ),
-        aggregate_log_loss_positive=(
-            primary.comparison.log_loss_improvement_vs_market_core > 0.0
-        ),
+        aggregate_brier_positive=(primary.comparison.brier_improvement_vs_market_core > 0.0),
+        aggregate_log_loss_positive=(primary.comparison.log_loss_improvement_vs_market_core > 0.0),
         brier_bootstrap_lower_positive=brier_inference.bootstrap.lower > 0.0,
         log_loss_bootstrap_lower_positive=log_loss_inference.bootstrap.lower > 0.0,
         brier_sign_flip_p=brier_inference.sign_flip.p_value,

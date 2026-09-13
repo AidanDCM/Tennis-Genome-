@@ -318,8 +318,7 @@ def _load_eligible_canonical(
     outcome["match_id"] = outcome["match_id"].astype(str)
     frame["event_date"] = pd.to_datetime(frame["event_date"]).dt.date
     frame = frame[
-        (frame["event_date"] >= denominator_start)
-        & (frame["event_date"] <= denominator_end)
+        (frame["event_date"] >= denominator_start) & (frame["event_date"] <= denominator_end)
     ].copy()
     frame = frame.merge(
         outcome,
@@ -331,14 +330,10 @@ def _load_eligible_canonical(
     missing_outcomes = frame.loc[frame["_merge"] != "both", "match_id"].astype(str).tolist()
     if missing_outcomes:
         raise ValueError(
-            "outcome ledger is incomplete for canonical QA denominator: "
-            f"{missing_outcomes[:5]}"
+            f"outcome ledger is incomplete for canonical QA denominator: {missing_outcomes[:5]}"
         )
     frame = frame.drop(columns=["_merge"])
-    frame = frame[
-        (~frame["retirement"].astype(bool))
-        & (~frame["walkover"].astype(bool))
-    ].copy()
+    frame = frame[(~frame["retirement"].astype(bool)) & (~frame["walkover"].astype(bool))].copy()
     if not set(frame["tour"].astype(str)).issubset({"ATP", "WTA"}):
         raise ValueError("canonical QA population contains invalid tour")
     frame["year"] = pd.to_datetime(frame["event_date"]).dt.year
@@ -499,9 +494,7 @@ def run_market_book_qa(
     overlap = _overlap_differences(records)
     join_counts = Counter(str(record.get("join_status")) for record in records)
     selected_sources = Counter(
-        str(record["source_family"])
-        for record in records
-        if record.get("selected_primary") is True
+        str(record["source_family"]) for record in records if record.get("selected_primary") is True
     )
     input_hashes = {
         "source_manifest": _sha256_file(source_manifest_path),
