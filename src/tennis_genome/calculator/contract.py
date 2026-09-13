@@ -22,6 +22,9 @@ from tennis_genome.models.core_v1_spec import (
     strict_a_features,
 )
 
+FROZEN_PRODUCTION_BUNDLE_SHA256 = (
+    "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1"
+)
 _ALIGNMENT_INPUTS = (
     "core_probability_favorite_logit",
     "neighbor_residual_k100",
@@ -118,6 +121,8 @@ def _validate_tour_contract(artifact: TourProductionArtifact, *, tour: str) -> N
 def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None:
     """Fail closed if a self-consistent bundle is not the frozen production contract."""
 
+    if bundle.artifact_sha256 != FROZEN_PRODUCTION_BUNDLE_SHA256:
+        raise ValueError("production bundle SHA-256 is not the sealed TGE-Independent-v1")
     if bundle.model_version != MODEL_VERSION:
         raise ValueError("unexpected independent model version")
     if bundle.architecture_hash != architecture_hash():
