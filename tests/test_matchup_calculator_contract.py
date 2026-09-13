@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
 from tennis_genome.calculator.contract import (
     FROZEN_PRODUCTION_BUNDLE_SHA256,
+    validate_frozen_bundle_authenticity,
     validate_frozen_bundle_contract,
 )
 from tennis_genome.independent.production import (
@@ -17,6 +19,7 @@ from tennis_genome.independent.production import (
     PRIMARY_K,
     PRODUCTION_VERSION,
     canonical_content_sha256,
+    load_bundle,
 )
 from tests.test_matchup_calculator import _calculator_and_inputs
 
@@ -26,15 +29,11 @@ def _valid_frozen_bundle():
     bundle = calculator.bundle
     atp = replace(
         bundle.atp,
-        canonical_content_sha256=canonical_content_sha256(
-            ACCEPTED_CANONICAL_CONTENT["ATP"]
-        ),
+        canonical_content_sha256=canonical_content_sha256(ACCEPTED_CANONICAL_CONTENT["ATP"]),
     )
     wta = replace(
         bundle.wta,
-        canonical_content_sha256=canonical_content_sha256(
-            ACCEPTED_CANONICAL_CONTENT["WTA"]
-        ),
+        canonical_content_sha256=canonical_content_sha256(ACCEPTED_CANONICAL_CONTENT["WTA"]),
     )
     return replace(
         bundle,
@@ -109,3 +108,15 @@ def test_frozen_bundle_contract_rejects_atp_canonical_source_change() -> None:
     changed_atp = replace(bundle.atp, canonical_content_sha256="0" * 64)
     with pytest.raises(ValueError, match="canonical content hash"):
         validate_frozen_bundle_contract(replace(bundle, atp=changed_atp))
+
+
+def test_frozen_contract_recomputes_in_memory_semantic_digest() -> None:
+    bundle = load_bundle(
+        Path("artifacts/tge_independent_v1_production/tge_independent_v1_production.json"),
+        verify_banks=False,
+    )
+    validate_frozen_bundle_authenticity(bundle)
+    altered_core = replace(bundle.atp.core, intercept=bundle.atp.core.intercept + 1.0)
+    altered = replace(bundle, atp=replace(bundle.atp, core=altered_core))
+    with pytest.raises(ValueError, match="semantic digest"):
+        validate_frozen_bundle_authenticity(altered)

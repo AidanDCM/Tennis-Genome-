@@ -379,11 +379,21 @@ def _timeline(
     *,
     event_id: str = "sr:sport_event:123",
     actual_start: str | None = "2026-09-12T17:01:00+00:00",
+    status: str = "closed",
+    winner_id: str = "sr:competitor:11",
+    winning_reason: str | None = None,
 ) -> dict[str, object]:
     events: list[dict[str, object]] = []
     if actual_start is not None:
         events.append({"id": 1, "type": "match_started", "time": actual_start})
-    return {"sport_event": {"id": event_id}, "timeline": events}
+    status_payload: dict[str, object] = {"status": status, "winner_id": winner_id}
+    if winning_reason is not None:
+        status_payload["winning_reason"] = winning_reason
+    return {
+        "sport_event": {"id": event_id},
+        "sport_event_status": status_payload,
+        "timeline": events,
+    }
 
 
 def test_live_intake_computes_market_and_binds_models_and_identity() -> None:
@@ -474,9 +484,7 @@ def test_actual_start_audit_excludes_moved_early_match() -> None:
                 "match_id": record.match_id,
                 "sportradar_event_id": record.sportradar_event_id,
                 "sportradar_timeline": _timeline(actual_start="2026-09-12T16:57:00+00:00"),
-                "outcome_a": True,
-                "retirement": False,
-                "walkover": False,
+                "observed_at": "2026-09-12T19:00:00+00:00",
             }
         ]
     )
@@ -504,9 +512,7 @@ def test_missing_match_started_is_auditable_exclusion_not_schedule_fallback() ->
                 "match_id": record.match_id,
                 "sportradar_event_id": record.sportradar_event_id,
                 "sportradar_timeline": _timeline(actual_start=None),
-                "outcome_a": True,
-                "retirement": False,
-                "walkover": False,
+                "observed_at": "2026-09-12T19:00:00+00:00",
             }
         ]
     )
@@ -531,9 +537,7 @@ def test_settlement_identity_mismatch_fails() -> None:
                 "match_id": record.match_id,
                 "sportradar_event_id": "sr:sport_event:wrong",
                 "sportradar_timeline": _timeline(event_id="sr:sport_event:wrong"),
-                "outcome_a": False,
-                "retirement": False,
-                "walkover": False,
+                "observed_at": "2026-09-12T19:00:00+00:00",
             }
         ]
     )
@@ -557,9 +561,7 @@ def test_eligible_verified_start_flows_into_existing_confirmation_engine() -> No
                 "match_id": record.match_id,
                 "sportradar_event_id": record.sportradar_event_id,
                 "sportradar_timeline": _timeline(actual_start="2026-09-12T17:01:00+00:00"),
-                "outcome_a": True,
-                "retirement": False,
-                "walkover": False,
+                "observed_at": "2026-09-12T19:00:00+00:00",
             }
         ]
     )
@@ -607,27 +609,53 @@ def test_rehashed_semantic_tampering_still_fails_closed() -> None:
         )
 
 
-@pytest.mark.parametrize(
-    ("field", "value"),
-    [
-        ("retirement", "false"),
-        ("walkover", 0),
-        ("outcome_a", "false"),
-    ],
-)
-def test_settlement_requires_real_json_booleans(field: str, value: object) -> None:
+def test_settlement_rejects_operator_asserted_outcome_flags() -> None:
     record = _build()
     raw: dict[str, object] = {
         "match_id": record.match_id,
         "sportradar_event_id": record.sportradar_event_id,
         "sportradar_timeline": _timeline(),
+        "observed_at": "2026-09-12T19:00:00+00:00",
         "outcome_a": True,
-        "retirement": False,
-        "walkover": False,
     }
-    raw[field] = value
-    with pytest.raises(ValueError, match="JSON boolean"):
+    with pytest.raises(ValueError, match="provider-derived"):
         load_live_settlements([raw])
+
+
+def test_settlement_requires_terminal_provider_status() -> None:
+    record = _build()
+    raw = {
+        "match_id": record.match_id,
+        "sportradar_event_id": record.sportradar_event_id,
+        "sportradar_timeline": _timeline(status="live"),
+        "observed_at": "2026-09-12T19:00:00+00:00",
+    }
+    with pytest.raises(ValueError, match="terminal Sportradar status"):
+        load_live_settlements([raw])
+
+
+def test_settlement_winner_must_match_prospective_competitors() -> None:
+    record = _build()
+    settlements = load_live_settlements(
+        [
+            {
+                "match_id": record.match_id,
+                "sportradar_event_id": record.sportradar_event_id,
+                "sportradar_timeline": _timeline(winner_id="sr:competitor:unrelated"),
+                "observed_at": "2026-09-12T19:00:00+00:00",
+            }
+        ]
+    )
+    with pytest.raises(ValueError, match="winner ID"):
+        evaluate_live_family(
+            [record],
+            settlements,
+            fit=_fit(),
+            profile_artifact=_profile(),
+            core_artifact=_core(),
+            ledger_sha256="6" * 64,
+            settlement_sha256="7" * 64,
+        )
 
 
 def test_exact_champion_artifact_hashes_are_runtime_pinned() -> None:

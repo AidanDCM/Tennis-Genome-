@@ -167,9 +167,7 @@ def _serve_return(*, match_id: str, event_date: date) -> ServeReturnSnapshot:
 def _core_artifact(
     feature_names: tuple[str, ...], *, elo_weight: float = 1.0
 ) -> CoreMappingArtifact:
-    coefficients = tuple(
-        elo_weight if name == "elo_logit" else 0.0 for name in feature_names
-    )
+    coefficients = tuple(elo_weight if name == "elo_logit" else 0.0 for name in feature_names)
     return CoreMappingArtifact(
         feature_names=feature_names,
         training_n=5000,
@@ -225,8 +223,8 @@ def _historical_bank(
         values = list(target.values)
         base_value = values[adjustable_index]
         values[adjustable_index] = (
-            (0.0 if base_value is None else float(base_value)) + index * 0.001
-        )
+            0.0 if base_value is None else float(base_value)
+        ) + index * 0.001
         records.append(
             ResidualRecord(
                 genome=replace(
@@ -258,9 +256,7 @@ def _historical_bank(
 
 def _wta_target(matchup: MatchupInput) -> GenomeVector:
     names = strict_a_features("WTA")
-    values = tuple(
-        float(getattr(matchup.foundational, name) or 0.0) for name in names
-    )
+    values = tuple(float(getattr(matchup.foundational, name) or 0.0) for name in names)
     return GenomeVector(
         match_id=matchup.match_id,
         event_date=matchup.foundational.event_date,
@@ -397,19 +393,16 @@ def test_atp_calculator_uses_frozen_alignment_and_diagnostics() -> None:
 
     assert result.prediction.p_player_a + result.prediction.p_player_b == pytest.approx(1.0)
     assert result.prediction.component_probabilities["strict_core_v1"] > 0.5
-    assert (
-        result.prediction.component_probabilities["full_genome_historical_alignment_k100"]
-        == pytest.approx(result.prediction.p_player_a)
-    )
+    assert result.prediction.component_probabilities[
+        "full_genome_historical_alignment_k100"
+    ] == pytest.approx(result.prediction.p_player_a)
     assert result.prediction.diagnostics["historical_neighbor_pool_size"] == 100
     assert result.prediction.diagnostics["historical_neighbor_k"] == 100
     assert result.prediction.diagnostics["conditioned_genome_unfamiliarity"] is not None
     assert result.prediction.diagnostics["hard_pass_policy_promoted"] is False
     assert result.prediction.reason_codes == ("NO_HARD_PASS_POLICY",)
     assert result.assessment_status == "DIAGNOSTIC_ONLY_NO_HARD_PASS"
-    assert result.fair_decimal_odds.player_a == pytest.approx(
-        1.0 / result.prediction.p_player_a
-    )
+    assert result.fair_decimal_odds.player_a == pytest.approx(1.0 / result.prediction.p_player_a)
 
 
 def test_wta_calculator_routes_pointsim_only_through_frozen_meta_mapping() -> None:
@@ -462,3 +455,42 @@ def test_calculator_output_keeps_market_fields_outside_independent_prediction() 
     assert "market" not in independent_payload
     assert "edge" not in independent_payload
     assert result.to_dict()["fair_decimal_odds"]["player_a"] is not None
+
+
+def test_matchup_input_rejects_noncanonical_player_order() -> None:
+    _, atp_input, _ = _calculator_and_inputs()
+    with pytest.raises(ValueError, match="canonical ascending"):
+        replace(
+            atp_input,
+            player_a_id=atp_input.player_b_id,
+            player_b_id=atp_input.player_a_id,
+            profile_pair=replace(
+                atp_input.profile_pair,
+                player_a=atp_input.profile_pair.player_b,
+                player_b=atp_input.profile_pair.player_a,
+            ),
+        )
+
+
+def test_calculator_rejects_pre_freeze_information_cutoff() -> None:
+    calculator, atp_input, _ = _calculator_and_inputs()
+    invalid = replace(
+        atp_input,
+        prediction_cutoff_at=datetime(2020, 1, 1, tzinfo=UTC),
+        created_at=datetime(2026, 9, 19, 18, 0, tzinfo=UTC),
+    )
+    with pytest.raises(ValueError, match="after the frozen production development period"):
+        calculator.calculate(invalid)
+
+
+def test_matchup_input_rejects_future_dated_profile() -> None:
+    _, atp_input, _ = _calculator_and_inputs()
+    future_profile = replace(
+        atp_input.profile_pair.player_a,
+        valid_from=date(2027, 1, 1),
+    )
+    with pytest.raises(ValueError, match="not yet valid"):
+        replace(
+            atp_input,
+            profile_pair=replace(atp_input.profile_pair, player_a=future_profile),
+        )

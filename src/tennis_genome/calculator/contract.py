@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import json
+from dataclasses import asdict
 from pathlib import Path
 
 from tennis_genome.independent.production import (
@@ -22,9 +25,7 @@ from tennis_genome.models.core_v1_spec import (
     strict_a_features,
 )
 
-FROZEN_PRODUCTION_BUNDLE_SHA256 = (
-    "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1"
-)
+FROZEN_PRODUCTION_BUNDLE_SHA256 = "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1"
 _ALIGNMENT_INPUTS = (
     "core_probability_favorite_logit",
     "neighbor_residual_k100",
@@ -67,9 +68,7 @@ def _validate_tour_contract(artifact: TourProductionArtifact, *, tour: str) -> N
     if bank.k != PRIMARY_K:
         raise ValueError(f"{tour} neighbor-bank k is not frozen at {PRIMARY_K}")
     if bank.candidate_limit != CANDIDATE_LIMIT:
-        raise ValueError(
-            f"{tour} neighbor candidate limit is not frozen at {CANDIDATE_LIMIT}"
-        )
+        raise ValueError(f"{tour} neighbor candidate limit is not frozen at {CANDIDATE_LIMIT}")
     if bank.row_count <= 0 or bank.row_count > artifact.eligible_training_n:
         raise ValueError(f"{tour} neighbor-bank row count is invalid")
     if artifact.alignment_meta.input_names != _ALIGNMENT_INPUTS:
@@ -118,8 +117,29 @@ def _validate_tour_contract(artifact: TourProductionArtifact, *, tour: str) -> N
         raise ValueError("WTA A+B diagnostic schema is not frozen")
 
 
+def _recomputed_bundle_sha256(bundle: IndependentProductionBundle) -> str:
+    payload = asdict(bundle)
+    payload.pop("artifact_sha256", None)
+    raw = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def validate_frozen_bundle_authenticity(bundle: IndependentProductionBundle) -> None:
+    """Authenticate in-memory content before allowing a production identity claim."""
+
+    if _recomputed_bundle_sha256(bundle) != bundle.artifact_sha256:
+        raise ValueError("production bundle semantic digest does not match object content")
+    validate_frozen_bundle_contract(bundle)
+
+
 def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None:
-    """Fail closed if a self-consistent bundle is not the frozen production contract."""
+    """Fail closed if a bundle does not match the frozen production contract."""
 
     if bundle.artifact_sha256 != FROZEN_PRODUCTION_BUNDLE_SHA256:
         raise ValueError("production bundle SHA-256 is not the sealed TGE-Independent-v1")
@@ -130,9 +150,7 @@ def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None
     if bundle.production_version != PRODUCTION_VERSION:
         raise ValueError("independent production version is not frozen")
     if bundle.development_end_year != DEVELOPMENT_END_YEAR:
-        raise ValueError(
-            f"production development cutoff must remain {DEVELOPMENT_END_YEAR}"
-        )
+        raise ValueError(f"production development cutoff must remain {DEVELOPMENT_END_YEAR}")
     if bundle.source_repo != PINNED_SOURCE_REPO:
         raise ValueError("production source repository is not frozen")
     if bundle.source_commit != PINNED_SOURCE_COMMIT:

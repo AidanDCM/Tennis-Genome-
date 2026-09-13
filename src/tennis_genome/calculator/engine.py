@@ -73,9 +73,7 @@ def _record_from_payload(payload: dict[str, object]) -> ResidualRecord:
         player_b_id=str(payload["player_b_id"]),
         orientation_sign=int(payload["orientation_sign"]),
         feature_names=tuple(str(value) for value in payload["feature_names"]),
-        values=tuple(
-            None if value is None else float(value) for value in payload["values"]
-        ),
+        values=tuple(None if value is None else float(value) for value in payload["values"]),
         feature_version=str(payload["feature_version"]),
     )
     return ResidualRecord(
@@ -133,9 +131,7 @@ def _historical_summary(
     records: tuple[ResidualRecord, ...],
     artifact: NeighborBankArtifact,
 ) -> tuple[NeighborSummary, int]:
-    historical = [
-        record for record in records if record.genome.event_date < target.event_date
-    ]
+    historical = [record for record in records if record.genome.event_date < target.event_date]
     if len(historical) < artifact.k:
         raise ValueError(
             f"insufficient strictly earlier neighbor history: {len(historical)} < {artifact.k}"
@@ -208,6 +204,10 @@ class MatchupCalculator:
         atp_neighbor_bank: tuple[ResidualRecord, ...],
         wta_neighbor_bank: tuple[ResidualRecord, ...],
     ) -> None:
+        from .contract import FROZEN_PRODUCTION_BUNDLE_SHA256, validate_frozen_bundle_authenticity
+
+        if bundle.artifact_sha256 == FROZEN_PRODUCTION_BUNDLE_SHA256:
+            validate_frozen_bundle_authenticity(bundle)
         if bundle.model_version != MODEL_VERSION:
             raise ValueError("unexpected independent production model version")
         if bundle.architecture_hash != architecture_hash():
@@ -248,6 +248,10 @@ class MatchupCalculator:
             raise ValueError(f"{artifact.tour} neighbor bank feature schema mismatch")
 
     def calculate(self, matchup: MatchupInput) -> MatchupCalculation:
+        if matchup.prediction_cutoff_at.year <= self.bundle.development_end_year:
+            raise ValueError(
+                "prediction cutoff must occur after the frozen production development period"
+            )
         if matchup.foundational.event_date.year <= self.bundle.development_end_year:
             raise ValueError(
                 "terminal production bundle cannot be used for in-development historical "
@@ -285,10 +289,7 @@ class MatchupCalculator:
             artifact.core,
         )
         target = build_genome_vector(matchup.profile_pair, matchup.foundational)
-        if (
-            target.player_a_id != matchup.player_a_id
-            or target.player_b_id != matchup.player_b_id
-        ):
+        if target.player_a_id != matchup.player_a_id or target.player_b_id != matchup.player_b_id:
             raise ValueError("ATP Genome identities differ from matchup input")
         summary, pool_size = _historical_summary(
             target=target,
@@ -357,10 +358,7 @@ class MatchupCalculator:
         artifact = self.bundle.wta
         if artifact.wta_pointsim_meta is None:
             raise RuntimeError("WTA production bundle lacks PointSim meta mapping")
-        if (
-            artifact.wta_elo_diagnostic is None
-            or artifact.wta_a_plus_b_diagnostic is None
-        ):
+        if artifact.wta_elo_diagnostic is None or artifact.wta_a_plus_b_diagnostic is None:
             raise RuntimeError("WTA production bundle lacks disagreement diagnostics")
 
         core_probability_a = core_probability_from_artifact(

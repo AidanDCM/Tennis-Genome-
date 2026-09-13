@@ -37,6 +37,8 @@ class MatchupInput:
             raise ValueError("player IDs must be non-empty")
         if self.player_a_id == self.player_b_id:
             raise ValueError("player IDs must be distinct")
+        if self.player_a_id >= self.player_b_id:
+            raise ValueError("player IDs must use canonical ascending A/B order")
         if self.foundational.match_id != self.match_id:
             raise ValueError("foundational snapshot match_id differs from matchup input")
         if self.created_at.tzinfo is None or self.created_at.utcoffset() is None:
@@ -57,6 +59,8 @@ class MatchupInput:
             raise ValueError("source manifest hashes must be lowercase SHA-256 hex")
         if len(set(self.source_manifest_hashes)) != len(self.source_manifest_hashes):
             raise ValueError("source manifest hashes must be unique")
+        if isinstance(self.best_of, bool) or self.best_of not in (3, 5):
+            raise ValueError("best_of must be integer 3 or 5")
 
         if self.tour == "ATP":
             if self.profile_pair is None:
@@ -72,6 +76,13 @@ class MatchupInput:
                 raise ValueError("profile_pair Player B identity differs from matchup input")
             if pair.player_a.tour != "ATP" or pair.player_b.tour != "ATP":
                 raise ValueError("ATP profile_pair must contain ATP players")
+            for label, profile in (("Player A", pair.player_a), ("Player B", pair.player_b)):
+                if profile.valid_until is not None and profile.valid_until < profile.valid_from:
+                    raise ValueError(f"{label} Profile validity interval is inverted")
+                if profile.valid_from > pair.event_date:
+                    raise ValueError(f"{label} Profile is not yet valid for the matchup date")
+                if profile.valid_until is not None and pair.event_date > profile.valid_until:
+                    raise ValueError(f"{label} Profile expired before the matchup date")
         elif self.tour == "WTA":
             if self.serve_return is None:
                 raise ValueError("WTA matchup calculation requires serve_return state")
