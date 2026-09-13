@@ -1,0 +1,166 @@
+name: Calculator boundary hardening v4
+
+on:
+  push:
+    branches:
+      - dev/calculator-boundary-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: pip install -e .[dev]
+      - name: Prepare patcher
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/apply_calculator_boundary_hardening.py')
+          text = p.read_text()
+          block = '''replace_once(
+              "src/tennis_genome/calculator/market.py",
+              \'\'\'        "player_a_id": calculation.player_a_id,\\n        "player_b_id": calculation.player_b_id,\\n\'\'\',
+              \'\'\'        "player_a_id": selection_a_id,\\n        "player_b_id": selection_b_id,\\n\'\'\',
+          )
+          '''
+          if text.count(block) != 1:
+              raise SystemExit(f'expected redundant block once, found {text.count(block)}')
+          p.write_text(text.replace(block, '', 1))
+          PY
+      - name: Apply boundary hardening
+        run: python scripts/apply_calculator_boundary_hardening.py
+      - name: Refine production authenticity boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          contract = Path('src/tennis_genome/calculator/contract.py')
+          text = contract.read_text()
+          old = '''def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None:
+              """Fail closed unless object content itself is the sealed production contract."""
+
+              if _recomputed_bundle_sha256(bundle) != bundle.artifact_sha256:
+                  raise ValueError("production bundle semantic digest does not match object content")
+              if bundle.artifact_sha256 != FROZEN_PRODUCTION_BUNDLE_SHA256:
+          '''
+          new = '''def validate_frozen_bundle_authenticity(bundle: IndependentProductionBundle) -> None:
+              """Authenticate in-memory content before allowing a production identity claim."""
+
+              if _recomputed_bundle_sha256(bundle) != bundle.artifact_sha256:
+                  raise ValueError("production bundle semantic digest does not match object content")
+              validate_frozen_bundle_contract(bundle)
+
+
+          def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None:
+              """Fail closed if a bundle does not match the frozen production contract."""
+
+              if bundle.artifact_sha256 != FROZEN_PRODUCTION_BUNDLE_SHA256:
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f'contract validation block count={text.count(old)}')
+          contract.write_text(text.replace(old, new, 1))
+
+          engine = Path('src/tennis_genome/calculator/engine.py')
+          text = engine.read_text()
+          marker = '        if bundle.model_version != MODEL_VERSION:\n'
+          if text.count(marker) != 1:
+              raise SystemExit(f'engine model marker count={text.count(marker)}')
+          prefix, suffix = text.split(marker, 1)
+          if prefix.count('validate_frozen_bundle_contract') != 2:
+              raise SystemExit(
+                  f'constructor authenticity references={prefix.count("validate_frozen_bundle_contract")}'
+              )
+          prefix = prefix.replace(
+              'validate_frozen_bundle_contract', 'validate_frozen_bundle_authenticity'
+          )
+          engine.write_text(prefix + marker + suffix)
+
+          test = Path('tests/test_matchup_calculator_contract.py')
+          text = test.read_text()
+          text = text.replace(
+              'from dataclasses import replace\n',
+              'from dataclasses import replace\nfrom pathlib import Path\n',
+              1,
+          )
+          text = text.replace(
+              '    FROZEN_PRODUCTION_BUNDLE_SHA256,\n    validate_frozen_bundle_contract,\n',
+              '    FROZEN_PRODUCTION_BUNDLE_SHA256,\n    validate_frozen_bundle_authenticity,\n    validate_frozen_bundle_contract,\n',
+              1,
+          )
+          text = text.replace(
+              '    canonical_content_sha256,\n',
+              '    canonical_content_sha256,\n    load_bundle,\n',
+              1,
+          )
+          old_test = '''def test_frozen_contract_recomputes_in_memory_semantic_digest() -> None:
+              bundle = _valid_frozen_bundle()
+              altered_core = replace(bundle.atp.core, intercept=bundle.atp.core.intercept + 1.0)
+              altered = replace(bundle, atp=replace(bundle.atp, core=altered_core))
+              with pytest.raises(ValueError, match="semantic digest"):
+                  validate_frozen_bundle_contract(altered)
+          '''
+          new_test = '''def test_frozen_contract_recomputes_in_memory_semantic_digest() -> None:
+              bundle = load_bundle(
+                  Path("artifacts/tge_independent_v1_production/tge_independent_v1_production.json"),
+                  verify_banks=False,
+              )
+              validate_frozen_bundle_authenticity(bundle)
+              altered_core = replace(bundle.atp.core, intercept=bundle.atp.core.intercept + 1.0)
+              altered = replace(bundle, atp=replace(bundle.atp, core=altered_core))
+              with pytest.raises(ValueError, match="semantic digest"):
+                  validate_frozen_bundle_authenticity(altered)
+          '''
+          if text.count(old_test) != 1:
+              raise SystemExit(f'authenticity test count={text.count(old_test)}')
+          test.write_text(text.replace(old_test, new_test, 1))
+          PY
+      - name: Format touched code
+        run: |
+          ruff format \
+            src/tennis_genome/calculator/types.py \
+            src/tennis_genome/calculator/io.py \
+            src/tennis_genome/calculator/cli.py \
+            src/tennis_genome/calculator/contract.py \
+            src/tennis_genome/calculator/engine.py \
+            src/tennis_genome/calculator/market.py \
+            src/tennis_genome/experiments/pattern_confirm_live.py \
+            tests/test_matchup_calculator.py \
+            tests/test_matchup_calculator_contract.py \
+            tests/test_matchup_calculator_io.py \
+            tests/test_manual_market_comparison.py \
+            tests/test_pattern_confirm_live.py
+      - name: Targeted regressions
+        run: |
+          pytest -q \
+            tests/test_matchup_calculator.py \
+            tests/test_matchup_calculator_contract.py \
+            tests/test_matchup_calculator_io.py \
+            tests/test_manual_market_comparison.py \
+            tests/test_pattern_confirm_live.py
+      - name: Ruff
+        run: ruff check .
+      - name: Full pytest
+        run: pytest -q
+      - name: Remove one-shot machinery
+        run: |
+          rm scripts/apply_calculator_boundary_hardening.py
+          rm .github/workflows/calculator_boundary_hardening.yml
+          rm .github/workflows/calculator_boundary_hardening_v2.yml
+          rm .github/workflows/calculator_boundary_hardening_v3.yml
+          rm .github/workflows/calculator_boundary_hardening_v4.yml
+      - name: Commit verified hardening
+        run: |
+          git config user.name 'Aidan Miller'
+          git config user.email 'aidandcmiller@live.com'
+          git add -A
+          git commit -m 'Harden calculator inputs, market identity, and live settlement'
+          git push origin HEAD:dev/calculator-boundary-hardening
