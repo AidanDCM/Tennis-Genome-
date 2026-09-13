@@ -47,6 +47,18 @@ jobs:
 
       - name: Normalize production source formatting
         run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/tennis_genome/independent/production.py")
+          text = path.read_text()
+          old = "def _load_tour(args: argparse.Namespace, tour: str) -> tuple[list[HistoricalMatch], dict[str, object]]:"
+          new = """def _load_tour(
+              args: argparse.Namespace, tour: str
+          ) -> tuple[list[HistoricalMatch], dict[str, object]]:"""
+          if old in text:
+              path.write_text(text.replace(old, new))
+          PY
           ruff check --fix src/tennis_genome/independent/production.py tests/test_independent_production.py
           ruff format src/tennis_genome/independent/production.py tests/test_independent_production.py
           ruff check src/tennis_genome/independent/production.py tests/test_independent_production.py
