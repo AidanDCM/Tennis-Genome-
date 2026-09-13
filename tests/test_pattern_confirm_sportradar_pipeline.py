@@ -26,10 +26,12 @@ from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
     verified_frozen_base_history,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_state import (
-    build_state_bundle,
     build_target_context_artifact,
-    state_bundle_as_dict,
     target_context_as_dict,
+)
+from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
+    build_season_state_capture,
+    state_capture_as_dict,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -122,8 +124,10 @@ def _toy_models(base: list[HistoricalMatch]):
 def _summary(
     *,
     event_id: str,
+    season_id: str,
     season_start: str,
     status: str,
+    start_time: str,
     winner_id: str | None = None,
 ) -> dict[str, object]:
     status_payload: dict[str, object] = {"status": status}
@@ -132,7 +136,7 @@ def _summary(
     return {
         "sport_event": {
             "id": event_id,
-            "start_time": "2026-03-15T17:00:00+00:00",
+            "start_time": start_time,
             "start_time_confirmed": True,
             "sport_event_context": {
                 "category": {"id": "sr:category:3", "name": "ATP"},
@@ -143,7 +147,7 @@ def _summary(
                     "level": "atp_250",
                 },
                 "season": {
-                    "id": f"sr:season:{season_start}",
+                    "id": season_id,
                     "name": "ATP Test 2026",
                     "start_date": season_start,
                     "end_date": "2026-03-20",
@@ -176,8 +180,10 @@ def _summary(
 def _target_context():
     summary = _summary(
         event_id="sr:sport_event:target",
+        season_id="sr:season:target",
         season_start="2026-03-01",
         status="not_started",
+        start_time="2026-03-15T17:00:00+00:00",
     )
     event = parse_sportradar_prematch_event(summary)
     mapping = build_identity_mapping(
@@ -230,6 +236,47 @@ def _crosswalk() -> tuple[dict[str, str], dict[str, object]]:
     return mapping, crosswalk_as_dict(seal_crosswalk(mapping))
 
 
+def _capture_payload(
+    *,
+    crosswalk_payload: dict[str, object],
+    cutoff: date = date(2026, 3, 1),
+    summaries: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    summaries = summaries or []
+    competition = {
+        "id": "sr:competition:55",
+        "name": "ATP Test Men Singles",
+        "type": "singles",
+        "level": "atp_250",
+        "category": {"id": "sr:category:3", "name": "ATP"},
+    }
+    if summaries:
+        season_id = str(summaries[0]["sport_event"]["sport_event_context"]["season"]["id"])
+        season_start = str(
+            summaries[0]["sport_event"]["sport_event_context"]["season"]["start_date"]
+        )
+        seasons = [
+            {
+                "id": season_id,
+                "competition_id": "sr:competition:55",
+                "start_date": season_start,
+                "disabled": False,
+            }
+        ]
+        pages = {season_id: [(0, {"summaries": summaries})]}
+    else:
+        seasons = []
+        pages = {}
+    capture = build_season_state_capture(
+        competitions_payload={"competitions": [competition]},
+        seasons_payload={"seasons": seasons},
+        season_pages=pages,
+        target_cutoff_date=cutoff,
+        crosswalk_payload=crosswalk_payload,
+    )
+    return state_capture_as_dict(capture)
+
+
 def test_frozen_base_must_reproduce_training_hash() -> None:
     base = _base()
     profile, core = _toy_models(base)
@@ -244,21 +291,25 @@ def test_frozen_base_must_reproduce_training_hash() -> None:
         )
 
 
-def test_sportradar_bundle_and_target_build_internal_state() -> None:
+def test_complete_season_capture_and_target_build_internal_state() -> None:
     base = _base()
     profile, core = _toy_models(base)
     mapping, context = _target_context()
+    _, crosswalk_payload = _crosswalk()
     extension_summary = _summary(
         event_id="sr:sport_event:ext",
+        season_id="sr:season:prior",
         season_start="2026-02-01",
         status="closed",
+        start_time="2026-02-10T17:00:00+00:00",
         winner_id="sr:competitor:11",
     )
-    crosswalk, crosswalk_payload = _crosswalk()
-    bundle = build_state_bundle(summaries=[extension_summary], crosswalk=crosswalk)
     artifact = build_sportradar_prospective_state(
         base_history=base,
-        state_bundle_payload=state_bundle_as_dict(bundle),
+        state_capture_payload=_capture_payload(
+            crosswalk_payload=crosswalk_payload,
+            summaries=[extension_summary],
+        ),
         target_context_payload=target_context_as_dict(context),
         crosswalk_payload=crosswalk_payload,
         identity_mapping=mapping,
@@ -272,53 +323,41 @@ def test_sportradar_bundle_and_target_build_internal_state() -> None:
     assert 0.0 < artifact.core_probability_a < 1.0
 
 
-def test_extension_must_be_post_2025_and_pre_target() -> None:
+def test_state_capture_cutoff_must_match_target_season_start() -> None:
     base = _base()
     profile, core = _toy_models(base)
     mapping, context = _target_context()
-    crosswalk, crosswalk_payload = _crosswalk()
-    for bad_date, message in [
-        ("2025-12-01", "pre-2026"),
-        ("2026-03-01", "strictly earlier"),
-    ]:
-        bundle = build_state_bundle(
-            summaries=[
-                _summary(
-                    event_id=f"sr:sport_event:{bad_date}",
-                    season_start=bad_date,
-                    status="closed",
-                    winner_id="sr:competitor:11",
-                )
-            ],
-            crosswalk=crosswalk,
-        )
-        with pytest.raises(ValueError, match=message):
-            build_sportradar_prospective_state(
-                base_history=base,
-                state_bundle_payload=state_bundle_as_dict(bundle),
-                target_context_payload=target_context_as_dict(context),
+    _, crosswalk_payload = _crosswalk()
+    with pytest.raises(ValueError, match="cutoff does not match target season start"):
+        build_sportradar_prospective_state(
+            base_history=base,
+            state_capture_payload=_capture_payload(
                 crosswalk_payload=crosswalk_payload,
-                identity_mapping=mapping,
-                profile_artifact=profile,
-                core_artifact=core,
-            )
+                cutoff=date(2026, 2, 15),
+            ),
+            target_context_payload=target_context_as_dict(context),
+            crosswalk_payload=crosswalk_payload,
+            identity_mapping=mapping,
+            profile_artifact=profile,
+            core_artifact=core,
+        )
 
 
 def test_target_identity_must_match_sealed_crosswalk() -> None:
     base = _base()
     profile, core = _toy_models(base)
     mapping, context = _target_context()
-    state_mapping = {
+    wrong_mapping = {
         "sr:competitor:11": "wrong-a",
         "sr:competitor:22": "B",
     }
-    bundle = build_state_bundle(summaries=[], crosswalk=state_mapping)
+    wrong_crosswalk = crosswalk_as_dict(seal_crosswalk(wrong_mapping))
     with pytest.raises(ValueError, match="target player A identity"):
         build_sportradar_prospective_state(
             base_history=base,
-            state_bundle_payload=state_bundle_as_dict(bundle),
+            state_capture_payload=_capture_payload(crosswalk_payload=wrong_crosswalk),
             target_context_payload=target_context_as_dict(context),
-            crosswalk_payload=crosswalk_as_dict(seal_crosswalk(state_mapping)),
+            crosswalk_payload=wrong_crosswalk,
             identity_mapping=mapping,
             profile_artifact=profile,
             core_artifact=core,
