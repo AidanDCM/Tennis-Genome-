@@ -39,3 +39,10 @@ def test_provider_neutral_payload_requires_manifest_hash_array() -> None:
     payload["source_manifest_hashes"] = "a" * 64
     with pytest.raises(ValueError, match="must be an array"):
         matchup_input_from_dict(payload)
+
+
+def test_provider_neutral_payload_rejects_undeclared_market_input() -> None:
+    payload = _payload()
+    payload["market_odds_a"] = 1.91
+    with pytest.raises(ValueError, match="undeclared matchup input fields"):
+        matchup_input_from_dict(payload)
