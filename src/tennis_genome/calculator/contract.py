@@ -16,7 +16,6 @@ from tennis_genome.independent.production import (
     IndependentProductionBundle,
     TourProductionArtifact,
     canonical_content_sha256,
-    load_bundle,
 )
 from tennis_genome.independent.spec import MODEL_VERSION, architecture_hash
 from tennis_genome.models.core_v1_spec import (
@@ -163,12 +162,6 @@ def validate_frozen_bundle_contract(bundle: IndependentProductionBundle) -> None
 def load_validated_matchup_calculator(path: Path):
     """Load the sealed bundle and construct the calculator only after contract validation."""
 
-    from .engine import MatchupCalculator, load_neighbor_bank
+    from .engine import MatchupCalculator
 
-    bundle = load_bundle(path, verify_banks=True)
-    validate_frozen_bundle_contract(bundle)
-    return MatchupCalculator(
-        bundle,
-        atp_neighbor_bank=load_neighbor_bank(path, bundle.atp.neighbor_bank),
-        wta_neighbor_bank=load_neighbor_bank(path, bundle.wta.neighbor_bank),
-    )
+    return MatchupCalculator.from_bundle_path(path)
