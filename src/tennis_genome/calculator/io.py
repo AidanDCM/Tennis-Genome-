@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import re
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime
 from pathlib import Path
 
 from tennis_genome.features.foundational import FoundationalSnapshot
-from tennis_genome.independent.prediction import reject_market_or_outcome_fields
 from tennis_genome.profiles.state import MatchProfilePair, PlayerProfileSnapshot
 from tennis_genome.ratings.serve_return import ServeReturnSnapshot
 
@@ -35,6 +36,51 @@ _ALLOWED_PROFILE_PAIR_FIELDS = frozenset(
         "player_b",
     }
 )
+_INPUT_FORBIDDEN_KEY_FRAGMENTS = (
+    "bookmaker",
+    "sportsbook",
+    "odds",
+    "market",
+    "stake",
+    "profit",
+    "payout",
+    "closing_line",
+    "closingline",
+    "expected_value",
+    "expectedvalue",
+    "novig",
+    "no_vig",
+    "outcome",
+    "winner",
+)
+
+
+def _forbidden_input_keys(value: object) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            normalized = str(key).lower()
+            if any(fragment in normalized for fragment in _INPUT_FORBIDDEN_KEY_FRAGMENTS):
+                found.add(normalized)
+            tokens = {
+                token for token in re.split(r"[^a-z0-9]+", normalized) if token
+            }
+            if tokens.intersection({"clv", "vig"}):
+                found.add(normalized)
+            found.update(_forbidden_input_keys(nested))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for nested in value:
+            found.update(_forbidden_input_keys(nested))
+    return found
+
+
+def _reject_market_or_outcome_input(payload: Mapping[str, object]) -> None:
+    forbidden = sorted(_forbidden_input_keys(payload))
+    if forbidden:
+        raise ValueError(
+            "market/outcome fields are forbidden inside matchup input: "
+            + ", ".join(forbidden)
+        )
 
 
 def _datetime(value: object, *, field: str) -> datetime:
@@ -108,7 +154,7 @@ def _serve_return(payload: object) -> ServeReturnSnapshot:
 
 
 def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
-    reject_market_or_outcome_fields(payload)
+    _reject_market_or_outcome_input(payload)
     unknown = sorted(set(payload).difference(_ALLOWED_TOP_LEVEL_FIELDS))
     if unknown:
         raise ValueError("undeclared matchup input fields: " + ", ".join(unknown))
