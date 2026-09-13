@@ -299,3 +299,30 @@ def test_live_capture_never_serializes_keys_and_queries_future_dates() -> None:
     assert "sr-secret" not in serialized
     assert any("apiKey=odds-secret" in url for url, _ in seen)
     assert any(headers == {"x-api-key": "sr-secret"} for _, headers in seen)
+
+
+def test_one_fresh_and_one_stale_snapshot_cannot_pass_transport_gate() -> None:
+    first_time = datetime(2026, 9, 12, 12, tzinfo=UTC)
+    first = _snapshot(first_time, count=3)
+    second_time = first_time + timedelta(minutes=5)
+    start = first_time + timedelta(hours=4)
+    odds_second = [
+        _odds_event(
+            i,
+            start=start + timedelta(minutes=20 * i),
+            last_update=second_time - timedelta(minutes=6),
+        )
+        for i in range(3)
+    ]
+    summaries = [_sportradar_summary(i, start=start + timedelta(minutes=20 * i)) for i in range(3)]
+    second = build_snapshot(
+        captured_at=second_time.isoformat(),
+        queried_utc_dates=("2026-09-13",),
+        sports_payload=[_sports()[0]],
+        odds_payloads={"tennis_atp_test": odds_second},
+        sportradar_payloads={"2026-09-13": {"summaries": summaries}},
+    )
+    report = compare_snapshots(first, second)
+    assert report.status == "FAIL_CLOSED"
+    assert report.stable_event_count == 0
+    assert "FEWER_THAN_THREE_STABLE_FRESH_ALIGNED_EVENTS" in report.reasons

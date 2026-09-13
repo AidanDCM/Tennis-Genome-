@@ -507,12 +507,18 @@ def compare_snapshots(first: DryRunSnapshot, second: DryRunSnapshot) -> DryRunRe
         reasons.append("NO_ACTIVE_TENNIS_SPORT_KEYS")
     if elapsed < _MIN_STABILITY_SECONDS:
         reasons.append("SNAPSHOTS_LESS_THAN_FIVE_MINUTES_APART")
-    fresh_event_ids = {
-        item.market_event_id
-        for item in (*first.odds_candidates, *second.odds_candidates)
-        if item.quote_fresh
+    first_fresh_event_ids = {
+        item.market_event_id for item in first.odds_candidates if item.quote_fresh
     }
-    stable_fresh = [item for item in stable if item.market_event_id in fresh_event_ids]
+    second_fresh_event_ids = {
+        item.market_event_id for item in second.odds_candidates if item.quote_fresh
+    }
+    stable_fresh = [
+        item
+        for item in stable
+        if item.market_event_id in first_fresh_event_ids
+        and item.market_event_id in second_fresh_event_ids
+    ]
     if distinct_pinnacle < _MIN_DISTINCT_READY_EVENTS:
         reasons.append("FEWER_THAN_THREE_PINNACLE_EVENTS")
     if len(stable_fresh) < _MIN_DISTINCT_READY_EVENTS:
