@@ -1,0 +1,39 @@
+name: Verify and format prospective pilot
+
+on:
+  push:
+    branches:
+      - dev/prospective-pilot-boundary-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.16'
+      - name: Install pinned runtime and test tools
+        run: |
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+      - name: Format and fix
+        run: |
+          ruff format src/tennis_genome/prospective tests/test_prospective_pilot.py
+          ruff check --fix src/tennis_genome/prospective tests/test_prospective_pilot.py
+      - name: Ruff
+        run: ruff check .
+      - name: Full pytest
+        run: pytest -q
+      - name: Commit verified formatting
+        run: |
+          git config user.name 'Aidan Miller'
+          git config user.email 'aidandcmiller@live.com'
+          git add src/tennis_genome/prospective tests/test_prospective_pilot.py
+          git commit -m 'Format and verify prospective pilot'
+          git push origin HEAD:dev/prospective-pilot-boundary-hardening
