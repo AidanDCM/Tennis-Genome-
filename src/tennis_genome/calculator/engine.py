@@ -16,6 +16,7 @@ from tennis_genome.features.genome import (
 )
 from tennis_genome.independent.prediction import IndependentPrediction
 from tennis_genome.independent.production import (
+    PRODUCTION_VERSION,
     ConditionedUnfamiliarityArtifact,
     IndependentProductionBundle,
     NeighborBankArtifact,
@@ -24,6 +25,7 @@ from tennis_genome.independent.production import (
     load_bundle,
     standardized_logistic_probability,
 )
+from tennis_genome.independent.spec import MODEL_VERSION, architecture_hash
 from tennis_genome.models.core_v1_spec import strict_a_features
 from tennis_genome.neighbors.historical import (
     HistoricalGenomeIndex,
@@ -206,6 +208,12 @@ class MatchupCalculator:
         atp_neighbor_bank: tuple[ResidualRecord, ...],
         wta_neighbor_bank: tuple[ResidualRecord, ...],
     ) -> None:
+        if bundle.model_version != MODEL_VERSION:
+            raise ValueError("unexpected independent production model version")
+        if bundle.architecture_hash != architecture_hash():
+            raise ValueError("independent production architecture hash mismatch")
+        if bundle.production_version != PRODUCTION_VERSION:
+            raise ValueError("unexpected independent production bundle version")
         self.bundle = bundle
         self._atp_bank = atp_neighbor_bank
         self._wta_bank = wta_neighbor_bank
@@ -248,6 +256,23 @@ class MatchupCalculator:
             return self._calculate_wta(matchup)
         raise ValueError(f"unsupported tour: {matchup.tour!r}")
 
+    def _calculation(
+        self,
+        *,
+        matchup: MatchupInput,
+        prediction: IndependentPrediction,
+    ) -> MatchupCalculation:
+        return MatchupCalculation(
+            prediction=prediction,
+            player_a_id=matchup.player_a_id,
+            player_b_id=matchup.player_b_id,
+            fair_decimal_odds=fair_decimal_odds(
+                prediction.p_player_a,
+                prediction.p_player_b,
+            ),
+            production_bundle_sha256=self.bundle.artifact_sha256,
+        )
+
     def _calculate_atp(self, matchup: MatchupInput) -> MatchupCalculation:
         if matchup.profile_pair is None:
             raise ValueError("ATP matchup calculation requires profile_pair")
@@ -257,7 +282,10 @@ class MatchupCalculator:
             artifact.core,
         )
         target = build_genome_vector(matchup.profile_pair, matchup.foundational)
-        if target.player_a_id != matchup.player_a_id or target.player_b_id != matchup.player_b_id:
+        if (
+            target.player_a_id != matchup.player_a_id
+            or target.player_b_id != matchup.player_b_id
+        ):
             raise ValueError("ATP Genome identities differ from matchup input")
         summary, pool_size = _historical_summary(
             target=target,
@@ -318,14 +346,7 @@ class MatchupCalculator:
             source_manifest_hashes=matchup.source_manifest_hashes,
             reason_codes=("NO_HARD_PASS_POLICY",),
         )
-        return MatchupCalculation(
-            prediction=prediction,
-            fair_decimal_odds=fair_decimal_odds(
-                prediction.p_player_a,
-                prediction.p_player_b,
-            ),
-            production_bundle_sha256=self.bundle.artifact_sha256,
-        )
+        return self._calculation(matchup=matchup, prediction=prediction)
 
     def _calculate_wta(self, matchup: MatchupInput) -> MatchupCalculation:
         if matchup.serve_return is None:
@@ -333,7 +354,10 @@ class MatchupCalculator:
         artifact = self.bundle.wta
         if artifact.wta_pointsim_meta is None:
             raise RuntimeError("WTA production bundle lacks PointSim meta mapping")
-        if artifact.wta_elo_diagnostic is None or artifact.wta_a_plus_b_diagnostic is None:
+        if (
+            artifact.wta_elo_diagnostic is None
+            or artifact.wta_a_plus_b_diagnostic is None
+        ):
             raise RuntimeError("WTA production bundle lacks disagreement diagnostics")
 
         core_probability_a = core_probability_from_artifact(
@@ -417,11 +441,4 @@ class MatchupCalculator:
             source_manifest_hashes=matchup.source_manifest_hashes,
             reason_codes=("NO_HARD_PASS_POLICY",),
         )
-        return MatchupCalculation(
-            prediction=prediction,
-            fair_decimal_odds=fair_decimal_odds(
-                prediction.p_player_a,
-                prediction.p_player_b,
-            ),
-            production_bundle_sha256=self.bundle.artifact_sha256,
-        )
+        return self._calculation(matchup=matchup, prediction=prediction)
