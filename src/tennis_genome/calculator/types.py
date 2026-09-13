@@ -50,7 +50,10 @@ class MatchupInput:
             raise ValueError("created_at cannot be before prediction_cutoff_at")
         if not self.source_manifest_hashes:
             raise ValueError("at least one source manifest hash is required")
-        if any(not _SHA256_RE.fullmatch(value) for value in self.source_manifest_hashes):
+        if any(
+            not isinstance(value, str) or not _SHA256_RE.fullmatch(value)
+            for value in self.source_manifest_hashes
+        ):
             raise ValueError("source manifest hashes must be lowercase SHA-256 hex")
 
         if self.tour == "ATP":
@@ -91,13 +94,23 @@ class MatchupCalculation:
     """Human-facing wrapper around the frozen market-blind prediction."""
 
     prediction: IndependentPrediction
+    player_a_id: str
+    player_b_id: str
     fair_decimal_odds: FairDecimalOdds
     production_bundle_sha256: str
     assessment_status: str = "DIAGNOSTIC_ONLY_NO_HARD_PASS"
 
+    def __post_init__(self) -> None:
+        if not self.player_a_id or not self.player_b_id:
+            raise ValueError("calculation player IDs must be non-empty")
+        if self.player_a_id == self.player_b_id:
+            raise ValueError("calculation player IDs must be distinct")
+
     def to_dict(self) -> dict[str, object]:
         return {
             "prediction": self.prediction.to_dict(),
+            "player_a_id": self.player_a_id,
+            "player_b_id": self.player_b_id,
             "fair_decimal_odds": {
                 "player_a": self.fair_decimal_odds.player_a,
                 "player_b": self.fair_decimal_odds.player_b,
