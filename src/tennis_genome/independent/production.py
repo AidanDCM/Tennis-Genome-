@@ -9,7 +9,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 from scipy.special import expit
 from sklearn.linear_model import LinearRegression
 
@@ -27,6 +26,8 @@ from tennis_genome.experiments.genome_neighborhood import _build_core_ledger
 from tennis_genome.experiments.pointsim_adversarial import (
     _build_matched_rows,
     _challenger_features,
+)
+from tennis_genome.experiments.pointsim_adversarial import (
     _fit_logistic as _fit_pointsim_logistic,
 )
 from tennis_genome.experiments.uncertainty_ood import (
@@ -38,7 +39,6 @@ from tennis_genome.features.foundational import (
     FoundationalSnapshot,
     walk_forward_foundational_features,
 )
-from tennis_genome.features.genome import GenomeVector
 from tennis_genome.independent.spec import MODEL_VERSION, architecture_hash
 from tennis_genome.models.core_v1_spec import a_plus_b_features, strict_a_features
 from tennis_genome.models.feature_probability import FeatureProbabilityModel
@@ -190,9 +190,7 @@ def verify_accepted_canonical_content(tour: Tour, manifest: dict[str, object]) -
         "row_count": int(manifest.get("row_count", -1)),
     }
     if observed != accepted:
-        raise ValueError(
-            f"{tour} canonical content does not match accepted GENOME-ADV-001 source"
-        )
+        raise ValueError(f"{tour} canonical content does not match accepted GENOME-ADV-001 source")
     return canonical_content_sha256(observed)
 
 
@@ -201,9 +199,7 @@ def _eligible(matches: list[HistoricalMatch], *, tour: Tour) -> list[HistoricalM
     if any(match.pre_match.event_date.year > DEVELOPMENT_END_YEAR for match in selected):
         raise ValueError(f"post-{DEVELOPMENT_END_YEAR} {tour} rows are forbidden")
     return [
-        match
-        for match in selected
-        if not match.outcome.walkover and not match.outcome.retirement
+        match for match in selected if not match.outcome.walkover and not match.outcome.retirement
     ]
 
 
@@ -546,13 +542,9 @@ def _tour_from_dict(payload: dict[str, object]) -> TourProductionArtifact:
     normalized["alignment_meta"] = _logistic_from_dict(dict(normalized["alignment_meta"]))
     normalized["neighbor_bank"] = _bank_from_dict(dict(normalized["neighbor_bank"]))
     if normalized.get("wta_pointsim_meta") is not None:
-        normalized["wta_pointsim_meta"] = _logistic_from_dict(
-            dict(normalized["wta_pointsim_meta"])
-        )
+        normalized["wta_pointsim_meta"] = _logistic_from_dict(dict(normalized["wta_pointsim_meta"]))
     if normalized.get("wta_elo_diagnostic") is not None:
-        normalized["wta_elo_diagnostic"] = _core_from_dict(
-            dict(normalized["wta_elo_diagnostic"])
-        )
+        normalized["wta_elo_diagnostic"] = _core_from_dict(dict(normalized["wta_elo_diagnostic"]))
     if normalized.get("wta_a_plus_b_diagnostic") is not None:
         normalized["wta_a_plus_b_diagnostic"] = _core_from_dict(
             dict(normalized["wta_a_plus_b_diagnostic"])
@@ -607,9 +599,7 @@ def core_probability_from_artifact(
         value = getattr(snapshot, name)
         is_missing = value is None
         missing.append(is_missing)
-        raw.append(
-            artifact.imputer_statistics[index] if is_missing else float(value)
-        )
+        raw.append(artifact.imputer_statistics[index] if is_missing else float(value))
     expanded = list(raw)
     expanded.extend(1.0 if missing[index] else 0.0 for index in artifact.imputer_indicator_features)
     if not (
@@ -681,7 +671,9 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _load_tour(args: argparse.Namespace, tour: str) -> tuple[list[HistoricalMatch], dict[str, object]]:
+def _load_tour(
+    args: argparse.Namespace, tour: str
+) -> tuple[list[HistoricalMatch], dict[str, object]]:
     prefix = tour.lower()
     manifest_path: Path = getattr(args, f"{prefix}_manifest")
     pre_match_path: Path = getattr(args, f"{prefix}_pre_match")
