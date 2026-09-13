@@ -1,0 +1,56 @@
+name: PATTERN-CONFIRM Dry-run Freshness Autofix
+
+on:
+  push:
+    branches: [dev/pattern-confirm-provider-dryrun]
+    paths:
+      - .github/workflows/pattern_confirm_dryrun_freshness_autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/pattern-confirm-provider-dryrun
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Require quote freshness in both snapshots
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path('src/tennis_genome/experiments/pattern_confirm_provider_dryrun.py')
+          text = source.read_text()
+          old = '''    fresh_event_ids = {\n        item.market_event_id\n        for item in (*first.odds_candidates, *second.odds_candidates)\n        if item.quote_fresh\n    }\n    stable_fresh = [item for item in stable if item.market_event_id in fresh_event_ids]\n'''
+          new = '''    first_fresh_event_ids = {\n        item.market_event_id for item in first.odds_candidates if item.quote_fresh\n    }\n    second_fresh_event_ids = {\n        item.market_event_id for item in second.odds_candidates if item.quote_fresh\n    }\n    stable_fresh = [\n        item\n        for item in stable\n        if item.market_event_id in first_fresh_event_ids\n        and item.market_event_id in second_fresh_event_ids\n    ]\n'''
+          if old not in text:
+              raise SystemExit('expected freshness block not found')
+          source.write_text(text.replace(old, new))
+
+          tests = Path('tests/test_pattern_confirm_provider_dryrun.py')
+          test_text = tests.read_text()
+          addition = '''\n\ndef test_one_fresh_and_one_stale_snapshot_cannot_pass_transport_gate() -> None:\n    first_time = datetime(2026, 9, 12, 12, tzinfo=UTC)\n    first = _snapshot(first_time, count=3)\n    second_time = first_time + timedelta(minutes=5)\n    start = first_time + timedelta(hours=4)\n    odds_second = [\n        _odds_event(\n            i,\n            start=start + timedelta(minutes=20 * i),\n            last_update=second_time - timedelta(minutes=6),\n        )\n        for i in range(3)\n    ]\n    summaries = [\n        _sportradar_summary(i, start=start + timedelta(minutes=20 * i))\n        for i in range(3)\n    ]\n    second = build_snapshot(\n        captured_at=second_time.isoformat(),\n        queried_utc_dates=("2026-09-13",),\n        sports_payload=[_sports()[0]],\n        odds_payloads={"tennis_atp_test": odds_second},\n        sportradar_payloads={"2026-09-13": {"summaries": summaries}},\n    )\n    report = compare_snapshots(first, second)\n    assert report.status == "FAIL_CLOSED"\n    assert report.stable_event_count == 0\n    assert "FEWER_THAN_THREE_STABLE_FRESH_ALIGNED_EVENTS" in report.reasons\n'''
+          if 'test_one_fresh_and_one_stale_snapshot_cannot_pass_transport_gate' not in test_text:
+              tests.write_text(test_text + addition)
+          PY
+      - name: Format lint and test
+        run: |
+          pip install -e .[dev]
+          ruff format src/tennis_genome/experiments/pattern_confirm_provider_dryrun.py tests/test_pattern_confirm_provider_dryrun.py
+          ruff check --fix src/tennis_genome/experiments/pattern_confirm_provider_dryrun.py tests/test_pattern_confirm_provider_dryrun.py
+          ruff check .
+          pytest
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "Aidan Miller"
+          git config user.email "aidandcmiller@live.com"
+          git add src/tennis_genome/experiments/pattern_confirm_provider_dryrun.py tests/test_pattern_confirm_provider_dryrun.py
+          git commit -m "Require fresh Pinnacle quotes in both dry-run snapshots"
+          git push origin HEAD:dev/pattern-confirm-provider-dryrun
