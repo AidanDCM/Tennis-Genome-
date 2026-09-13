@@ -41,6 +41,13 @@ def test_provider_neutral_payload_requires_manifest_hash_array() -> None:
         matchup_input_from_dict(payload)
 
 
+def test_provider_neutral_payload_rejects_invalid_manifest_hash() -> None:
+    payload = _payload()
+    payload["source_manifest_hashes"] = ["NOT-A-SHA256"]
+    with pytest.raises(ValueError, match="lowercase SHA-256"):
+        matchup_input_from_dict(payload)
+
+
 def test_provider_neutral_payload_rejects_undeclared_market_input() -> None:
     payload = _payload()
     payload["market_odds_a"] = 1.91
