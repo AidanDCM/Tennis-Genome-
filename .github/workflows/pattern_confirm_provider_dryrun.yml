@@ -1,0 +1,94 @@
+name: PATTERN-CONFIRM Provider Dry-run
+
+on:
+  workflow_dispatch:
+    inputs:
+      sportradar_access_level:
+        description: Sportradar API access level
+        required: true
+        default: trial
+        type: choice
+        options:
+          - trial
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pattern-confirm-provider-dryrun
+  cancel-in-progress: false
+
+jobs:
+  dryrun:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify provider secrets are configured
+        shell: bash
+        run: |
+          missing=0
+          if [ -z "${THE_ODDS_API_KEY:-}" ]; then
+            echo "::error::THE_ODDS_API_KEY repository secret is not configured"
+            missing=1
+          fi
+          if [ -z "${SPORTRADAR_API_KEY:-}" ]; then
+            echo "::error::SPORTRADAR_API_KEY repository secret is not configured"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Install project
+        run: pip install -e .
+
+      - name: Run outcome-blind two-snapshot dry run
+        id: dryrun
+        shell: bash
+        run: |
+          set +e
+          mkdir -p provider-dryrun
+          python -m tennis_genome.experiments.pattern_confirm_provider_dryrun \
+            --output-dir provider-dryrun \
+            --delay-seconds 300 \
+            --sportradar-access-level "${SPORTRADAR_ACCESS_LEVEL}"
+          exit_code=$?
+          echo "exit_code=${exit_code}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload sanitized provider dry-run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pattern-confirm-provider-dryrun-${{ github.run_id }}
+          path: provider-dryrun/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce dry-run result
+        if: always()
+        shell: bash
+        run: |
+          exit_code="${{ steps.dryrun.outputs.exit_code }}"
+          if [ -z "$exit_code" ]; then
+            echo "::error::Provider dry-run did not produce an exit status"
+            exit 1
+          fi
+          if [ "$exit_code" -ne 0 ]; then
+            echo "::error::Outcome-blind provider dry-run failed closed (exit ${exit_code})"
+            exit "$exit_code"
+          fi
+          echo "Provider transport dry-run completed successfully."
+          echo "This workflow does not append live rows or increment confirmatory N."
