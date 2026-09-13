@@ -14,6 +14,7 @@ from pathlib import Path
 
 from tennis_genome.calculator.contract import load_validated_matchup_calculator
 from tennis_genome.calculator.io import load_matchup_input
+from tennis_genome.experiments.pattern_confirm_live import load_live_settlements
 
 PILOT_VERSION = "FULL-STACK-PILOT-001-ledger-v1"
 _ZERO_SHA256 = "0" * 64
@@ -37,6 +38,10 @@ _RUNTIME_DISTRIBUTIONS = (
     "typing-inspection",
 )
 _FINISH_STATUSES = frozenset({"COMPLETED", "RETIREMENT", "WALKOVER", "DEFAULTED"})
+_ANCHOR_SCHEMA = "full-stack-pilot-github-anchor-v1"
+_ANCHOR_REPOSITORY = "AidanDCM/Tennis-Genome-"
+_ANCHOR_WORKFLOW_PATH = ".github/workflows/prospective_evidence_anchor.yml"
+_SETTLEMENT_SCHEMA = "full-stack-pilot-sportradar-settlement-v1"
 
 
 def _canonical_json(value: object) -> bytes:
@@ -116,6 +121,112 @@ def runtime_manifest() -> dict[str, object]:
         "packages": versions,
         "source_tree_sha256": _source_tree_sha256(),
     }
+
+
+def _json_object_bytes(payload: bytes, *, label: str) -> dict[str, object]:
+    try:
+        value = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label} must be UTF-8 JSON") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be a JSON object")
+    return value
+
+
+def _required_text(raw: dict[str, object], field: str) -> str:
+    value = str(raw.get(field, "")).strip()
+    if not value:
+        raise ValueError(f"{field} must be non-empty")
+    return value
+
+
+def _verify_anchor_payloads(
+    prediction: dict[str, object],
+    receipt: dict[str, object],
+    run: dict[str, object],
+) -> datetime:
+    if receipt.get("schema_version") != _ANCHOR_SCHEMA:
+        raise ValueError("anchor receipt schema is not supported")
+    if receipt.get("provider") != "GITHUB_ACTIONS":
+        raise ValueError("anchor receipt provider is not GitHub Actions")
+    if receipt.get("repository") != _ANCHOR_REPOSITORY:
+        raise ValueError("anchor receipt repository differs from the frozen pilot repository")
+    prediction_sha = str(prediction["record_sha256"])
+    if receipt.get("prediction_record_sha256") != prediction_sha:
+        raise ValueError("anchor receipt prediction SHA does not match prediction record")
+    if receipt.get("chain_head_sha256") != prediction_sha:
+        raise ValueError("anchor must attest the prediction as the immediate ledger chain head")
+
+    repository = run.get("repository")
+    if not isinstance(repository, dict) or repository.get("full_name") != _ANCHOR_REPOSITORY:
+        raise ValueError("GitHub run metadata repository does not match the pilot repository")
+    if int(run.get("id", -1)) != int(receipt.get("workflow_run_id", -2)):
+        raise ValueError("anchor receipt run ID differs from GitHub run metadata")
+    if run.get("event") != "workflow_dispatch":
+        raise ValueError("anchor run was not triggered by workflow_dispatch")
+    if run.get("status") != "completed" or run.get("conclusion") != "success":
+        raise ValueError("anchor workflow run did not complete successfully")
+    if run.get("path") != _ANCHOR_WORKFLOW_PATH:
+        raise ValueError("GitHub run metadata is not the prospective anchor workflow")
+    if run.get("head_sha") != receipt.get("workflow_source_sha"):
+        raise ValueError("anchor workflow source SHA differs from GitHub run metadata")
+    run_created_at = _parse_time(_required_text(run, "created_at"), field="anchor.created_at")
+    _parse_time(
+        _required_text(receipt, "runner_receipt_created_at_utc"),
+        field="anchor.runner_receipt_created_at_utc",
+    )
+    return run_created_at
+
+
+def _parse_settlement_evidence(
+    payload: bytes,
+    *,
+    prediction: dict[str, object],
+) -> tuple[str, str, str | None]:
+    raw = _json_object_bytes(payload, label="settlement evidence")
+    if raw.get("schema_version") != _SETTLEMENT_SCHEMA:
+        raise ValueError("settlement evidence schema is not supported")
+    forbidden = {
+        "winner_player_id",
+        "winner_id",
+        "finish_status",
+        "actual_start",
+        "outcome_a",
+        "retirement",
+        "walkover",
+    }.intersection(raw)
+    if forbidden:
+        raise ValueError(
+            "settlement winner/status/start must be derived from provider evidence, not asserted"
+        )
+    if raw.get("match_id") != prediction.get("match_id"):
+        raise ValueError("settlement evidence match_id differs from prediction")
+    if raw.get("player_a_canonical_id") != prediction.get("player_a_id"):
+        raise ValueError("settlement evidence canonical Player A differs from prediction")
+    if raw.get("player_b_canonical_id") != prediction.get("player_b_id"):
+        raise ValueError("settlement evidence canonical Player B differs from prediction")
+    player_a_sr = _required_text(raw, "player_a_sportradar_id")
+    player_b_sr = _required_text(raw, "player_b_sportradar_id")
+    if player_a_sr == player_b_sr:
+        raise ValueError("settlement Sportradar competitor IDs must be distinct")
+
+    settlements = load_live_settlements([raw])
+    provider = settlements[str(prediction["match_id"])]
+    if provider.winner_sportradar_id == player_a_sr:
+        winner = str(prediction["player_a_id"])
+    elif provider.winner_sportradar_id == player_b_sr:
+        winner = str(prediction["player_b_id"])
+    else:
+        raise ValueError("provider-derived winner does not match retained competitor mapping")
+    if provider.winning_reason == "walkover":
+        status = "WALKOVER"
+    elif provider.winning_reason == "retirement":
+        status = "RETIREMENT"
+    elif provider.winning_reason == "defaulted":
+        status = "DEFAULTED"
+    else:
+        status = "COMPLETED"
+    return winner, status, provider.actual_start
 
 
 def _record_sha256(record_without_sha: dict[str, object]) -> str:
@@ -233,7 +344,9 @@ class ProspectivePilotStore:
         match_ids: set[str] = set()
         prediction_by_sha: dict[str, dict[str, object]] = {}
         settled_predictions: set[str] = set()
+        anchors_by_prediction: dict[str, dict[str, object]] = {}
         prediction_count = 0
+        anchor_count = 0
         settlement_count = 0
 
         for expected_sequence, record in enumerate(records, start=1):
@@ -304,6 +417,32 @@ class ProspectivePilotStore:
                 ):
                     raise ValueError("source manifest evidence is not retained")
                 prediction_by_sha[observed_sha] = record
+            elif record_type == "ANCHOR_ATTESTATION":
+                anchor_count += 1
+                prediction_sha = str(record.get("prediction_record_sha256", ""))
+                prediction = prediction_by_sha.get(prediction_sha)
+                if prediction is None:
+                    raise ValueError("anchor does not reference an earlier prediction record")
+                if prediction_sha in anchors_by_prediction:
+                    raise ValueError(f"prediction anchored more than once: {prediction_sha}")
+                receipt_sha = str(record.get("anchor_receipt_sha256", ""))
+                run_sha = str(record.get("github_run_metadata_sha256", ""))
+                if receipt_sha not in evidence_hashes or run_sha not in evidence_hashes:
+                    raise ValueError("anchor evidence hashes are not retained")
+                receipt = _json_object_bytes(
+                    (self.evidence_dir / receipt_sha).read_bytes(),
+                    label="anchor receipt",
+                )
+                run = _json_object_bytes(
+                    (self.evidence_dir / run_sha).read_bytes(),
+                    label="GitHub run metadata",
+                )
+                created_at = _verify_anchor_payloads(prediction, receipt, run)
+                if record.get("anchor_created_at") != created_at.isoformat():
+                    raise ValueError("anchor created_at does not reproduce from GitHub metadata")
+                if int(record.get("workflow_run_id", -1)) != int(run["id"]):
+                    raise ValueError("anchor workflow run ID does not reproduce")
+                anchors_by_prediction[prediction_sha] = record
             elif record_type == "SETTLEMENT":
                 settlement_count += 1
                 prediction_sha = str(record.get("prediction_record_sha256", ""))
@@ -342,7 +481,27 @@ class ProspectivePilotStore:
                 )
                 if record.get("timing_status") != expected_timing:
                     raise ValueError("settlement timing status does not reproduce")
-                expected_primary = status == "COMPLETED" and expected_timing == "PRE_START_VERIFIED"
+                anchor = anchors_by_prediction.get(prediction_sha)
+                if anchor is None:
+                    expected_anchor_status = "ANCHOR_MISSING"
+                elif actual_start is None:
+                    expected_anchor_status = "ACTUAL_START_UNVERIFIED"
+                else:
+                    anchor_created = _parse_time(
+                        str(anchor["anchor_created_at"]), field="anchor_created_at"
+                    )
+                    expected_anchor_status = (
+                        "PRE_START_ANCHORED"
+                        if anchor_created < actual_start
+                        else "ANCHOR_NOT_PRE_START"
+                    )
+                if record.get("anchor_status") != expected_anchor_status:
+                    raise ValueError("settlement anchor status does not reproduce")
+                expected_primary = (
+                    status == "COMPLETED"
+                    and expected_timing == "PRE_START_VERIFIED"
+                    and expected_anchor_status == "PRE_START_ANCHORED"
+                )
                 if bool(record.get("primary_evaluation_eligible")) != expected_primary:
                     raise ValueError("primary evaluation eligibility does not reproduce")
             else:
@@ -354,6 +513,7 @@ class ProspectivePilotStore:
             "pilot_version": PILOT_VERSION,
             "record_count": len(records),
             "prediction_count": prediction_count,
+            "anchor_count": anchor_count,
             "settlement_count": settlement_count,
             "chain_head_sha256": expected_previous,
             "status": "VERIFIED",
@@ -365,10 +525,10 @@ class ProspectivePilotStore:
             if not directory.exists():
                 continue
             for path in directory.glob("*.tmp"):
-                removed.append(str(path.relative_to(self.root)))
+                removed.append(path.relative_to(self.root).as_posix())
                 path.unlink()
         if self.lock_path.exists():
-            removed.append(str(self.lock_path.relative_to(self.root)))
+            removed.append(self.lock_path.relative_to(self.root).as_posix())
             self.lock_path.unlink()
         report = self.verify()
         report["recovery_removed"] = sorted(removed)
@@ -480,14 +640,54 @@ def commit_prediction(
         )
 
 
+def attest_anchor(
+    *,
+    store: ProspectivePilotStore,
+    prediction_record_sha256: str,
+    anchor_receipt_path: Path,
+    github_run_metadata_path: Path,
+) -> dict[str, object]:
+    with store.write_lock():
+        store.verify()
+        prediction = store.find_record(prediction_record_sha256)
+        if prediction.get("record_type") != "PREDICTION_COMMIT":
+            raise ValueError("anchor must reference a prediction commit record")
+        if any(
+            record.get("record_type") == "ANCHOR_ATTESTATION"
+            and record.get("prediction_record_sha256") == prediction_record_sha256
+            for record in store.records()
+        ):
+            raise ValueError("prediction already has an anchor attestation")
+
+        receipt_payload = anchor_receipt_path.read_bytes()
+        run_payload = github_run_metadata_path.read_bytes()
+        receipt = _json_object_bytes(receipt_payload, label="anchor receipt")
+        run = _json_object_bytes(run_payload, label="GitHub run metadata")
+        created_at = _verify_anchor_payloads(prediction, receipt, run)
+        receipt_sha = store._store_evidence_bytes(receipt_payload)
+        run_sha = store._store_evidence_bytes(run_payload)
+        return store._append_record(
+            {
+                "record_type": "ANCHOR_ATTESTATION",
+                "prediction_record_sha256": prediction_record_sha256,
+                "prediction_id": prediction["prediction_id"],
+                "match_id": prediction["match_id"],
+                "tour": prediction["tour"],
+                "workflow_run_id": int(run["id"]),
+                "workflow_run_url": receipt["workflow_run_url"],
+                "anchor_created_at": created_at.isoformat(),
+                "anchor_receipt_sha256": receipt_sha,
+                "github_run_metadata_sha256": run_sha,
+                "evidence_sha256": [receipt_sha, run_sha],
+            }
+        )
+
+
 def settle_prediction(
     *,
     store: ProspectivePilotStore,
     prediction_record_sha256: str,
-    winner_player_id: str,
-    finish_status: str,
     settlement_evidence_path: Path,
-    actual_start: str | None,
     now: Callable[[], datetime] = _utc_now,
 ) -> dict[str, object]:
     with store.write_lock():
@@ -502,12 +702,10 @@ def settle_prediction(
         ):
             raise ValueError("prediction already has a settlement record")
 
-        status = finish_status.upper()
-        if status not in _FINISH_STATUSES:
-            raise ValueError(f"finish_status must be one of {sorted(_FINISH_STATUSES)}")
-        if winner_player_id not in {str(prediction["player_a_id"]), str(prediction["player_b_id"])}:
-            raise ValueError("winner_player_id must match a canonical prediction competitor")
-
+        settlement_payload = settlement_evidence_path.read_bytes()
+        winner_player_id, status, actual_start = _parse_settlement_evidence(
+            settlement_payload, prediction=prediction
+        )
         settled_at = now()
         if settled_at.tzinfo is None or settled_at.utcoffset() is None:
             raise ValueError("settlement clock must return a timezone-aware datetime")
@@ -524,8 +722,32 @@ def settle_prediction(
             if parsed_actual is None
             else ("PRE_START_VERIFIED" if committed < parsed_actual else "COMMIT_NOT_PRE_START")
         )
-        primary_eligible = status == "COMPLETED" and timing_status == "PRE_START_VERIFIED"
-        settlement_sha = store._store_evidence_file(settlement_evidence_path)
+        anchor = next(
+            (
+                record
+                for record in store.records()
+                if record.get("record_type") == "ANCHOR_ATTESTATION"
+                and record.get("prediction_record_sha256") == prediction_record_sha256
+            ),
+            None,
+        )
+        if anchor is None:
+            anchor_status = "ANCHOR_MISSING"
+        elif parsed_actual is None:
+            anchor_status = "ACTUAL_START_UNVERIFIED"
+        else:
+            anchor_created = _parse_time(
+                str(anchor["anchor_created_at"]), field="anchor_created_at"
+            )
+            anchor_status = (
+                "PRE_START_ANCHORED" if anchor_created < parsed_actual else "ANCHOR_NOT_PRE_START"
+            )
+        primary_eligible = (
+            status == "COMPLETED"
+            and timing_status == "PRE_START_VERIFIED"
+            and anchor_status == "PRE_START_ANCHORED"
+        )
+        settlement_sha = store._store_evidence_bytes(settlement_payload)
         return store._append_record(
             {
                 "record_type": "SETTLEMENT",
@@ -538,6 +760,7 @@ def settle_prediction(
                 "actual_start": None if parsed_actual is None else parsed_actual.isoformat(),
                 "settled_at": settled_at.isoformat(),
                 "timing_status": timing_status,
+                "anchor_status": anchor_status,
                 "primary_evaluation_eligible": primary_eligible,
                 "settlement_evidence_sha256": settlement_sha,
                 "evidence_sha256": [settlement_sha],
@@ -559,12 +782,17 @@ def _build_parser() -> argparse.ArgumentParser:
     commit.add_argument("--source-evidence", action="append", type=Path, default=[])
     commit.add_argument("--schedule-evidence", required=True, type=Path)
 
-    settle = subparsers.add_parser("settle", help="append a separate settlement record")
+    anchor = subparsers.add_parser(
+        "attest-anchor", help="append a verified GitHub anchor attestation"
+    )
+    anchor.add_argument("--store", required=True, type=Path)
+    anchor.add_argument("--prediction-record-sha256", required=True)
+    anchor.add_argument("--anchor-receipt", required=True, type=Path)
+    anchor.add_argument("--github-run-metadata", required=True, type=Path)
+
+    settle = subparsers.add_parser("settle", help="derive and append provider settlement")
     settle.add_argument("--store", required=True, type=Path)
     settle.add_argument("--prediction-record-sha256", required=True)
-    settle.add_argument("--winner-player-id", required=True)
-    settle.add_argument("--finish-status", required=True, choices=sorted(_FINISH_STATUSES))
-    settle.add_argument("--actual-start")
     settle.add_argument("--settlement-evidence", required=True, type=Path)
 
     verify = subparsers.add_parser("verify", help="verify the complete evidence/hash chain")
@@ -587,14 +815,18 @@ def main() -> None:
             source_evidence_paths=args.source_evidence,
             schedule_evidence_path=args.schedule_evidence,
         )
+    elif args.command == "attest-anchor":
+        result = attest_anchor(
+            store=store,
+            prediction_record_sha256=args.prediction_record_sha256,
+            anchor_receipt_path=args.anchor_receipt,
+            github_run_metadata_path=args.github_run_metadata,
+        )
     elif args.command == "settle":
         result = settle_prediction(
             store=store,
             prediction_record_sha256=args.prediction_record_sha256,
-            winner_player_id=args.winner_player_id,
-            finish_status=args.finish_status,
             settlement_evidence_path=args.settlement_evidence,
-            actual_start=args.actual_start,
         )
     elif args.command == "verify":
         result = store.verify()
