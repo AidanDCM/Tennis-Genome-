@@ -55,6 +55,8 @@ class MatchupInput:
             for value in self.source_manifest_hashes
         ):
             raise ValueError("source manifest hashes must be lowercase SHA-256 hex")
+        if len(set(self.source_manifest_hashes)) != len(self.source_manifest_hashes):
+            raise ValueError("source manifest hashes must be unique")
 
         if self.tour == "ATP":
             if self.profile_pair is None:
