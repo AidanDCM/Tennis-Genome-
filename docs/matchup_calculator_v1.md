@@ -26,18 +26,18 @@ Common input state:
 - tour and canonical Player A / Player B IDs;
 - timezone-aware creation and information-cutoff timestamps;
 - pre-match `FoundationalSnapshot`;
-- source manifest SHA-256 values;
+- unique source manifest SHA-256 values;
 - match format (`best_of`).
 
 ATP additionally requires the pre-match `MatchProfilePair` used by the full Profile-aware Genome representation.
 
 WTA additionally requires the pre-match `ServeReturnSnapshot` used to generate the raw PointSim mechanical input. That raw PointSim probability is not a standalone forecast; it enters only through the frozen two-input WTA meta mapping.
 
-The JSON input parser fails closed on undeclared top-level fields. In particular, market prices or realized outcomes cannot be smuggled into the independent calculation payload under an unrecognized key.
+The JSON input parser fails closed on undeclared top-level fields and undeclared `profile_pair` fields. A recursive input firewall rejects sportsbook/odds/market/outcome/staking/profit/no-vig/CLV semantics even when nested, while legitimate tennis features such as `serve_return_edge` and `h2h_edge` remain allowed. Source-manifest hashes are validated as unique lowercase SHA-256 values before inference starts.
 
 ## Frozen production-bundle gate
 
-The offline CLI uses `load_validated_matchup_calculator(...)`, not a permissive artifact loader. Before inference it verifies that the self-hashed bundle also matches the frozen scientific contract:
+Normal file-based loading uses the validated bundle path rather than a permissive artifact loader. Both the offline CLI and `MatchupCalculator.from_bundle_path(...)` verify that the self-hashed bundle also matches the frozen scientific contract before inference:
 
 - model and architecture identifiers;
 - production version;
