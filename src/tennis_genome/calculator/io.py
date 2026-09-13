@@ -5,6 +5,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from tennis_genome.features.foundational import FoundationalSnapshot
+from tennis_genome.independent.prediction import reject_market_or_outcome_fields
 from tennis_genome.profiles.state import MatchProfilePair, PlayerProfileSnapshot
 from tennis_genome.ratings.serve_return import ServeReturnSnapshot
 
@@ -24,6 +25,14 @@ _ALLOWED_TOP_LEVEL_FIELDS = frozenset(
         "best_of",
         "profile_pair",
         "serve_return",
+    }
+)
+_ALLOWED_PROFILE_PAIR_FIELDS = frozenset(
+    {
+        "match_id",
+        "event_date",
+        "player_a",
+        "player_b",
     }
 )
 
@@ -76,6 +85,9 @@ def _player_profile(payload: object, *, field: str) -> PlayerProfileSnapshot:
 def _profile_pair(payload: object) -> MatchProfilePair:
     if not isinstance(payload, dict):
         raise ValueError("profile_pair must be an object")
+    unknown = sorted(set(payload).difference(_ALLOWED_PROFILE_PAIR_FIELDS))
+    if unknown:
+        raise ValueError("undeclared profile_pair fields: " + ", ".join(unknown))
     return MatchProfilePair(
         match_id=str(payload.get("match_id", "")),
         event_date=_date(payload.get("event_date"), field="profile_pair.event_date"),
@@ -96,6 +108,7 @@ def _serve_return(payload: object) -> ServeReturnSnapshot:
 
 
 def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
+    reject_market_or_outcome_fields(payload)
     unknown = sorted(set(payload).difference(_ALLOWED_TOP_LEVEL_FIELDS))
     if unknown:
         raise ValueError("undeclared matchup input fields: " + ", ".join(unknown))
