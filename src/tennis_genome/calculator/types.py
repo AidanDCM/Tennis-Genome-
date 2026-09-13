@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -8,6 +9,8 @@ from tennis_genome.features.foundational import FoundationalSnapshot
 from tennis_genome.independent.prediction import IndependentPrediction
 from tennis_genome.profiles.state import MatchProfilePair
 from tennis_genome.ratings.serve_return import ServeReturnSnapshot
+
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -47,6 +50,8 @@ class MatchupInput:
             raise ValueError("created_at cannot be before prediction_cutoff_at")
         if not self.source_manifest_hashes:
             raise ValueError("at least one source manifest hash is required")
+        if any(not _SHA256_RE.fullmatch(value) for value in self.source_manifest_hashes):
+            raise ValueError("source manifest hashes must be lowercase SHA-256 hex")
 
         if self.tour == "ATP":
             if self.profile_pair is None:
