@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import math
 import re
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
 
 from tennis_genome.data.canonical import Tour
@@ -11,6 +13,22 @@ from tennis_genome.profiles.state import MatchProfilePair
 from tennis_genome.ratings.serve_return import ServeReturnSnapshot
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _reject_nonfinite_state(value: object, *, path: str) -> None:
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError(f"{path} contains a non-finite numeric value")
+    if is_dataclass(value) and not isinstance(value, type):
+        for field in fields(value):
+            _reject_nonfinite_state(getattr(value, field.name), path=f"{path}.{field.name}")
+        return
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            _reject_nonfinite_state(nested, path=f"{path}.{key}")
+        return
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for index, nested in enumerate(value):
+            _reject_nonfinite_state(nested, path=f"{path}[{index}]")
 
 
 @dataclass(frozen=True)
@@ -61,6 +79,12 @@ class MatchupInput:
             raise ValueError("source manifest hashes must be unique")
         if isinstance(self.best_of, bool) or self.best_of not in (3, 5):
             raise ValueError("best_of must be integer 3 or 5")
+
+        _reject_nonfinite_state(self.foundational, path="foundational")
+        if self.profile_pair is not None:
+            _reject_nonfinite_state(self.profile_pair, path="profile_pair")
+        if self.serve_return is not None:
+            _reject_nonfinite_state(self.serve_return, path="serve_return")
 
         if self.tour == "ATP":
             if self.profile_pair is None:

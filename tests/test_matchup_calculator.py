@@ -494,3 +494,29 @@ def test_matchup_input_rejects_future_dated_profile() -> None:
             atp_input,
             profile_pair=replace(atp_input.profile_pair, player_a=future_profile),
         )
+
+
+def test_direct_production_constructor_rejects_unverified_in_memory_banks() -> None:
+    from pathlib import Path
+
+    from tennis_genome.independent.production import load_bundle
+
+    bundle_path = (
+        Path(__file__).resolve().parents[1]
+        / "artifacts/tge_independent_v1_production/tge_independent_v1_production.json"
+    )
+    bundle = load_bundle(bundle_path, verify_banks=False)
+    with pytest.raises(
+        ValueError, match="must be loaded through MatchupCalculator.from_bundle_path"
+    ):
+        MatchupCalculator(bundle, atp_neighbor_bank=(), wta_neighbor_bank=())
+
+
+def test_direct_matchup_input_rejects_nonfinite_nested_state() -> None:
+    _, _, wta_input = _calculator_and_inputs()
+    bad_serve_return = replace(
+        wta_input.serve_return,
+        prior_serve_points_a=float("nan"),
+    )
+    with pytest.raises(ValueError, match="serve_return.prior_serve_points_a.*non-finite"):
+        replace(wta_input, serve_return=bad_serve_return)

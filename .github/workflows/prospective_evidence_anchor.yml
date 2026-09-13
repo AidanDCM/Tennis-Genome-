@@ -1,0 +1,69 @@
+name: Prospective Evidence Anchor
+
+on:
+  workflow_dispatch:
+    inputs:
+      prediction_record_sha256:
+        description: Immutable local prediction-record SHA-256
+        required: true
+        type: string
+      chain_head_sha256:
+        description: Local prospective-ledger chain head immediately after commitment
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  anchor:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build public anchor receipt
+        env:
+          PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
+          CHAIN_HEAD_SHA256: ${{ inputs.chain_head_sha256 }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          sha_re = re.compile(r"^[0-9a-f]{64}$")
+          prediction_sha = os.environ["PREDICTION_RECORD_SHA256"]
+          chain_head = os.environ["CHAIN_HEAD_SHA256"]
+          if not sha_re.fullmatch(prediction_sha):
+              raise SystemExit("prediction_record_sha256 must be lowercase SHA-256")
+          if not sha_re.fullmatch(chain_head):
+              raise SystemExit("chain_head_sha256 must be lowercase SHA-256")
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          receipt = {
+              "schema_version": "full-stack-pilot-github-anchor-v1",
+              "provider": "GITHUB_ACTIONS",
+              "repository": repository,
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": int(run_id),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_run_url": f"https://github.com/{repository}/actions/runs/{run_id}",
+              "prediction_record_sha256": prediction_sha,
+              "chain_head_sha256": chain_head,
+              "runner_receipt_created_at_utc": datetime.now(UTC).isoformat(),
+          }
+          rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
+          Path("prospective_anchor_receipt.json").write_text(rendered)
+          print(rendered, end="")
+          PY
+          sha256sum prospective_anchor_receipt.json > prospective_anchor_receipt.sha256
+      - name: Upload anchor receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-anchor-${{ inputs.prediction_record_sha256 }}
+          path: |
+            prospective_anchor_receipt.json
+            prospective_anchor_receipt.sha256
+          retention-days: 90

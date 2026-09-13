@@ -36,6 +36,8 @@ from tennis_genome.simulation.tennis import point_sim_match_probability
 
 from .types import FairDecimalOdds, MatchupCalculation, MatchupInput
 
+_VERIFIED_PRODUCTION_BANKS = object()
+
 
 def _clip_probability(value: float) -> float:
     return min(max(float(value), 1e-9), 1.0 - 1e-9)
@@ -203,11 +205,17 @@ class MatchupCalculator:
         *,
         atp_neighbor_bank: tuple[ResidualRecord, ...],
         wta_neighbor_bank: tuple[ResidualRecord, ...],
+        _production_bank_token: object | None = None,
     ) -> None:
         from .contract import FROZEN_PRODUCTION_BUNDLE_SHA256, validate_frozen_bundle_authenticity
 
         if bundle.artifact_sha256 == FROZEN_PRODUCTION_BUNDLE_SHA256:
             validate_frozen_bundle_authenticity(bundle)
+            if _production_bank_token is not _VERIFIED_PRODUCTION_BANKS:
+                raise ValueError(
+                    "sealed production neighbor banks must be loaded through "
+                    "MatchupCalculator.from_bundle_path(...)"
+                )
         if bundle.model_version != MODEL_VERSION:
             raise ValueError("unexpected independent production model version")
         if bundle.architecture_hash != architecture_hash():
@@ -230,6 +238,7 @@ class MatchupCalculator:
             bundle,
             atp_neighbor_bank=load_neighbor_bank(path, bundle.atp.neighbor_bank),
             wta_neighbor_bank=load_neighbor_bank(path, bundle.wta.neighbor_bank),
+            _production_bank_token=_VERIFIED_PRODUCTION_BANKS,
         )
 
     @staticmethod
