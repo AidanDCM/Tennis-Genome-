@@ -64,6 +64,14 @@ def test_provider_neutral_payload_rejects_invalid_manifest_hash() -> None:
         matchup_input_from_dict(payload)
 
 
+def test_provider_neutral_payload_rejects_duplicate_manifest_hashes() -> None:
+    payload = _payload()
+    digest = "a" * 64
+    payload["source_manifest_hashes"] = [digest, digest]
+    with pytest.raises(ValueError, match="must be unique"):
+        matchup_input_from_dict(payload)
+
+
 def test_provider_neutral_payload_rejects_undeclared_market_input() -> None:
     payload = _payload()
     payload["market_odds_a"] = 1.91
