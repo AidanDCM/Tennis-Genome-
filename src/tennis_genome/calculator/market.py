@@ -45,6 +45,11 @@ def compare_manual_decimal_odds(
     prediction = calculation.prediction
     if prediction.match_id != matchup.match_id:
         raise ValueError("calculation and matchup input must have the same match_id")
+    if (
+        calculation.player_a_id != matchup.player_a_id
+        or calculation.player_b_id != matchup.player_b_id
+    ):
+        raise ValueError("calculation and matchup input have different A/B orientation")
     payload = {
         "match_id": matchup.match_id,
         "observed_at": observed_at.isoformat(),
