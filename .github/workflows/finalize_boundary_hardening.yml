@@ -1,0 +1,154 @@
+name: Finalize calculator boundary hardening
+
+on:
+  push:
+    branches:
+      - dev/calculator-boundary-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: pip install -e .[dev]
+      - name: Apply final contract and documentation updates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: expected one match, got {count}: {old[:80]!r}")
+              p.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'src/tennis_genome/experiments/pattern_confirm_live.py',
+              '_VERSION = "pattern-confirm-live-v5"',
+              '_VERSION = "pattern-confirm-live-v6"',
+          )
+          replace_once(
+              'src/tennis_genome/experiments/pattern_confirm_live.py',
+              '''        observed_at = _parse_time(_required_text(raw, "observed_at"))
+              status_payload = _required_object(timeline_payload, "sport_event_status")
+          ''',
+              '''        observed_at = _parse_time(_required_text(raw, "observed_at"))
+              if timing.actual_start is not None and observed_at < _parse_time(timing.actual_start):
+                  raise ValueError("settlement observed_at cannot precede verified actual start")
+              status_payload = _required_object(timeline_payload, "sport_event_status")
+          ''',
+          )
+
+          test = Path('tests/test_pattern_confirm_live.py')
+          text = test.read_text()
+          anchor = '''def test_settlement_requires_terminal_provider_status() -> None:
+          '''
+          if text.count(anchor) != 1:
+              raise SystemExit('settlement status test anchor not unique')
+          new_test = '''def test_settlement_observation_cannot_precede_actual_start() -> None:
+              record = _build()
+              raw = {
+                  "match_id": record.match_id,
+                  "sportradar_event_id": record.sportradar_event_id,
+                  "sportradar_timeline": _timeline(),
+                  "observed_at": "2026-09-12T17:00:00+00:00",
+              }
+              with pytest.raises(ValueError, match="cannot precede verified actual start"):
+                  load_live_settlements([raw])
+
+
+          '''
+          test.write_text(text.replace(anchor, new_test + anchor, 1))
+
+          calc_doc = Path('docs/matchup_calculator_v1.md')
+          text = calc_doc.read_text()
+          text = text.replace(
+              'tour and canonical Player A / Player B IDs;',
+              'tour and canonical Player A / Player B IDs in ascending canonical-ID order;',
+              1,
+          )
+          old = '''The JSON input parser fails closed on undeclared top-level fields and undeclared `profile_pair` fields. A recursive input firewall rejects sportsbook/odds/market/outcome/staking/profit/no-vig/CLV semantics even when nested, while legitimate tennis features such as `serve_return_edge` and `h2h_edge` remain allowed. Source-manifest hashes are validated as unique lowercase SHA-256 values before inference starts.
+          '''
+          new = '''The JSON input parser fails closed on undeclared top-level fields and undeclared `profile_pair` fields. A recursive input firewall rejects sportsbook/odds/market/outcome/staking/profit/no-vig/CLV semantics even when nested, while legitimate tennis features such as `serve_return_edge` and `h2h_edge` remain allowed. Source-manifest hashes are validated as unique lowercase SHA-256 values before inference starts. Populated numeric values must be finite, `best_of` must be the exact integer 3 or 5, Player A/B must already be in ascending canonical-ID order, and the prediction information cutoff must occur after the frozen 2025 development period. ATP Profile validity intervals must cover the Profile pair's declared event date. These checks reject malformed caller state; they do not independently prove that an allowed tennis feature was sourced legally at T0.
+          '''
+          if old not in text:
+              raise SystemExit('calculator input documentation anchor missing')
+          text = text.replace(old, new, 1)
+          old = '''This is deliberately stricter than checking only an artifact self-hash. A different but internally self-consistent bundle must not silently become `TGE-Independent-v1` production input.
+          '''
+          new = '''This is deliberately stricter than checking only an artifact self-hash. A different but internally self-consistent bundle must not silently become `TGE-Independent-v1` production input. An in-memory object that claims the exact sealed production fingerprint is also semantically re-hashed before the public calculator accepts that production identity; synthetic non-production bundles remain available for tests without masquerading as the sealed model.
+          '''
+          text = text.replace(old, new, 1)
+          old = '''The calculator filters the frozen bank to records with `event_date < target.event_date` before constructing `HistoricalGenomeIndex`. The reusable index then independently rejects self, same-day, or future candidates before fitting imputation/scaling.
+          '''
+          new = '''The calculator filters the frozen bank to records with `event_date < target.event_date` before constructing `HistoricalGenomeIndex`. The reusable index then independently rejects self, same-day, or future candidates before fitting imputation/scaling. For each query, median imputation, scaling, and the nearest-neighbor search object are deterministically reconstructed from that fixed eligible historical bank. Predictive Core/meta coefficients are not refit and target outcomes are never used; this is preprocessing reconstruction rather than online learning.
+          '''
+          text = text.replace(old, new, 1)
+          old = '''The manual-price adapter consumes the already-created sealed calculation, including its canonical Player A / Player B IDs. It verifies orientation before calculating proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit. Market information has no path backward into calculator inference.
+          '''
+          new = '''The manual-price adapter consumes the already-created sealed calculation and requires a canonical player ID for each quoted selection. Those IDs must match calculation Player A/B before proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit are calculated; selection names are display metadata only. Market information has no path backward into calculator inference. The underlying market comparison's `decision_eligible` field should be read only as arithmetic-comparison eligibility unless a separately validated quote-age/start/execution policy is applied; it is not a promoted betting PASS rule.
+          '''
+          text = text.replace(old, new, 1)
+          calc_doc.write_text(text)
+
+          ops = Path('docs/pattern_confirm_001_operations.md')
+          text = ops.read_text()
+          text = text.replace(
+              '- Frozen identity / actual-start authority: Sportradar Tennis v3, identifier `SPORTRADAR_TENNIS_V3`.',
+              '- Frozen identity / actual-start / settlement authority: Sportradar Tennis v3, identifier `SPORTRADAR_TENNIS_V3`.\n- Current live wire contract: `pattern-confirm-live-v6`.',
+              1,
+          )
+          old = '''Pre-result Amendment 010 supersedes the earlier live execution assumptions where necessary. It repairs prospective correctness while leaving the hypotheses, thresholds, corrections, alpha allocation, O'Brien-Fleming boundaries, look Ns, provider choices, five-minute timing rule, model coefficients and promotion rules unchanged.
+          '''
+          new = '''Pre-result Amendment 010 supersedes the earlier live execution assumptions where necessary. It repairs prospective correctness while leaving the hypotheses, thresholds, corrections, alpha allocation, O'Brien-Fleming boundaries, look Ns, provider choices, five-minute timing rule, model coefficients and promotion rules unchanged. Pre-result Amendment 011 further hardens settlement provenance at the same reported prospective N=0: outcomes and nonstandard-finish flags are derived from terminal Sportradar status/winner evidence rather than operator assertions, without changing any scientific rule.
+          '''
+          text = text.replace(old, new, 1)
+          old = '''## Settlement
+
+          Outcomes remain physically separate from pre-match predictions. Settlement booleans must be actual JSON booleans, not truthy strings or numeric substitutes.
+
+          Retirements and walkovers are accounted for as exclusions and do not contribute to the confirmatory statistic.
+
+          Settlement cannot repair an invalid pre-match row. A row that failed identity, provider, chronology, data-quality, source-package, model or timing gates remains ineligible.
+          '''
+          new = '''## Settlement
+
+          Outcomes remain physically separate from pre-match predictions. Under `pattern-confirm-live-v6`, settlement input must contain the same stable Sportradar event ID, a Sportradar timeline/status payload, and a timezone-aware `observed_at`. The provider status must be terminal (`ended` or `closed`), the provider must supply `winner_id`, and that winner must be one of the two Sportradar competitor IDs already sealed into the prospective record. When actual start is available, settlement observation cannot precede it.
+
+          Do **not** supply `outcome_a`, `retirement`, or `walkover` as operator assertions. `outcome_a` is derived mechanically by resolving provider `winner_id` against the prospective record's canonical A/B competitor IDs. Recognized provider `winning_reason` values derive retirement/default/walkover exclusions; those rows do not contribute to the confirmatory statistic.
+
+          Preserve the settlement source payload/digest and observation time with the audit evidence. A manual override, if ever required operationally, must remain an explicit separately audited exception rather than silently entering the confirmatory settlement loader.
+
+          Settlement cannot repair an invalid pre-match row. A row that failed identity, provider, chronology, data-quality, source-package, model or timing gates remains ineligible.
+          '''
+          if old not in text:
+              raise SystemExit('operations settlement block missing')
+          text = text.replace(old, new, 1)
+          ops.write_text(text)
+          PY
+      - name: Format and test
+        run: |
+          ruff format src/tennis_genome/experiments/pattern_confirm_live.py tests/test_pattern_confirm_live.py
+          pytest -q tests/test_pattern_confirm_live.py tests/test_matchup_calculator.py tests/test_matchup_calculator_contract.py tests/test_matchup_calculator_io.py tests/test_manual_market_comparison.py
+          ruff check .
+          pytest -q
+      - name: Remove one-shot workflow
+        run: rm .github/workflows/finalize_boundary_hardening.yml
+      - name: Commit verified finalization
+        run: |
+          git config user.name 'Aidan Miller'
+          git config user.email 'aidandcmiller@live.com'
+          git add -A
+          git commit -m 'Document hardened calculator and provider-derived settlement'
+          git push origin HEAD:dev/calculator-boundary-hardening
