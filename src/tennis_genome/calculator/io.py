@@ -1,0 +1,191 @@
+from __future__ import annotations
+
+import json
+import re
+from collections.abc import Mapping, Sequence
+from datetime import date, datetime
+from pathlib import Path
+
+from tennis_genome.features.foundational import FoundationalSnapshot
+from tennis_genome.profiles.state import MatchProfilePair, PlayerProfileSnapshot
+from tennis_genome.ratings.serve_return import ServeReturnSnapshot
+
+from .types import MatchupInput
+
+_ALLOWED_TOP_LEVEL_FIELDS = frozenset(
+    {
+        "prediction_id",
+        "match_id",
+        "tour",
+        "player_a_id",
+        "player_b_id",
+        "created_at",
+        "prediction_cutoff_at",
+        "foundational",
+        "source_manifest_hashes",
+        "best_of",
+        "profile_pair",
+        "serve_return",
+    }
+)
+_ALLOWED_PROFILE_PAIR_FIELDS = frozenset(
+    {
+        "match_id",
+        "event_date",
+        "player_a",
+        "player_b",
+    }
+)
+_INPUT_FORBIDDEN_KEY_FRAGMENTS = (
+    "bookmaker",
+    "sportsbook",
+    "odds",
+    "market",
+    "stake",
+    "profit",
+    "payout",
+    "closing_line",
+    "closingline",
+    "expected_value",
+    "expectedvalue",
+    "novig",
+    "no_vig",
+    "outcome",
+    "winner",
+)
+
+
+def _forbidden_input_keys(value: object) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            normalized = str(key).lower()
+            if any(fragment in normalized for fragment in _INPUT_FORBIDDEN_KEY_FRAGMENTS):
+                found.add(normalized)
+            tokens = {
+                token for token in re.split(r"[^a-z0-9]+", normalized) if token
+            }
+            if tokens.intersection({"clv", "vig"}):
+                found.add(normalized)
+            found.update(_forbidden_input_keys(nested))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for nested in value:
+            found.update(_forbidden_input_keys(nested))
+    return found
+
+
+def _reject_market_or_outcome_input(payload: Mapping[str, object]) -> None:
+    forbidden = sorted(_forbidden_input_keys(payload))
+    if forbidden:
+        raise ValueError(
+            "market/outcome fields are forbidden inside matchup input: "
+            + ", ".join(forbidden)
+        )
+
+
+def _datetime(value: object, *, field: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except ValueError as exc:
+        raise ValueError(f"{field} must be an ISO-8601 datetime") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must be timezone-aware")
+    return parsed
+
+
+def _date(value: object, *, field: str) -> date:
+    try:
+        return date.fromisoformat(str(value))
+    except ValueError as exc:
+        raise ValueError(f"{field} must be an ISO date") from exc
+
+
+def _foundational(payload: object) -> FoundationalSnapshot:
+    if not isinstance(payload, dict):
+        raise ValueError("foundational must be an object")
+    normalized = dict(payload)
+    normalized["event_date"] = _date(
+        normalized.get("event_date"),
+        field="foundational.event_date",
+    )
+    return FoundationalSnapshot(**normalized)
+
+
+def _player_profile(payload: object, *, field: str) -> PlayerProfileSnapshot:
+    if not isinstance(payload, dict):
+        raise ValueError(f"{field} must be an object")
+    normalized = dict(payload)
+    normalized["valid_from"] = _date(
+        normalized.get("valid_from"),
+        field=f"{field}.valid_from",
+    )
+    valid_until = normalized.get("valid_until")
+    normalized["valid_until"] = (
+        None
+        if valid_until is None
+        else _date(valid_until, field=f"{field}.valid_until")
+    )
+    return PlayerProfileSnapshot(**normalized)
+
+
+def _profile_pair(payload: object) -> MatchProfilePair:
+    if not isinstance(payload, dict):
+        raise ValueError("profile_pair must be an object")
+    unknown = sorted(set(payload).difference(_ALLOWED_PROFILE_PAIR_FIELDS))
+    if unknown:
+        raise ValueError("undeclared profile_pair fields: " + ", ".join(unknown))
+    return MatchProfilePair(
+        match_id=str(payload.get("match_id", "")),
+        event_date=_date(payload.get("event_date"), field="profile_pair.event_date"),
+        player_a=_player_profile(payload.get("player_a"), field="profile_pair.player_a"),
+        player_b=_player_profile(payload.get("player_b"), field="profile_pair.player_b"),
+    )
+
+
+def _serve_return(payload: object) -> ServeReturnSnapshot:
+    if not isinstance(payload, dict):
+        raise ValueError("serve_return must be an object")
+    normalized = dict(payload)
+    normalized["event_date"] = _date(
+        normalized.get("event_date"),
+        field="serve_return.event_date",
+    )
+    return ServeReturnSnapshot(**normalized)
+
+
+def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
+    _reject_market_or_outcome_input(payload)
+    unknown = sorted(set(payload).difference(_ALLOWED_TOP_LEVEL_FIELDS))
+    if unknown:
+        raise ValueError("undeclared matchup input fields: " + ", ".join(unknown))
+
+    tour = str(payload.get("tour", ""))
+    profile_payload = payload.get("profile_pair")
+    serve_payload = payload.get("serve_return")
+    source_hashes = payload.get("source_manifest_hashes")
+    if not isinstance(source_hashes, list):
+        raise ValueError("source_manifest_hashes must be an array")
+    return MatchupInput(
+        prediction_id=str(payload.get("prediction_id", "")),
+        match_id=str(payload.get("match_id", "")),
+        tour=tour,
+        player_a_id=str(payload.get("player_a_id", "")),
+        player_b_id=str(payload.get("player_b_id", "")),
+        created_at=_datetime(payload.get("created_at"), field="created_at"),
+        prediction_cutoff_at=_datetime(
+            payload.get("prediction_cutoff_at"),
+            field="prediction_cutoff_at",
+        ),
+        foundational=_foundational(payload.get("foundational")),
+        source_manifest_hashes=tuple(str(value) for value in source_hashes),
+        best_of=int(payload.get("best_of", 3)),
+        profile_pair=None if profile_payload is None else _profile_pair(profile_payload),
+        serve_return=None if serve_payload is None else _serve_return(serve_payload),
+    )
+
+
+def load_matchup_input(path: Path) -> MatchupInput:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError("matchup input JSON must contain an object")
+    return matchup_input_from_dict(payload)
