@@ -26,15 +26,24 @@ from tennis_genome.experiments.pattern_confirm_live_identity import (
     validate_mapping_against_event,
     verify_identity_mapping,
 )
+from tennis_genome.experiments.pattern_confirm_live_state import (
+    ProspectiveStateArtifact,
+    prospective_state_as_dict,
+    verify_prospective_state_artifact,
+)
 from tennis_genome.experiments.pattern_confirm_production import (
     CoreProductionArtifact,
     ProfileProductionArtifact,
     verify_core_artifact,
     verify_profile_artifact,
 )
+from tennis_genome.experiments.pattern_confirm_sportradar_source_package import (
+    SportradarSourcePackage,
+    verify_source_package,
+)
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v2"
+_VERSION = "pattern-confirm-live-v4"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
@@ -65,6 +74,9 @@ class LiveProspectiveRecord:
     player_a_id: str
     player_b_id: str
     identity_mapping_sha256: str
+    source_package_sha256: str
+    prospective_state_sha256: str
+    prospective_state: ProspectiveStateArtifact
     sportradar_summary_sha256: str
     provider_match_state: str
     provider_snapshot_at: str
@@ -218,8 +230,54 @@ def _require_frozen_model_contract(
         raise ValueError("Core artifact is not the frozen PATTERN-CONFIRM-001 champion")
 
 
+def _validate_state_binding(
+    state: ProspectiveStateArtifact,
+    *,
+    mapping: IdentityMapping,
+    match_id: str,
+    tour: str,
+) -> None:
+    if state.match_id != match_id or state.tour != tour:
+        raise ValueError("prospective state match/tour does not match live row")
+    if state.event_date != mapping.season_start_date:
+        raise ValueError("prospective state date does not match Sportradar season start")
+    target = state.target_pre_match
+    if str(target.get("player_a_id", "")) != mapping.player_a_canonical_id:
+        raise ValueError("prospective state player A does not match identity mapping")
+    if str(target.get("player_b_id", "")) != mapping.player_b_canonical_id:
+        raise ValueError("prospective state player B does not match identity mapping")
+
+
+def _verified_package_state(
+    source_package_payload: dict[str, object],
+    *,
+    identity_mapping: IdentityMapping,
+    crosswalk_payload: dict[str, object],
+    profile_artifact: ProfileProductionArtifact,
+    core_artifact: CoreProductionArtifact,
+) -> tuple[SportradarSourcePackage, ProspectiveStateArtifact]:
+    package = verify_source_package(
+        source_package_payload,
+        identity_mapping=identity_mapping,
+        crosswalk_payload=crosswalk_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    state = verify_prospective_state_artifact(
+        package.prospective_state,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    if package.prospective_state_sha256 != state.artifact_sha256:
+        raise ValueError("source package prospective-state hash mismatch")
+    if package.prospective_state != prospective_state_as_dict(state):
+        raise ValueError("source package prospective-state payload mismatch")
+    return package, state
+
+
 def live_record_as_dict(record: LiveProspectiveRecord) -> dict[str, object]:
     payload = asdict(record)
+    payload["prospective_state"] = prospective_state_as_dict(record.prospective_state)
     payload["core_record"] = prospective_record_as_dict(record.core_record)
     return payload
 
@@ -231,18 +289,40 @@ def verify_live_record(
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
     identity_mapping: IdentityMapping,
+    source_package_payload: dict[str, object],
+    crosswalk_payload: dict[str, object],
 ) -> LiveProspectiveRecord:
     _require_frozen_model_contract(fit, profile_artifact, core_artifact)
+    package, package_state = _verified_package_state(
+        source_package_payload,
+        identity_mapping=identity_mapping,
+        crosswalk_payload=crosswalk_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
     stored = str(payload.get("record_sha256", ""))
     unsigned = dict(payload)
     unsigned.pop("record_sha256", None)
     if not stored or _sha256_bytes(_canonical_json(unsigned)) != stored:
         raise ValueError("live prospective record digest mismatch")
+    state_payload = payload.get("prospective_state")
+    if not isinstance(state_payload, dict):
+        raise ValueError("live record is missing its sealed prospective state")
+    state = verify_prospective_state_artifact(
+        state_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    if package.prospective_state_sha256 != state.artifact_sha256:
+        raise ValueError("live row state does not match source package state hash")
+    if prospective_state_as_dict(state) != package.prospective_state:
+        raise ValueError("live row state payload does not match source package")
     core_payload = payload.get("core_record")
     if not isinstance(core_payload, dict):
         raise ValueError("live record is missing its sealed core record")
     core_record = verify_prospective_record(core_payload)
     normalized = dict(payload)
+    normalized["prospective_state"] = state
     normalized["core_record"] = core_record
     record = LiveProspectiveRecord(**normalized)
     if record.experiment_id != _EXPERIMENT_ID or record.version != _VERSION:
@@ -261,6 +341,10 @@ def verify_live_record(
         raise ValueError("live ledger mixes Market+Core fit versions")
     if record.identity_mapping_sha256 != identity_mapping.artifact_sha256:
         raise ValueError("live ledger identity mapping hash mismatch")
+    if record.source_package_sha256 != package.artifact_sha256:
+        raise ValueError("live ledger source package hash mismatch")
+    if package.match_id != record.match_id:
+        raise ValueError("live ledger match does not match source package")
     if record.market_event_id != identity_mapping.market_event_id:
         raise ValueError("live ledger market event does not match identity mapping")
     if record.sportradar_event_id != identity_mapping.sportradar_event_id:
@@ -279,12 +363,29 @@ def verify_live_record(
         raise ValueError("live ledger player B does not match identity mapping")
     if record.scheduled_start != identity_mapping.scheduled_start:
         raise ValueError("live ledger scheduled start does not match identity mapping")
+    if record.prospective_state_sha256 != state.artifact_sha256:
+        raise ValueError("live ledger prospective state hash mismatch")
+    _validate_state_binding(
+        state,
+        mapping=identity_mapping,
+        match_id=record.match_id,
+        tour=record.tour,
+    )
+    if record.core_probability_a != state.core_probability_a:
+        raise ValueError("live Core probability does not match sealed prospective state")
+    if record.profile_gap != state.profile_gap:
+        raise ValueError("live Profile Gap does not match sealed prospective state")
 
     scheduled = _parse_time(record.scheduled_start)
     snapshot = _parse_time(record.provider_snapshot_at)
     ingested = _parse_time(record.ingested_at)
     generated = _parse_time(record.prediction_generated_at)
     committed = _parse_time(record.prediction_committed_at)
+    package_captured = _parse_time(package.captured_at)
+    if package_captured > generated:
+        raise ValueError("source package was captured after prediction generation")
+    if package_captured >= scheduled:
+        raise ValueError("source package was not captured before scheduled start")
     if snapshot > ingested:
         raise ValueError("sealed provider snapshot is later than ingestion")
     if ingested - snapshot > _MAX_SNAPSHOT_STALENESS:
@@ -331,6 +432,8 @@ def build_live_record(
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
     identity_mapping: IdentityMapping,
+    source_package_payload: dict[str, object],
+    crosswalk_payload: dict[str, object],
 ) -> LiveProspectiveRecord:
     _require_frozen_model_contract(fit, profile_artifact, core_artifact)
     match_id = _required_text(raw, "match_id")
@@ -362,18 +465,47 @@ def build_live_record(
     )
     validate_mapping_against_event(identity_mapping, event)
 
-    supplied_profile_sha = _required_sha(raw, "profile_model_sha256")
-    supplied_core_sha = _required_sha(raw, "core_model_sha256")
-    if supplied_profile_sha != profile_artifact.artifact_sha256:
-        raise ValueError("profile_model_sha256 does not match frozen Profile artifact")
-    if supplied_core_sha != core_artifact.artifact_sha256:
-        raise ValueError("core_model_sha256 does not match frozen Core artifact")
+    forbidden = {
+        "profile_gap",
+        "core_probability_a",
+        "profile_model_sha256",
+        "core_model_sha256",
+        "prospective_state",
+        "prospective_state_sha256",
+        "source_package_sha256",
+    }
+    supplied_forbidden = sorted(forbidden.intersection(raw))
+    if supplied_forbidden:
+        raise ValueError(
+            "externally supplied model/signal fields are forbidden: "
+            + ", ".join(supplied_forbidden)
+        )
+    package, state = _verified_package_state(
+        source_package_payload,
+        identity_mapping=identity_mapping,
+        crosswalk_payload=crosswalk_payload,
+        profile_artifact=profile_artifact,
+        core_artifact=core_artifact,
+    )
+    if package.match_id != match_id:
+        raise ValueError("source package match does not match live row")
+    _validate_state_binding(
+        state,
+        mapping=identity_mapping,
+        match_id=match_id,
+        tour=tour,
+    )
 
     scheduled_start = _parse_time(identity_mapping.scheduled_start)
     provider_snapshot = _parse_time(raw.get("provider_snapshot_at"))
     ingested = _parse_time(raw.get("ingested_at"))
     generated = _parse_time(raw.get("prediction_generated_at"))
     committed = _parse_time(raw.get("prediction_committed_at"))
+    package_captured = _parse_time(package.captured_at)
+    if package_captured > generated:
+        raise ValueError("source package was captured after prediction generation")
+    if package_captured >= scheduled_start:
+        raise ValueError("source package was not captured before scheduled start")
     if provider_snapshot > ingested:
         raise ValueError("provider snapshot cannot be later than ingestion")
     if ingested - provider_snapshot > _MAX_SNAPSHOT_STALENESS:
@@ -388,12 +520,8 @@ def build_live_record(
     odds_a = _decimal_odds(raw, "decimal_odds_a")
     odds_b = _decimal_odds(raw, "decimal_odds_b")
     market_probability = _devig_probability(odds_a, odds_b)
-    core_probability = float(raw.get("core_probability_a"))
-    profile_gap = float(raw.get("profile_gap"))
-    if not math.isfinite(core_probability) or not 0.0 < core_probability < 1.0:
-        raise ValueError("core_probability_a must be finite and in (0, 1)")
-    if not math.isfinite(profile_gap):
-        raise ValueError("profile_gap must be finite")
+    core_probability = state.core_probability_a
+    profile_gap = state.profile_gap
 
     core_record = build_prospective_record(
         {
@@ -428,6 +556,9 @@ def build_live_record(
         "player_a_id": identity_mapping.player_a_canonical_id,
         "player_b_id": identity_mapping.player_b_canonical_id,
         "identity_mapping_sha256": identity_mapping.artifact_sha256,
+        "source_package_sha256": package.artifact_sha256,
+        "prospective_state_sha256": state.artifact_sha256,
+        "prospective_state": prospective_state_as_dict(state),
         "sportradar_summary_sha256": summary_sha,
         "provider_match_state": _REQUIRED_MATCH_STATE,
         "provider_snapshot_at": provider_snapshot.isoformat(),
@@ -447,7 +578,11 @@ def build_live_record(
     }
     digest = _sha256_bytes(_canonical_json(unsigned))
     return LiveProspectiveRecord(
-        **{**unsigned, "core_record": core_record},
+        **{
+            **unsigned,
+            "prospective_state": state,
+            "core_record": core_record,
+        },
         record_sha256=digest,
     )
 
@@ -481,11 +616,32 @@ def load_identity_mappings(rows: list[dict[str, object]]) -> dict[str, IdentityM
     return result
 
 
+def load_source_package_payloads(
+    rows: list[dict[str, object]],
+) -> dict[str, dict[str, object]]:
+    result: dict[str, dict[str, object]] = {}
+    for raw in rows:
+        match_id = _required_text(raw, "match_id")
+        if match_id in result:
+            raise ValueError("source package file contains duplicate match_id")
+        result[match_id] = raw
+    return result
+
+
+def _load_json_object(path: Path, *, label: str) -> dict[str, object]:
+    value = json.loads(path.read_text())
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be a JSON object")
+    return value
+
+
 def append_live_rows(
     *,
     existing_rows: list[dict[str, object]],
     new_rows: list[dict[str, object]],
     identity_mappings: dict[str, IdentityMapping],
+    source_packages: dict[str, dict[str, object]],
+    crosswalk_payload: dict[str, object],
     fit: FrozenMarketCoreFit,
     profile_artifact: ProfileProductionArtifact,
     core_artifact: CoreProductionArtifact,
@@ -496,6 +652,9 @@ def append_live_rows(
         mapping = identity_mappings.get(market_event_id)
         if mapping is None:
             raise ValueError("existing live row has no verified identity mapping")
+        package = source_packages.get(_required_text(row, "match_id"))
+        if package is None:
+            raise ValueError("existing live row has no verified source package")
         existing.append(
             verify_live_record(
                 row,
@@ -503,6 +662,8 @@ def append_live_rows(
                 profile_artifact=profile_artifact,
                 core_artifact=core_artifact,
                 identity_mapping=mapping,
+                source_package_payload=package,
+                crosswalk_payload=crosswalk_payload,
             )
         )
 
@@ -512,6 +673,9 @@ def append_live_rows(
         mapping = identity_mappings.get(market_event_id)
         if mapping is None:
             raise ValueError("new live row has no verified identity mapping")
+        package = source_packages.get(_required_text(row, "match_id"))
+        if package is None:
+            raise ValueError("new live row has no verified source package")
         additions.append(
             build_live_record(
                 row,
@@ -519,6 +683,8 @@ def append_live_rows(
                 profile_artifact=profile_artifact,
                 core_artifact=core_artifact,
                 identity_mapping=mapping,
+                source_package_payload=package,
+                crosswalk_payload=crosswalk_payload,
             )
         )
 
@@ -680,6 +846,8 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--profile-artifact", required=True, type=Path)
     parser.add_argument("--core-artifact", required=True, type=Path)
     parser.add_argument("--identity-mappings", required=True, type=Path)
+    parser.add_argument("--crosswalk", required=True, type=Path)
+    parser.add_argument("--source-packages", required=True, type=Path)
     sub = parser.add_subparsers(dest="command", required=True)
 
     append = sub.add_parser("append")
@@ -698,11 +866,15 @@ def main() -> None:
     args = _parse_args()
     fit, profile, core = _load_contracts(args.fit, args.profile_artifact, args.core_artifact)
     mappings = load_identity_mappings(_load_jsonl(args.identity_mappings))
+    crosswalk_payload = _load_json_object(args.crosswalk, label="crosswalk")
+    source_packages = load_source_package_payloads(_load_jsonl(args.source_packages))
     if args.command == "append":
         records = append_live_rows(
             existing_rows=_load_jsonl(args.existing),
             new_rows=_load_jsonl(args.input),
             identity_mappings=mappings,
+            source_packages=source_packages,
+            crosswalk_payload=crosswalk_payload,
             fit=fit,
             profile_artifact=profile,
             core_artifact=core,
@@ -716,6 +888,9 @@ def main() -> None:
             mapping = mappings.get(market_event_id)
             if mapping is None:
                 raise ValueError("live ledger row has no verified identity mapping")
+            package = source_packages.get(_required_text(row, "match_id"))
+            if package is None:
+                raise ValueError("live ledger row has no verified source package")
             records.append(
                 verify_live_record(
                     row,
@@ -723,6 +898,8 @@ def main() -> None:
                     profile_artifact=profile,
                     core_artifact=core,
                     identity_mapping=mapping,
+                    source_package_payload=package,
+                    crosswalk_payload=crosswalk_payload,
                 )
             )
         settlements = load_live_settlements(_load_jsonl(args.settlements))
