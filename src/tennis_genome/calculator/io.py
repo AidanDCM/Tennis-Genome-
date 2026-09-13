@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime
@@ -62,9 +63,7 @@ def _forbidden_input_keys(value: object) -> set[str]:
             normalized = str(key).lower()
             if any(fragment in normalized for fragment in _INPUT_FORBIDDEN_KEY_FRAGMENTS):
                 found.add(normalized)
-            tokens = {
-                token for token in re.split(r"[^a-z0-9]+", normalized) if token
-            }
+            tokens = {token for token in re.split(r"[^a-z0-9]+", normalized) if token}
             if tokens.intersection({"clv", "vig"}):
                 found.add(normalized)
             found.update(_forbidden_input_keys(nested))
@@ -78,9 +77,29 @@ def _reject_market_or_outcome_input(payload: Mapping[str, object]) -> None:
     forbidden = sorted(_forbidden_input_keys(payload))
     if forbidden:
         raise ValueError(
-            "market/outcome fields are forbidden inside matchup input: "
-            + ", ".join(forbidden)
+            "market/outcome fields are forbidden inside matchup input: " + ", ".join(forbidden)
         )
+
+
+def _reject_nonfinite_numbers(value: object, *, path: str = "input") -> None:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            _reject_nonfinite_numbers(nested, path=f"{path}.{key}")
+        return
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for index, nested in enumerate(value):
+            _reject_nonfinite_numbers(nested, path=f"{path}[{index}]")
+        return
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError(f"{path} contains a non-finite numeric value")
+
+
+def _best_of(value: object) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError("best_of must be integer 3 or 5")
+    if value not in (3, 5):
+        raise ValueError("best_of must be integer 3 or 5")
+    return value
 
 
 def _datetime(value: object, *, field: str) -> datetime:
@@ -121,9 +140,7 @@ def _player_profile(payload: object, *, field: str) -> PlayerProfileSnapshot:
     )
     valid_until = normalized.get("valid_until")
     normalized["valid_until"] = (
-        None
-        if valid_until is None
-        else _date(valid_until, field=f"{field}.valid_until")
+        None if valid_until is None else _date(valid_until, field=f"{field}.valid_until")
     )
     return PlayerProfileSnapshot(**normalized)
 
@@ -154,6 +171,7 @@ def _serve_return(payload: object) -> ServeReturnSnapshot:
 
 
 def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
+    _reject_nonfinite_numbers(payload)
     _reject_market_or_outcome_input(payload)
     unknown = sorted(set(payload).difference(_ALLOWED_TOP_LEVEL_FIELDS))
     if unknown:
@@ -178,7 +196,7 @@ def matchup_input_from_dict(payload: dict[str, object]) -> MatchupInput:
         ),
         foundational=_foundational(payload.get("foundational")),
         source_manifest_hashes=tuple(str(value) for value in source_hashes),
-        best_of=int(payload.get("best_of", 3)),
+        best_of=_best_of(payload.get("best_of", 3)),
         profile_pair=None if profile_payload is None else _profile_pair(profile_payload),
         serve_return=None if serve_payload is None else _serve_return(serve_payload),
     )

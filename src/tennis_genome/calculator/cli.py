@@ -37,7 +37,7 @@ def main() -> None:
     calculator = load_validated_matchup_calculator(args.bundle)
     matchup = load_matchup_input(args.input)
     result = calculator.calculate(matchup)
-    rendered = json.dumps(result.to_dict(), indent=2, sort_keys=True) + "\n"
+    rendered = json.dumps(result.to_dict(), indent=2, sort_keys=True, allow_nan=False) + "\n"
     if args.output is not None:
         args.output.write_text(rendered)
     print(rendered, end="")

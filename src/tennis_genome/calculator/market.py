@@ -30,6 +30,8 @@ def compare_manual_decimal_odds(
     calculation: MatchupCalculation,
     decimal_odds_a: float,
     decimal_odds_b: float,
+    selection_a_id: str,
+    selection_b_id: str,
     selection_a_name: str,
     selection_b_name: str,
     bookmaker: str = "MANUAL",
@@ -42,11 +44,17 @@ def compare_manual_decimal_odds(
     independent probability or its A/B orientation.
     """
     prediction = calculation.prediction
+    if selection_a_id != calculation.player_a_id:
+        raise ValueError("manual market selection A ID does not match canonical Player A")
+    if selection_b_id != calculation.player_b_id:
+        raise ValueError("manual market selection B ID does not match canonical Player B")
+    if selection_a_id == selection_b_id:
+        raise ValueError("manual market selection IDs must be distinct")
     payload = {
         "match_id": prediction.match_id,
         "observed_at": observed_at.isoformat(),
-        "player_a_id": calculation.player_a_id,
-        "player_b_id": calculation.player_b_id,
+        "player_a_id": selection_a_id,
+        "player_b_id": selection_b_id,
         "decimal_odds_a": float(decimal_odds_a),
         "decimal_odds_b": float(decimal_odds_b),
         "selection_a_name": selection_a_name,
@@ -55,8 +63,8 @@ def compare_manual_decimal_odds(
     }
     identity_payload = {
         "match_id": prediction.match_id,
-        "player_a_id": calculation.player_a_id,
-        "player_b_id": calculation.player_b_id,
+        "player_a_id": selection_a_id,
+        "player_b_id": selection_b_id,
     }
     market = MarketSnapshot(
         market_snapshot_id=market_snapshot_id,
@@ -66,8 +74,8 @@ def compare_manual_decimal_odds(
         market_type="h2h",
         collected_at=created_at,
         observed_at=observed_at,
-        player_a_id=calculation.player_a_id,
-        player_b_id=calculation.player_b_id,
+        player_a_id=selection_a_id,
+        player_b_id=selection_b_id,
         selection_a_name=selection_a_name,
         selection_b_name=selection_b_name,
         decimal_odds_a=decimal_odds_a,

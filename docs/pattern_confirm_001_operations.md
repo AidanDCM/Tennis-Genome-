@@ -7,14 +7,15 @@ This runbook is deliberately conservative. The scientific design is frozen; oper
 - Prospective cutoff: `2026-09-12T00:00:00-04:00`.
 - Status: `ACCUMULATING`, **N=0** for both hypotheses.
 - Frozen market provider: Pinnacle through The Odds API v4, identifier `THE_ODDS_API_V4_PINNACLE_V1`.
-- Frozen identity / actual-start authority: Sportradar Tennis v3, identifier `SPORTRADAR_TENNIS_V3`.
+- Frozen identity / actual-start / settlement authority: Sportradar Tennis v3, identifier `SPORTRADAR_TENNIS_V3`.
+- Current live wire contract: `pattern-confirm-live-v6`.
 - Frozen production Profile artifact SHA-256: `cc82e93a8465f9430b16316a1f9bf770951631de0aff7d17f8374e5cff523351`.
 - Frozen production Core artifact SHA-256: `5097257e2c7e5cf7225b4ce7fd08b405b494766d0c9126427f476fd7b952dbb7`.
 - Frozen Market+Core fit SHA-256: `622d07e4a5d010b927ddf1c37900868a61d2e81d67c287f2a41dddaf4932b732`.
 - Frozen training population: 75,112 ATP matches; population SHA-256 `c2c5b4ddcd30f68d75b98a9b5e460ff71d4601b50115695bb1784c8f5f897d2c`.
 - Frozen complete base-history semantic SHA-256: `8be80277f80d5ca8bf34ce2df52d3393bc72cc7d92787772772dc2571a5c1f02`.
 
-Pre-result Amendment 010 supersedes the earlier live execution assumptions where necessary. It repairs prospective correctness while leaving the hypotheses, thresholds, corrections, alpha allocation, O'Brien-Fleming boundaries, look Ns, provider choices, five-minute timing rule, model coefficients and promotion rules unchanged.
+Pre-result Amendment 010 supersedes the earlier live execution assumptions where necessary. It repairs prospective correctness while leaving the hypotheses, thresholds, corrections, alpha allocation, O'Brien-Fleming boundaries, look Ns, provider choices, five-minute timing rule, model coefficients and promotion rules unchanged. Pre-result Amendment 011 further hardens settlement provenance at the same reported prospective N=0: outcomes and nonstandard-finish flags are derived from terminal Sportradar status/winner evidence rather than operator assertions, without changing any scientific rule.
 
 The repository is **not authorized to accrue confirmatory N merely because the implementation and tests are green**. A real credentialed outcome-blind provider dry run and the remaining frozen production gates must pass before any live row can count.
 
@@ -116,9 +117,11 @@ Prediction generation and prediction commitment must also precede actual start u
 
 ## Settlement
 
-Outcomes remain physically separate from pre-match predictions. Settlement booleans must be actual JSON booleans, not truthy strings or numeric substitutes.
+Outcomes remain physically separate from pre-match predictions. Under `pattern-confirm-live-v6`, settlement input must contain the same stable Sportradar event ID, a Sportradar timeline/status payload, and a timezone-aware `observed_at`. The provider status must be terminal (`ended` or `closed`), the provider must supply `winner_id`, and that winner must be one of the two Sportradar competitor IDs already sealed into the prospective record. When actual start is available, settlement observation cannot precede it.
 
-Retirements and walkovers are accounted for as exclusions and do not contribute to the confirmatory statistic.
+Do **not** supply `outcome_a`, `retirement`, or `walkover` as operator assertions. `outcome_a` is derived mechanically by resolving provider `winner_id` against the prospective record's canonical A/B competitor IDs. Recognized provider `winning_reason` values derive retirement/default/walkover exclusions; those rows do not contribute to the confirmatory statistic.
+
+Preserve the settlement source payload/digest and observation time with the audit evidence. A manual override, if ever required operationally, must remain an explicit separately audited exception rather than silently entering the confirmatory settlement loader.
 
 Settlement cannot repair an invalid pre-match row. A row that failed identity, provider, chronology, data-quality, source-package, model or timing gates remains ineligible.
 

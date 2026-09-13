@@ -17,6 +17,8 @@ def _compare(*, calculation):
         calculation=calculation,
         decimal_odds_a=1.85,
         decimal_odds_b=2.05,
+        selection_a_id=calculation.player_a_id,
+        selection_b_id=calculation.player_b_id,
         selection_a_name="Player A",
         selection_b_name="Player B",
         bookmaker="MANUAL_TEST",
@@ -39,3 +41,24 @@ def test_manual_odds_comparison_is_downstream_of_independent_prediction() -> Non
     assert comparison.novig_p_a + comparison.novig_p_b == pytest.approx(1.0)
     assert comparison.decision_eligible is True
     assert comparison.reason_codes == ()
+
+
+def test_manual_market_rejects_swapped_selection_ids() -> None:
+    calculator, atp_input, _ = _calculator_and_inputs()
+    calculation = calculator.calculate(atp_input)
+    with pytest.raises(ValueError, match="selection A ID"):
+        compare_manual_decimal_odds(
+            comparison_id="comparison-swapped",
+            market_snapshot_id="manual-market-swapped",
+            created_at=datetime(2026, 9, 19, 18, 2, tzinfo=UTC),
+            observed_at=datetime(2026, 9, 19, 18, 1, tzinfo=UTC),
+            calculation=calculation,
+            decimal_odds_a=2.05,
+            decimal_odds_b=1.85,
+            selection_a_id=calculation.player_b_id,
+            selection_b_id=calculation.player_a_id,
+            selection_a_name="Player B",
+            selection_b_name="Player A",
+            bookmaker="MANUAL_TEST",
+            commence_at=datetime(2026, 9, 20, 12, 0, tzinfo=UTC),
+        )

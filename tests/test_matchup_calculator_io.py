@@ -91,3 +91,17 @@ def test_provider_neutral_payload_rejects_undeclared_profile_pair_field() -> Non
     payload["profile_pair"]["unexpected_context"] = "ignored-before-hardening"
     with pytest.raises(ValueError, match="undeclared profile_pair fields"):
         matchup_input_from_dict(payload)
+
+
+def test_provider_neutral_payload_rejects_fractional_best_of() -> None:
+    payload = _payload()
+    payload["best_of"] = 3.9
+    with pytest.raises(ValueError, match="best_of must be integer"):
+        matchup_input_from_dict(payload)
+
+
+def test_provider_neutral_payload_rejects_nonfinite_numbers() -> None:
+    payload = _payload()
+    payload["foundational"]["elo_logit"] = float("nan")
+    with pytest.raises(ValueError, match="non-finite"):
+        matchup_input_from_dict(payload)

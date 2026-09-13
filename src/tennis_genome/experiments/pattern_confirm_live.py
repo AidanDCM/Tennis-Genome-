@@ -43,7 +43,7 @@ from tennis_genome.experiments.pattern_confirm_sportradar_source_package import 
 )
 
 _EXPERIMENT_ID = "PATTERN-CONFIRM-001"
-_VERSION = "pattern-confirm-live-v5"
+_VERSION = "pattern-confirm-live-v6"
 _MARKET_PROVIDER = "THE_ODDS_API_V4_PINNACLE_V1"
 _MARKET_SOURCE = "PINNACLE_H2H_V1"
 _EVENT_PROVIDER = "SPORTRADAR_TENNIS_V3"
@@ -104,9 +104,10 @@ class LiveSettlement:
     actual_start_source: str
     actual_start_exclusion_reason: str | None
     timeline_sha256: str
-    outcome_a: bool | None
-    retirement: bool
-    walkover: bool
+    settlement_observed_at: str
+    provider_status: str
+    winner_sportradar_id: str
+    winning_reason: str | None
 
 
 @dataclass(frozen=True)
@@ -724,11 +725,23 @@ def load_live_settlements(rows: list[dict[str, object]]) -> dict[str, LiveSettle
             timeline_payload,
             expected_event_id=sportradar_event_id,
         )
-        retirement = _required_bool(raw, "retirement")
-        walkover = _required_bool(raw, "walkover")
-        outcome = _optional_bool(raw, "outcome_a")
-        if not retirement and not walkover and outcome is None:
-            raise ValueError("settled non-excluded rows require outcome_a")
+        forbidden_assertions = {"outcome_a", "retirement", "walkover"}.intersection(raw)
+        if forbidden_assertions:
+            raise ValueError(
+                "settlement outcome/finish flags must be provider-derived, not operator supplied"
+            )
+        observed_at = _parse_time(_required_text(raw, "observed_at"))
+        if timing.actual_start is not None and observed_at < _parse_time(timing.actual_start):
+            raise ValueError("settlement observed_at cannot precede verified actual start")
+        status_payload = _required_object(timeline_payload, "sport_event_status")
+        provider_status = _required_text(status_payload, "status").lower()
+        if provider_status not in {"ended", "closed"}:
+            raise ValueError("settlement requires terminal Sportradar status ended/closed")
+        winner_sportradar_id = _required_text(status_payload, "winner_id")
+        reason_raw = str(status_payload.get("winning_reason", "")).strip().lower()
+        winning_reason = reason_raw or None
+        if winning_reason not in {None, "walkover", "retirement", "defaulted"}:
+            raise ValueError("settlement has unrecognized Sportradar winning_reason")
         result[match_id] = LiveSettlement(
             match_id=match_id,
             sportradar_event_id=sportradar_event_id,
@@ -736,9 +749,10 @@ def load_live_settlements(rows: list[dict[str, object]]) -> dict[str, LiveSettle
             actual_start_source=timing.source,
             actual_start_exclusion_reason=timing.exclusion_reason,
             timeline_sha256=timing.timeline_sha256,
-            outcome_a=outcome,
-            retirement=retirement,
-            walkover=walkover,
+            settlement_observed_at=observed_at.isoformat(),
+            provider_status=provider_status,
+            winner_sportradar_id=winner_sportradar_id,
+            winning_reason=winning_reason,
         )
     return result
 
@@ -799,11 +813,16 @@ def evaluate_live_family(
             )
             terminal_exclusions.add(record.match_id)
             continue
+        valid_winners = {record.player_a_sportradar_id, record.player_b_sportradar_id}
+        if settlement.winner_sportradar_id not in valid_winners:
+            raise ValueError("settlement winner ID does not match prospective competitors")
+        retirement = settlement.winning_reason in {"retirement", "defaulted"}
+        walkover = settlement.winning_reason == "walkover"
         eligible_outcomes[record.match_id] = SettledOutcome(
             match_id=record.match_id,
-            outcome_a=settlement.outcome_a,
-            retirement=settlement.retirement,
-            walkover=settlement.walkover,
+            outcome_a=settlement.winner_sportradar_id == record.player_a_sportradar_id,
+            retirement=retirement,
+            walkover=walkover,
         )
 
     core_report = evaluate_family(

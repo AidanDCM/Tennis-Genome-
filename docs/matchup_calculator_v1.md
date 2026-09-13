@@ -23,7 +23,7 @@ It does **not** state that a player will win, recommend a bet, ingest sportsbook
 Common input state:
 
 - immutable prediction and match IDs;
-- tour and canonical Player A / Player B IDs;
+- tour and canonical Player A / Player B IDs in ascending canonical-ID order;
 - timezone-aware creation and information-cutoff timestamps;
 - pre-match `FoundationalSnapshot`;
 - unique source manifest SHA-256 values;
@@ -33,7 +33,7 @@ ATP additionally requires the pre-match `MatchProfilePair` used by the full Prof
 
 WTA additionally requires the pre-match `ServeReturnSnapshot` used to generate the raw PointSim mechanical input. That raw PointSim probability is not a standalone forecast; it enters only through the frozen two-input WTA meta mapping.
 
-The JSON input parser fails closed on undeclared top-level fields and undeclared `profile_pair` fields. A recursive input firewall rejects sportsbook/odds/market/outcome/staking/profit/no-vig/CLV semantics even when nested, while legitimate tennis features such as `serve_return_edge` and `h2h_edge` remain allowed. Source-manifest hashes are validated as unique lowercase SHA-256 values before inference starts.
+The JSON input parser fails closed on undeclared top-level fields and undeclared `profile_pair` fields. A recursive input firewall rejects sportsbook/odds/market/outcome/staking/profit/no-vig/CLV semantics even when nested, while legitimate tennis features such as `serve_return_edge` and `h2h_edge` remain allowed. Source-manifest hashes are validated as unique lowercase SHA-256 values before inference starts. Populated numeric values must be finite, `best_of` must be the exact integer 3 or 5, Player A/B must already be in ascending canonical-ID order, and the prediction information cutoff must occur after the frozen 2025 development period. ATP Profile validity intervals must cover the Profile pair's declared event date. These checks reject malformed caller state; they do not independently prove that an allowed tennis feature was sourced legally at T0.
 
 ## Frozen production-bundle gate
 
@@ -52,7 +52,7 @@ Normal file-based loading uses the validated bundle path rather than a permissiv
 - WTA PointSim, Elo-only, and A+B diagnostic presence/schema;
 - absence of tour-inappropriate components.
 
-This is deliberately stricter than checking only an artifact self-hash. A different but internally self-consistent bundle must not silently become `TGE-Independent-v1` production input.
+This is deliberately stricter than checking only an artifact self-hash. A different but internally self-consistent bundle must not silently become `TGE-Independent-v1` production input. An in-memory object that claims the exact sealed production fingerprint is also semantically re-hashed before the public calculator accepts that production identity; synthetic non-production bundles remain available for tests without masquerading as the sealed model.
 
 ## Frozen ATP inference
 
@@ -84,7 +84,7 @@ Raw PointSim remains a conditional component only.
 
 ## Historical-neighbor chronology
 
-The calculator filters the frozen bank to records with `event_date < target.event_date` before constructing `HistoricalGenomeIndex`. The reusable index then independently rejects self, same-day, or future candidates before fitting imputation/scaling.
+The calculator filters the frozen bank to records with `event_date < target.event_date` before constructing `HistoricalGenomeIndex`. The reusable index then independently rejects self, same-day, or future candidates before fitting imputation/scaling. For each query, median imputation, scaling, and the nearest-neighbor search object are deterministically reconstructed from that fixed eligible historical bank. Predictive Core/meta coefficients are not refit and target outcomes are never used; this is preprocessing reconstruction rather than online learning.
 
 The terminal production bundle itself was fit on the complete accepted 2000-2025 development population. Therefore this calculator **refuses targets dated 2025 or earlier**. Using the terminal fit to replay its own development period would leak future training information through the fitted Core/meta parameters even if the neighbor bank were date-filtered.
 
@@ -106,7 +106,7 @@ If a user manually supplies sportsbook prices later, they must enter the existin
 
 `MatchupCalculation -> MarketSnapshot -> compare_prediction_to_market(...)`
 
-The manual-price adapter consumes the already-created sealed calculation, including its canonical Player A / Player B IDs. It verifies orientation before calculating proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit. Market information has no path backward into calculator inference.
+The manual-price adapter consumes the already-created sealed calculation and requires a canonical player ID for each quoted selection. Those IDs must match calculation Player A/B before proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit are calculated; selection names are display metadata only. Market information has no path backward into calculator inference. The underlying market comparison's `decision_eligible` field should be read only as arithmetic-comparison eligibility unless a separately validated quote-age/start/execution policy is applied; it is not a promoted betting PASS rule.
 
 ## Offline command
 
