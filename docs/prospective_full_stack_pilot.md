@@ -18,7 +18,7 @@ A pilot store contains:
 
 Each record contains its own SHA-256 and the SHA-256 of the previous record. The first record points to 64 zeroes. Record files are named with both sequence and digest. The verifier recomputes the complete chain and every referenced evidence digest.
 
-Writes use a temporary file, flush/fsync, then atomic rename. Recovery may remove interrupted `.tmp` files and a stale writer lock only after the operator has confirmed that no writer is still active. Recovery never edits a committed record or evidence blob.
+Writes use a temporary file, flush/fsync, then atomic rename. Recovery may remove interrupted `.tmp` files and a stale writer lock only after the operator has confirmed that no writer is still active. Recovery never edits a committed record or evidence blob. Recovery paths are serialized with portable POSIX separators.
 
 The local hash chain is tamper-evident against accidental edits and ordinary operational corruption, but a determined operator with full filesystem control could rewrite an entire local chain and recompute hashes. It is therefore **not, by itself, an independent trusted timestamp**. Formal forward-evaluation eligibility additionally requires the GitHub Actions anchor described below.
 
@@ -65,11 +65,21 @@ Supply:
 - the prediction record's `record_sha256`;
 - the ledger `chain_head_sha256` returned after commitment.
 
-The workflow validates both hashes, runs on GitHub infrastructure, prints a receipt containing the hashes, workflow source commit, run ID and run URL, and uploads the receipt as a GitHub Actions artifact. For the formal cohort, preserve the run URL and receipt locally.
+The workflow validates both hashes, runs on GitHub infrastructure, prints a receipt containing the hashes, workflow source commit, run ID and run URL, and uploads the receipt as a GitHub Actions artifact.
 
-The receipt's runner clock is useful provenance, but the formal pre-start timestamp is the GitHub Actions workflow run's server-side `created_at` metadata. At evaluation time, that remote run must still resolve, its recorded prediction/chain hashes must match the local prediction, its workflow source SHA must contain the registered anchor workflow, and its server `created_at` must precede verified actual start.
+The receipt alone is not the formal timestamp. Retrieve the corresponding GitHub Actions workflow-run metadata directly from GitHub and retain both exact files. Then append an anchor attestation:
 
-A prediction without this independent pre-start anchor may remain in the operational ledger but is not part of the registered FULL-STACK-FORWARD-001 primary cohort.
+```text
+python -m tennis_genome.prospective.pilot attest-anchor \
+  --store prospective/full_stack_forward_001 \
+  --prediction-record-sha256 <prediction-record-sha> \
+  --anchor-receipt prospective_anchor_receipt.json \
+  --github-run-metadata github_run.json
+```
+
+`attest-anchor` fails closed unless the receipt/run pair reproduces the expected repository, workflow path, `workflow_dispatch` event, successful completion, run ID, workflow source SHA, prediction-record SHA and immediate chain-head SHA. It stores both exact files by content hash and records GitHub's server-side workflow-run `created_at` as `anchor_created_at`.
+
+A prediction without an attestation remains in the operational ledger but cannot be primary-evaluation eligible. A late anchor is retained as evidence but is explicitly excluded if its server-side `created_at` is at or after verified actual start.
 
 ## Settlement
 
@@ -82,11 +92,31 @@ python -m tennis_genome.prospective.pilot settle \
   --settlement-evidence sportradar_settlement_capture.json
 ```
 
-The v1 pilot settlement capture is Sportradar-derived. Winner, finish status, and actual start are read from the retained `sportradar_timeline`; operator-supplied winner/status/start assertions are rejected. The capture also binds the Sportradar competitor IDs to the canonical A/B IDs already sealed in the prediction. Exact settlement source bytes are retained.
+The v1 settlement capture uses schema `full-stack-pilot-sportradar-settlement-v1` and retains:
 
-If verified actual start is supplied, the ledger mechanically labels the prediction `PRE_START_VERIFIED` or `COMMIT_NOT_PRE_START` by comparing actual start against the retained local commitment time. If actual start cannot be established, the record remains `ACTUAL_START_UNVERIFIED`. The settlement itself is still retained; an operational failure is evidence, not something to delete.
+- canonical match ID;
+- canonical Player A/B IDs from the committed prediction;
+- Sportradar competitor IDs bound to those canonical players;
+- observation time;
+- the raw `sportradar_timeline` payload.
 
-The local `primary_evaluation_eligible=true` field is only a mechanical pre-screen for normal completion plus pre-start local commitment. Formal FULL-STACK-FORWARD-001 eligibility additionally requires the independent GitHub anchor audit above. This field is not a wagering decision.
+Winner, finish status and actual start are **derived from the retained provider timeline** using the same terminal Sportradar settlement semantics already used by the hardened PATTERN-CONFIRM live path. Top-level operator assertions such as `winner_player_id`, `winner_id`, `finish_status`, `actual_start`, `outcome_a`, `retirement` or `walkover` are rejected.
+
+The canonical winner is derived by resolving the provider winner ID against the retained Sportradar-to-canonical A/B mapping. Retirements, walkovers and defaults are derived from the provider winning reason. The provider timeline supplies actual start.
+
+The ledger records:
+
+- `timing_status`: whether the local prediction commitment preceded verified actual start;
+- `anchor_status`: whether a verified anchor exists and GitHub's server-side `created_at` preceded actual start;
+- `primary_evaluation_eligible`.
+
+`primary_evaluation_eligible=true` only when all three mechanical conditions hold:
+
+1. provider-derived `finish_status=COMPLETED`;
+2. `timing_status=PRE_START_VERIFIED`;
+3. `anchor_status=PRE_START_ANCHORED`.
+
+Missing/late anchors, late commitments, unverified starts, retirements, walkovers and defaults remain in the ledger as explicit exclusions. This field is about the registered forward-evaluation cohort, not a wagering decision.
 
 ## Verification and recovery
 
@@ -97,6 +127,8 @@ python -m tennis_genome.prospective.pilot verify \
   --store prospective/full_stack_forward_001
 ```
 
+The verifier recomputes prediction, anchor and settlement integrity. For anchor records it re-reads the retained receipt and GitHub run metadata and rechecks their identities and server timestamp. For settlement records it reproduces timing/anchor eligibility from immutable earlier records.
+
 After an interrupted local write, and only after confirming that no writer remains active:
 
 ```text
@@ -104,7 +136,22 @@ python -m tennis_genome.prospective.pilot recover \
   --store prospective/full_stack_forward_001
 ```
 
-Verification fails on sequence gaps, hash-chain changes, record tampering, missing/corrupt evidence, duplicate official predictions, duplicate settlement, invalid winner identity, non-finite probabilities, or non-reproducible timing/eligibility flags.
+Verification fails on sequence gaps, hash-chain changes, record tampering, missing/corrupt evidence, duplicate official predictions, duplicate anchors, duplicate settlement, mismatched anchor metadata, invalid winner identity, non-finite probabilities, or non-reproducible timing/anchor/eligibility flags.
+
+## Required supervised dry run before routine collection
+
+Before treating collection as routine, exercise the complete operational chain with deliberate failures:
+
+- valid commit -> GitHub anchor -> attestation -> provider settlement -> verify;
+- missing anchor -> explicit primary exclusion;
+- late anchor -> explicit primary exclusion;
+- mismatched/tampered anchor receipt or GitHub metadata -> rejection;
+- operator-asserted settlement outcome/status/start -> rejection;
+- provider retirement/walkover/default -> retained but primary exclusion;
+- interrupted local write -> recovery -> verify;
+- tampered committed record/evidence -> verification failure.
+
+The available ChatGPT GitHub connector cannot dispatch the manual anchor workflow, so this real GitHub `workflow_dispatch` exercise remains a supervised operator step. Synthetic regression tests cover the logic but do not substitute for the real operational dry run.
 
 ## Non-claims
 
