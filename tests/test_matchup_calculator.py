@@ -29,7 +29,9 @@ from tennis_genome.ratings.serve_return import ServeReturnSnapshot
 from tennis_genome.simulation.tennis import point_sim_match_probability
 
 
-def _foundational(*, match_id: str, event_date: date, elo_logit: float = 0.4) -> FoundationalSnapshot:
+def _foundational(
+    *, match_id: str, event_date: date, elo_logit: float = 0.4
+) -> FoundationalSnapshot:
     return FoundationalSnapshot(
         match_id=match_id,
         event_date=event_date,
@@ -85,7 +87,9 @@ def _foundational(*, match_id: str, event_date: date, elo_logit: float = 0.4) ->
     )
 
 
-def _profile(*, player_id: str, player_name: str, tour: str, event_date: date) -> PlayerProfileSnapshot:
+def _profile(
+    *, player_id: str, player_name: str, tour: str, event_date: date
+) -> PlayerProfileSnapshot:
     return PlayerProfileSnapshot(
         player_id=player_id,
         player_name=player_name,
@@ -160,8 +164,12 @@ def _serve_return(*, match_id: str, event_date: date) -> ServeReturnSnapshot:
     )
 
 
-def _core_artifact(feature_names: tuple[str, ...], *, elo_weight: float = 1.0) -> CoreMappingArtifact:
-    coefficients = tuple(elo_weight if name == "elo_logit" else 0.0 for name in feature_names)
+def _core_artifact(
+    feature_names: tuple[str, ...], *, elo_weight: float = 1.0
+) -> CoreMappingArtifact:
+    coefficients = tuple(
+        elo_weight if name == "elo_logit" else 0.0 for name in feature_names
+    )
     return CoreMappingArtifact(
         feature_names=feature_names,
         training_n=5000,
@@ -188,7 +196,9 @@ def _logistic_artifact(
     )
 
 
-def _bank_artifact(*, tour: str, feature_names: tuple[str, ...], row_count: int) -> NeighborBankArtifact:
+def _bank_artifact(
+    *, tour: str, feature_names: tuple[str, ...], row_count: int
+) -> NeighborBankArtifact:
     return NeighborBankArtifact(
         filename=f"{tour.lower()}_neighbor_bank.jsonl.gz",
         sha256="0" * 64,
@@ -214,7 +224,9 @@ def _historical_bank(
     for index in range(100):
         values = list(target.values)
         base_value = values[adjustable_index]
-        values[adjustable_index] = (0.0 if base_value is None else float(base_value)) + index * 0.001
+        values[adjustable_index] = (
+            (0.0 if base_value is None else float(base_value)) + index * 0.001
+        )
         records.append(
             ResidualRecord(
                 genome=replace(
@@ -246,7 +258,9 @@ def _historical_bank(
 
 def _wta_target(matchup: MatchupInput) -> GenomeVector:
     names = strict_a_features("WTA")
-    values = tuple(float(getattr(matchup.foundational, name) or 0.0) for name in names)
+    values = tuple(
+        float(getattr(matchup.foundational, name) or 0.0) for name in names
+    )
     return GenomeVector(
         match_id=matchup.match_id,
         event_date=matchup.foundational.event_date,
@@ -393,7 +407,9 @@ def test_atp_calculator_uses_frozen_alignment_and_diagnostics() -> None:
     assert result.prediction.diagnostics["hard_pass_policy_promoted"] is False
     assert result.prediction.reason_codes == ("NO_HARD_PASS_POLICY",)
     assert result.assessment_status == "DIAGNOSTIC_ONLY_NO_HARD_PASS"
-    assert result.fair_decimal_odds.player_a == pytest.approx(1.0 / result.prediction.p_player_a)
+    assert result.fair_decimal_odds.player_a == pytest.approx(
+        1.0 / result.prediction.p_player_a
+    )
 
 
 def test_wta_calculator_routes_pointsim_only_through_frozen_meta_mapping() -> None:
@@ -403,12 +419,10 @@ def test_wta_calculator_routes_pointsim_only_through_frozen_meta_mapping() -> No
 
     raw_pointsim = point_sim_match_probability(0.66, 0.62, best_of=3)
     assert components["pointsim_conditional_meta_input"] == pytest.approx(raw_pointsim)
+    alignment = components["strict_core_geometry_historical_alignment_k100"]
     expected_final = standardized_logistic_probability(
         (
-            __import__("math").log(
-                components["strict_core_geometry_historical_alignment_k100"]
-                / (1.0 - components["strict_core_geometry_historical_alignment_k100"])
-            ),
+            __import__("math").log(alignment / (1.0 - alignment)),
             __import__("math").log(raw_pointsim / (1.0 - raw_pointsim)),
         ),
         calculator.bundle.wta.wta_pointsim_meta,
