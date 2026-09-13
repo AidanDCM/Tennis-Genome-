@@ -33,6 +33,27 @@ ATP additionally requires the pre-match `MatchProfilePair` used by the full Prof
 
 WTA additionally requires the pre-match `ServeReturnSnapshot` used to generate the raw PointSim mechanical input. That raw PointSim probability is not a standalone forecast; it enters only through the frozen two-input WTA meta mapping.
 
+The JSON input parser fails closed on undeclared top-level fields. In particular, market prices or realized outcomes cannot be smuggled into the independent calculation payload under an unrecognized key.
+
+## Frozen production-bundle gate
+
+The offline CLI uses `load_validated_matchup_calculator(...)`, not a permissive artifact loader. Before inference it verifies that the self-hashed bundle also matches the frozen scientific contract:
+
+- model and architecture identifiers;
+- production version;
+- development cutoff fixed at 2025;
+- pinned Sackmann archival repository and commit;
+- accepted ATP/WTA canonical-content hashes;
+- strict Core feature schemas;
+- ATP full-Genome versus WTA strict-Core neighborhood roles;
+- k=100 and the frozen candidate limit;
+- expected alignment-meta schemas;
+- ATP conditioned-unfamiliarity presence/schema;
+- WTA PointSim, Elo-only, and A+B diagnostic presence/schema;
+- absence of tour-inappropriate components.
+
+This is deliberately stricter than checking only an artifact self-hash. A different but internally self-consistent bundle must not silently become `TGE-Independent-v1` production input.
+
 ## Frozen ATP inference
 
 1. Evaluate the frozen terminal `strict_core_v1` mapping.
@@ -83,9 +104,22 @@ Fair odds are **not sportsbook odds** and do not imply positive expected value.
 
 If a user manually supplies sportsbook prices later, they must enter the existing separate market layer:
 
-`IndependentPrediction -> MarketSnapshot -> compare_prediction_to_market(...)`
+`MatchupCalculation -> MarketSnapshot -> compare_prediction_to_market(...)`
 
-That layer may calculate proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit. Market information must never flow backward into the calculator or TGE-Independent-v1 state.
+The manual-price adapter consumes the already-created sealed calculation, including its canonical Player A / Player B IDs. It verifies orientation before calculating proportional two-way no-vig probabilities, edge in percentage points, and expected value per unit. Market information has no path backward into calculator inference.
+
+## Offline command
+
+A validated state capture can be calculated without Sportradar or The Odds API credentials:
+
+```text
+python -m tennis_genome.calculator.cli \
+  --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json \
+  --input matchup_input.json \
+  --output matchup_result.json
+```
+
+The bundle and its neighbor-bank files must be colocated as produced by the production freeze. The command writes the same JSON report to stdout and, when requested, to `--output`.
 
 ## Assessment semantics
 
