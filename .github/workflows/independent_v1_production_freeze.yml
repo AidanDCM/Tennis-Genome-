@@ -45,10 +45,14 @@ jobs:
       - name: Install package
         run: pip install -e .[dev]
 
-      - name: Assert development-only freeze
-        shell: bash
+      - name: Normalize production source formatting
         run: |
-          set -euo pipefail
+          ruff check --fix src/tennis_genome/independent/production.py tests/test_independent_production.py
+          ruff format src/tennis_genome/independent/production.py tests/test_independent_production.py
+          ruff check src/tennis_genome/independent/production.py tests/test_independent_production.py
+
+      - name: Assert development-only freeze
+        run: |
           test "$START_YEAR" = "2000"
           test "$END_YEAR" = "2025"
 
@@ -91,7 +95,7 @@ jobs:
               > "data/independent_freeze_processed/${tour}/build_output.json"
           done
 
-      - name: Run deterministic production freeze
+      - name: Freeze production bundle
         shell: bash
         run: |
           set -euo pipefail
@@ -109,7 +113,7 @@ jobs:
             --output-dir artifacts/tge_independent_v1_production \
             > artifacts/tge_independent_v1_production/freeze_stdout.json
 
-      - name: Verify sealed bundle and write production note
+      - name: Verify sealed bundle
         shell: bash
         run: |
           set -euo pipefail
@@ -120,7 +124,6 @@ jobs:
 
           root = Path("artifacts/tge_independent_v1_production")
           bundle = load_bundle(root / "tge_independent_v1_production.json")
-          payload = json.loads((root / "tge_independent_v1_production.json").read_text())
           assert bundle.development_end_year == 2025
           assert bundle.atp.neighbor_bank.k == 100
           assert bundle.wta.neighbor_bank.k == 100
@@ -128,79 +131,31 @@ jobs:
           assert bundle.atp.atp_conditioned_unfamiliarity is not None
           assert bundle.wta.wta_elo_diagnostic is not None
           assert bundle.wta.wta_a_plus_b_diagnostic is not None
-
-          note = f'''# TGE-Independent-v1 production freeze
-
-Status: **mechanically frozen deployment mapping from accepted 2000-2025 development architecture**.
-
-This freeze does not add a new model component, select a new hyperparameter, inspect post-2025 outcomes, or create new forward-validation evidence. It converts the already selected `TGE-Independent-v1` architecture into reproducible deployable state.
-
-- model: `{bundle.model_version}`
-- architecture hash: `{bundle.architecture_hash}`
-- production version: `{bundle.production_version}`
-- production bundle SHA-256: `{bundle.artifact_sha256}`
-- source: `{bundle.source_repo}@{bundle.source_commit}`
-- development cutoff: **2025**
-- ATP eligible full-fit Core rows: **{bundle.atp.eligible_training_n:,}**
-- WTA eligible full-fit Core rows: **{bundle.wta.eligible_training_n:,}**
-- ATP OOS residual-bank rows: **{bundle.atp.neighbor_bank.row_count:,}**
-- WTA OOS residual-bank rows: **{bundle.wta.neighbor_bank.row_count:,}**
-- ATP terminal alignment-meta rows: **{bundle.atp.alignment_meta.training_n:,}**
-- WTA terminal alignment-meta rows: **{bundle.wta.alignment_meta.training_n:,}**
-- WTA terminal POINTSIM-meta rows: **{bundle.wta.wta_pointsim_meta.training_n:,}**
-
-## Source identity
-
-The freeze first rebuilds the exact pinned 2000-2025 ATP/WTA source and requires the canonical pre-match, outcome and statistics payload hashes to equal the accepted `GENOME-ADV-001` canonical-v3 hashes. A source mismatch fails before fitting.
-
-## Probability path
-
-ATP:
-
-`full-development strict Core -> full-Genome k=100 OOS residual bank -> terminal accepted alignment mapping -> identity calibration`
-
-WTA:
-
-`full-development strict Core -> strict-Core-geometry k=100 OOS residual bank -> terminal accepted alignment mapping -> raw POINTSIM from pre-match serve/return state -> terminal accepted two-input POINTSIM mapping -> identity calibration`
-
-The residual banks contain only chronological OOS Core residual labels generated inside the 2000-2025 development program. The final Core and terminal mappings are fit on all allowed development evidence for deployment after the cutoff.
-
-## Diagnostics
-
-- ATP conditioned unfamiliarity is frozen as the terminal version of the accepted prior-only confidence/pool-conditioned distance model.
-- WTA disagreement is supported by frozen full-development Elo-only, strict-Core, and A+B diagnostic mappings.
-- Neither diagnostic defines a hard PASS threshold.
-
-## Scientific status
-
-This is a **production freeze, not a new validation result**. The complete architecture remains development-frozen and still requires genuinely fresh full-stack confirmation. The partial-2026 Core holdout remains spent and is not used here.
-'''
-          Path("docs/tge_independent_v1_production.md").write_text(note)
-
-          # Remove verbose stdout duplication; the self-hashed bundle is authoritative.
-          (root / "freeze_stdout.json").unlink()
           print(json.dumps({
-              "artifact_sha256": payload["artifact_sha256"],
-              "atp_bank_sha256": payload["atp"]["neighbor_bank"]["sha256"],
-              "wta_bank_sha256": payload["wta"]["neighbor_bank"]["sha256"],
-          }, indent=2))
+              "artifact_sha256": bundle.artifact_sha256,
+              "atp_neighbor_bank_sha256": bundle.atp.neighbor_bank.sha256,
+              "wta_neighbor_bank_sha256": bundle.wta.neighbor_bank.sha256,
+              "atp_neighbor_rows": bundle.atp.neighbor_bank.row_count,
+              "wta_neighbor_rows": bundle.wta.neighbor_bank.row_count,
+              "atp_alignment_meta_rows": bundle.atp.alignment_meta.training_n,
+              "wta_alignment_meta_rows": bundle.wta.alignment_meta.training_n,
+              "wta_pointsim_meta_rows": bundle.wta.wta_pointsim_meta.training_n,
+          }, indent=2, sort_keys=True))
+          (root / "freeze_stdout.json").unlink()
           PY
 
-      - name: Run production unit tests
+      - name: Run production boundary tests
         run: pytest tests/test_independent_production.py tests/test_independent_v1.py tests/test_historical_neighbors.py
 
-      - name: Ruff production files
-        run: ruff check src/tennis_genome/independent/production.py tests/test_independent_production.py
-
-      - name: Commit frozen production artifacts
+      - name: Commit source normalization and frozen artifacts
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "Aidan Miller"
           git config user.email "aidandcmiller@live.com"
-          git add artifacts/tge_independent_v1_production docs/tge_independent_v1_production.md
+          git add src/tennis_genome/independent/production.py tests/test_independent_production.py artifacts/tge_independent_v1_production
           if git diff --cached --quiet; then
-            echo "Production artifacts are already identical."
+            echo "Production source and artifacts are already identical."
             exit 0
           fi
           git commit -m "Seal TGE-Independent-v1 production bundle"
@@ -210,8 +165,6 @@ This is a **production freeze, not a new validation result**. The complete archi
         uses: actions/upload-artifact@v4
         with:
           name: tge-independent-v1-production-freeze
-          path: |
-            artifacts/tge_independent_v1_production
-            docs/tge_independent_v1_production.md
+          path: artifacts/tge_independent_v1_production
           if-no-files-found: error
           retention-days: 30
