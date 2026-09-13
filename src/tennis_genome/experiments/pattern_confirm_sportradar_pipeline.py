@@ -80,9 +80,7 @@ def verified_frozen_base_history(
     if any(match.pre_match.event_date > _BASE_END for match in atp):
         raise ValueError("frozen base history contains post-2025 ATP rows")
     eligible = [
-        match
-        for match in atp
-        if not match.outcome.walkover and not match.outcome.retirement
+        match for match in atp if not match.outcome.walkover and not match.outcome.retirement
     ]
     if len(eligible) != profile_artifact.training_n:
         raise ValueError("frozen base history does not reproduce training N")
@@ -115,9 +113,15 @@ def build_sportradar_prospective_state(
     )
     sealed_crosswalk = verify_crosswalk(crosswalk_payload)
     crosswalk = crosswalk_mapping(sealed_crosswalk)
-    if crosswalk.get(identity_mapping.player_a_sportradar_id) != identity_mapping.player_a_canonical_id:
+    if (
+        crosswalk.get(identity_mapping.player_a_sportradar_id)
+        != identity_mapping.player_a_canonical_id
+    ):
         raise ValueError("sealed crosswalk does not reproduce target player A identity")
-    if crosswalk.get(identity_mapping.player_b_sportradar_id) != identity_mapping.player_b_canonical_id:
+    if (
+        crosswalk.get(identity_mapping.player_b_sportradar_id)
+        != identity_mapping.player_b_canonical_id
+    ):
         raise ValueError("sealed crosswalk does not reproduce target player B identity")
 
     target_context = verify_target_context_artifact(

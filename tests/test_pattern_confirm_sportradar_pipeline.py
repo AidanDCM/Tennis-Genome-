@@ -280,9 +280,7 @@ def _capture_payload(
 def test_frozen_base_must_reproduce_training_hash() -> None:
     base = _base()
     profile, core = _toy_models(base)
-    assert verified_frozen_base_history(
-        base, profile_artifact=profile, core_artifact=core
-    ) == base
+    assert verified_frozen_base_history(base, profile_artifact=profile, core_artifact=core) == base
     with pytest.raises(ValueError, match="training-row hash"):
         verified_frozen_base_history(
             [replace(base[0], outcome=replace(base[0].outcome, a_won=False)), base[1]],

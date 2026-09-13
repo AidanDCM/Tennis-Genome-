@@ -171,9 +171,7 @@ def build_live_source_package(
         get_json=get_json,
     )
     state_capture_payload = state_capture_as_dict(state_capture)
-    state_accepted_count, state_parser_excluded_count = _nested_state_counts(
-        state_capture_payload
-    )
+    state_accepted_count, state_parser_excluded_count = _nested_state_counts(state_capture_payload)
     prospective_state = build_sportradar_prospective_state(
         base_history=base_history,
         state_capture_payload=state_capture_payload,
@@ -277,9 +275,7 @@ def verify_source_package(
     if capture.target_state_cutoff_date != package.season_start_date:
         raise ValueError("source package state cutoff mismatch")
 
-    state_accepted_count, state_parser_excluded_count = _nested_state_counts(
-        package.state_capture
-    )
+    state_accepted_count, state_parser_excluded_count = _nested_state_counts(package.state_capture)
     expected_counts = (
         capture.selected_season_count,
         capture.fetched_page_count,

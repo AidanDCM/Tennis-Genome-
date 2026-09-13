@@ -120,8 +120,7 @@ def _required_text(raw: dict[str, object], name: str) -> str:
 
 def _catalog_array(payload: dict[str, object], name: str) -> list[dict[str, object]]:
     return [
-        _as_dict(item, field=f"{name} item")
-        for item in _as_list(payload.get(name), field=name)
+        _as_dict(item, field=f"{name} item") for item in _as_list(payload.get(name), field=name)
     ]
 
 
@@ -348,8 +347,7 @@ def verify_state_capture(
         SeasonPageAudit(**_as_dict(item, field="page audit")) for item in raw_pages
     )
     normalized["cutoff_exclusions"] = tuple(
-        CutoffExclusion(**_as_dict(item, field="cutoff exclusion"))
-        for item in raw_exclusions
+        CutoffExclusion(**_as_dict(item, field="cutoff exclusion")) for item in raw_exclusions
     )
     capture = SeasonStateCapture(**normalized)
     if capture.version != _VERSION or capture.source_contract != _SOURCE_CONTRACT:
