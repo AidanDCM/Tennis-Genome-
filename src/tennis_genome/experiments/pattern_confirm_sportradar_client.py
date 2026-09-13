@@ -208,8 +208,8 @@ def fetch_daily_summary_range(
     access_level: str,
     get_json: Callable[..., object] = _http_json,
 ) -> list[dict[str, object]]:
-    if end_date_exclusive < start_date:
-        raise ValueError("daily-summary range end cannot precede start")
+    if end_date_exclusive <= start_date:
+        raise ValueError("daily-summary range end must be after start")
     rows: list[dict[str, object]] = []
     current = start_date
     while current < end_date_exclusive:
