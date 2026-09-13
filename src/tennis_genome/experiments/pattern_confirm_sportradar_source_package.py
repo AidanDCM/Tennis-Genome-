@@ -22,14 +22,19 @@ from tennis_genome.experiments.pattern_confirm_sportradar_client import (
     fetch_sport_event_summary,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_crosswalk import (
+    crosswalk_mapping,
     verify_crosswalk,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_pipeline import (
+    HISTORY_SOURCE_ID,
     build_sportradar_prospective_state,
+    history_source_sha256,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_state import (
     build_target_context_artifact,
+    history_from_state_bundle,
     target_context_as_dict,
+    verify_state_bundle,
     verify_target_context_artifact,
 )
 from tennis_genome.experiments.pattern_confirm_sportradar_state_capture import (
@@ -94,6 +99,16 @@ def _capture_time(value: datetime) -> str:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("captured_at must be timezone-aware")
     return value.isoformat()
+
+
+def _verify_capture_time(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except ValueError as exc:
+        raise ValueError("source package captured_at must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("source package captured_at must be timezone-aware")
+    return parsed
 
 
 def _nested_state_counts(state_capture: dict[str, object]) -> tuple[int, int]:
@@ -233,6 +248,7 @@ def verify_source_package(
     package = SportradarSourcePackage(**payload)
     if package.version != _VERSION:
         raise ValueError("unexpected Sportradar source package version")
+    _verify_capture_time(package.captured_at)
     if "target/future outcome" not in package.outcome_scope:
         raise ValueError("source package outcome scope is not frozen")
     if package.identity_mapping_sha256 != identity_mapping.artifact_sha256:
@@ -247,6 +263,13 @@ def verify_source_package(
         raise ValueError("source package season mismatch")
     if package.season_start_date != identity_mapping.season_start_date:
         raise ValueError("source package season-start mismatch")
+
+    if profile_artifact.training_n != core_artifact.training_n:
+        raise ValueError("source package Profile/Core frozen training counts differ")
+    if profile_artifact.training_rows_sha256 != core_artifact.training_rows_sha256:
+        raise ValueError("source package Profile/Core training-row hashes differ")
+    if profile_artifact.canonical_manifest_sha256 != core_artifact.canonical_manifest_sha256:
+        raise ValueError("source package Profile/Core canonical manifest hashes differ")
 
     sealed_crosswalk = verify_crosswalk(crosswalk_payload)
     if package.crosswalk_sha256 != sealed_crosswalk.artifact_sha256:
@@ -274,6 +297,29 @@ def verify_source_package(
         raise ValueError("source package prospective-state hash mismatch")
     if capture.target_state_cutoff_date != package.season_start_date:
         raise ValueError("source package state cutoff mismatch")
+
+    expected_history_source_sha = history_source_sha256(
+        base_canonical_manifest_sha256=profile_artifact.canonical_manifest_sha256,
+        base_training_rows_sha256=profile_artifact.training_rows_sha256,
+        state_capture_sha256=capture.artifact_sha256,
+        state_bundle_sha256=capture.state_bundle_sha256,
+        target_context_sha256=target.artifact_sha256,
+        crosswalk_sha256=sealed_crosswalk.artifact_sha256,
+    )
+    if state.history_source_id != HISTORY_SOURCE_ID:
+        raise ValueError("prospective state history source ID is not frozen")
+    if state.history_source_sha256 != expected_history_source_sha:
+        raise ValueError("prospective state history source provenance mismatch")
+
+    crosswalk = crosswalk_mapping(sealed_crosswalk)
+    bundle = verify_state_bundle(capture.state_bundle, crosswalk=crosswalk)
+    extension = history_from_state_bundle(bundle)
+    eligible_extension_n = sum(
+        not match.outcome.walkover and not match.outcome.retirement for match in extension
+    )
+    expected_history_n = profile_artifact.training_n + eligible_extension_n
+    if state.history_n != expected_history_n:
+        raise ValueError("prospective state history_n does not match frozen source package")
 
     state_accepted_count, state_parser_excluded_count = _nested_state_counts(package.state_capture)
     expected_counts = (
