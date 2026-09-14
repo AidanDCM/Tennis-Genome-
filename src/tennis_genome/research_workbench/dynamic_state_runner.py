@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import date
 from pathlib import Path
 from typing import cast
 
 from tennis_genome.data.canonical import HistoricalMatch, Tour
-from tennis_genome.data.manifest import sha256_file, verify_canonical_manifest
+from tennis_genome.data.manifest import verify_canonical_manifest
 from tennis_genome.data.parquet import load_canonical_parquet
 
 from .contracts import WorkbenchRecord
@@ -45,6 +46,21 @@ class DynamicStateDevelopmentEvidence(WorkbenchRecord):
     dataset_fingerprint: DatasetFingerprint
     code_fingerprint: CodeFingerprint
     report: DynamicStateDevelopmentReport
+
+
+def stable_source_manifest_sha256(manifest: dict[str, object]) -> str:
+    """Hash stable manifest semantics while excluding only build-clock noise."""
+
+    stable = dict(manifest)
+    stable.pop("built_at_utc", None)
+    payload = json.dumps(
+        stable,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _eligible_population(
@@ -180,7 +196,7 @@ def run_from_canonical_files(
     return build_dynamic_state_development_evidence(
         matches=matches,
         spec=spec,
-        source_manifest_sha256=sha256_file(manifest_path),
+        source_manifest_sha256=stable_source_manifest_sha256(manifest),
         schema_version=str(manifest["schema_version"]),
         repo_root=repo_root,
     )
