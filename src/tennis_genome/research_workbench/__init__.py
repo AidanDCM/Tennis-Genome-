@@ -27,6 +27,11 @@ from .constitution import (
 from .contracts import EvaluationSpec, ForecastingProcedureSpec, WorkbenchRecord
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
+from .history import (
+    ResearchHistoryEvent,
+    ResearchLifecycleAudit,
+    ResearchLifecycleLedger,
+)
 from .lineage import (
     CanonicalEvaluationBinding,
     CodeFingerprint,
@@ -82,6 +87,9 @@ __all__ = [
     "ReliabilityGrade",
     "ResearchAuthority",
     "ResearchConstitution",
+    "ResearchHistoryEvent",
+    "ResearchLifecycleAudit",
+    "ResearchLifecycleLedger",
     "RevisionSemantics",
     "SyntheticBenchmarkReport",
     "SyntheticWorld",
