@@ -17,6 +17,13 @@ from .lineage import (
     fingerprint_code_components,
     fingerprint_match_population,
 )
+from .protected import (
+    ProtectedDataVault,
+    ProtectedDatasetReference,
+    ProtectedOpenAuthorization,
+    ProtectedOpenReceipt,
+    write_protected_dataset,
+)
 from .registry import ImmutableResearchRegistry
 from .synthetic import SyntheticWorld, interaction_world, miscalibration_world, null_world
 from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchmark
@@ -33,6 +40,10 @@ __all__ = [
     "ForecastingProcedureSpec",
     "ImmutableResearchRegistry",
     "ProcedureSearchFamily",
+    "ProtectedDataVault",
+    "ProtectedDatasetReference",
+    "ProtectedOpenAuthorization",
+    "ProtectedOpenReceipt",
     "SyntheticBenchmarkReport",
     "SyntheticWorld",
     "WorkbenchRecord",
@@ -44,4 +55,5 @@ __all__ = [
     "miscalibration_world",
     "null_world",
     "run_synthetic_benchmark",
+    "write_protected_dataset",
 ]
