@@ -38,6 +38,7 @@ from .protected import (
     write_protected_dataset,
 )
 from .registry import ImmutableResearchRegistry
+from .sackmann_availability import sackmann_research_availability_registry
 from .synthetic import SyntheticWorld, interaction_world, miscalibration_world, null_world
 from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchmark
 
@@ -79,5 +80,6 @@ __all__ = [
     "miscalibration_world",
     "null_world",
     "run_synthetic_benchmark",
+    "sackmann_research_availability_registry",
     "write_protected_dataset",
 ]
