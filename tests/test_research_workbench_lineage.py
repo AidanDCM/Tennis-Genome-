@@ -6,7 +6,6 @@ import pytest
 from pydantic import ValidationError
 
 from tennis_genome.research_workbench import (
-    ChronologySemantics,
     DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
     EvaluationSpec,
     ExposureGraph,
@@ -18,6 +17,7 @@ from tennis_genome.research_workbench import (
     fingerprint_code_components,
     fingerprint_match_population,
 )
+from tennis_genome.research_workbench.lineage import ChronologySemantics
 
 
 def _rows() -> list[dict[str, str]]:
