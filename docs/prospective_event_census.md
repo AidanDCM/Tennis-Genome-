@@ -137,7 +137,7 @@ python -m tennis_genome.prospective.census verify \
   --store prospective/full_stack_forward_001_census
 ```
 
-Verification recomputes record hashes, chain order, retained evidence hashes, discovery identity, observation/start chronology, uniqueness, terminal status/reason validity and open-event counts.
+Verification recomputes record hashes, chain order, retained evidence hashes, discovery identity, observation/start chronology, uniqueness, terminal status/reason validity and open-event counts. For every terminal disposition it also reopens the canonical `disposition_evidence_sha256` blob and requires event identity, status, reason, disposition time, prediction linkage, and match ID to reproduce exactly.
 
 ## Threat boundary
 
