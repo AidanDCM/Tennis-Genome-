@@ -313,7 +313,9 @@ class EventCensusStore:
                     "provider_event_id": _required_text(raw, "provider_event_id"),
                     "tour": _required_text(raw, "tour"),
                     "event_type": _required_text(raw, "event_type"),
-                    "observed_at": _parse_time(raw.get("observed_at"), field="observed_at").isoformat(),
+                    "observed_at": _parse_time(
+                        raw.get("observed_at"), field="observed_at"
+                    ).isoformat(),
                     "scheduled_start": _parse_time(
                         raw.get("scheduled_start"), field="scheduled_start"
                     ).isoformat(),
@@ -321,7 +323,9 @@ class EventCensusStore:
                 }
                 for field, value in expected.items():
                     if record.get(field) != value:
-                        raise ValueError(f"census discovery {field} does not reproduce from evidence")
+                        raise ValueError(
+                            f"census discovery {field} does not reproduce from evidence"
+                        )
                 if event_key != f"{expected['provider']}:{expected['provider_event_id']}":
                     raise ValueError("census discovery event_key does not reproduce")
                 discoveries[event_key] = record
@@ -517,7 +521,9 @@ def reconcile_with_pilot(
         prediction_sha = str(disposition["prediction_record_sha256"])
         prediction = predictions.get(prediction_sha)
         if prediction is None:
-            raise ValueError(f"census PREDICTED event has no matching pilot prediction: {event_key}")
+            raise ValueError(
+                f"census PREDICTED event has no matching pilot prediction: {event_key}"
+            )
         if prediction_sha in linked_prediction_shas:
             raise ValueError(f"pilot prediction linked to multiple census events: {prediction_sha}")
         linked_prediction_shas.add(prediction_sha)
@@ -591,7 +597,9 @@ def _build_parser() -> argparse.ArgumentParser:
     dispose = subparsers.add_parser("dispose")
     dispose.add_argument("--store", required=True, type=Path)
     dispose.add_argument("--discovery-record-sha256", required=True)
-    dispose.add_argument("--status", required=True, choices=[status.value for status in CensusStatus])
+    dispose.add_argument(
+        "--status", required=True, choices=[status.value for status in CensusStatus]
+    )
     dispose.add_argument("--reason-code", required=True)
     dispose.add_argument("--disposed-at", required=True)
     dispose.add_argument("--prediction-record-sha256")

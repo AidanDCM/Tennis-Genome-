@@ -9,9 +9,9 @@ import pytest
 from tennis_genome.prospective.census import (
     CensusStatus,
     EventCensusStore,
+    reconcile_with_pilot,
     record_discovery,
     record_disposition,
-    reconcile_with_pilot,
 )
 
 
@@ -56,8 +56,7 @@ class _FakePilotStore:
         return {
             "status": "VERIFIED",
             "prediction_count": sum(
-                record.get("record_type") == "PREDICTION_COMMIT"
-                for record in self._records
+                record.get("record_type") == "PREDICTION_COMMIT" for record in self._records
             ),
             "chain_head_sha256": "f" * 64,
         }
