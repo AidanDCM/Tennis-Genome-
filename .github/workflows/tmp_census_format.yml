@@ -1,0 +1,40 @@
+name: Temporary Census Formatter
+
+on:
+  push:
+    branches:
+      - dev/prospective-event-census
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/prospective-event-census
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.16'
+      - name: Install Ruff
+        run: python -m pip install ruff==0.16.7
+      - name: Format only census files
+        run: |
+          ruff format src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff check --fix src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff format src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff check src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          git diff --check
+      - name: Commit formatting-only changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          if git diff --cached --quiet; then
+            echo 'No formatting changes needed.'
+          else
+            git commit -m 'Format prospective census files'
+            git push origin HEAD:dev/prospective-event-census
+          fi
