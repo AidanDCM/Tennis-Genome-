@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import field_validator, model_validator
 
+from .constitution import ResearchConstitution
 from .contracts import EvaluationSpec, ForecastingProcedureSpec, WorkbenchRecord
 from .exposure import ExposureGraph
 
@@ -284,6 +285,7 @@ class CanonicalEvaluationBinding(WorkbenchRecord):
     runtime_id: str
     exposure_graph_sha256: str
     search_family_sha256: str
+    constitution_sha256: str
     evaluation_identity_sha256: str
 
     @field_validator(
@@ -293,6 +295,7 @@ class CanonicalEvaluationBinding(WorkbenchRecord):
         "code_fingerprint_sha256",
         "exposure_graph_sha256",
         "search_family_sha256",
+        "constitution_sha256",
         "evaluation_identity_sha256",
     )
     @classmethod
@@ -311,6 +314,7 @@ class CanonicalEvaluationBinding(WorkbenchRecord):
                 "runtime_id": self.runtime_id,
                 "exposure_graph_sha256": self.exposure_graph_sha256,
                 "search_family_sha256": self.search_family_sha256,
+                "constitution_sha256": self.constitution_sha256,
             }
         )
         if self.evaluation_identity_sha256 != expected:
@@ -326,6 +330,7 @@ def build_canonical_evaluation_binding(
     code: CodeFingerprint,
     exposure_graph: ExposureGraph,
     search_family: ProcedureSearchFamily,
+    constitution: ResearchConstitution,
 ) -> CanonicalEvaluationBinding:
     if procedure_spec.procedure_id not in evaluation_spec.procedure_ids:
         raise ValueError("procedure is not registered in evaluation")
@@ -347,6 +352,7 @@ def build_canonical_evaluation_binding(
         "runtime_id": procedure_spec.runtime_id,
         "exposure_graph_sha256": exposure_graph.semantic_sha256,
         "search_family_sha256": search_family.semantic_sha256,
+        "constitution_sha256": constitution.semantic_sha256,
     }
     return CanonicalEvaluationBinding(
         procedure_spec_sha256=procedure_spec.semantic_sha256,
@@ -356,5 +362,6 @@ def build_canonical_evaluation_binding(
         runtime_id=procedure_spec.runtime_id,
         exposure_graph_sha256=exposure_graph.semantic_sha256,
         search_family_sha256=search_family.semantic_sha256,
+        constitution_sha256=constitution.semantic_sha256,
         evaluation_identity_sha256=_sha256(payload),
     )
