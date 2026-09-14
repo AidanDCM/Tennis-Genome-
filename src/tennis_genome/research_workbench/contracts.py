@@ -107,7 +107,12 @@ class ForecastingProcedureSpec(WorkbenchRecord):
                 *self.required_data,
             )
         ).lower()
-        forbidden = sorted(token for token in _FORBIDDEN_MARKET_TOKENS if token in searchable)
+        normalized = re.sub(r"[^a-z0-9]+", "_", searchable)
+        forbidden = sorted(
+            token
+            for token in _FORBIDDEN_MARKET_TOKENS
+            if token in searchable or token in normalized
+        )
         if forbidden:
             raise ValueError(
                 "independent research procedures may not consume downstream market semantics: "
