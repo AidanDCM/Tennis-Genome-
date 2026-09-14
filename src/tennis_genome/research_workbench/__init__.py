@@ -31,6 +31,13 @@ from .dynamic_state_benchmark import (
     DynamicStateShiftSpec,
     run_dynamic_state_shift_benchmark,
 )
+from .dynamic_state_development import (
+    DynamicStateDevelopmentReport,
+    DynamicStateDevelopmentSpec,
+    DynamicStatePredictionRow,
+    DynamicStateYearScore,
+    run_dynamic_state_development_comparison,
+)
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
 from .history import (
@@ -71,9 +78,13 @@ __all__ = [
     "CodeFingerprint",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
+    "DynamicStateDevelopmentReport",
+    "DynamicStateDevelopmentSpec",
+    "DynamicStatePredictionRow",
     "DynamicStateSeedResult",
     "DynamicStateShiftReport",
     "DynamicStateShiftSpec",
+    "DynamicStateYearScore",
     "EvaluationResult",
     "EvaluationSpec",
     "ExposureGraph",
@@ -115,6 +126,7 @@ __all__ = [
     "interaction_world",
     "miscalibration_world",
     "null_world",
+    "run_dynamic_state_development_comparison",
     "run_dynamic_state_shift_benchmark",
     "run_null_calibration_campaign",
     "run_synthetic_benchmark",
