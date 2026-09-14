@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from itertools import groupby
-from math import exp, log, log2, sqrt
+from math import exp, isfinite, log, sqrt
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchStats
 
@@ -178,8 +178,10 @@ def _posterior_update(
     update: _UpdateAccumulator,
     min_variance: float,
 ) -> tuple[float, float]:
-    if update.information < 0.0 or not (
-        update.gradient == update.gradient and update.information == update.information
+    if (
+        update.information < 0.0
+        or not isfinite(update.gradient)
+        or not isfinite(update.information)
     ):
         raise ValueError("dynamic update contains invalid information")
     if update.information == 0.0:
