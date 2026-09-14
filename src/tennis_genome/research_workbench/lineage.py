@@ -150,8 +150,7 @@ def fingerprint_match_population(
             "rows": identities,
         }
     )
-    payload = {
-        "kind": "tennis-workbench-dataset-v1",
+    fields = {
         "dataset_id": dataset_id,
         "row_count": len(identities),
         "first_event_time": identities[0]["event_time"],
@@ -161,7 +160,8 @@ def fingerprint_match_population(
         "availability_contract_sha256": availability_contract_sha256,
         "schema_version": schema_version,
     }
-    return DatasetFingerprint(**payload, sha256=_sha256(payload))
+    digest_payload = {"kind": "tennis-workbench-dataset-v1", **fields}
+    return DatasetFingerprint(**fields, sha256=_sha256(digest_payload))
 
 
 class CodeFingerprint(WorkbenchRecord):
