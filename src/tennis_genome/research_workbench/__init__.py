@@ -17,6 +17,7 @@ from .lineage import (
     fingerprint_code_components,
     fingerprint_match_population,
 )
+from .registry import ImmutableResearchRegistry
 from .protected import (
     ProtectedDataVault,
     ProtectedDatasetReference,
@@ -24,7 +25,6 @@ from .protected import (
     ProtectedOpenReceipt,
     write_protected_dataset,
 )
-from .registry import ImmutableResearchRegistry
 from .synthetic import SyntheticWorld, interaction_world, miscalibration_world, null_world
 from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchmark
 
