@@ -82,7 +82,9 @@ class ExposureGraph:
     def assert_registered(self, exposure_ids: tuple[str, ...]) -> None:
         """Fail closed when a procedure cites exposure records that do not exist."""
 
-        missing = sorted(exposure_id for exposure_id in exposure_ids if exposure_id not in self._records)
+        missing = sorted(
+            exposure_id for exposure_id in exposure_ids if exposure_id not in self._records
+        )
         if missing:
             raise ValueError("procedure cites unregistered exposure IDs: " + ", ".join(missing))
 
