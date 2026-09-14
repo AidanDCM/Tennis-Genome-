@@ -1,6 +1,6 @@
 # Forecast Research Workbench
 
-Status: **development foundation only**
+Status: **development foundation with protected-evaluation integrity enforcement**
 
 This package creates a bounded research surface for Tennis Genome v2 work without modifying the frozen TGE-Independent-v1 predictor, FULL-STACK-FORWARD-001, or PATTERN-CONFIRM-001.
 
@@ -12,13 +12,15 @@ This deliberately avoids making a catalog of discovered rules the center of the 
 
 ## Current v0 scope
 
-The first slice provides:
+The current foundation provides:
 
 - immutable forecasting-procedure specifications;
 - frozen evaluation specifications;
 - a market-blind research boundary;
 - an exposure/dependency graph for adaptive research lineage;
+- mandatory protected-evaluation exposure checks;
 - content-addressed immutable research records;
+- procedure-hash and evaluation-hash binding in canonical score results;
 - proper-score evaluation using Brier score and log loss;
 - reproducible synthetic benchmark worlds for null, calibration-error, and planted-interaction cases.
 
@@ -28,6 +30,8 @@ It does **not** yet provide:
 - dynamic serve/return state estimation;
 - historical chronological forecast-panel construction;
 - real protected evaluation data;
+- trial-family accounting;
+- complete dataset/code fingerprint objects;
 - AI research agents;
 - market-edge analysis;
 - any modification to the frozen production predictor.
@@ -36,11 +40,15 @@ It does **not** yet provide:
 
 Chronological out-of-fold forecasts are necessary for later residual research, but they are not automatically independent evidence. Any decision made after viewing outcomes, residual plots, aggregate metrics, or protected results creates research exposure that later procedures inherit.
 
-The `ExposureGraph` records that dependency explicitly. Protected evaluation should fail closed when a challenger inherits exposure to the same protected source population.
+The `ExposureGraph` records that dependency explicitly. A protected `EvaluationSpec` must declare the source population it protects. The forecasting procedure must declare at least one registered development exposure record, every declared exposure ID must resolve in the supplied graph, and inherited exposure may not overlap the protected source population. The public probability evaluator fails closed when any of those requirements is missing or violated.
+
+This closes the first enforcement gap identified in the independent audit: exposure lineage is no longer a stand-alone data structure that protected scoring can ignore.
+
+The graph can verify declared lineage and inherited overlap. It cannot prove that a human or external agent disclosed every piece of information they observed. Future research automation should therefore make exposure capture part of the workflow rather than relying on retrospective manual declarations.
 
 ## Independent probability boundary
 
-Workbench procedures are for independent tennis probability research only. Procedure input contracts, feature names, and required data reject downstream market semantics such as bookmaker odds, sportsbook data, stakes, profits, CLV, or wagering fields.
+Workbench procedures are for independent tennis probability research only. Market-semantic checks cover procedure identity and descriptive fields, input contracts, feature names, training method, hyperparameters, calibration, prediction method, and required data. Downstream concepts such as bookmaker odds, sportsbook data, implied probabilities, stakes, profits, CLV, or wagering fields are rejected.
 
 Market research remains a separate downstream experiment.
 
@@ -54,16 +62,20 @@ The initial benchmark set contains:
 2. `miscalibration_world`: the baseline has a global calibration defect but no special subgroup rule is required.
 3. `interaction_world`: the baseline omits a real nonlinear interaction, so residual information genuinely exists.
 
+The worlds are currently reproducible known-truth fixtures. The next slice must close the loop by fitting/evaluating real challenger procedures against them and asserting the expected scientific conclusions rather than testing only fixture construction.
+
 Additional worlds should later add adaptive-threshold selection, shared player/tournament dependence, future-smoothed leakage, provider drift, missingness artifacts, rare signals, regime shifts, and prospective collapse.
 
 ## Next engineering slices
 
-1. Historical availability audit and explicit feature-availability contracts.
-2. Leakage-safe chronological forecast panels.
-3. Persistent exposure/dependency manifests tied to research decisions.
-4. `CHALLENGER-BASELINE-001`: frozen baseline vs calibration-only vs smooth correction vs shallow nonlinear challenger vs dynamic serve/return challenger.
-5. Dynamic player-state research.
-6. Bounded residual discovery only if simpler challengers justify additional complexity.
+1. Close the synthetic-world validation loop with actual challenger procedures.
+2. Build prospective eligible-event census / denominator completeness controls.
+3. Add procedure-search trial families, canonical dataset/code fingerprints, and protected-population burn.
+4. Audit historical availability and add explicit feature-availability contracts.
+5. Build leakage-safe chronological forecast panels.
+6. Develop dynamic serve/return state as a possible Core-v2 state-estimation challenger.
+7. Run bounded challenger comparisons only after the integrity substrate is complete.
+8. Expand residual/pattern discovery only if simpler challengers leave meaningful protected signal.
 
 ## Non-goals
 
