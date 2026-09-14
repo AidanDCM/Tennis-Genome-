@@ -96,6 +96,20 @@ sealed dynamic-state candidate search.
 The real ATP/WTA coverage artifacts have not yet been opened from this execution path.
 Any interpretation must occur only after the pinned launcher reproduces its source gates.
 
+## Availability-registry binding status
+
+Canonical v2 `DatasetFingerprint` identity is structurally bound to
+`availability_contract_sha256`.
+
+The fingerprint constructor requires a valid lowercase SHA-256 availability identity and
+includes it in the dataset digest. Changing only the availability-registry identity while
+holding the ordered match population fixed therefore changes the dataset fingerprint.
+Malformed or absent availability identities fail closed.
+
+The current real dynamic-state runner passes the semantic hash of the audited Sackmann
+availability registry into this required field. This means availability identity is part
+of dataset identity rather than optional report metadata.
+
 ## Remaining work
 
 1. Verify historical publication semantics for rankings/ranking points.
@@ -106,7 +120,6 @@ Any interpretation must occur only after the pinned launcher reproduces its sour
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
 5. Identify a source with trustworthy match-start timestamps for dynamic-state research.
-6. Bind every canonical v2 dataset fingerprint to the exact availability-registry hash.
 
 ## Scientific consequence
 
