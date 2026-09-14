@@ -69,7 +69,7 @@ class DatasetFingerprint(WorkbenchRecord):
         return _validate_sha256_text(value, label="fingerprint digest")
 
     @model_validator(mode="after")
-    def _verify_digest(self) -> "DatasetFingerprint":
+    def _verify_digest(self) -> DatasetFingerprint:
         if self.row_count <= 0:
             raise ValueError("dataset fingerprint requires at least one row")
         first = _parse_utc(self.first_event_time, label="first_event_time")
@@ -188,7 +188,7 @@ class CodeFingerprint(WorkbenchRecord):
         return value
 
     @model_validator(mode="after")
-    def _verify_digest(self) -> "CodeFingerprint":
+    def _verify_digest(self) -> CodeFingerprint:
         expected = _sha256(
             {
                 "kind": "tennis-workbench-code-v1",
@@ -242,7 +242,7 @@ class ProcedureSearchFamily(WorkbenchRecord):
         return value
 
     @model_validator(mode="after")
-    def _validate_family(self) -> "ProcedureSearchFamily":
+    def _validate_family(self) -> ProcedureSearchFamily:
         if not self.family_id.strip() or not self.research_question.strip():
             raise ValueError("family_id and research_question are required")
         if not self.procedure_ids:
@@ -300,7 +300,7 @@ class CanonicalEvaluationBinding(WorkbenchRecord):
         return _validate_sha256_text(value, label="canonical binding digest")
 
     @model_validator(mode="after")
-    def _verify_identity(self) -> "CanonicalEvaluationBinding":
+    def _verify_identity(self) -> CanonicalEvaluationBinding:
         expected = _sha256(
             {
                 "kind": "tennis-workbench-canonical-evaluation-v1",
