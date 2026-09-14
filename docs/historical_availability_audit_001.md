@@ -1,6 +1,6 @@
 # Historical Availability Audit 001 — Sackmann-style Research Source
 
-Status: **initial machine-readable audit; canonical v2 target-row availability remains unresolved**
+Status: **machine-readable audit active; target-row availability unresolved; coverage report execution pending**
 
 Audit date: 2026-09-14
 
@@ -72,13 +72,39 @@ source calendar date while exact intraday ordering remains untrusted.
 This is stricter than real tennis chronology but avoids manufacturing chronology from
 source row order.
 
+## Historical coverage audit status
+
+The coverage metric is now frozen in
+`tennis_genome.research_workbench.historical_coverage_audit` before the real year-by-year
+report is opened.
+
+For each tour/year it records, on an explicit non-walkover/non-retirement denominator:
+
+- presence of any retained match-stat object;
+- valid serve observations for each side and both sides using the fields actually consumed
+  by the serve/return estimator;
+- retained match duration used by workload state.
+
+The coverage audit is `DESCRIPTIVE_ONLY`. It defines no bad-year threshold, removes no
+year, changes no coefficient, and cannot itself upgrade a feature's T0 policy.
+
+`scripts/run_historical_coverage_audit_real.sh` is the isolated real-data execution path.
+It rebuilds only the exact pinned 2000–2025 ATP/WTA canonical snapshot, fails closed on the
+archived row/hash identities, and runs only the coverage audit. It does **not** invoke the
+sealed dynamic-state candidate search.
+
+The real ATP/WTA coverage artifacts have not yet been opened from this execution path.
+Any interpretation must occur only after the pinned launcher reproduces its source gates.
+
 ## Remaining work
 
 1. Verify historical publication semantics for rankings/ranking points.
 2. Verify whether target event context can be reconstructed from independently timestamped
    draws/schedules rather than retrospectively compiled match rows.
 3. Audit player reference fields for historical revision behavior.
-4. Quantify missingness/schema changes for match statistics and duration by tour/year.
+4. Execute the frozen historical coverage audit on the pinned source and archive the
+   tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
+   from the observed coverage pattern.
 5. Identify a source with trustworthy match-start timestamps for dynamic-state research.
 6. Bind every canonical v2 dataset fingerprint to the exact availability-registry hash.
 
