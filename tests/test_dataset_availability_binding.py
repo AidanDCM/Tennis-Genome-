@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-import tennis_genome.research_workbench as workbench
+workbench = __import__("tennis_genome.research_workbench", fromlist=["*"])
 
 
 _ROWS = (
