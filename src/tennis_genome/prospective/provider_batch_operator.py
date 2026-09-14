@@ -10,6 +10,10 @@ from tennis_genome.prospective.provider_batch import (
     ProviderBatchStore,
     capture_provider_batch,
 )
+from tennis_genome.prospective.provider_batch_pagination import (
+    capture_paginated_provider_batch,
+    verify_paginated_provider_batches,
+)
 
 ANCHOR_PACKET_SCHEMA = "full-stack-forward-provider-batch-anchor-packet-v1"
 ANCHOR_REPOSITORY = "AidanDCM/Tennis-Genome-"
@@ -95,6 +99,7 @@ def build_anchor_dispatch_packet(
     """Build exact workflow inputs only for the current verified provider-batch head."""
 
     report = store.verify()
+    verify_paginated_provider_batches(store)
     record = _record_by_sha(store, record_sha256)
     record_sha = str(record.get("record_sha256", ""))
     chain_head = str(report.get("chain_head_sha256", ""))
@@ -153,7 +158,7 @@ def capture_batch_and_build_anchor_packet(
     schedule_date: date,
     observed_at: datetime,
 ) -> tuple[dict[str, object], dict[str, object]]:
-    """Capture one raw provider response and return its exact dispatch packet."""
+    """Capture one legacy raw provider response and return its dispatch packet."""
 
     normalized_observed_at = observed_at.astimezone(UTC)
     if schedule_date != normalized_observed_at.date():
@@ -161,6 +166,34 @@ def capture_batch_and_build_anchor_packet(
     record = capture_provider_batch(
         store=store,
         raw_payload_path=raw_payload_path,
+        schedule_date=schedule_date,
+        observed_at=normalized_observed_at,
+    )
+    packet = build_anchor_dispatch_packet(
+        store=store,
+        record_sha256=str(record["record_sha256"]),
+    )
+    return record, packet
+
+
+def capture_pages_and_build_anchor_packet(
+    *,
+    store: ProviderBatchStore,
+    raw_page_paths: list[Path],
+    header_page_paths: list[Path],
+    schedule_date: date,
+    observed_at: datetime,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Capture complete retained Daily Summaries pages and return anchor inputs."""
+
+    if len(raw_page_paths) != len(header_page_paths):
+        raise ValueError("--raw-page and --header-page counts must match")
+    normalized_observed_at = observed_at.astimezone(UTC)
+    if schedule_date != normalized_observed_at.date():
+        raise ValueError("schedule_date must equal observed_at UTC date")
+    record = capture_paginated_provider_batch(
+        store=store,
+        page_pairs=list(zip(raw_page_paths, header_page_paths, strict=True)),
         schedule_date=schedule_date,
         observed_at=normalized_observed_at,
     )
@@ -188,13 +221,24 @@ def _parse_args() -> argparse.Namespace:
 
     capture = subparsers.add_parser(
         "capture",
-        help="retain one raw Sportradar batch and emit exact GitHub anchor inputs",
+        help="legacy single-response capture; use capture-pages for live API evidence",
     )
     capture.add_argument("--store", required=True, type=Path)
     capture.add_argument("--raw-payload", required=True, type=Path)
     capture.add_argument("--schedule-date", required=True)
     capture.add_argument("--observed-at", required=True)
     capture.add_argument("--packet", type=Path)
+
+    pages = subparsers.add_parser(
+        "capture-pages",
+        help="retain complete Sportradar pages+headers and emit exact anchor inputs",
+    )
+    pages.add_argument("--store", required=True, type=Path)
+    pages.add_argument("--raw-page", action="append", required=True, type=Path)
+    pages.add_argument("--header-page", action="append", required=True, type=Path)
+    pages.add_argument("--schedule-date", required=True)
+    pages.add_argument("--observed-at", required=True)
+    pages.add_argument("--packet", type=Path)
 
     packet = subparsers.add_parser(
         "packet",
@@ -204,7 +248,7 @@ def _parse_args() -> argparse.Namespace:
     packet.add_argument("--record-sha256")
     packet.add_argument("--output", type=Path)
 
-    verify = subparsers.add_parser("verify", help="verify the provider-batch ledger")
+    verify = subparsers.add_parser("verify", help="verify provider + pagination evidence")
     verify.add_argument("--store", required=True, type=Path)
     return parser.parse_args()
 
@@ -221,6 +265,16 @@ def main() -> None:
         )
         _write_or_print(packet, args.packet)
         return
+    if args.command == "capture-pages":
+        _, packet = capture_pages_and_build_anchor_packet(
+            store=store,
+            raw_page_paths=args.raw_page,
+            header_page_paths=args.header_page,
+            schedule_date=_parse_date(args.schedule_date),
+            observed_at=_parse_time(args.observed_at),
+        )
+        _write_or_print(packet, args.packet)
+        return
     if args.command == "packet":
         packet = build_anchor_dispatch_packet(
             store=store,
@@ -229,7 +283,12 @@ def main() -> None:
         _write_or_print(packet, args.output)
         return
     if args.command == "verify":
-        _write_or_print(store.verify(), None)
+        report = {
+            "provider_batch": store.verify(),
+            "pagination": verify_paginated_provider_batches(store),
+            "status": "VERIFIED",
+        }
+        _write_or_print(report, None)
         return
     raise AssertionError(f"unsupported command: {args.command}")
 
