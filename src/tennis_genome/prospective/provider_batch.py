@@ -23,6 +23,11 @@ _IN_SCOPE_CATEGORIES = {
 _CENSUS_REQUIRED = "CENSUS_REQUIRED"
 _OUT_OF_SCOPE = "OUT_OF_SCOPE"
 _DENOMINATOR_FAILURE = "DENOMINATOR_FAILURE"
+_ALLOWED_CLASSIFICATIONS = {
+    _CENSUS_REQUIRED,
+    _OUT_OF_SCOPE,
+    _DENOMINATOR_FAILURE,
+}
 
 
 def _canonical_json(value: object) -> bytes:
@@ -138,13 +143,11 @@ def _event_row(summary: object, *, observed_at: datetime) -> dict[str, object]:
         context.get("competition"),
         field="sport_event_context.competition",
     )
+    status = _as_dict(root.get("sport_event_status", {}), field="sport_event_status")
     category_id = _required_text(category, "id")
     category_name = _required_text(category, "name")
     competition_type = _required_text(competition, "type").lower()
-    provider_status = _required_text(
-        _as_dict(root.get("sport_event_status", {}), field="sport_event_status"),
-        "status",
-    ).lower()
+    provider_status = _required_text(status, "status").lower()
 
     category_scope = _IN_SCOPE_CATEGORIES.get(category_id)
     if category_scope is None:
@@ -264,7 +267,9 @@ class ProviderBatchStore:
         try:
             fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except FileExistsError as exc:
-            raise RuntimeError("provider-batch store is locked; confirm no writer is active") from exc
+            raise RuntimeError(
+                "provider-batch store is locked; confirm no writer is active"
+            ) from exc
         try:
             os.write(fd, f"{os.getpid()}\n".encode("ascii"))
             os.fsync(fd)
@@ -320,6 +325,10 @@ class ProviderBatchStore:
         for sequence, record in enumerate(records, start=1):
             if record.get("batch_version") != BATCH_VERSION:
                 raise ValueError(f"unexpected provider-batch version at sequence {sequence}")
+            if record.get("record_type") != "PROVIDER_BATCH":
+                raise ValueError(f"unexpected provider-batch record type at sequence {sequence}")
+            if record.get("provider") != _PROVIDER:
+                raise ValueError(f"unexpected provider at batch sequence {sequence}")
             if int(record.get("sequence", -1)) != sequence:
                 raise ValueError(f"provider-batch sequence gap at {sequence}")
             observed_sha = str(record.get("record_sha256", ""))
@@ -335,6 +344,9 @@ class ProviderBatchStore:
 
             raw_sha = str(record.get("raw_payload_sha256", ""))
             manifest_sha = str(record.get("manifest_sha256", ""))
+            evidence_manifest = record.get("evidence_sha256")
+            if evidence_manifest != [raw_sha, manifest_sha]:
+                raise ValueError("provider-batch evidence manifest mismatch")
             for digest in (raw_sha, manifest_sha):
                 evidence = self.evidence_dir / digest
                 if len(digest) != 64 or not evidence.is_file():
@@ -342,26 +354,36 @@ class ProviderBatchStore:
                 if _sha256_file(evidence) != digest:
                     raise ValueError(f"provider-batch evidence digest mismatch: {digest}")
 
-            raw = _json_object(self.evidence_dir / raw_sha, label="provider batch raw payload")
+            raw = _json_object(
+                self.evidence_dir / raw_sha,
+                label="provider batch raw payload",
+            )
             manifest = _json_object(
                 self.evidence_dir / manifest_sha,
                 label="provider batch manifest",
             )
+            schedule_date = date.fromisoformat(str(record.get("schedule_date")))
+            observed_at = _parse_time(record.get("observed_at"), field="observed_at")
             rebuilt = build_batch_manifest(
                 raw_payload=raw,
-                schedule_date=date.fromisoformat(str(record.get("schedule_date"))),
-                observed_at=_parse_time(record.get("observed_at"), field="observed_at"),
+                schedule_date=schedule_date,
+                observed_at=observed_at,
                 raw_payload_sha256=raw_sha,
             )
             if _canonical_json(rebuilt) != _canonical_json(manifest):
                 raise ValueError("provider-batch manifest does not reproduce from raw evidence")
             for field in ("schedule_date", "observed_at", "raw_summary_count"):
                 if record.get(field) != manifest.get(field):
-                    raise ValueError(f"provider-batch {field} does not reproduce from evidence")
+                    raise ValueError(
+                        f"provider-batch {field} does not reproduce from evidence"
+                    )
             schedule_dates[str(record["schedule_date"])] += 1
-            for event in _as_list(manifest.get("events"), field="manifest.events"):
-                row = _as_dict(event, field="manifest event")
-                classification_counts[_required_text(row, "classification")] += 1
+            for raw_event in _as_list(manifest.get("events"), field="manifest.events"):
+                event = _as_dict(raw_event, field="manifest event")
+                classification = _required_text(event, "classification")
+                if classification not in _ALLOWED_CLASSIFICATIONS:
+                    raise ValueError("provider-batch classification is not supported")
+                classification_counts[classification] += 1
             previous = observed_sha
 
         return {
@@ -385,7 +407,10 @@ def capture_provider_batch(
         store.verify()
         raw_bytes = raw_payload_path.read_bytes()
         raw_sha = store._store_evidence(raw_bytes)
-        raw_payload = _json_object(raw_payload_path, label="Sportradar daily summaries response")
+        raw_payload = _json_object(
+            raw_payload_path,
+            label="Sportradar daily summaries response",
+        )
         manifest = build_batch_manifest(
             raw_payload=raw_payload,
             schedule_date=schedule_date,
@@ -407,6 +432,22 @@ def capture_provider_batch(
         )
 
 
+def _event_due(
+    event: dict[str, object],
+    *,
+    cutoff: datetime | None,
+    schedule_date: date | None = None,
+) -> bool:
+    if cutoff is None:
+        return True
+    start_raw = event.get("scheduled_start")
+    if start_raw is None:
+        if schedule_date is None:
+            return True
+        return schedule_date <= cutoff.date()
+    return _parse_time(start_raw, field="scheduled_start") <= cutoff
+
+
 def reconcile_batches_with_census(
     *,
     batch_store: ProviderBatchStore,
@@ -421,17 +462,18 @@ def reconcile_batches_with_census(
         if record.get("record_type") == "CENSUS_DISCOVERY"
     }
 
-    required: dict[str, dict[str, object]] = {}
-    failures: list[str] = []
-    seen_batch_events: set[str] = set()
-
     cutoff: datetime | None = None
     if complete_through is not None:
         if complete_through.tzinfo is None or complete_through.utcoffset() is None:
             raise ValueError("complete_through must be timezone-aware")
         cutoff = complete_through.astimezone(UTC)
 
+    required_all: dict[str, dict[str, object]] = {}
+    failure_rows: dict[str, list[tuple[dict[str, object], date]]] = {}
+    observed_classifications: dict[str, set[str]] = {}
+
     for record in batch_store.records():
+        batch_date = date.fromisoformat(str(record["schedule_date"]))
         manifest_sha = str(record["manifest_sha256"])
         manifest = _json_object(
             batch_store.evidence_dir / manifest_sha,
@@ -441,35 +483,48 @@ def reconcile_batches_with_census(
             event = _as_dict(raw_event, field="manifest event")
             event_id = _required_text(event, "provider_event_id")
             event_key = f"{_PROVIDER}:{event_id}"
-            seen_batch_events.add(event_key)
             classification = _required_text(event, "classification")
-            start_raw = event.get("scheduled_start")
-            start = None if start_raw is None else _parse_time(start_raw, field="scheduled_start")
-            in_cutoff = cutoff is None or start is None or start <= cutoff
+            observed_classifications.setdefault(event_key, set()).add(classification)
 
-            if classification == _DENOMINATOR_FAILURE and in_cutoff:
-                failures.append(f"{event_key}:{event.get('reason_code')}")
+            if classification == _DENOMINATOR_FAILURE:
+                failure_rows.setdefault(event_key, []).append((event, batch_date))
                 continue
             if classification != _CENSUS_REQUIRED:
                 continue
-            if start is None:
+
+            start_raw = event.get("scheduled_start")
+            if start_raw is None:
                 raise ValueError("CENSUS_REQUIRED provider event lacks scheduled_start")
-            previous = required.get(event_key)
+            previous = required_all.get(event_key)
             if previous is not None:
                 if previous.get("tour") != event.get("tour"):
                     raise ValueError("provider event tour changed across retained batches")
                 if previous.get("scheduled_start") != event.get("scheduled_start"):
                     raise ValueError("provider event schedule changed across retained batches")
-            required[event_key] = event
+            required_all[event_key] = event
 
-    if failures:
+    failures_due: list[str] = []
+    for event_key, rows in failure_rows.items():
+        if event_key in required_all:
+            continue
+        for event, batch_date in rows:
+            if _event_due(event, cutoff=cutoff, schedule_date=batch_date):
+                failures_due.append(f"{event_key}:{event.get('reason_code')}")
+                break
+    if failures_due:
         raise ValueError(
             "provider batch contains denominator failures at/before completeness cutoff: "
-            + ", ".join(sorted(set(failures)))
+            + ", ".join(sorted(failures_due))
         )
 
+    required_due = {
+        event_key: event
+        for event_key, event in required_all.items()
+        if _event_due(event, cutoff=cutoff)
+    }
+
     missing_discoveries: list[str] = []
-    for event_key, event in required.items():
+    for event_key, event in required_due.items():
         discovery = discoveries.get(event_key)
         if discovery is None:
             missing_discoveries.append(event_key)
@@ -480,8 +535,14 @@ def reconcile_batches_with_census(
             raise ValueError("batch/census tour mismatch")
         if discovery.get("event_type") != "SINGLES":
             raise ValueError("batch/census event_type mismatch")
-        batch_start = _parse_time(event["scheduled_start"], field="batch.scheduled_start")
-        census_start = _parse_time(discovery["scheduled_start"], field="census.scheduled_start")
+        batch_start = _parse_time(
+            event["scheduled_start"],
+            field="batch.scheduled_start",
+        )
+        census_start = _parse_time(
+            discovery["scheduled_start"],
+            field="census.scheduled_start",
+        )
         if batch_start != census_start:
             raise ValueError("batch/census scheduled_start mismatch")
     if missing_discoveries:
@@ -490,15 +551,27 @@ def reconcile_batches_with_census(
             + ", ".join(sorted(missing_discoveries))
         )
 
-    orphan_census = sorted(
-        event_key
-        for event_key, discovery in discoveries.items()
-        if discovery.get("provider") == _PROVIDER and event_key not in seen_batch_events
-    )
-    if orphan_census:
+    unsupported_census: list[str] = []
+    for event_key, discovery in discoveries.items():
+        if discovery.get("provider") != _PROVIDER:
+            continue
+        census_start = _parse_time(
+            discovery["scheduled_start"],
+            field="census.scheduled_start",
+        )
+        if cutoff is not None and census_start > cutoff:
+            continue
+        if event_key not in required_due:
+            classifications = observed_classifications.get(event_key)
+            if classifications is None:
+                unsupported_census.append(f"{event_key}:ABSENT_FROM_BATCH")
+            else:
+                joined = "+".join(sorted(classifications))
+                unsupported_census.append(f"{event_key}:NOT_CENSUS_REQUIRED:{joined}")
+    if unsupported_census:
         raise ValueError(
-            "Sportradar census discoveries are absent from retained provider batches: "
-            + ", ".join(orphan_census)
+            "Sportradar census discoveries are not supported by due provider batches: "
+            + ", ".join(sorted(unsupported_census))
         )
 
     return {
@@ -506,8 +579,8 @@ def reconcile_batches_with_census(
         "batch_chain_head_sha256": batch_report["chain_head_sha256"],
         "census_chain_head_sha256": census_report["chain_head_sha256"],
         "batch_record_count": batch_report["record_count"],
-        "required_event_count": len(required),
-        "reconciled_event_count": len(required),
+        "required_event_count": len(required_due),
+        "reconciled_event_count": len(required_due),
         "denominator_failure_count": 0,
         "status": "RECONCILED",
     }
