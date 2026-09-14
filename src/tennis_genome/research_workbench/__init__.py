@@ -18,6 +18,12 @@ from .availability import (
     assert_features_available,
     evaluate_feature_availability,
 )
+from .constitution import (
+    DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
+    REQUIRED_TENNIS_RESEARCH_INVARIANTS,
+    ResearchAuthority,
+    ResearchConstitution,
+)
 from .contracts import EvaluationSpec, ForecastingProcedureSpec, WorkbenchRecord
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
@@ -52,6 +58,7 @@ __all__ = [
     "AvailabilityDecision",
     "CanonicalEvaluationBinding",
     "CodeFingerprint",
+    "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
     "EvaluationResult",
     "EvaluationSpec",
@@ -71,7 +78,10 @@ __all__ = [
     "ProtectedDatasetReference",
     "ProtectedOpenAuthorization",
     "ProtectedOpenReceipt",
+    "REQUIRED_TENNIS_RESEARCH_INVARIANTS",
     "ReliabilityGrade",
+    "ResearchAuthority",
+    "ResearchConstitution",
     "RevisionSemantics",
     "SyntheticBenchmarkReport",
     "SyntheticWorld",
