@@ -13,6 +13,7 @@ from tennis_genome.research_workbench.dynamic_state_development import (
 from tennis_genome.research_workbench.dynamic_state_runner import (
     _CODE_COMPONENTS,
     build_dynamic_state_development_evidence,
+    stable_source_manifest_sha256,
 )
 
 
@@ -165,3 +166,28 @@ def test_runner_rejects_mixed_tours_before_evidence_creation(tmp_path: Path) -> 
             schema_version="canonical-v3",
             repo_root=_repo_root(tmp_path),
         )
+
+
+
+def test_stable_manifest_identity_ignores_only_build_clock() -> None:
+    manifest = {
+        "schema_version": "canonical-v3",
+        "tour": "ATP",
+        "source_bundle_sha256": "a" * 64,
+        "pre_match_sha256": "b" * 64,
+        "outcome_sha256": "c" * 64,
+        "stats_sha256": "d" * 64,
+        "built_at_utc": "2026-09-10T01:00:00+00:00",
+    }
+    rebuilt = dict(manifest)
+    rebuilt["built_at_utc"] = "2026-09-14T15:00:00+00:00"
+
+    assert stable_source_manifest_sha256(manifest) == stable_source_manifest_sha256(
+        rebuilt
+    )
+
+    changed = dict(rebuilt)
+    changed["stats_sha256"] = "e" * 64
+    assert stable_source_manifest_sha256(changed) != stable_source_manifest_sha256(
+        manifest
+    )
