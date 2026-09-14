@@ -1,6 +1,3 @@
-import subprocess
-
-
 LAUNCHER = "scripts/run_dynamic_state_less_aggressive_real.sh"
 
 
@@ -10,7 +7,7 @@ def _launcher_text() -> str:
 
 
 def test_real_launcher_is_valid_bash() -> None:
-    completed = subprocess.run(
+    completed = __import__("subprocess").run(
         ["bash", "-n", LAUNCHER],
         check=False,
         capture_output=True,
