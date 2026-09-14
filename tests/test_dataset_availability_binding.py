@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from tennis_genome.research_workbench import fingerprint_match_population
+
+from tennis_genome.research_workbench import (
+    fingerprint_match_population,
+)
 
 
 _ROWS = (
