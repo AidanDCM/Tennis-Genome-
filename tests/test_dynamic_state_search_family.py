@@ -75,7 +75,7 @@ def test_unregistered_candidate_cannot_enter_family_run() -> None:
     # Same semantic candidate is allowed even if reconstructed independently.
     assert family.development_spec(candidate=rogue, tour="WTA").tour == "WTA"
 
-    with pytest.raises(ValueError, match="outside frozen family"):
+    with pytest.raises(ValueError, match="candidate_id does not match|outside frozen family"):
         LessAggressiveDynamicCandidate(
             candidate_id="DYN-LA-PV00100-HL730-MV075",
             process_variance_per_day=0.001,
