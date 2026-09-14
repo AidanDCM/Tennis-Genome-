@@ -76,6 +76,24 @@ Accordingly, target ranking and target ranking points remain
 `RESEARCH_ONLY_UNVERIFIED`. This is an audited negative conclusion, not pending permission
 to assume a pre-match timestamp.
 
+### Event-context evidence review
+
+`docs/historical_event_context_availability_evidence_001.md` records the dedicated review of
+surface, round, seed, entry and best-of.
+
+Modern official ATP/WTA material shows that these kinds of values can exist before play:
+official draw pages publish rounds, seeds and entry markers, and WTA's current tournament
+interface states that final draws are confirmed three days before play starts. That supports
+real-world pre-match plausibility.
+
+It does not establish that the values in each pinned retrospective match row came from an
+independently timestamped historical draw/schedule before that target match, nor does it
+supply a version/revision ledger for those row values.
+
+Accordingly, target surface, round, seed, entry and best-of remain
+`RESEARCH_ONLY_UNVERIFIED` when sourced only from the pinned completed-match rows. This is
+also an audited negative conclusion, not permission to infer a synthetic publication time.
+
 ## Post-match observations
 
 Match outcome, match statistics and duration are post-match observations.
@@ -126,16 +144,16 @@ of dataset identity rather than optional report metadata.
 
 ## Remaining work
 
-1. Verify whether target event context can be reconstructed from independently timestamped
-   draws/schedules rather than retrospectively compiled match rows.
-2. Audit player reference fields for historical revision behavior.
-3. Execute the frozen historical coverage audit on the pinned source and archive the
+1. Audit player reference fields for historical revision behavior.
+2. Execute the frozen historical coverage audit on the pinned source and archive the
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
-4. Identify a source with trustworthy match-start timestamps for dynamic-state research.
-5. Revisit ranking/ranking-points canonical eligibility only if stronger historical
+3. Identify a source with trustworthy match-start timestamps for dynamic-state research.
+4. Revisit ranking/ranking-points canonical eligibility only if stronger historical
    publication/version evidence is obtained; the current evidence review does not justify
    promotion.
+5. Revisit target event-context eligibility only if independently timestamped/versioned
+   historical draw, schedule, order-of-play or provider snapshots are added and bound to T0.
 
 ## Scientific consequence
 
