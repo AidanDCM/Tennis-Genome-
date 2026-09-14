@@ -1,6 +1,6 @@
 # Forecast Research Workbench
 
-Status: **development foundation with protected-evaluation integrity enforcement**
+Status: **development foundation with protected-evaluation integrity enforcement and closed synthetic benchmark loop**
 
 This package creates a bounded research surface for Tennis Genome v2 work without modifying the frozen TGE-Independent-v1 predictor, FULL-STACK-FORWARD-001, or PATTERN-CONFIRM-001.
 
@@ -22,14 +22,15 @@ The current foundation provides:
 - content-addressed immutable research records;
 - procedure-hash and evaluation-hash binding in canonical score results;
 - proper-score evaluation using Brier score and log loss;
-- reproducible synthetic benchmark worlds for null, calibration-error, and planted-interaction cases.
+- reproducible synthetic benchmark worlds for null, calibration-error, and planted-interaction cases;
+- a protected synthetic benchmark runner that fits real challengers on development rows and evaluates them through the same protected workbench gate used by later research.
 
 It does **not** yet provide:
 
 - broad pattern generation;
 - dynamic serve/return state estimation;
 - historical chronological forecast-panel construction;
-- real protected evaluation data;
+- real protected tennis evaluation data;
 - trial-family accounting;
 - complete dataset/code fingerprint objects;
 - AI research agents;
@@ -62,20 +63,31 @@ The initial benchmark set contains:
 2. `miscalibration_world`: the baseline has a global calibration defect but no special subgroup rule is required.
 3. `interaction_world`: the baseline omits a real nonlinear interaction, so residual information genuinely exists.
 
-The worlds are currently reproducible known-truth fixtures. The next slice must close the loop by fitting/evaluating real challenger procedures against them and asserting the expected scientific conclusions rather than testing only fixture construction.
+`run_synthetic_benchmark` closes the first validation loop. It makes a deterministic development/protected split, records development-outcome exposure, freezes a protected evaluation population, and compares three complete procedures through the ordinary protected evaluator:
+
+- the supplied baseline;
+- a calibration-only logistic challenger using the baseline logit;
+- a logistic challenger that also receives one pairwise interaction.
+
+Standing tests require the research machinery to reach the expected qualitative conclusions on unseen protected rows:
+
+- the oracle null baseline must not be materially improved by either fitted challenger;
+- simple recalibration must materially repair the global-miscalibration world while the unnecessary interaction adds little;
+- calibration alone must not explain the planted-interaction world, while the interaction-capable procedure must recover substantial Brier and log-loss improvement.
+
+These tests are not evidence about real tennis. They are tests that the research machinery can distinguish three known forms of truth before it is trusted to interpret real historical residuals.
 
 Additional worlds should later add adaptive-threshold selection, shared player/tournament dependence, future-smoothed leakage, provider drift, missingness artifacts, rare signals, regime shifts, and prospective collapse.
 
 ## Next engineering slices
 
-1. Close the synthetic-world validation loop with actual challenger procedures.
-2. Build prospective eligible-event census / denominator completeness controls.
-3. Add procedure-search trial families, canonical dataset/code fingerprints, and protected-population burn.
-4. Audit historical availability and add explicit feature-availability contracts.
-5. Build leakage-safe chronological forecast panels.
-6. Develop dynamic serve/return state as a possible Core-v2 state-estimation challenger.
-7. Run bounded challenger comparisons only after the integrity substrate is complete.
-8. Expand residual/pattern discovery only if simpler challengers leave meaningful protected signal.
+1. Build prospective eligible-event census / denominator completeness controls.
+2. Add procedure-search trial families, canonical dataset/code fingerprints, and protected-population burn.
+3. Audit historical availability and add explicit feature-availability contracts.
+4. Build leakage-safe chronological forecast panels.
+5. Develop dynamic serve/return state as a possible Core-v2 state-estimation challenger.
+6. Run bounded challenger comparisons only after the integrity substrate is complete.
+7. Expand residual/pattern discovery only if simpler challengers leave meaningful protected signal.
 
 ## Non-goals
 
