@@ -122,6 +122,7 @@ class FeatureAvailabilityRegistry:
         self._contracts: dict[str, FeatureAvailabilityContract] = {}
         for contract in contracts:
             self.add(contract)
+        self.assert_dependency_graph_valid()
 
     def add(self, contract: FeatureAvailabilityContract) -> None:
         existing = self._contracts.get(contract.feature_id)
@@ -170,18 +171,53 @@ class FeatureAvailabilityRegistry:
                 "feature set lacks availability contracts: " + ", ".join(missing)
             )
 
-    def assert_canonical_eligible(self, feature_ids: tuple[str, ...]) -> None:
+    def dependency_closure(self, feature_ids: tuple[str, ...]) -> tuple[str, ...]:
+        """Return the complete registered dependency closure or fail on graph defects."""
+
         self.assert_registered(feature_ids)
+        resolved: set[str] = set()
+        visiting: list[str] = []
+
+        def visit(feature_id: str) -> None:
+            if feature_id in resolved:
+                return
+            if feature_id in visiting:
+                start = visiting.index(feature_id)
+                cycle = [*visiting[start:], feature_id]
+                raise ValueError(
+                    "feature availability dependency cycle: " + " -> ".join(cycle)
+                )
+            visiting.append(feature_id)
+            contract = self._contracts[feature_id]
+            for dependency in contract.derived_from_features:
+                if dependency not in self._contracts:
+                    raise ValueError(
+                        "feature availability dependency is unregistered: "
+                        f"{feature_id} -> {dependency}"
+                    )
+                visit(dependency)
+            visiting.pop()
+            resolved.add(feature_id)
+
+        for feature_id in sorted(set(feature_ids)):
+            visit(feature_id)
+        return tuple(sorted(resolved))
+
+    def assert_dependency_graph_valid(self) -> None:
+        self.dependency_closure(tuple(self._contracts))
+
+    def assert_canonical_eligible(self, feature_ids: tuple[str, ...]) -> None:
+        closure = self.dependency_closure(feature_ids)
         blocked = sorted(
             feature_id
-            for feature_id in feature_ids
+            for feature_id in closure
             if self._contracts[feature_id].t0_policy
             in {T0Policy.RESEARCH_ONLY_UNVERIFIED, T0Policy.FORBIDDEN}
         )
         if blocked:
             raise ValueError(
-                "feature set contains non-canonical availability contracts: "
-                + ", ".join(blocked)
+                "feature set or dependency closure contains non-canonical availability "
+                "contracts: " + ", ".join(blocked)
             )
 
 
