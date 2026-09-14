@@ -139,7 +139,7 @@ class _LifecycleState:
         self.families: dict[str, ProcedureSearchFamily] = {}
         self.protected_opened: set[str] = set()
         self.results: dict[tuple[str, str], EvaluationResult] = {}
-        self.closed: dict[str, EvaluationVerdict] = {}
+        self.closed: dict[str, str] = {}
         self.invalidated: set[str] = set()
 
 
@@ -268,6 +268,12 @@ def _apply_event(state: _LifecycleState, event: ResearchHistoryEvent) -> None:
             raise ValueError("protected open references a development evaluation")
         if receipt.evaluation_id in state.protected_opened:
             raise ValueError("protected evaluation opened more than once")
+        if receipt.irreversible is not True:
+            raise ValueError("protected-open receipt must be irreversible")
+        if receipt.boundary_status != "OS_CREDENTIAL_ENFORCED":
+            raise ValueError("protected-open receipt lacks credential-enforced boundary")
+        if receipt.protected_source_id not in evaluation.protected_source_ids:
+            raise ValueError("protected-open source is not registered in evaluation")
         if tuple(receipt.procedure_ids) != tuple(evaluation.procedure_ids):
             raise ValueError("protected receipt procedure family differs from evaluation")
         if _sha256_json(asdict(receipt)) != event.subject_sha256:
@@ -295,6 +301,14 @@ def _apply_event(state: _LifecycleState, event: ResearchHistoryEvent) -> None:
             raise ValueError("binding evaluation-spec digest mismatch")
         if binding.procedure_spec_sha256 != procedure.semantic_sha256:
             raise ValueError("binding procedure-spec digest mismatch")
+        matching_family = any(
+            family.frozen
+            and result.procedure_id in family.procedure_ids
+            and family.semantic_sha256 == binding.search_family_sha256
+            for family in state.families.values()
+        )
+        if not matching_family:
+            raise ValueError("result binding does not reference a frozen registered search family")
         if evaluation.evaluation_role == "PROTECTED":
             if evaluation.evaluation_id not in state.protected_opened:
                 raise ValueError("protected result recorded before irreversible open")
@@ -327,7 +341,7 @@ def _apply_event(state: _LifecycleState, event: ResearchHistoryEvent) -> None:
                 "evaluation cannot close before every registered procedure has a result: "
                 + ", ".join(missing_results)
             )
-        state.closed[evaluation.evaluation_id] = verdict  # type: ignore[assignment]
+        state.closed[evaluation.evaluation_id] = verdict
         return
 
     if event.event_type == "EVALUATION_INVALIDATED":
