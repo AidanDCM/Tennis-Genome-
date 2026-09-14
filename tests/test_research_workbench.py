@@ -191,9 +191,15 @@ def test_synthetic_worlds_are_reproducible_and_immutable() -> None:
     assert not first.features.flags.writeable
 
     miscalibrated = miscalibration_world(n=1000, seed=7)
-    assert float(np.mean(np.abs(miscalibrated.true_probability - miscalibrated.baseline_probability))) > 0.02
+    calibration_gap = np.mean(
+        np.abs(miscalibrated.true_probability - miscalibrated.baseline_probability)
+    )
+    assert float(calibration_gap) > 0.02
 
     interaction = interaction_world(n=1000, seed=7)
-    assert float(np.mean(np.abs(interaction.true_probability - interaction.baseline_probability))) > 0.05
+    interaction_gap = np.mean(
+        np.abs(interaction.true_probability - interaction.baseline_probability)
+    )
+    assert float(interaction_gap) > 0.05
     with pytest.raises(ValueError):
         interaction.features[0, 0] = 999.0

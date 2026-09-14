@@ -62,7 +62,9 @@ class ExposureGraph:
         existing = self._records.get(record.exposure_id)
         if existing is not None:
             if existing.semantic_sha256 != record.semantic_sha256:
-                raise ValueError(f"exposure_id {record.exposure_id!r} already has different content")
+                raise ValueError(
+                    f"exposure_id {record.exposure_id!r} already has different content"
+                )
             return
         if record.exposure_id in record.parent_exposure_ids:
             raise ValueError("an exposure cannot depend on itself")
@@ -113,7 +115,9 @@ class ExposureGraph:
                 f"{exposure_id}: {','.join(source_ids)}"
                 for exposure_id, source_ids in sorted(overlaps.items())
             )
-            raise ValueError("protected evaluation is not independent of research exposure: " + detail)
+            raise ValueError(
+                "protected evaluation is not independent of research exposure: " + detail
+            )
 
     def records(self) -> tuple[ExposureRecord, ...]:
         return tuple(self._records[key] for key in sorted(self._records))

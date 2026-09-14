@@ -77,7 +77,12 @@ class ForecastingProcedureSpec(WorkbenchRecord):
             raise ValueError("hyperparameters_json must encode a JSON object")
         return json.dumps(parsed, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
-    @field_validator("feature_set", "required_data", "development_exposure_ids", "parent_procedure_ids")
+    @field_validator(
+        "feature_set",
+        "required_data",
+        "development_exposure_ids",
+        "parent_procedure_ids",
+    )
     @classmethod
     def _require_unique_items(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         if len(set(value)) != len(value):
@@ -127,6 +132,9 @@ class EvaluationSpec(WorkbenchRecord):
 
     @model_validator(mode="after")
     def _enforce_protected_outcome_policy(self) -> Self:
-        if self.evaluation_role == "PROTECTED" and self.outcome_access_policy != "SEALED_UNTIL_EVALUATION":
+        if (
+            self.evaluation_role == "PROTECTED"
+            and self.outcome_access_policy != "SEALED_UNTIL_EVALUATION"
+        ):
             raise ValueError("protected evaluations must seal outcomes until evaluation")
         return self
