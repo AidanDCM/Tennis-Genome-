@@ -42,7 +42,12 @@ def test_dataset_identity_changes_when_availability_registry_changes() -> None:
     assert first.sha256 != changed.sha256
 
 
-@pytest.mark.parametrize("invalid", ("", "2" * 63, "G" * 64, "sha256:" + "2" * 64))
-def test_dataset_fingerprint_rejects_invalid_availability_registry_hash(invalid: str) -> None:
+@pytest.mark.parametrize(
+    "invalid",
+    ("", "2" * 63, "G" * 64, "sha256:" + "2" * 64),
+)
+def test_dataset_fingerprint_rejects_invalid_availability_registry_hash(
+    invalid: str,
+) -> None:
     with pytest.raises(ValueError, match="availability_contract_sha256"):
         _fingerprint(invalid)
