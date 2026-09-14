@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
@@ -58,6 +60,7 @@ class FeatureAvailabilityContract(WorkbenchRecord):
     coverage_end: date | None = None
     known_missingness: tuple[str, ...] = ()
     known_schema_breaks: tuple[str, ...] = ()
+    derived_from_features: tuple[str, ...] = ()
     notes: tuple[str, ...] = ()
 
     @field_validator(
@@ -78,7 +81,7 @@ class FeatureAvailabilityContract(WorkbenchRecord):
             raise ValueError("source_manifest_sha256 must be lowercase SHA-256")
         return value
 
-    @field_validator("known_missingness", "known_schema_breaks", "notes")
+    @field_validator("known_missingness", "known_schema_breaks", "derived_from_features", "notes")
     @classmethod
     def _unique_text(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         if len(value) != len(set(value)):
@@ -110,6 +113,76 @@ class FeatureAvailabilityContract(WorkbenchRecord):
         ):
             raise ValueError("static reference data cannot be a post-match state update")
         return self
+
+
+class FeatureAvailabilityRegistry:
+    """Deterministic registry identity for an audited feature-availability set."""
+
+    def __init__(self, contracts: tuple[FeatureAvailabilityContract, ...] = ()) -> None:
+        self._contracts: dict[str, FeatureAvailabilityContract] = {}
+        for contract in contracts:
+            self.add(contract)
+
+    def add(self, contract: FeatureAvailabilityContract) -> None:
+        existing = self._contracts.get(contract.feature_id)
+        if existing is not None:
+            if existing.semantic_sha256 != contract.semantic_sha256:
+                raise ValueError(
+                    f"feature_id {contract.feature_id!r} already has different availability content"
+                )
+            return
+        self._contracts[contract.feature_id] = contract
+
+    def get(self, feature_id: str) -> FeatureAvailabilityContract:
+        try:
+            return self._contracts[feature_id]
+        except KeyError as exc:
+            raise KeyError(f"unknown feature availability contract {feature_id!r}") from exc
+
+    def contracts(self) -> tuple[FeatureAvailabilityContract, ...]:
+        return tuple(self._contracts[key] for key in sorted(self._contracts))
+
+    @property
+    def semantic_sha256(self) -> str:
+        payload = {
+            "kind": "tennis-feature-availability-registry-v1",
+            "contracts": [
+                {
+                    "semantic_sha256": contract.semantic_sha256,
+                    "contract": contract.canonical_payload(),
+                }
+                for contract in self.contracts()
+            ],
+        }
+        encoded = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+    def assert_registered(self, feature_ids: tuple[str, ...]) -> None:
+        missing = sorted(set(feature_ids) - set(self._contracts))
+        if missing:
+            raise ValueError(
+                "feature set lacks availability contracts: " + ", ".join(missing)
+            )
+
+    def assert_canonical_eligible(self, feature_ids: tuple[str, ...]) -> None:
+        self.assert_registered(feature_ids)
+        blocked = sorted(
+            feature_id
+            for feature_id in feature_ids
+            if self._contracts[feature_id].t0_policy
+            in {T0Policy.RESEARCH_ONLY_UNVERIFIED, T0Policy.FORBIDDEN}
+        )
+        if blocked:
+            raise ValueError(
+                "feature set contains non-canonical availability contracts: "
+                + ", ".join(blocked)
+            )
 
 
 class FeatureObservation(WorkbenchRecord):
