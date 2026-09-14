@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
+import subprocess
 
 
 LAUNCHER = Path("scripts/run_dynamic_state_less_aggressive_real.sh")
