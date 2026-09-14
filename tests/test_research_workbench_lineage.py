@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from tennis_genome.research_workbench import (
+    ChronologySemantics,
     DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
     EvaluationSpec,
     ExposureGraph,
@@ -331,4 +332,94 @@ def test_fingerprint_models_reject_forged_digest() -> None:
     with pytest.raises(ValidationError, match="does not reproduce"):
         dataset.model_copy(update={"sha256": "f" * 64}, deep=True).__class__(
             **{**dataset.model_dump(), "sha256": "f" * 64}
+        )
+
+
+
+def test_date_only_fingerprint_preserves_source_precision_without_fake_time() -> None:
+    rows = [
+        {
+            "match_id": "m1",
+            "event_date": "2026-01-01",
+            "player_a_id": "a",
+            "player_b_id": "b",
+            "tour": "ATP",
+        },
+        {
+            "match_id": "m2",
+            "event_date": "2026-01-01",
+            "player_a_id": "c",
+            "player_b_id": "d",
+            "tour": "ATP",
+        },
+        {
+            "match_id": "m3",
+            "event_date": "2026-01-02",
+            "player_a_id": "e",
+            "player_b_id": "f",
+            "tour": "ATP",
+        },
+    ]
+
+    fingerprint = fingerprint_match_population(
+        dataset_id="date-panel-v1",
+        ordered_rows=rows,
+        source_manifest_sha256="1" * 64,
+        availability_contract_sha256="2" * 64,
+        schema_version="canonical-v3",
+        chronology_semantics=ChronologySemantics.EVENT_DATE_MATCH_ID,
+    )
+
+    assert fingerprint.chronology_semantics == ChronologySemantics.EVENT_DATE_MATCH_ID
+    assert fingerprint.first_order_key == "2026-01-01|m1"
+    assert fingerprint.last_order_key == "2026-01-02|m3"
+
+
+def test_date_only_fingerprint_rejects_arbitrary_same_day_order() -> None:
+    rows = [
+        {
+            "match_id": "m2",
+            "event_date": "2026-01-01",
+            "player_a_id": "a",
+            "player_b_id": "b",
+            "tour": "ATP",
+        },
+        {
+            "match_id": "m1",
+            "event_date": "2026-01-01",
+            "player_a_id": "c",
+            "player_b_id": "d",
+            "tour": "ATP",
+        },
+    ]
+
+    with pytest.raises(ValueError, match="registered chronology"):
+        fingerprint_match_population(
+            dataset_id="date-panel-v1",
+            ordered_rows=rows,
+            source_manifest_sha256="1" * 64,
+            availability_contract_sha256="2" * 64,
+            schema_version="canonical-v3",
+            chronology_semantics=ChronologySemantics.EVENT_DATE_MATCH_ID,
+        )
+
+
+def test_exact_time_mode_does_not_accept_date_only_rows() -> None:
+    rows = [
+        {
+            "match_id": "m1",
+            "event_date": "2026-01-01",
+            "player_a_id": "a",
+            "player_b_id": "b",
+            "tour": "ATP",
+        }
+    ]
+
+    with pytest.raises(ValueError, match="requires event_time"):
+        fingerprint_match_population(
+            dataset_id="date-panel-v1",
+            ordered_rows=rows,
+            source_manifest_sha256="1" * 64,
+            availability_contract_sha256="2" * 64,
+            schema_version="canonical-v3",
         )
