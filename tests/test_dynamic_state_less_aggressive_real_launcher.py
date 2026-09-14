@@ -1,13 +1,17 @@
 import subprocess
-from pathlib import Path
 
 
-LAUNCHER = Path("scripts/run_dynamic_state_less_aggressive_real.sh")
+LAUNCHER = "scripts/run_dynamic_state_less_aggressive_real.sh"
+
+
+def _launcher_text() -> str:
+    with open(LAUNCHER, encoding="utf-8") as handle:
+        return handle.read()
 
 
 def test_real_launcher_is_valid_bash() -> None:
     completed = subprocess.run(
-        ["bash", "-n", str(LAUNCHER)],
+        ["bash", "-n", LAUNCHER],
         check=False,
         capture_output=True,
         text=True,
@@ -16,7 +20,7 @@ def test_real_launcher_is_valid_bash() -> None:
 
 
 def test_real_launcher_pins_exact_research_snapshot_and_hash_gate() -> None:
-    text = LAUNCHER.read_text(encoding="utf-8")
+    text = _launcher_text()
 
     assert "83733587353df8a41f2fd4f516147d5aa83f5a8d" in text
     assert "row_count\": 77850" in text
@@ -30,7 +34,7 @@ def test_real_launcher_pins_exact_research_snapshot_and_hash_gate() -> None:
 
 
 def test_real_launcher_exposes_no_candidate_or_parameter_override() -> None:
-    text = LAUNCHER.read_text(encoding="utf-8")
+    text = _launcher_text()
 
     assert "dynamic_state_search_runner" in text
     assert "--candidate" not in text
