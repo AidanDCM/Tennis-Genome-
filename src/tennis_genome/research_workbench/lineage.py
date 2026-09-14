@@ -3,13 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import field_validator, model_validator
 
 from .contracts import EvaluationSpec, ForecastingProcedureSpec, WorkbenchRecord
-
-_ZERO_SHA256 = "0" * 64
+from .exposure import ExposureGraph
 
 
 def _canonical_json(value: object) -> bytes:
@@ -24,6 +24,25 @@ def _canonical_json(value: object) -> bytes:
 
 def _sha256(value: object) -> str:
     return hashlib.sha256(_canonical_json(value)).hexdigest()
+
+
+def _validate_sha256_text(value: str, *, label: str) -> str:
+    if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+        raise ValueError(f"{label} must be lowercase SHA-256")
+    return value
+
+
+def _parse_utc(value: str, *, label: str) -> datetime:
+    text = value.strip()
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"{label} must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{label} must be timezone-aware")
+    return parsed.astimezone(UTC)
 
 
 class DatasetFingerprint(WorkbenchRecord):
@@ -47,14 +66,16 @@ class DatasetFingerprint(WorkbenchRecord):
     )
     @classmethod
     def _validate_sha256(cls, value: str) -> str:
-        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
-            raise ValueError("fingerprint digests must be lowercase SHA-256")
-        return value
+        return _validate_sha256_text(value, label="fingerprint digest")
 
     @model_validator(mode="after")
     def _verify_digest(self) -> "DatasetFingerprint":
         if self.row_count <= 0:
             raise ValueError("dataset fingerprint requires at least one row")
+        first = _parse_utc(self.first_event_time, label="first_event_time")
+        last = _parse_utc(self.last_event_time, label="last_event_time")
+        if last < first:
+            raise ValueError("dataset fingerprint event-time bounds are reversed")
         expected = _sha256(
             {
                 "kind": "tennis-workbench-dataset-v1",
@@ -83,23 +104,30 @@ def fingerprint_match_population(
 ) -> DatasetFingerprint:
     """Fingerprint an exact ordered match population.
 
-    Each row must expose unique match_id and an event_time string. The order supplied
-    by the caller is evidence and is therefore hashed rather than silently sorted.
+    Each row must expose unique match_id and a timezone-aware event_time. The caller's
+    row order is evidence and is hashed rather than silently repaired or resorted.
     """
 
     if not dataset_id.strip() or not schema_version.strip():
         raise ValueError("dataset_id and schema_version are required")
+    _validate_sha256_text(source_manifest_sha256, label="source_manifest_sha256")
+    _validate_sha256_text(
+        availability_contract_sha256,
+        label="availability_contract_sha256",
+    )
     if not ordered_rows:
         raise ValueError("cannot fingerprint an empty match population")
 
     identities: list[dict[str, object]] = []
     seen: set[str] = set()
-    prior_event_time: str | None = None
+    prior_event_time: datetime | None = None
     for index, row in enumerate(ordered_rows):
         match_id = str(row.get("match_id", "")).strip()
-        event_time = str(row.get("event_time", "")).strip()
-        if not match_id or not event_time:
+        event_time_text = str(row.get("event_time", "")).strip()
+        if not match_id or not event_time_text:
             raise ValueError(f"row {index} requires match_id and event_time")
+        event_time = _parse_utc(event_time_text, label=f"row {index} event_time")
+        canonical_event_time = event_time.isoformat()
         if match_id in seen:
             raise ValueError(f"duplicate match_id in dataset fingerprint: {match_id}")
         if prior_event_time is not None and event_time < prior_event_time:
@@ -109,7 +137,7 @@ def fingerprint_match_population(
         identities.append(
             {
                 "match_id": match_id,
-                "event_time": event_time,
+                "event_time": canonical_event_time,
                 "player_a_id": str(row.get("player_a_id", "")),
                 "player_b_id": str(row.get("player_b_id", "")),
                 "tour": str(row.get("tour", "")),
@@ -156,8 +184,7 @@ class CodeFingerprint(WorkbenchRecord):
         for name, digest in value:
             if not name.strip():
                 raise ValueError("code component names must be nonblank")
-            if len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest):
-                raise ValueError("code component digests must be lowercase SHA-256")
+            _validate_sha256_text(digest, label="code component digest")
         return value
 
     @model_validator(mode="after")
@@ -270,9 +297,7 @@ class CanonicalEvaluationBinding(WorkbenchRecord):
     )
     @classmethod
     def _validate_digest(cls, value: str) -> str:
-        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
-            raise ValueError("canonical binding digests must be lowercase SHA-256")
-        return value
+        return _validate_sha256_text(value, label="canonical binding digest")
 
     @model_validator(mode="after")
     def _verify_identity(self) -> "CanonicalEvaluationBinding":
@@ -299,7 +324,7 @@ def build_canonical_evaluation_binding(
     evaluation_spec: EvaluationSpec,
     dataset: DatasetFingerprint,
     code: CodeFingerprint,
-    exposure_graph_sha256: str,
+    exposure_graph: ExposureGraph,
     search_family: ProcedureSearchFamily,
 ) -> CanonicalEvaluationBinding:
     if procedure_spec.procedure_id not in evaluation_spec.procedure_ids:
@@ -308,8 +333,11 @@ def build_canonical_evaluation_binding(
         raise ValueError("procedure is not registered in search family")
     if evaluation_spec.population_sha256 != dataset.row_identity_sha256:
         raise ValueError("evaluation population does not match dataset fingerprint")
-    if procedure_spec.runtime_id.strip() == "":
-        raise ValueError("procedure runtime_id is required")
+    if dataset.dataset_id not in search_family.datasets_touched:
+        raise ValueError("dataset fingerprint is not declared in search family")
+    if not search_family.frozen:
+        raise ValueError("canonical evaluation requires a frozen search family")
+    exposure_graph.assert_registered(procedure_spec.development_exposure_ids)
     payload = {
         "kind": "tennis-workbench-canonical-evaluation-v1",
         "procedure_spec_sha256": procedure_spec.semantic_sha256,
@@ -317,7 +345,7 @@ def build_canonical_evaluation_binding(
         "dataset_fingerprint_sha256": dataset.sha256,
         "code_fingerprint_sha256": code.sha256,
         "runtime_id": procedure_spec.runtime_id,
-        "exposure_graph_sha256": exposure_graph_sha256,
+        "exposure_graph_sha256": exposure_graph.semantic_sha256,
         "search_family_sha256": search_family.semantic_sha256,
     }
     return CanonicalEvaluationBinding(
@@ -326,7 +354,7 @@ def build_canonical_evaluation_binding(
         dataset_fingerprint_sha256=dataset.sha256,
         code_fingerprint_sha256=code.sha256,
         runtime_id=procedure_spec.runtime_id,
-        exposure_graph_sha256=exposure_graph_sha256,
+        exposure_graph_sha256=exposure_graph.semantic_sha256,
         search_family_sha256=search_family.semantic_sha256,
         evaluation_identity_sha256=_sha256(payload),
     )
