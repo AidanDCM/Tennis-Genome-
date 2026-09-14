@@ -182,15 +182,31 @@ The current real dynamic-state runner passes the semantic hash of the audited Sa
 availability registry into this required field. This means availability identity is part
 of dataset identity rather than optional report metadata.
 
+## Exact-time source candidate status
+
+`docs/sportradar_historical_start_time_candidate_001.md` identifies Sportradar Tennis v3 as
+the leading candidate for a separate recent exact-time research panel, but does **not**
+admit it yet.
+
+The provider distinguishes schedule-level `start_time` from typed timeline events. For
+historical research chronology, the proposed exact start is the UTC `time` attached to a
+retained `match_started` timeline event, not merely the scheduled slot. Timeline update
+metadata must also be retained.
+
+Sportradar documents a rolling historical season window, so this candidate cannot silently
+replace the long 2000–2025 panel. If admitted, it will form a separately fingerprinted
+recent exact-time panel. Real provider-backed coverage, crosswalk quality, access level and
+retained source identities still must be measured before admission.
+
 ## Remaining work
 
 1. Execute the frozen historical coverage audit on the pinned source and archive the
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
-2. Identify and validate a source with trustworthy match-start timestamps for dynamic-state
-   research. A source exposing a start time is not enough by itself; historical coverage,
-   confirmed-versus-estimated semantics, revision behavior, licensing and retained source
-   identity must also be established.
+2. Empirically validate the registered Sportradar exact-time candidate on every fully
+   accessible ATP/WTA main-tour singles season in the account's current historical window.
+   Measure retained `match_started.time` coverage, identity reconciliation, revision markers,
+   exclusions, and exact source fingerprints before any admission or model comparison.
 3. Revisit ranking/ranking-points canonical eligibility only if stronger historical
    publication/version evidence is obtained; the current evidence review does not justify
    promotion.
