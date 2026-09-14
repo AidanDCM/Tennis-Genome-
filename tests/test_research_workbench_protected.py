@@ -9,8 +9,8 @@ import pytest
 
 from tennis_genome.research_workbench import (
     ExposureGraph,
-    ProtectedDataVault,
     ProtectedDatasetReference,
+    ProtectedDataVault,
     ProtectedOpenAuthorization,
     write_protected_dataset,
 )
