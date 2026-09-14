@@ -48,7 +48,8 @@ def sackmann_research_availability_registry(
                 "source rows do not provide trustworthy per-match start chronology",
             ),
             notes=(
-                "May update derived outcome state only for target dates strictly after the source event date.",
+                "May update derived outcome state only for target dates strictly "
+                "after the source event date.",
             ),
             **common,
         ),
@@ -60,7 +61,8 @@ def sackmann_research_availability_registry(
             t0_policy=T0Policy.POST_MATCH_STATE_UPDATE_ONLY,
             reliability=ReliabilityGrade.MEDIUM,
             known_missingness=(
-                "match-stat coverage is incomplete and changes materially across eras and competitions",
+                "match-stat coverage is incomplete and changes materially across "
+                "eras and competitions",
             ),
             known_schema_breaks=(
                 "coverage and completeness vary through history",
@@ -108,7 +110,8 @@ def sackmann_research_availability_registry(
             reliability=ReliabilityGrade.MEDIUM,
             derived_from_features=("prior_match_stats",),
             notes=(
-                "Opponent-adjusted point state is legal only when built entirely from earlier UTC dates.",
+                "Opponent-adjusted point state is legal only when built entirely "
+                "from earlier UTC dates.",
             ),
             **common,
         ),
@@ -141,7 +144,8 @@ def sackmann_research_availability_registry(
             reliability=ReliabilityGrade.LOW,
             derived_from_features=("prior_match_duration",),
             known_missingness=(
-                "duration completeness is insufficiently stable for exact workload reconstruction",
+                "duration completeness is insufficiently stable for exact workload "
+                "reconstruction",
             ),
             **common,
         ),
@@ -153,7 +157,9 @@ def sackmann_research_availability_registry(
             t0_policy=T0Policy.RESEARCH_ONLY_UNVERIFIED,
             reliability=ReliabilityGrade.LOW,
             notes=(
-                "Upstream documentation says ranking is as of tourney_date, usually near event start; exact historical publication availability for the target match is not established.",
+                "Upstream documentation says ranking is as of tourney_date, usually "
+                "near event start; exact historical publication availability for "
+                "the target match is not established.",
             ),
             **common,
         ),
@@ -177,7 +183,8 @@ def sackmann_research_availability_registry(
             t0_policy=T0Policy.RESEARCH_ONLY_UNVERIFIED,
             reliability=ReliabilityGrade.LOW,
             notes=(
-                "Upstream documentation says age is as of tourney_date, not an exact match-start observation.",
+                "Upstream documentation says age is as of tourney_date, not an exact "
+                "match-start observation.",
             ),
             **common,
         ),
@@ -189,7 +196,9 @@ def sackmann_research_availability_registry(
             t0_policy=T0Policy.RESEARCH_ONLY_UNVERIFIED,
             reliability=ReliabilityGrade.LOW,
             notes=(
-                "Surface, round, seed, entry, best-of and related target context require a separate historical availability audit before canonical v2 use.",
+                "Surface, round, seed, entry, best-of and related target context "
+                "require a separate historical availability audit before canonical "
+                "v2 use.",
             ),
             **common,
         ),
@@ -201,7 +210,8 @@ def sackmann_research_availability_registry(
             t0_policy=T0Policy.RESEARCH_ONLY_UNVERIFIED,
             reliability=ReliabilityGrade.LOW,
             notes=(
-                "Hand, height and IOC may be retrospectively maintained; historical point-in-time semantics are not yet established.",
+                "Hand, height and IOC may be retrospectively maintained; historical "
+                "point-in-time semantics are not yet established.",
             ),
             **common,
         ),
