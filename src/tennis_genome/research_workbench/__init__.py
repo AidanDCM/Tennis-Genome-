@@ -38,6 +38,11 @@ from .dynamic_state_development import (
     DynamicStateYearScore,
     run_dynamic_state_development_comparison,
 )
+from .dynamic_state_runner import (
+    DynamicStateDevelopmentEvidence,
+    build_dynamic_state_development_evidence,
+    run_from_canonical_files,
+)
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
 from .history import (
@@ -80,6 +85,7 @@ __all__ = [
     "CodeFingerprint",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
+    "DynamicStateDevelopmentEvidence",
     "DynamicStateDevelopmentReport",
     "DynamicStateDevelopmentSpec",
     "DynamicStatePredictionRow",
@@ -121,6 +127,7 @@ __all__ = [
     "WorkbenchRecord",
     "assert_features_available",
     "build_canonical_evaluation_binding",
+    "build_dynamic_state_development_evidence",
     "evaluate_feature_availability",
     "evaluate_probabilities",
     "fingerprint_code_components",
@@ -130,6 +137,7 @@ __all__ = [
     "null_world",
     "run_dynamic_state_development_comparison",
     "run_dynamic_state_shift_benchmark",
+    "run_from_canonical_files",
     "run_null_calibration_campaign",
     "run_synthetic_benchmark",
     "sackmann_research_availability_registry",
