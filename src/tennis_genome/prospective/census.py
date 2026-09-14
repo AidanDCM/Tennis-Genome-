@@ -355,6 +355,31 @@ class EventCensusStore:
                         raise ValueError("PREDICTED disposition requires match_id")
                 elif prediction_sha is not None or match_id is not None:
                     raise ValueError("non-PREDICTED disposition may not bind a prediction")
+
+                disposition_evidence_sha = str(record.get("disposition_evidence_sha256", ""))
+                if disposition_evidence_sha not in evidence_hashes:
+                    raise ValueError("census disposition evidence is not retained")
+                raw = _json_object(
+                    self.evidence_dir / disposition_evidence_sha,
+                    label="census disposition",
+                )
+                if raw.get("schema_version") != DISPOSITION_SCHEMA:
+                    raise ValueError("census disposition evidence schema is not supported")
+                expected_disposition = {
+                    "event_key": _required_text(raw, "event_key"),
+                    "status": _required_text(raw, "status"),
+                    "reason_code": _required_text(raw, "reason_code"),
+                    "disposed_at": _parse_time(
+                        raw.get("disposed_at"), field="disposed_at"
+                    ).isoformat(),
+                    "prediction_record_sha256": _optional_text(raw, "prediction_record_sha256"),
+                    "match_id": _optional_text(raw, "match_id"),
+                }
+                for field, value in expected_disposition.items():
+                    if record.get(field) != value:
+                        raise ValueError(
+                            f"census disposition {field} does not reproduce from evidence"
+                        )
                 status_counts[status.value] += 1
                 reason_counts[reason_code] += 1
                 dispositions[event_key] = record
@@ -463,7 +488,8 @@ def record_disposition(
             "prediction_record_sha256": prediction_record_sha256,
             "match_id": match_id,
         }
-        evidence_shas = [store._store_evidence_bytes(_pretty_json(disposition_evidence))]
+        disposition_evidence_sha = store._store_evidence_bytes(_pretty_json(disposition_evidence))
+        evidence_shas = [disposition_evidence_sha]
         evidence_shas.extend(store._store_evidence_file(path) for path in supporting_evidence_paths)
         evidence_shas = list(dict.fromkeys(evidence_shas))
         return store._append_record(
@@ -476,6 +502,7 @@ def record_disposition(
                 "disposed_at": disposed_at.isoformat(),
                 "prediction_record_sha256": prediction_record_sha256,
                 "match_id": match_id,
+                "disposition_evidence_sha256": disposition_evidence_sha,
                 "evidence_sha256": evidence_shas,
             }
         )
