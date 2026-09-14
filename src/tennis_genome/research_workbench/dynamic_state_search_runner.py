@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Literal, cast
+from typing import Literal
 
 from tennis_genome.data.canonical import HistoricalMatch, Tour
 from tennis_genome.data.manifest import verify_canonical_manifest
