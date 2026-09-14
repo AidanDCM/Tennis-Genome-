@@ -1,6 +1,6 @@
 # Historical Availability Audit 001 — Sackmann-style Research Source
 
-Status: **machine-readable audit active; target-row availability unresolved; coverage report execution pending**
+Status: **machine-readable audit active; target-row availability reviews active; coverage report execution pending**
 
 Audit date: 2026-09-14
 
@@ -94,6 +94,25 @@ Accordingly, target surface, round, seed, entry and best-of remain
 `RESEARCH_ONLY_UNVERIFIED` when sourced only from the pinned completed-match rows. This is
 also an audited negative conclusion, not permission to infer a synthetic publication time.
 
+### Player-reference evidence review
+
+`docs/historical_player_reference_availability_evidence_001.md` records the dedicated review
+of hand, height and IOC.
+
+The upstream repositories describe a maintained **master player file** and state that match
+rows contain redundant biographical fields. They also explicitly accept corrections and
+additions to missing biographical data. That establishes these values as maintained
+reference data, not as a historical point-in-time publication ledger.
+
+The current source contract does not establish when a particular hand, height or IOC value
+first became known, whether it was corrected after a historical match, or whether old match
+rows are immutable snapshots of the contemporaneous reference value. IOC also can change
+as a player's sporting/national representation changes.
+
+Accordingly, target hand, height and IOC remain `RESEARCH_ONLY_UNVERIFIED` when sourced only
+from the pinned retrospective rows. This is an audited negative conclusion; physically
+stable attributes are not automatically historically T0-safe dataset fields.
+
 ## Post-match observations
 
 Match outcome, match statistics and duration are post-match observations.
@@ -144,7 +163,8 @@ of dataset identity rather than optional report metadata.
 
 ## Remaining work
 
-1. Audit player reference fields for historical revision behavior.
+1. Audit target age / date-of-birth revision semantics rather than assuming that a derived
+   age is historically T0-safe merely because age is deterministic once DOB is correct.
 2. Execute the frozen historical coverage audit on the pinned source and archive the
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
@@ -154,6 +174,8 @@ of dataset identity rather than optional report metadata.
    promotion.
 5. Revisit target event-context eligibility only if independently timestamped/versioned
    historical draw, schedule, order-of-play or provider snapshots are added and bound to T0.
+6. Revisit hand/height/IOC only if trustworthy versioned player-reference records or
+   independently retained pre-match snapshots are added.
 
 ## Scientific consequence
 
