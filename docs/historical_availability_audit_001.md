@@ -62,6 +62,20 @@ enough for them to serve as canonical protected-v2 evidence.
 
 They therefore receive `RESEARCH_ONLY_UNVERIFIED`, not an invented pre-match timestamp.
 
+### Ranking/ranking-points evidence review
+
+`docs/historical_ranking_availability_evidence_001.md` records the dedicated review of the
+ranking fields.
+
+That review establishes the weekly Monday/event-date convention strongly enough for
+provenance, including ATP evidence that official rankings are published on Monday. It does
+not establish a trustworthy historical publication timestamp and revision ledger for each
+snapshot represented in the pinned research source.
+
+Accordingly, target ranking and target ranking points remain
+`RESEARCH_ONLY_UNVERIFIED`. This is an audited negative conclusion, not pending permission
+to assume a pre-match timestamp.
+
 ## Post-match observations
 
 Match outcome, match statistics and duration are post-match observations.
@@ -112,14 +126,16 @@ of dataset identity rather than optional report metadata.
 
 ## Remaining work
 
-1. Verify historical publication semantics for rankings/ranking points.
-2. Verify whether target event context can be reconstructed from independently timestamped
+1. Verify whether target event context can be reconstructed from independently timestamped
    draws/schedules rather than retrospectively compiled match rows.
-3. Audit player reference fields for historical revision behavior.
-4. Execute the frozen historical coverage audit on the pinned source and archive the
+2. Audit player reference fields for historical revision behavior.
+3. Execute the frozen historical coverage audit on the pinned source and archive the
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
-5. Identify a source with trustworthy match-start timestamps for dynamic-state research.
+4. Identify a source with trustworthy match-start timestamps for dynamic-state research.
+5. Revisit ranking/ranking-points canonical eligibility only if stronger historical
+   publication/version evidence is obtained; the current evidence review does not justify
+   promotion.
 
 ## Scientific consequence
 
