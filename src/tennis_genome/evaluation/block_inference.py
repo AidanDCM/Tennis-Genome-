@@ -7,7 +7,45 @@ from collections.abc import Hashable, Iterable
 from dataclasses import dataclass
 from itertools import product
 
-from .paired_inference import _paired_differences, _percentile
+
+def _as_float_list(values: Iterable[float], *, name: str) -> list[float]:
+    result = [float(value) for value in values]
+    if not result:
+        raise ValueError(f"{name} must be non-empty")
+    if any(not math.isfinite(value) for value in result):
+        raise ValueError(f"{name} must contain only finite values")
+    return result
+
+
+def _paired_differences(
+    baseline_losses: Iterable[float],
+    candidate_losses: Iterable[float],
+) -> list[float]:
+    baseline = _as_float_list(baseline_losses, name="baseline_losses")
+    candidate = _as_float_list(candidate_losses, name="candidate_losses")
+    if len(baseline) != len(candidate):
+        raise ValueError("baseline_losses and candidate_losses must have equal length")
+    return [
+        base - challenger
+        for base, challenger in zip(baseline, candidate, strict=True)
+    ]
+
+
+def _percentile(sorted_values: list[float], quantile: float) -> float:
+    if not 0.0 <= quantile <= 1.0:
+        raise ValueError("quantile must be in [0, 1]")
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    position = quantile * (len(sorted_values) - 1)
+    lower_index = int(math.floor(position))
+    upper_index = int(math.ceil(position))
+    if lower_index == upper_index:
+        return sorted_values[lower_index]
+    fraction = position - lower_index
+    return (
+        sorted_values[lower_index] * (1.0 - fraction)
+        + sorted_values[upper_index] * fraction
+    )
 
 
 @dataclass(frozen=True)
