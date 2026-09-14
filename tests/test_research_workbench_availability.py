@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from tennis_genome.research_workbench import (
     FeatureAvailabilityContract,
+    FeatureAvailabilityRegistry,
     FeatureObservation,
     ReliabilityGrade,
     RevisionSemantics,
@@ -241,3 +242,41 @@ def test_target_exact_time_must_match_utc_event_date() -> None:
             event_date=date(2026, 5, 1),
             event_start_at=datetime(2026, 5, 2, 0, 30, tzinfo=UTC),
         )
+
+
+def test_availability_registry_is_deterministic_and_canonical_gate_fails_closed() -> None:
+    first = FeatureAvailabilityRegistry(
+        (_contract(feature_id="elo_state"), _contract(feature_id="serve_state"))
+    )
+    second = FeatureAvailabilityRegistry(
+        (_contract(feature_id="serve_state"), _contract(feature_id="elo_state"))
+    )
+
+    assert first.semantic_sha256 == second.semantic_sha256
+    first.assert_registered(("elo_state", "serve_state"))
+    first.assert_canonical_eligible(("elo_state", "serve_state"))
+
+    with pytest.raises(ValueError, match="lacks availability contracts"):
+        first.assert_registered(("elo_state", "duration_state"))
+
+    blocked = FeatureAvailabilityRegistry(
+        (
+            _contract(feature_id="elo_state"),
+            _contract(
+                feature_id="unverified_context",
+                t0_policy=T0Policy.RESEARCH_ONLY_UNVERIFIED,
+            ),
+        )
+    )
+    with pytest.raises(ValueError, match="non-canonical"):
+        blocked.assert_canonical_eligible(("elo_state", "unverified_context"))
+
+
+def test_availability_registry_rejects_conflicting_contract_identity() -> None:
+    registry = FeatureAvailabilityRegistry((_contract(feature_id="serve_state"),))
+    changed = _contract(feature_id="serve_state").model_copy(
+        update={"known_schema_breaks": ("2016 coverage regime changed",)}
+    )
+
+    with pytest.raises(ValueError, match="different availability content"):
+        registry.add(changed)
