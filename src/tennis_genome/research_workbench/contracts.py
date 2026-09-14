@@ -93,7 +93,20 @@ class ForecastingProcedureSpec(WorkbenchRecord):
 
     @model_validator(mode="after")
     def _enforce_independent_probability_boundary(self) -> Self:
-        searchable = " ".join((self.input_contract, *self.feature_set, *self.required_data)).lower()
+        searchable = " ".join(
+            (
+                self.procedure_id,
+                self.name,
+                self.version,
+                self.input_contract,
+                *self.feature_set,
+                self.training_method,
+                self.hyperparameters_json,
+                self.calibration,
+                self.prediction_method,
+                *self.required_data,
+            )
+        ).lower()
         forbidden = sorted(token for token in _FORBIDDEN_MARKET_TOKENS if token in searchable)
         if forbidden:
             raise ValueError(
@@ -113,6 +126,7 @@ class EvaluationSpec(WorkbenchRecord):
     evaluation_role: Literal["DEVELOPMENT", "PROTECTED"]
     primary_metrics: tuple[Literal["brier", "log_loss"], ...] = ("brier", "log_loss")
     outcome_access_policy: Literal["OUTCOMES_VISIBLE", "SEALED_UNTIL_EVALUATION"]
+    protected_source_ids: tuple[str, ...] = ()
 
     @field_validator("population_sha256")
     @classmethod
@@ -121,20 +135,24 @@ class EvaluationSpec(WorkbenchRecord):
             raise ValueError("population_sha256 must be a lowercase 64-character SHA-256")
         return value
 
-    @field_validator("procedure_ids")
+    @field_validator("procedure_ids", "protected_source_ids")
     @classmethod
-    def _validate_procedure_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        if not value:
-            raise ValueError("at least one procedure is required")
+    def _validate_unique_nonblank(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         if len(set(value)) != len(value):
-            raise ValueError("procedure_ids must be unique")
+            raise ValueError("evaluation tuple fields must be unique")
+        if any(not item.strip() for item in value):
+            raise ValueError("evaluation tuple fields must not contain blank values")
         return value
 
     @model_validator(mode="after")
-    def _enforce_protected_outcome_policy(self) -> Self:
-        if (
-            self.evaluation_role == "PROTECTED"
-            and self.outcome_access_policy != "SEALED_UNTIL_EVALUATION"
-        ):
-            raise ValueError("protected evaluations must seal outcomes until evaluation")
+    def _enforce_evaluation_policy(self) -> Self:
+        if not self.procedure_ids:
+            raise ValueError("at least one procedure is required")
+        if self.evaluation_role == "PROTECTED":
+            if self.outcome_access_policy != "SEALED_UNTIL_EVALUATION":
+                raise ValueError("protected evaluations must seal outcomes until evaluation")
+            if not self.protected_source_ids:
+                raise ValueError("protected evaluations must declare protected_source_ids")
+        elif self.protected_source_ids:
+            raise ValueError("development evaluations may not declare protected_source_ids")
         return self
