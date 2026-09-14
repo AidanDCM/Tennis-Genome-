@@ -25,6 +25,12 @@ from .constitution import (
     ResearchConstitution,
 )
 from .contracts import EvaluationSpec, ForecastingProcedureSpec, WorkbenchRecord
+from .dynamic_state_benchmark import (
+    DynamicStateSeedResult,
+    DynamicStateShiftReport,
+    DynamicStateShiftSpec,
+    run_dynamic_state_shift_benchmark,
+)
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
 from .history import (
@@ -65,6 +71,9 @@ __all__ = [
     "CodeFingerprint",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
+    "DynamicStateSeedResult",
+    "DynamicStateShiftReport",
+    "DynamicStateShiftSpec",
     "EvaluationResult",
     "EvaluationSpec",
     "ExposureGraph",
@@ -106,6 +115,7 @@ __all__ = [
     "interaction_world",
     "miscalibration_world",
     "null_world",
+    "run_dynamic_state_shift_benchmark",
     "run_null_calibration_campaign",
     "run_synthetic_benchmark",
     "sackmann_research_availability_registry",
