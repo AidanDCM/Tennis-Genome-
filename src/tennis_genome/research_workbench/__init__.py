@@ -31,6 +31,24 @@ from .dynamic_state_benchmark import (
     DynamicStateShiftSpec,
     run_dynamic_state_shift_benchmark,
 )
+from .dynamic_state_development import (
+    DynamicStateDevelopmentReport,
+    DynamicStateDevelopmentSpec,
+    DynamicStatePredictionRow,
+    DynamicStateYearScore,
+    run_dynamic_state_development_comparison,
+)
+from .dynamic_state_diagnostic import (
+    DynamicStateDiagnosticStratum,
+    DynamicStateFailureDiagnosticReport,
+    DynamicStateFailureDiagnosticSpec,
+    run_dynamic_state_failure_diagnostic,
+)
+from .dynamic_state_runner import (
+    DynamicStateDevelopmentEvidence,
+    build_dynamic_state_development_evidence,
+    run_from_canonical_files,
+)
 from .evaluation import EvaluationResult, evaluate_probabilities
 from .exposure import ExposureGraph, ExposureKind, ExposureRecord
 from .history import (
@@ -40,6 +58,7 @@ from .history import (
 )
 from .lineage import (
     CanonicalEvaluationBinding,
+    ChronologySemantics,
     CodeFingerprint,
     DatasetFingerprint,
     ProcedureSearchFamily,
@@ -68,12 +87,21 @@ from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchma
 __all__ = [
     "AvailabilityDecision",
     "CanonicalEvaluationBinding",
+    "ChronologySemantics",
     "CodeFingerprint",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
+    "DynamicStateDevelopmentEvidence",
+    "DynamicStateDevelopmentReport",
+    "DynamicStateDevelopmentSpec",
+    "DynamicStateDiagnosticStratum",
+    "DynamicStateFailureDiagnosticReport",
+    "DynamicStateFailureDiagnosticSpec",
+    "DynamicStatePredictionRow",
     "DynamicStateSeedResult",
     "DynamicStateShiftReport",
     "DynamicStateShiftSpec",
+    "DynamicStateYearScore",
     "EvaluationResult",
     "EvaluationSpec",
     "ExposureGraph",
@@ -108,6 +136,7 @@ __all__ = [
     "WorkbenchRecord",
     "assert_features_available",
     "build_canonical_evaluation_binding",
+    "build_dynamic_state_development_evidence",
     "evaluate_feature_availability",
     "evaluate_probabilities",
     "fingerprint_code_components",
@@ -115,7 +144,10 @@ __all__ = [
     "interaction_world",
     "miscalibration_world",
     "null_world",
+    "run_dynamic_state_development_comparison",
+    "run_dynamic_state_failure_diagnostic",
     "run_dynamic_state_shift_benchmark",
+    "run_from_canonical_files",
     "run_null_calibration_campaign",
     "run_synthetic_benchmark",
     "sackmann_research_availability_registry",
