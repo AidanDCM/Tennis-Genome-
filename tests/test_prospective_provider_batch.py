@@ -228,7 +228,7 @@ def test_sportradar_census_discovery_cannot_exist_outside_retained_batches(
         observed_at=observed,
         scheduled_start=observed + timedelta(hours=4),
     )
-    with pytest.raises(ValueError, match="absent from retained provider batches"):
+    with pytest.raises(ValueError, match="not supported by due provider batches"):
         reconcile_batches_with_census(
             batch_store=batch_store,
             census_store=census_store,
@@ -257,4 +257,75 @@ def test_category_id_name_semantic_drift_fails_closed(tmp_path: Path) -> None:
             raw_payload_path=payload,
             schedule_date=date(2026, 9, 15),
             observed_at=observed,
+        )
+
+
+def test_valid_prestart_capture_is_not_poisoned_by_later_live_recapture(
+    tmp_path: Path,
+) -> None:
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    start = observed + timedelta(hours=1)
+    batch_store = _capture(
+        tmp_path,
+        [_summary("sr:sport_event:70", start=start)],
+        observed_at=observed,
+        name="prestart.json",
+    )
+    late_payload = _write_payload(
+        tmp_path / "live.json",
+        [_summary("sr:sport_event:70", start=start, status="live")],
+    )
+    capture_provider_batch(
+        store=batch_store,
+        raw_payload_path=late_payload,
+        schedule_date=start.date(),
+        observed_at=start + timedelta(minutes=5),
+    )
+    census_store = EventCensusStore(tmp_path / "census")
+    _record_census_event(
+        tmp_path,
+        census_store,
+        event_id="sr:sport_event:70",
+        tour="ATP",
+        observed_at=observed,
+        scheduled_start=start,
+    )
+    report = reconcile_batches_with_census(
+        batch_store=batch_store,
+        census_store=census_store,
+        complete_through=start + timedelta(minutes=10),
+    )
+    assert report["status"] == "RECONCILED"
+    assert report["required_event_count"] == 1
+
+
+def test_out_of_scope_wta_125_event_cannot_be_promoted_into_census(tmp_path: Path) -> None:
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    start = observed + timedelta(hours=4)
+    batch_store = _capture(
+        tmp_path,
+        [
+            _summary(
+                "sr:sport_event:80",
+                start=start,
+                category_id="sr:category:871",
+                category_name="WTA 125K",
+            )
+        ],
+        observed_at=observed,
+    )
+    census_store = EventCensusStore(tmp_path / "census")
+    _record_census_event(
+        tmp_path,
+        census_store,
+        event_id="sr:sport_event:80",
+        tour="WTA",
+        observed_at=observed,
+        scheduled_start=start,
+    )
+    with pytest.raises(ValueError, match="NOT_CENSUS_REQUIRED"):
+        reconcile_batches_with_census(
+            batch_store=batch_store,
+            census_store=census_store,
+            complete_through=start,
         )
