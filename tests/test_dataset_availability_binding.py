@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-import pytest
-
-from tennis_genome.research_workbench import (
-    fingerprint_match_population,
-)
+import tennis_genome.research_workbench as workbench
 
 
 _ROWS = (
@@ -26,13 +22,22 @@ _ROWS = (
 
 
 def _fingerprint(availability_sha: str):
-    return fingerprint_match_population(
+    return workbench.fingerprint_match_population(
         dataset_id="availability-binding-test",
         ordered_rows=_ROWS,
         source_manifest_sha256="1" * 64,
         availability_contract_sha256=availability_sha,
         schema_version="canonical-v4",
     )
+
+
+def _assert_invalid(availability_sha: str) -> None:
+    try:
+        _fingerprint(availability_sha)
+    except ValueError as exc:
+        assert "availability_contract_sha256" in str(exc)
+        return
+    raise AssertionError("invalid availability registry hash was accepted")
 
 
 def test_dataset_identity_changes_when_availability_registry_changes() -> None:
@@ -44,12 +49,6 @@ def test_dataset_identity_changes_when_availability_registry_changes() -> None:
     assert first.sha256 != changed.sha256
 
 
-@pytest.mark.parametrize(
-    "invalid",
-    ("", "2" * 63, "G" * 64, "sha256:" + "2" * 64),
-)
-def test_dataset_fingerprint_rejects_invalid_availability_registry_hash(
-    invalid: str,
-) -> None:
-    with pytest.raises(ValueError, match="availability_contract_sha256"):
-        _fingerprint(invalid)
+def test_dataset_fingerprint_rejects_invalid_availability_registry_hash() -> None:
+    for invalid in ("", "2" * 63, "G" * 64, "sha256:" + "2" * 64):
+        _assert_invalid(invalid)
