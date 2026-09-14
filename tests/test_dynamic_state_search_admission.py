@@ -79,7 +79,9 @@ def _valid_report() -> DynamicStateLessAggressiveSearchReport:
         bonferroni_alpha=spec.bonferroni_alpha,
         candidate_tour_results=tuple(results),
         candidate_aggregates=tuple(aggregates),
-        eligible_candidate_ids=tuple(sorted(candidate.candidate_id for candidate in spec.candidates)),
+        eligible_candidate_ids=tuple(
+            sorted(candidate.candidate_id for candidate in spec.candidates)
+        ),
         selected_candidate_id=selected,
         selection_status="SELECTED",
         selection_rule=spec.selection_rule,
