@@ -1,10 +1,199 @@
 name: Dynamic State Failure Diagnostic
+
 on:
+  push:
+    branches:
+      - dev/dynamic-state-failure-diagnostic-run
+    paths:
+      - ".github/workflows/dynamic_state_failure_diagnostic.yml"
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  placeholder:
-    runs-on: ubuntu-24.04
+  dynamic-state-failure-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      START_YEAR: "2000"
+      END_YEAR: "2025"
+      LICENSE_NAME: CC BY-NC-SA 4.0
+      LICENSE_URL: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
     steps:
-      - run: echo diagnostic-workflow-scaffold
+      - name: Checkout Tennis Genome
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e .[dev]
+
+      - name: Download pinned research snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_raw/atp data/research_raw/wta
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            for tour in atp wta; do
+              filename="${tour}_matches_${year}.csv"
+              url="https://raw.githubusercontent.com/${ARCHIVE_REPO}/${ARCHIVE_COMMIT}/${tour}/${filename}"
+              echo "Downloading ${url}"
+              curl --fail --location --silent --show-error --retry 3 \
+                --output "data/research_raw/${tour}/${filename}" "${url}"
+            done
+          done
+          echo "Downloaded $(find data/research_raw -type f | wc -l) pinned source files."
+
+      - name: Build canonical ATP research dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_processed/atp
+          args=()
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            args+=(--input "data/research_raw/atp/atp_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset \
+            "${args[@]}" \
+            --tour ATP \
+            --output-dir data/research_processed/atp \
+            --source-id "sackmann-archive-${ARCHIVE_COMMIT}-atp-${START_YEAR}-${END_YEAR}" \
+            --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+            --source-version "$ARCHIVE_COMMIT" \
+            --license-name "$LICENSE_NAME" \
+            --license-url "$LICENSE_URL" \
+            --allowed-use-status research_allowed \
+            > data/research_processed/atp/build_output.json
+
+      - name: Build canonical WTA research dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/research_processed/wta
+          args=()
+          for year in $(seq "$START_YEAR" "$END_YEAR"); do
+            args+=(--input "data/research_raw/wta/wta_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset \
+            "${args[@]}" \
+            --tour WTA \
+            --output-dir data/research_processed/wta \
+            --source-id "sackmann-archive-${ARCHIVE_COMMIT}-wta-${START_YEAR}-${END_YEAR}" \
+            --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+            --source-version "$ARCHIVE_COMMIT" \
+            --license-name "$LICENSE_NAME" \
+            --license-url "$LICENSE_URL" \
+            --allowed-use-status research_allowed \
+            > data/research_processed/wta/build_output.json
+
+
+      - name: Reproduce archived canonical hashes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          expected = {
+              "atp": {
+                  "row_count": 77850,
+                  "source_bundle_sha256": "b5cf078bb2bc035bb3a2c3bdc7d70b2eeabf38957ce5a2614f5d129c8484627c",
+                  "pre_match_sha256": "d1003f47322a58ff92ec1dc98d68168c136a7423a58cfd8e9f43530a6b252442",
+                  "outcome_sha256": "9ab4a2f850554081bc74eb381479a9529157ab8eb5f24d99cc13be57ee200fa0",
+                  "stats_sha256": "56b542915523a5e78bf7eedf91b6fbfea5a83f0a10498496bd4689747e08c0d9",
+              },
+              "wta": {
+                  "row_count": 71419,
+                  "source_bundle_sha256": "b98b0b28e447eb13e2352b3d555be96d39d7dd4e49121fa84eaf87b9465a3fc2",
+                  "pre_match_sha256": "16c1b6ff231c10169142a6e038d035d56c082f843fe509084eda5436d4b39262",
+                  "outcome_sha256": "1b3da999ca7d8921d039766854386a1038962d564fc65e348dcec1e4c461a8a8",
+                  "stats_sha256": "db75fe1b22ab48c64e024a5acadc44ec1b18f536516ef7fb02f806c672bf1df1",
+              },
+          }
+          for tour, required in expected.items():
+              path = Path("data/research_processed") / tour / f"{tour}_manifest.json"
+              manifest = json.loads(path.read_text())
+              observed = {key: manifest.get(key) for key in required}
+              if observed != required:
+                  raise SystemExit(
+                      f"{tour.upper()} canonical snapshot failed archived-hash reproduction:\n"
+                      + json.dumps({"expected": required, "observed": observed}, indent=2, sort_keys=True)
+                  )
+              print(tour.upper(), json.dumps(observed, sort_keys=True))
+          PY
+
+
+      - name: Run DYNAMIC-STATE-FAILURE-DIAGNOSTIC-001 ATP
+        run: |
+          mkdir -p artifacts/dynamic_state_failure_diagnostic
+          python -m tennis_genome.research_workbench.dynamic_state_diagnostic_runner             --manifest data/research_processed/atp/atp_manifest.json             --pre-match data/research_processed/atp/atp_pre_match.parquet             --outcomes data/research_processed/atp/atp_outcomes.parquet             --stats data/research_processed/atp/atp_stats.parquet             --tour ATP             --repo-root .             --test-years 2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025             --min-train-rows 5000             --output artifacts/dynamic_state_failure_diagnostic/atp_evidence.json
+
+      - name: Run DYNAMIC-STATE-FAILURE-DIAGNOSTIC-001 WTA
+        run: |
+          python -m tennis_genome.research_workbench.dynamic_state_diagnostic_runner             --manifest data/research_processed/wta/wta_manifest.json             --pre-match data/research_processed/wta/wta_pre_match.parquet             --outcomes data/research_processed/wta/wta_outcomes.parquet             --stats data/research_processed/wta/wta_stats.parquet             --tour WTA             --repo-root .             --test-years 2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025             --min-train-rows 5000             --output artifacts/dynamic_state_failure_diagnostic/wta_evidence.json
+
+      - name: Write diagnostic summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path("artifacts/dynamic_state_failure_diagnostic")
+          lines = [
+              "# DYNAMIC-STATE-FAILURE-DIAGNOSTIC-001",
+              "",
+              "Descriptive only. No parameter selection.",
+              "",
+              "| Tour | Dimension | Bucket | N | Delta Brier | Delta log loss |",
+              "|---|---|---|---:|---:|---:|",
+          ]
+          for tour in ("atp", "wta"):
+              evidence = json.loads((root / f"{tour}_evidence.json").read_text())
+              report = evidence["report"]
+              for row in report["strata"]:
+                  lines.append(
+                      f"| {tour.upper()} | {row['dimension']} | {row['bucket']} | "
+                      f"{row['n']:,} | {row['brier_improvement']:+.8f} | "
+                      f"{row['log_loss_improvement']:+.8f} |"
+                  )
+              lines.extend(
+                  [
+                      "",
+                      f"{tour.upper()} source identity: {evidence['source_manifest_sha256']}",
+                      f"{tour.upper()} availability registry: {evidence['availability_registry_sha256']}",
+                      f"{tour.upper()} dataset fingerprint: {evidence['dataset_fingerprint']['sha256']}",
+                      f"{tour.upper()} diagnostic code fingerprint: {evidence['code_fingerprint']['sha256']}",
+                      "",
+                  ]
+              )
+          summary = "\n".join(lines) + "\n"
+          (root / "SUMMARY.md").write_text(summary, encoding="utf-8")
+          print(summary)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary)
+          PY
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dynamic-state-failure-diagnostic-${{ github.sha }}
+          path: |
+            artifacts/dynamic_state_failure_diagnostic/
+            data/research_processed/atp/atp_manifest.json
+            data/research_processed/wta/wta_manifest.json
+          if-no-files-found: warn
+          retention-days: 30
