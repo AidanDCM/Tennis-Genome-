@@ -54,7 +54,23 @@ def _evaluation(*, role: str = "DEVELOPMENT") -> EvaluationSpec:
         outcome_access_policy=(
             "SEALED_UNTIL_EVALUATION" if role == "PROTECTED" else "OUTCOMES_VISIBLE"
         ),
+        protected_source_ids=("holdout-2026",) if role == "PROTECTED" else (),
     )
+
+
+def _graph_with_development_exposure() -> ExposureGraph:
+    graph = ExposureGraph()
+    graph.add(
+        ExposureRecord(
+            exposure_id="exp-development",
+            actor="researcher",
+            source_ids=("history-2010-2018",),
+            information_kinds=(ExposureKind.RESIDUAL_ANALYSIS,),
+            description="Reviewed development residual structure.",
+            decision_ids=("proc-calibration-v1",),
+        )
+    )
+    return graph
 
 
 def test_procedure_spec_is_canonical_and_frozen() -> None:
@@ -72,6 +88,13 @@ def test_independent_procedure_rejects_downstream_market_semantics() -> None:
         _procedure(feature_set=("core_probability", "bookmaker_odds"))
 
 
+def test_market_firewall_scans_calibration_and_other_semantic_fields() -> None:
+    with pytest.raises(ValidationError, match="downstream market semantics"):
+        _procedure(calibration="implied_probability_recalibration")
+    with pytest.raises(ValidationError, match="downstream market semantics"):
+        _procedure(name="Closing line blend")
+
+
 def test_protected_evaluation_requires_sealed_outcomes() -> None:
     with pytest.raises(ValidationError, match="protected evaluations"):
         EvaluationSpec(
@@ -81,6 +104,19 @@ def test_protected_evaluation_requires_sealed_outcomes() -> None:
             procedure_ids=("proc-calibration-v1",),
             evaluation_role="PROTECTED",
             outcome_access_policy="OUTCOMES_VISIBLE",
+            protected_source_ids=("future-panel-v1",),
+        )
+
+
+def test_protected_evaluation_requires_source_identity() -> None:
+    with pytest.raises(ValidationError, match="protected_source_ids"):
+        EvaluationSpec(
+            evaluation_id="protected-001",
+            dataset_version="future-panel-v1",
+            population_sha256="b" * 64,
+            procedure_ids=("proc-calibration-v1",),
+            evaluation_role="PROTECTED",
+            outcome_access_policy="SEALED_UNTIL_EVALUATION",
         )
 
 
@@ -135,9 +171,10 @@ def test_exposure_graph_requires_registered_parents() -> None:
 
 
 def test_probability_evaluation_uses_registered_proper_scores() -> None:
+    procedure = _procedure()
     result = evaluate_probabilities(
         evaluation_spec=_evaluation(),
-        procedure_id="proc-calibration-v1",
+        procedure_spec=procedure,
         probabilities=[0.8, 0.3],
         outcomes=[1, 0],
     )
@@ -147,21 +184,111 @@ def test_probability_evaluation_uses_registered_proper_scores() -> None:
     assert math.isclose(result.log_loss, -(math.log(0.8) + math.log(0.7)) / 2.0)
     assert result.mean_prediction == pytest.approx(0.55)
     assert result.observed_rate == pytest.approx(0.5)
+    assert result.procedure_spec_sha256 == procedure.semantic_sha256
+
+
+def test_development_evaluation_rejects_unverifiable_declared_lineage() -> None:
+    procedure = _procedure(development_exposure_ids=("missing-exposure",))
+    with pytest.raises(ValueError, match="requires an ExposureGraph"):
+        evaluate_probabilities(
+            evaluation_spec=_evaluation(),
+            procedure_spec=procedure,
+            probabilities=[0.6, 0.4],
+            outcomes=[1, 0],
+        )
+
+    with pytest.raises(ValueError, match="unregistered exposure IDs"):
+        evaluate_probabilities(
+            evaluation_spec=_evaluation(),
+            procedure_spec=procedure,
+            probabilities=[0.6, 0.4],
+            outcomes=[1, 0],
+            exposure_graph=ExposureGraph(),
+        )
+
+
+def test_protected_evaluation_cannot_bypass_exposure_gate() -> None:
+    with pytest.raises(ValueError, match="requires an ExposureGraph"):
+        evaluate_probabilities(
+            evaluation_spec=_evaluation(role="PROTECTED"),
+            procedure_spec=_procedure(development_exposure_ids=("exp-development",)),
+            probabilities=[0.6, 0.4],
+            outcomes=[1, 0],
+        )
+
+    with pytest.raises(ValueError, match="explicit procedure exposure lineage"):
+        evaluate_probabilities(
+            evaluation_spec=_evaluation(role="PROTECTED"),
+            procedure_spec=_procedure(),
+            probabilities=[0.6, 0.4],
+            outcomes=[1, 0],
+            exposure_graph=ExposureGraph(),
+        )
+
+
+def test_protected_evaluation_rejects_inherited_contamination() -> None:
+    graph = ExposureGraph()
+    graph.add(
+        ExposureRecord(
+            exposure_id="exp-root",
+            actor="researcher",
+            source_ids=("holdout-2026",),
+            information_kinds=(ExposureKind.PROTECTED_RESULT,),
+            description="Viewed protected outcomes.",
+            decision_ids=("new-feature-family",),
+        )
+    )
+    graph.add(
+        ExposureRecord(
+            exposure_id="exp-child",
+            actor="procedure-designer",
+            source_ids=("feature-catalog-v2",),
+            information_kinds=(ExposureKind.FEATURE_SUMMARY,),
+            description="Designed procedure after protected result exposure.",
+            parent_exposure_ids=("exp-root",),
+            decision_ids=("proc-calibration-v1",),
+        )
+    )
+
+    with pytest.raises(ValueError, match="not independent"):
+        evaluate_probabilities(
+            evaluation_spec=_evaluation(role="PROTECTED"),
+            procedure_spec=_procedure(development_exposure_ids=("exp-child",)),
+            probabilities=[0.6, 0.4],
+            outcomes=[1, 0],
+            exposure_graph=graph,
+        )
+
+
+def test_protected_evaluation_accepts_registered_independent_lineage() -> None:
+    graph = _graph_with_development_exposure()
+    procedure = _procedure(development_exposure_ids=("exp-development",))
+    result = evaluate_probabilities(
+        evaluation_spec=_evaluation(role="PROTECTED"),
+        procedure_spec=procedure,
+        probabilities=[0.6, 0.4],
+        outcomes=[1, 0],
+        exposure_graph=graph,
+    )
+
+    assert result.n == 2
+    assert result.procedure_spec_sha256 == procedure.semantic_sha256
 
 
 def test_probability_evaluation_rejects_non_finite_or_boundary_probabilities() -> None:
     spec = _evaluation()
+    procedure = _procedure()
     with pytest.raises(ValueError, match="finite"):
         evaluate_probabilities(
             evaluation_spec=spec,
-            procedure_id="proc-calibration-v1",
+            procedure_spec=procedure,
             probabilities=[0.6, float("nan")],
             outcomes=[1, 0],
         )
     with pytest.raises(ValueError, match="strictly between"):
         evaluate_probabilities(
             evaluation_spec=spec,
-            procedure_id="proc-calibration-v1",
+            procedure_spec=procedure,
             probabilities=[1.0, 0.4],
             outcomes=[1, 0],
         )
