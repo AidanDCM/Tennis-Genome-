@@ -1,6 +1,6 @@
 # Historical Availability Audit 001 — Sackmann-style Research Source
 
-Status: **machine-readable audit active; target-row availability reviews active; coverage report execution pending**
+Status: **machine-readable audit active; target-row evidence reviews complete; coverage report execution pending**
 
 Audit date: 2026-09-14
 
@@ -57,10 +57,12 @@ They do **not** gain same-day legality from CSV row order or `match_num`.
 
 These fields may be perfectly reasonable research inputs, and some are almost certainly
 known before a real match. The issue is narrower: the current historical source contract
-does not yet prove their exact point-in-time availability and revision history strongly
-enough for them to serve as canonical protected-v2 evidence.
+does not prove their exact point-in-time availability and revision history strongly enough
+for them to serve as canonical protected-v2 evidence.
 
 They therefore receive `RESEARCH_ONLY_UNVERIFIED`, not an invented pre-match timestamp.
+The dedicated evidence reviews below make this an audited negative conclusion for every
+currently registered direct target-row feature group rather than an uninvestigated gap.
 
 ### Ranking/ranking-points evidence review
 
@@ -75,6 +77,25 @@ snapshot represented in the pinned research source.
 Accordingly, target ranking and target ranking points remain
 `RESEARCH_ONLY_UNVERIFIED`. This is an audited negative conclusion, not pending permission
 to assume a pre-match timestamp.
+
+### Target-age evidence review
+
+`docs/historical_target_age_availability_evidence_001.md` records the dedicated review of
+age and its underlying date-of-birth provenance.
+
+The source explicitly documents age as being as of `tourney_date`, so the feature's
+reference date is substantially clearer than the player-reference fields below. However,
+the same source family maintains master player biography and explicitly accepts additions
+and corrections to missing biographical data such as date of birth.
+
+The current source therefore does not establish whether a DOB was already known at the
+historical target T0, was filled in later, or was corrected retrospectively. A later-correct
+DOB can generate a factually correct historical age while still failing a strict historical
+information-set test.
+
+Accordingly, target age remains `RESEARCH_ONLY_UNVERIFIED` with event-date-only timestamp
+semantics and unknown revision history. This is a revision-provenance decision, not a claim
+that age itself is unknowable.
 
 ### Event-context evidence review
 
@@ -163,19 +184,22 @@ of dataset identity rather than optional report metadata.
 
 ## Remaining work
 
-1. Audit target age / date-of-birth revision semantics rather than assuming that a derived
-   age is historically T0-safe merely because age is deterministic once DOB is correct.
-2. Execute the frozen historical coverage audit on the pinned source and archive the
+1. Execute the frozen historical coverage audit on the pinned source and archive the
    tour/year stats + duration coverage artifacts; do not derive exclusion/tuning rules
    from the observed coverage pattern.
-3. Identify a source with trustworthy match-start timestamps for dynamic-state research.
-4. Revisit ranking/ranking-points canonical eligibility only if stronger historical
+2. Identify and validate a source with trustworthy match-start timestamps for dynamic-state
+   research. A source exposing a start time is not enough by itself; historical coverage,
+   confirmed-versus-estimated semantics, revision behavior, licensing and retained source
+   identity must also be established.
+3. Revisit ranking/ranking-points canonical eligibility only if stronger historical
    publication/version evidence is obtained; the current evidence review does not justify
    promotion.
-5. Revisit target event-context eligibility only if independently timestamped/versioned
+4. Revisit target event-context eligibility only if independently timestamped/versioned
    historical draw, schedule, order-of-play or provider snapshots are added and bound to T0.
-6. Revisit hand/height/IOC only if trustworthy versioned player-reference records or
+5. Revisit hand/height/IOC only if trustworthy versioned player-reference records or
    independently retained pre-match snapshots are added.
+6. Revisit target age only if the DOB source is historically versioned/effective-dated or
+   independently retained before target T0.
 
 ## Scientific consequence
 
