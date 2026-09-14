@@ -165,7 +165,7 @@ def fingerprint_match_population(
                 )
             event_time = _parse_utc(event_time_text, label=f"row {index} event_time")
             canonical_chronology = event_time.isoformat()
-            order = (event_time,)
+            order = (event_time, match_id)
         elif chronology_semantics == ChronologySemantics.EVENT_DATE_MATCH_ID:
             event_date_text = str(row.get("event_date", "")).strip()
             if not event_date_text:
