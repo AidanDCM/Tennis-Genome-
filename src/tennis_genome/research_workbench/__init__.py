@@ -38,6 +38,12 @@ from .dynamic_state_development import (
     DynamicStateYearScore,
     run_dynamic_state_development_comparison,
 )
+from .dynamic_state_diagnostic import (
+    DynamicStateDiagnosticStratum,
+    DynamicStateFailureDiagnosticReport,
+    DynamicStateFailureDiagnosticSpec,
+    run_dynamic_state_failure_diagnostic,
+)
 from .dynamic_state_runner import (
     DynamicStateDevelopmentEvidence,
     build_dynamic_state_development_evidence,
@@ -88,6 +94,9 @@ __all__ = [
     "DynamicStateDevelopmentEvidence",
     "DynamicStateDevelopmentReport",
     "DynamicStateDevelopmentSpec",
+    "DynamicStateDiagnosticStratum",
+    "DynamicStateFailureDiagnosticReport",
+    "DynamicStateFailureDiagnosticSpec",
     "DynamicStatePredictionRow",
     "DynamicStateSeedResult",
     "DynamicStateShiftReport",
@@ -136,6 +145,7 @@ __all__ = [
     "miscalibration_world",
     "null_world",
     "run_dynamic_state_development_comparison",
+    "run_dynamic_state_failure_diagnostic",
     "run_dynamic_state_shift_benchmark",
     "run_from_canonical_files",
     "run_null_calibration_campaign",
