@@ -314,7 +314,9 @@ class ProviderCaptureCadenceStore:
             if record.get("batch_observed_at") != batch_record.get("observed_at"):
                 raise ValueError("cadence observed_at does not reproduce from batch")
             if record.get("anchor_created_at") != anchor_created_at.isoformat():
-                raise ValueError("cadence anchor_created_at does not reproduce from GitHub evidence")
+                raise ValueError(
+                    "cadence anchor_created_at does not reproduce from GitHub evidence"
+                )
 
             if batch_sha in batch_shas:
                 raise ValueError("provider batch has more than one cadence attestation")
@@ -409,7 +411,10 @@ def verify_capture_cadence(
         _parse_time(record["anchor_created_at"], field="anchor_created_at")
         for record in due_attestations
     ]
-    gaps = [later - earlier for earlier, later in zip(anchor_times, anchor_times[1:])]
+    gaps = [
+        later - earlier
+        for earlier, later in zip(anchor_times, anchor_times[1:], strict=False)
+    ]
     if any(gap > _MAX_CADENCE_GAP for gap in gaps):
         raise ValueError("provider capture cadence gap exceeds seven hours")
     if cutoff - anchor_times[-1] > _MAX_CADENCE_GAP:
