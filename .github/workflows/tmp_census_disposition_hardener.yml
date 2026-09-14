@@ -1,0 +1,154 @@
+name: Temporary Census Disposition Hardener
+
+on:
+  push:
+    branches:
+      - dev/census-disposition-evidence-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/census-disposition-evidence-hardening
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.16'
+      - name: Install Ruff
+        run: python -m pip install ruff==0.16.7
+      - name: Apply evidence-reproduction hardening
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          census_path = Path('src/tennis_genome/prospective/census.py')
+          text = census_path.read_text()
+
+          old_verify = '''                elif prediction_sha is not None or match_id is not None:\n                    raise ValueError("non-PREDICTED disposition may not bind a prediction")\n                status_counts[status.value] += 1\n'''
+          new_verify = '''                elif prediction_sha is not None or match_id is not None:\n                    raise ValueError("non-PREDICTED disposition may not bind a prediction")\n\n                disposition_evidence_sha = str(\n                    record.get("disposition_evidence_sha256", "")\n                )\n                if disposition_evidence_sha not in evidence_hashes:\n                    raise ValueError("census disposition evidence is not retained")\n                raw = _json_object(\n                    self.evidence_dir / disposition_evidence_sha,\n                    label="census disposition",\n                )\n                if raw.get("schema_version") != DISPOSITION_SCHEMA:\n                    raise ValueError("census disposition evidence schema is not supported")\n                expected_disposition = {\n                    "event_key": _required_text(raw, "event_key"),\n                    "status": _required_text(raw, "status"),\n                    "reason_code": _required_text(raw, "reason_code"),\n                    "disposed_at": _parse_time(\n                        raw.get("disposed_at"), field="disposed_at"\n                    ).isoformat(),\n                    "prediction_record_sha256": _optional_text(\n                        raw, "prediction_record_sha256"\n                    ),\n                    "match_id": _optional_text(raw, "match_id"),\n                }\n                for field, value in expected_disposition.items():\n                    if record.get(field) != value:\n                        raise ValueError(\n                            f"census disposition {field} does not reproduce from evidence"\n                        )\n                status_counts[status.value] += 1\n'''
+          if old_verify not in text:
+              raise SystemExit('verify replacement target not found')
+          text = text.replace(old_verify, new_verify, 1)
+
+          old_store = '''        evidence_shas = [store._store_evidence_bytes(_pretty_json(disposition_evidence))]\n        evidence_shas.extend(store._store_evidence_file(path) for path in supporting_evidence_paths)\n'''
+          new_store = '''        disposition_evidence_sha = store._store_evidence_bytes(\n            _pretty_json(disposition_evidence)\n        )\n        evidence_shas = [disposition_evidence_sha]\n        evidence_shas.extend(store._store_evidence_file(path) for path in supporting_evidence_paths)\n'''
+          if old_store not in text:
+              raise SystemExit('evidence storage replacement target not found')
+          text = text.replace(old_store, new_store, 1)
+
+          old_record = '''                "prediction_record_sha256": prediction_record_sha256,\n                "match_id": match_id,\n                "evidence_sha256": evidence_shas,\n'''
+          new_record = '''                "prediction_record_sha256": prediction_record_sha256,\n                "match_id": match_id,\n                "disposition_evidence_sha256": disposition_evidence_sha,\n                "evidence_sha256": evidence_shas,\n'''
+          if old_record not in text:
+              raise SystemExit('record replacement target not found')
+          text = text.replace(old_record, new_record, 1)
+          census_path.write_text(text)
+
+          tests_path = Path('tests/test_prospective_census.py')
+          tests = tests_path.read_text()
+          marker = 'def test_disposition_retains_canonical_evidence_digest_and_fields('
+          if marker not in tests:
+              tests += r'''
+
+
+def test_disposition_retains_canonical_evidence_digest_and_fields(tmp_path: Path) -> None:
+    store = EventCensusStore(tmp_path / "census")
+    discovery = record_discovery(
+        store=store,
+        discovery_evidence_path=_write_discovery(tmp_path),
+    )
+    disposition = record_disposition(
+        store=store,
+        discovery_record_sha256=str(discovery["record_sha256"]),
+        status=CensusStatus.INPUT_UNAVAILABLE,
+        reason_code="IDENTITY_UNRESOLVED",
+        disposed_at=datetime(2026, 9, 20, 12, 30, tzinfo=UTC),
+        supporting_evidence_paths=[_supporting_evidence(tmp_path)],
+    )
+
+    evidence_sha = str(disposition["disposition_evidence_sha256"])
+    assert evidence_sha in disposition["evidence_sha256"]
+    raw = json.loads((store.evidence_dir / evidence_sha).read_text(encoding="utf-8"))
+    assert raw == {
+        "schema_version": "full-stack-forward-census-disposition-v1",
+        "event_key": "SPORTRADAR:event-1",
+        "status": "INPUT_UNAVAILABLE",
+        "reason_code": "IDENTITY_UNRESOLVED",
+        "disposed_at": "2026-09-20T12:30:00+00:00",
+        "prediction_record_sha256": None,
+        "match_id": None,
+    }
+    assert store.verify()["status"] == "VERIFIED"
+
+
+def test_verifier_rederives_disposition_fields_from_canonical_evidence(
+    tmp_path: Path,
+) -> None:
+    store = EventCensusStore(tmp_path / "census")
+    discovery = record_discovery(
+        store=store,
+        discovery_evidence_path=_write_discovery(tmp_path),
+    )
+    record_disposition(
+        store=store,
+        discovery_record_sha256=str(discovery["record_sha256"]),
+        status=CensusStatus.INPUT_UNAVAILABLE,
+        reason_code="IDENTITY_UNRESOLVED",
+        disposed_at=datetime(2026, 9, 20, 12, 30, tzinfo=UTC),
+        supporting_evidence_paths=[_supporting_evidence(tmp_path)],
+    )
+
+    record_path = sorted(store.records_dir.glob("*.json"))[-1]
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    record["reason_code"] = "FOUNDATIONAL_STATE_UNAVAILABLE"
+    unsigned = dict(record)
+    unsigned.pop("record_sha256")
+    digest = hashlib.sha256(
+        json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    record["record_sha256"] = digest
+    record_path.unlink()
+    rewritten = store.records_dir / f"{int(record['sequence']):08d}-{digest}.json"
+    rewritten.write_text(
+        json.dumps(record, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="reason_code does not reproduce from evidence"):
+        store.verify()
+'''
+          tests_path.write_text(tests)
+
+          docs_path = Path('docs/prospective_event_census.md')
+          docs = docs_path.read_text()
+          old_docs = 'Verification recomputes record hashes, chain order, retained evidence hashes, discovery identity, observation/start chronology, uniqueness, terminal status/reason validity and open-event counts.'
+          new_docs = ('Verification recomputes record hashes, chain order, retained evidence hashes, discovery identity, observation/start chronology, uniqueness, terminal status/reason validity and open-event counts. For every terminal disposition it also reopens the canonical `disposition_evidence_sha256` blob and requires event identity, status, reason, disposition time, prediction linkage, and match ID to reproduce exactly.')
+          if old_docs not in docs:
+              raise SystemExit('documentation replacement target not found')
+          docs_path.write_text(docs.replace(old_docs, new_docs, 1))
+          PY
+          ruff format src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff check --fix src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff format src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          ruff check src/tennis_genome/prospective/census.py tests/test_prospective_census.py
+          git diff --check
+      - name: Commit hardening changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/tennis_genome/prospective/census.py tests/test_prospective_census.py docs/prospective_event_census.md
+          if git diff --cached --quiet; then
+            echo 'No hardening changes needed.'
+          else
+            git commit -m 'Re-derive census dispositions from retained evidence'
+            git push origin HEAD:dev/census-disposition-evidence-hardening
+          fi
