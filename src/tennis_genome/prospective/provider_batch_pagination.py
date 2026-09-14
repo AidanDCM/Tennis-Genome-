@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import tempfile
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Sequence
 
 from tennis_genome.prospective.provider_batch import (
     BATCH_SCHEMA,
@@ -66,10 +65,7 @@ def _json_object_bytes(payload: bytes, *, label: str) -> dict[str, object]:
 
 
 def _headers(payload: bytes) -> dict[str, str]:
-    try:
-        text = payload.decode("iso-8859-1")
-    except UnicodeDecodeError as exc:
-        raise ValueError("response headers are not decodable HTTP header bytes") from exc
+    text = payload.decode("iso-8859-1")
     parsed: dict[str, str] = {}
     for raw_line in text.splitlines():
         if ":" not in raw_line:
