@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import field_validator, model_validator
@@ -46,13 +47,33 @@ def _parse_utc(value: str, *, label: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
+def _parse_date(value: str, *, label: str) -> date:
+    try:
+        return date.fromisoformat(value.strip())
+    except ValueError as exc:
+        raise ValueError(f"{label} must be YYYY-MM-DD") from exc
+
+
+class ChronologySemantics(StrEnum):
+    """Ordering evidence actually present in the dataset."""
+
+    EXACT_EVENT_TIME = "EXACT_EVENT_TIME"
+    EVENT_DATE_MATCH_ID = "EVENT_DATE_MATCH_ID"
+
+
 class DatasetFingerprint(WorkbenchRecord):
-    """Fail-closed identity for one ordered tennis evaluation population."""
+    """Fail-closed identity for one ordered tennis evaluation population.
+
+    A fingerprint preserves the chronology precision the source truly carries.
+    Date-only history is fingerprinted as date plus canonical match ID rather than
+    being assigned an invented midnight timestamp.
+    """
 
     dataset_id: str
     row_count: int
-    first_event_time: str
-    last_event_time: str
+    chronology_semantics: ChronologySemantics
+    first_order_key: str
+    last_order_key: str
     row_identity_sha256: str
     source_manifest_sha256: str
     availability_contract_sha256: str
@@ -73,17 +94,18 @@ class DatasetFingerprint(WorkbenchRecord):
     def _verify_digest(self) -> DatasetFingerprint:
         if self.row_count <= 0:
             raise ValueError("dataset fingerprint requires at least one row")
-        first = _parse_utc(self.first_event_time, label="first_event_time")
-        last = _parse_utc(self.last_event_time, label="last_event_time")
-        if last < first:
-            raise ValueError("dataset fingerprint event-time bounds are reversed")
+        if not self.first_order_key or not self.last_order_key:
+            raise ValueError("dataset fingerprint chronology keys must be nonblank")
+        if self.last_order_key < self.first_order_key:
+            raise ValueError("dataset fingerprint chronology bounds are reversed")
         expected = _sha256(
             {
-                "kind": "tennis-workbench-dataset-v1",
+                "kind": "tennis-workbench-dataset-v2",
                 "dataset_id": self.dataset_id,
                 "row_count": self.row_count,
-                "first_event_time": self.first_event_time,
-                "last_event_time": self.last_event_time,
+                "chronology_semantics": self.chronology_semantics.value,
+                "first_order_key": self.first_order_key,
+                "last_order_key": self.last_order_key,
                 "row_identity_sha256": self.row_identity_sha256,
                 "source_manifest_sha256": self.source_manifest_sha256,
                 "availability_contract_sha256": self.availability_contract_sha256,
@@ -102,11 +124,15 @@ def fingerprint_match_population(
     source_manifest_sha256: str,
     availability_contract_sha256: str,
     schema_version: str,
+    chronology_semantics: ChronologySemantics = ChronologySemantics.EXACT_EVENT_TIME,
 ) -> DatasetFingerprint:
-    """Fingerprint an exact ordered match population.
+    """Fingerprint an exact ordered match population without manufacturing chronology.
 
-    Each row must expose unique match_id and a timezone-aware event_time. The caller's
-    row order is evidence and is hashed rather than silently repaired or resorted.
+    EXACT_EVENT_TIME requires a timezone-aware event_time on every row.
+
+    EVENT_DATE_MATCH_ID requires only event_date and uses canonical
+    (event_date, match_id) ordering. This is the appropriate mode for the current
+    historical research source, where intraday match chronology is not trusted.
     """
 
     if not dataset_id.strip() or not schema_version.strip():
@@ -121,24 +147,47 @@ def fingerprint_match_population(
 
     identities: list[dict[str, object]] = []
     seen: set[str] = set()
-    prior_event_time: datetime | None = None
+    prior_order: tuple[object, ...] | None = None
+
     for index, row in enumerate(ordered_rows):
         match_id = str(row.get("match_id", "")).strip()
-        event_time_text = str(row.get("event_time", "")).strip()
-        if not match_id or not event_time_text:
-            raise ValueError(f"row {index} requires match_id and event_time")
-        event_time = _parse_utc(event_time_text, label=f"row {index} event_time")
-        canonical_event_time = event_time.isoformat()
+        if not match_id:
+            raise ValueError(f"row {index} requires match_id")
         if match_id in seen:
             raise ValueError(f"duplicate match_id in dataset fingerprint: {match_id}")
-        if prior_event_time is not None and event_time < prior_event_time:
-            raise ValueError("dataset rows must be in non-decreasing event-time order")
         seen.add(match_id)
-        prior_event_time = event_time
+
+        if chronology_semantics == ChronologySemantics.EXACT_EVENT_TIME:
+            event_time_text = str(row.get("event_time", "")).strip()
+            if not event_time_text:
+                raise ValueError(
+                    f"row {index} requires event_time under EXACT_EVENT_TIME chronology"
+                )
+            event_time = _parse_utc(event_time_text, label=f"row {index} event_time")
+            canonical_chronology = event_time.isoformat()
+            order = (event_time, match_id)
+        elif chronology_semantics == ChronologySemantics.EVENT_DATE_MATCH_ID:
+            event_date_text = str(row.get("event_date", "")).strip()
+            if not event_date_text:
+                raise ValueError(
+                    f"row {index} requires event_date under EVENT_DATE_MATCH_ID chronology"
+                )
+            event_date = _parse_date(event_date_text, label=f"row {index} event_date")
+            canonical_chronology = event_date.isoformat()
+            order = (event_date, match_id)
+        else:
+            raise AssertionError(f"unsupported chronology semantics: {chronology_semantics}")
+
+        if prior_order is not None and order < prior_order:
+            raise ValueError(
+                "dataset rows must be in non-decreasing order under registered chronology"
+            )
+        prior_order = order
+
         identities.append(
             {
                 "match_id": match_id,
-                "event_time": canonical_event_time,
+                "chronology": canonical_chronology,
                 "player_a_id": str(row.get("player_a_id", "")),
                 "player_b_id": str(row.get("player_b_id", "")),
                 "tour": str(row.get("tour", "")),
@@ -147,21 +196,33 @@ def fingerprint_match_population(
 
     row_identity_sha256 = _sha256(
         {
-            "kind": "tennis-workbench-row-identities-v1",
+            "kind": "tennis-workbench-row-identities-v2",
+            "chronology_semantics": chronology_semantics.value,
             "rows": identities,
         }
     )
+    first = identities[0]
+    last = identities[-1]
+    first_order_key = f"{first['chronology']}|{first['match_id']}"
+    last_order_key = f"{last['chronology']}|{last['match_id']}"
     fields = {
         "dataset_id": dataset_id,
         "row_count": len(identities),
-        "first_event_time": identities[0]["event_time"],
-        "last_event_time": identities[-1]["event_time"],
+        "chronology_semantics": chronology_semantics,
+        "first_order_key": first_order_key,
+        "last_order_key": last_order_key,
         "row_identity_sha256": row_identity_sha256,
         "source_manifest_sha256": source_manifest_sha256,
         "availability_contract_sha256": availability_contract_sha256,
         "schema_version": schema_version,
     }
-    digest_payload = {"kind": "tennis-workbench-dataset-v1", **fields}
+    digest_payload = {
+        "kind": "tennis-workbench-dataset-v2",
+        **{
+            **fields,
+            "chronology_semantics": chronology_semantics.value,
+        },
+    }
     return DatasetFingerprint(**fields, sha256=_sha256(digest_payload))
 
 

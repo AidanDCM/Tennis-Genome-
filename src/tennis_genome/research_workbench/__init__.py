@@ -47,6 +47,7 @@ from .history import (
 )
 from .lineage import (
     CanonicalEvaluationBinding,
+    ChronologySemantics,
     CodeFingerprint,
     DatasetFingerprint,
     ProcedureSearchFamily,
@@ -75,6 +76,7 @@ from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchma
 __all__ = [
     "AvailabilityDecision",
     "CanonicalEvaluationBinding",
+    "ChronologySemantics",
     "CodeFingerprint",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
