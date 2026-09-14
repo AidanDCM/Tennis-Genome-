@@ -66,7 +66,10 @@ def test_two_page_capture_proves_complete_denominator_and_retains_page_evidence(
         tmp_path,
         offset=0,
         total=3,
-        summaries=[_summary("sr:sport_event:1", start=start), _summary("sr:sport_event:2", start=start)],
+        summaries=[
+            _summary("sr:sport_event:1", start=start),
+            _summary("sr:sport_event:2", start=start),
+        ],
     )
     second = _page(
         tmp_path,
@@ -90,7 +93,9 @@ def test_two_page_capture_proves_complete_denominator_and_retains_page_evidence(
     assert report["status"] == "VERIFIED"
 
     aggregate = json.loads(
-        (store.evidence_dir / str(record["raw_payload_sha256"])).read_text(encoding="utf-8")
+        (store.evidence_dir / str(record["raw_payload_sha256"])).read_text(
+            encoding="utf-8"
+        )
     )
     assert aggregate["x_max_results"] == 3
     assert [page["offset"] for page in aggregate["pages"]] == [0, 2]
@@ -201,7 +206,9 @@ def test_tampered_retained_page_is_detected(tmp_path: Path) -> None:
         observed_at=observed,
     )
     aggregate = json.loads(
-        (store.evidence_dir / str(record["raw_payload_sha256"])).read_text(encoding="utf-8")
+        (store.evidence_dir / str(record["raw_payload_sha256"])).read_text(
+            encoding="utf-8"
+        )
     )
     raw_page_sha = aggregate["pages"][0]["raw_payload_sha256"]
     (store.evidence_dir / raw_page_sha).write_text("{}\n", encoding="utf-8")
