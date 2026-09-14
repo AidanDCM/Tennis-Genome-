@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from enum import StrEnum
 
 from pydantic import field_validator
@@ -131,3 +133,26 @@ class ExposureGraph:
 
     def records(self) -> tuple[ExposureRecord, ...]:
         return tuple(self._records[key] for key in sorted(self._records))
+
+    @property
+    def semantic_sha256(self) -> str:
+        """Deterministic identity for the exact registered exposure graph contents."""
+
+        payload = {
+            "kind": "tennis-workbench-exposure-graph-v1",
+            "records": [
+                {
+                    "semantic_sha256": record.semantic_sha256,
+                    "record": record.canonical_payload(),
+                }
+                for record in self.records()
+            ],
+        }
+        encoded = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
