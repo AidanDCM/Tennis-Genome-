@@ -79,6 +79,13 @@ class ExposureGraph:
         except KeyError as exc:
             raise KeyError(f"unknown exposure_id {exposure_id!r}") from exc
 
+    def assert_registered(self, exposure_ids: tuple[str, ...]) -> None:
+        """Fail closed when a procedure cites exposure records that do not exist."""
+
+        missing = sorted(exposure_id for exposure_id in exposure_ids if exposure_id not in self._records)
+        if missing:
+            raise ValueError("procedure cites unregistered exposure IDs: " + ", ".join(missing))
+
     def ancestors(self, exposure_id: str) -> frozenset[str]:
         self.get(exposure_id)
         seen: set[str] = set()
@@ -104,6 +111,7 @@ class ExposureGraph:
         exposure_ids: tuple[str, ...],
         protected_source_ids: tuple[str, ...],
     ) -> None:
+        self.assert_registered(exposure_ids)
         protected = set(protected_source_ids)
         overlaps: dict[str, list[str]] = {}
         for exposure_id in exposure_ids:
