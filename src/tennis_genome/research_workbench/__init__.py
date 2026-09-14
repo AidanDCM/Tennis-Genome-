@@ -44,6 +44,11 @@ from .dynamic_state_diagnostic import (
     DynamicStateFailureDiagnosticSpec,
     run_dynamic_state_failure_diagnostic,
 )
+from .dynamic_state_diagnostic_runner import (
+    DynamicStateFailureDiagnosticEvidence,
+    build_dynamic_state_failure_diagnostic_evidence,
+    run_from_canonical_files as run_dynamic_state_diagnostic_from_canonical_files,
+)
 from .dynamic_state_runner import (
     DynamicStateDevelopmentEvidence,
     build_dynamic_state_development_evidence,
@@ -95,6 +100,7 @@ __all__ = [
     "DynamicStateDevelopmentReport",
     "DynamicStateDevelopmentSpec",
     "DynamicStateDiagnosticStratum",
+    "DynamicStateFailureDiagnosticEvidence",
     "DynamicStateFailureDiagnosticReport",
     "DynamicStateFailureDiagnosticSpec",
     "DynamicStatePredictionRow",
@@ -137,6 +143,7 @@ __all__ = [
     "assert_features_available",
     "build_canonical_evaluation_binding",
     "build_dynamic_state_development_evidence",
+    "build_dynamic_state_failure_diagnostic_evidence",
     "evaluate_feature_availability",
     "evaluate_probabilities",
     "fingerprint_code_components",
@@ -145,6 +152,7 @@ __all__ = [
     "miscalibration_world",
     "null_world",
     "run_dynamic_state_development_comparison",
+    "run_dynamic_state_diagnostic_from_canonical_files",
     "run_dynamic_state_failure_diagnostic",
     "run_dynamic_state_shift_benchmark",
     "run_from_canonical_files",
