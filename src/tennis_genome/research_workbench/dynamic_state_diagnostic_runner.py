@@ -17,13 +17,32 @@ from .dynamic_state_diagnostic import (
     run_dynamic_state_failure_diagnostic,
 )
 from .dynamic_state_runner import (
-    _code_fingerprint,
+    _CODE_COMPONENTS,
     _dataset_fingerprint,
     _eligible_population,
     stable_source_manifest_sha256,
 )
-from .lineage import CodeFingerprint, DatasetFingerprint
+from .lineage import (
+    CodeFingerprint,
+    DatasetFingerprint,
+    fingerprint_code_components,
+)
 from .sackmann_availability import sackmann_research_availability_registry
+
+_DIAGNOSTIC_CODE_COMPONENTS = _CODE_COMPONENTS + (
+    "src/tennis_genome/research_workbench/dynamic_state_diagnostic.py",
+    "src/tennis_genome/research_workbench/dynamic_state_diagnostic_runner.py",
+)
+
+
+def _diagnostic_code_fingerprint(repo_root: Path) -> CodeFingerprint:
+    components: dict[str, bytes] = {}
+    for relative in _DIAGNOSTIC_CODE_COMPONENTS:
+        path = repo_root / relative
+        if not path.is_file():
+            raise ValueError(f"required diagnostic code component is missing: {relative}")
+        components[relative] = path.read_bytes()
+    return fingerprint_code_components(components)
 
 
 class DynamicStateFailureDiagnosticEvidence(WorkbenchRecord):
@@ -87,7 +106,7 @@ def run_diagnostic_from_canonical_files(
         source_manifest_sha256=source_manifest_sha256,
         availability_registry_sha256=registry.semantic_sha256,
     )
-    code = _code_fingerprint(repo_root)
+    code = _diagnostic_code_fingerprint(repo_root)
     report = run_dynamic_state_failure_diagnostic(eligible, spec)
     return DynamicStateFailureDiagnosticEvidence(
         source_manifest_sha256=source_manifest_sha256,
