@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from tennis_genome.research_workbench import (
+    DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
     EvaluationSpec,
     ExposureGraph,
     ExposureKind,
@@ -245,6 +246,7 @@ def test_canonical_binding_requires_exact_dataset_family_and_exposure_identity()
         code=code,
         exposure_graph=graph,
         search_family=family,
+        constitution=DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
     )
 
     assert binding.procedure_spec_sha256 == procedure.semantic_sha256
@@ -252,6 +254,7 @@ def test_canonical_binding_requires_exact_dataset_family_and_exposure_identity()
     assert binding.dataset_fingerprint_sha256 == dataset.sha256
     assert binding.code_fingerprint_sha256 == code.sha256
     assert binding.exposure_graph_sha256 == graph.semantic_sha256
+    assert binding.constitution_sha256 == DEFAULT_TENNIS_RESEARCH_CONSTITUTION.semantic_sha256
 
     wrong_family = family.model_copy(update={"datasets_touched": ("other-panel",)})
     with pytest.raises(ValueError, match="not declared"):
@@ -262,6 +265,7 @@ def test_canonical_binding_requires_exact_dataset_family_and_exposure_identity()
             code=code,
             exposure_graph=graph,
             search_family=wrong_family,
+            constitution=DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
         )
 
 
@@ -301,6 +305,7 @@ def test_canonical_binding_rejects_unregistered_exposure_or_unfrozen_family() ->
             code=code,
             exposure_graph=ExposureGraph(),
             search_family=family,
+            constitution=DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
         )
 
     with pytest.raises(ValueError, match="frozen search family"):
@@ -311,6 +316,7 @@ def test_canonical_binding_rejects_unregistered_exposure_or_unfrozen_family() ->
             code=code,
             exposure_graph=_graph(),
             search_family=family.model_copy(update={"frozen": False}),
+            constitution=DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
         )
 
 
