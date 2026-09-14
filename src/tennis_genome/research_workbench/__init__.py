@@ -18,8 +18,8 @@ from .lineage import (
     fingerprint_match_population,
 )
 from .protected import (
-    ProtectedDataVault,
     ProtectedDatasetReference,
+    ProtectedDataVault,
     ProtectedOpenAuthorization,
     ProtectedOpenReceipt,
     write_protected_dataset,
