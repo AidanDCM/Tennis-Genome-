@@ -1,0 +1,118 @@
+name: Prospective Provider Batch Anchor
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_record_sha256:
+        description: Immutable provider-batch record SHA-256
+        required: true
+        type: string
+      batch_chain_head_sha256:
+        description: Provider-batch chain head immediately after capture
+        required: true
+        type: string
+      schedule_date:
+        description: Provider schedule date in YYYY-MM-DD
+        required: true
+        type: string
+      raw_payload_sha256:
+        description: Retained raw provider response SHA-256
+        required: true
+        type: string
+      manifest_sha256:
+        description: Provider-batch manifest SHA-256
+        required: true
+        type: string
+      observed_at:
+        description: Provider observation time as timezone-aware ISO-8601
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  anchor:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build provider batch anchor receipt
+        env:
+          BATCH_RECORD_SHA256: ${{ inputs.batch_record_sha256 }}
+          BATCH_CHAIN_HEAD_SHA256: ${{ inputs.batch_chain_head_sha256 }}
+          SCHEDULE_DATE: ${{ inputs.schedule_date }}
+          RAW_PAYLOAD_SHA256: ${{ inputs.raw_payload_sha256 }}
+          MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+          OBSERVED_AT: ${{ inputs.observed_at }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from datetime import UTC, date, datetime
+          from pathlib import Path
+
+          sha_re = re.compile(r"^[0-9a-f]{64}$")
+          for field in (
+              "BATCH_RECORD_SHA256",
+              "BATCH_CHAIN_HEAD_SHA256",
+              "RAW_PAYLOAD_SHA256",
+              "MANIFEST_SHA256",
+          ):
+              value = os.environ[field]
+              if not sha_re.fullmatch(value):
+                  raise SystemExit(f"{field.lower()} must be lowercase SHA-256")
+
+          schedule_date = os.environ["SCHEDULE_DATE"]
+          try:
+              parsed_schedule_date = date.fromisoformat(schedule_date)
+          except ValueError as exc:
+              raise SystemExit("schedule_date must be YYYY-MM-DD") from exc
+
+          observed_text = os.environ["OBSERVED_AT"]
+          if observed_text.endswith("Z"):
+              observed_text = observed_text[:-1] + "+00:00"
+          try:
+              observed_at = datetime.fromisoformat(observed_text)
+          except ValueError as exc:
+              raise SystemExit("observed_at must be ISO-8601") from exc
+          if observed_at.tzinfo is None or observed_at.utcoffset() is None:
+              raise SystemExit("observed_at must be timezone-aware")
+          observed_at = observed_at.astimezone(UTC)
+          if observed_at.date() != parsed_schedule_date:
+              raise SystemExit("schedule_date must equal observed_at UTC date")
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          receipt = {
+              "schema_version": "full-stack-forward-provider-batch-github-anchor-v1",
+              "provider": "GITHUB_ACTIONS",
+              "repository": repository,
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": int(run_id),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_run_url": f"https://github.com/{repository}/actions/runs/{run_id}",
+              "batch_record_sha256": os.environ["BATCH_RECORD_SHA256"],
+              "batch_chain_head_sha256": os.environ["BATCH_CHAIN_HEAD_SHA256"],
+              "schedule_date": schedule_date,
+              "raw_payload_sha256": os.environ["RAW_PAYLOAD_SHA256"],
+              "manifest_sha256": os.environ["MANIFEST_SHA256"],
+              "observed_at": observed_at.isoformat(),
+              "runner_receipt_created_at_utc": datetime.now(UTC).isoformat(),
+          }
+          rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
+          Path("provider_batch_anchor_receipt.json").write_text(
+              rendered,
+              encoding="utf-8",
+          )
+          print(rendered, end="")
+          PY
+          sha256sum provider_batch_anchor_receipt.json > provider_batch_anchor_receipt.sha256
+      - name: Upload provider batch anchor receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-batch-anchor-${{ inputs.batch_record_sha256 }}
+          path: |
+            provider_batch_anchor_receipt.json
+            provider_batch_anchor_receipt.sha256
+          retention-days: 90
