@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
+from pathlib import Path
 
 from tennis_genome.prospective.pilot import ProspectivePilotStore
 
@@ -20,6 +22,19 @@ def _canonical_json(value: object) -> bytes:
         ensure_ascii=False,
         allow_nan=False,
     ).encode("utf-8")
+
+
+def _pretty_json(value: object) -> str:
+    return (
+        json.dumps(
+            value,
+            indent=2,
+            sort_keys=True,
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        + "\n"
+    )
 
 
 def build_prediction_anchor_packet(
@@ -85,3 +100,32 @@ def build_prediction_anchor_packet(
         **core,
         "packet_sha256": hashlib.sha256(_canonical_json(core)).hexdigest(),
     }
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Emit exact GitHub inputs for the current prospective prediction head"
+    )
+    parser.add_argument("--store", required=True, type=Path)
+    parser.add_argument("--prediction-record-sha256")
+    parser.add_argument("--output", type=Path)
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = _parse_args()
+    store = ProspectivePilotStore(args.store)
+    packet = build_prediction_anchor_packet(
+        store=store,
+        prediction_record_sha256=args.prediction_record_sha256,
+    )
+    rendered = _pretty_json(packet)
+    if args.output is None:
+        print(rendered, end="")
+        return
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(rendered, encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()
