@@ -29,17 +29,21 @@ Before chronology outcomes are interpreted, retain exact raw bytes for:
 
 The Competition Seasons evidence set must match the singles competition-ID set exactly. A missing response, an extra response, a season whose `competition_id` points elsewhere, duplicate competition IDs, or duplicate season IDs fails closed.
 
+Every retained category or Competition Seasons response must also contain a valid timezone-aware provider `generated_at`. The ATP catalog, WTA catalog, and every required Competition Seasons response must all resolve to the same UTC calendar date. If the capture crosses UTC midnight, the inventory is invalid and must be recaptured as a single-date snapshot.
+
+The canonical inventory `snapshot_at` is **not chosen by the operator**. It is the latest normalized provider `generated_at` among the complete retained catalog set. An operator-supplied capture time is only a sanity assertion and must resolve to that same provider UTC date; it cannot move the historical-season cutoff. The provider timestamps are retained in the inventory and revalidated when the artifact is reloaded.
+
 Sportradar currently documents Competition Seasons as a rolling window of at most three editions per competition, including current/newly created seasons. The inventory therefore describes the provider history that is actually accessible at the frozen snapshot, not unlimited historical tennis coverage.
 
 ## 3. Structural season status
 
-Every returned season is retained. Its pre-chronology status is derived only from provider catalog metadata and the frozen UTC inventory snapshot date:
+Every returned season is retained. Its pre-chronology status is derived only from provider catalog metadata and the provider-bound UTC inventory snapshot date:
 
 - `DISABLED_PROVIDER_SEASON`: provider `disabled=true`;
 - `HISTORICAL_CANDIDATE`: not disabled and `end_date` is strictly before the inventory snapshot date;
 - `NOT_YET_HISTORICAL`: not disabled and `end_date` is on or after the inventory snapshot date.
 
-Using strict `< snapshot_date` keeps the snapshot day itself out of the completed-history set. No timeline completeness, model metric, prediction result or market result may influence this classification.
+Using strict `< snapshot_date` keeps the snapshot day itself out of the completed-history set. No operator-selected cutoff, timeline completeness, model metric, prediction result or market result may influence this classification.
 
 ## 4. Historical-candidate disposition rule
 
