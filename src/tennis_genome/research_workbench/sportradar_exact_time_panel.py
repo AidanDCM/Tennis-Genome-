@@ -24,6 +24,7 @@ from .sportradar_start_time_admission import (
     parse_exact_time_audit_bytes,
     verify_exact_time_audit_integrity,
 )
+from .sportradar_start_time_audit_v2 import SportradarSeasonIdentity
 
 PANEL_ID = "SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001"
 ACCESS_FAILURE_ID = "SPORTRADAR-HISTORICAL-SEASON-ACCESS-FAILURE-001"
@@ -314,23 +315,18 @@ def build_provider_access_failure_evidence(
 
 
 def _verify_audit_matches_inventory(
-    audit_season: object,
+    audit_season: SportradarSeasonIdentity,
     inventory_row: SeasonInventoryRow,
 ) -> None:
-    season_id = getattr(audit_season, "season_id")
-    competition_id = getattr(audit_season, "competition_id")
-    competition_name = getattr(audit_season, "competition_name")
-    season_start_date = getattr(audit_season, "season_start_date")
-    category_id = getattr(audit_season, "category_id")
-    if season_id != inventory_row.season_id:
+    if audit_season.season_id != inventory_row.season_id:
         raise ValueError("chronology audit season ID does not match inventory")
-    if competition_id != inventory_row.competition_id:
+    if audit_season.competition_id != inventory_row.competition_id:
         raise ValueError("chronology audit competition ID does not match inventory")
-    if competition_name != inventory_row.competition_name:
+    if audit_season.competition_name != inventory_row.competition_name:
         raise ValueError("chronology audit competition name does not match inventory")
-    if season_start_date != inventory_row.start_date:
+    if audit_season.season_start_date != inventory_row.start_date:
         raise ValueError("chronology audit season start does not match inventory")
-    if category_id != inventory_row.category_id:
+    if audit_season.category_id != inventory_row.category_id:
         raise ValueError("chronology audit category does not match inventory")
 
 
@@ -344,7 +340,6 @@ def build_exact_time_panel_manifest(
 ) -> SportradarExactTimePanelManifest:
     inventory = parse_season_inventory_bytes(inventory_content)
     verify_season_inventory_integrity(inventory)
-    rows_by_id = {row.season_id: row for row in inventory.season_rows}
     historical_ids = {
         row.season_id
         for row in inventory.season_rows
