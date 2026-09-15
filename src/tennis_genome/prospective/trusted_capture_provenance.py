@@ -8,7 +8,13 @@ from urllib.parse import quote
 TRUSTED_CAPTURE_SOURCE_VERSION = "FULL-STACK-FORWARD-001-trusted-capture-source-v1"
 TRUSTED_CAPTURE_FROZEN_BLOBS: dict[str, str] = {
     ".github/workflows/prospective_provider_capture_anchor.yml": (
-        "41e24e3eb11deb01cc5bff8db0830a79f88b54b4"
+        "05a37645c9ca3a2c8a9aa5d34800a09ec568090a"
+    ),
+    "src/tennis_genome/__init__.py": (
+        "ea1fd2f9c22377f0fa0cdbb3cc8062bcb4d3712a"
+    ),
+    "src/tennis_genome/prospective/__init__.py": (
+        "a5651fdea9ba5adb693156f3ce2ffe1503397ccd"
     ),
     "src/tennis_genome/prospective/trusted_provider_capture.py": (
         "7f332d1a9d77b99fa862be776a928e55bf2e7fed"
