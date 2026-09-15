@@ -7,6 +7,7 @@ import os
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tennis_genome.prospective.pilot import ProspectivePilotStore, settle_prediction
@@ -162,7 +163,6 @@ def _timeline_contract(
     generated = str(timeline.get("generated_at", "")).strip()
     if generated.endswith("Z"):
         generated = f"{generated[:-1]}+00:00"
-    from datetime import datetime, UTC
 
     try:
         generated_at = datetime.fromisoformat(generated)
