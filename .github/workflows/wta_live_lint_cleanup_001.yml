@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ruff check scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py --fix
+          ruff check scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py --fix --exit-zero
           ruff format scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py
           ruff check .
           pytest
