@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import hashlib
 import json
 import re
@@ -29,6 +31,7 @@ from .sportradar_start_time_audit_v2 import SportradarSeasonIdentity
 PANEL_ID = "SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001"
 ACCESS_FAILURE_ID = "SPORTRADAR-HISTORICAL-SEASON-ACCESS-FAILURE-001"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_HTTP_STATUS_RE = re.compile(r"^HTTP/\S+\s+(\d{3})(?:\s|$)", re.IGNORECASE)
 _CATEGORY_SCOPE = {
     "ATP": ("sr:category:3", "ATP"),
     "WTA": ("sr:category:6", "WTA"),
@@ -56,6 +59,25 @@ class ProviderAccessFailureEvidence(WorkbenchRecord):
     failure_class: Literal["ACCESS_DENIED", "HISTORY_NOT_AVAILABLE"]
     response_headers_sha256: str
     response_body_sha256: str
+    response_headers_b64: str
+    response_body_b64: str
+
+    def model_post_init(self, __context: object) -> None:
+        headers = _decode_base64(self.response_headers_b64, field="response_headers_b64")
+        body = _decode_base64(self.response_body_b64, field="response_body_b64")
+        _require_sha256(self.response_headers_sha256, field="response_headers_sha256")
+        _require_sha256(self.response_body_sha256, field="response_body_sha256")
+        if hashlib.sha256(headers).hexdigest() != self.response_headers_sha256:
+            raise ValueError("access failure response-header bytes do not match stored SHA-256")
+        if hashlib.sha256(body).hexdigest() != self.response_body_sha256:
+            raise ValueError("access failure response-body bytes do not match stored SHA-256")
+        observed_status = _http_status_from_headers(headers)
+        if observed_status != self.http_status:
+            raise ValueError("access failure HTTP status does not match retained response headers")
+        expected_class = _failure_class_for_status(self.http_status)
+        if self.failure_class != expected_class:
+            raise ValueError("access failure class does not match retained HTTP status")
+        _aware_time(self.attempted_at, field="access failure attempted_at")
 
 
 class PanelSeasonDisposition(WorkbenchRecord):
@@ -148,6 +170,35 @@ def _iso_date(value: str, *, field: str) -> date:
         raise ValueError(f"{field} must be ISO date YYYY-MM-DD") from exc
 
 
+def _decode_base64(value: str, *, field: str) -> bytes:
+    try:
+        return base64.b64decode(value.encode("ascii"), validate=True)
+    except (UnicodeEncodeError, ValueError, binascii.Error) as exc:
+        raise ValueError(f"{field} must be canonical base64") from exc
+
+
+def _http_status_from_headers(content: bytes) -> int:
+    text = content.decode("iso-8859-1")
+    statuses: list[int] = []
+    for raw_line in text.splitlines():
+        match = _HTTP_STATUS_RE.match(raw_line.strip())
+        if match is not None:
+            statuses.append(int(match.group(1)))
+    if not statuses:
+        raise ValueError("access failure response headers contain no HTTP status line")
+    return statuses[-1]
+
+
+def _failure_class_for_status(
+    http_status: int,
+) -> Literal["ACCESS_DENIED", "HISTORY_NOT_AVAILABLE"]:
+    if http_status in {401, 403}:
+        return "ACCESS_DENIED"
+    if http_status in {404, 410}:
+        return "HISTORY_NOT_AVAILABLE"
+    raise ValueError("only retained 401/403/404/410 responses finalize ACCESS_FAILURE")
+
+
 def _strict_json_bytes(content: bytes, *, label: str) -> dict[str, object]:
     try:
         text = content.decode("utf-8")
@@ -229,8 +280,7 @@ def verify_season_inventory_integrity(inventory: SportradarSeasonInventory) -> N
         if row.tour != competition.tour:
             raise ValueError("season-catalog tour does not match competition")
         _require_sha256(row.payload_sha256, field="season catalog payload_sha256")
-        if row.provider_generated_at is not None:
-            _aware_time(row.provider_generated_at, field="provider_generated_at")
+        _aware_time(row.provider_generated_at, field="provider_generated_at")
 
     season_ids = [row.season_id for row in inventory.season_rows]
     if len(season_ids) != len(set(season_ids)):
@@ -295,12 +345,9 @@ def build_provider_access_failure_evidence(
     expected = f"seasons/{season.season_id}/summaries.json"
     if endpoint != expected:
         raise ValueError("ACCESS_FAILURE may only bind the inventory season's summaries endpoint")
-    if http_status in {401, 403}:
-        failure_class: Literal["ACCESS_DENIED", "HISTORY_NOT_AVAILABLE"] = "ACCESS_DENIED"
-    elif http_status in {404, 410}:
-        failure_class = "HISTORY_NOT_AVAILABLE"
-    else:
-        raise ValueError("only retained 401/403/404/410 responses finalize ACCESS_FAILURE")
+    failure_class = _failure_class_for_status(http_status)
+    headers = response_headers_path.read_bytes()
+    body = response_body_path.read_bytes()
     return ProviderAccessFailureEvidence(
         season_id=season.season_id,
         competition_id=season.competition_id,
@@ -309,8 +356,10 @@ def build_provider_access_failure_evidence(
         attempted_at=attempted_at.astimezone(UTC).isoformat(),
         http_status=http_status,
         failure_class=failure_class,
-        response_headers_sha256=_file_sha256(response_headers_path),
-        response_body_sha256=_file_sha256(response_body_path),
+        response_headers_sha256=hashlib.sha256(headers).hexdigest(),
+        response_body_sha256=hashlib.sha256(body).hexdigest(),
+        response_headers_b64=base64.b64encode(headers).decode("ascii"),
+        response_body_b64=base64.b64encode(body).decode("ascii"),
     )
 
 
@@ -478,14 +527,9 @@ def build_exact_time_panel_manifest(
         expected_endpoint = f"seasons/{season_id}/summaries.json"
         if access.endpoint_path != expected_endpoint:
             raise ValueError("access failure endpoint does not match inventory season")
-        if access.http_status in {401, 403}:
-            if access.failure_class != "ACCESS_DENIED":
-                raise ValueError("access failure class does not match HTTP status")
-        elif access.http_status in {404, 410}:
-            if access.failure_class != "HISTORY_NOT_AVAILABLE":
-                raise ValueError("access failure class does not match HTTP status")
-        else:
-            raise ValueError("ACCESS_FAILURE uses a non-finalizable HTTP status")
+        expected_class = _failure_class_for_status(access.http_status)
+        if access.failure_class != expected_class:
+            raise ValueError("access failure class does not match HTTP status")
         disposition_rows.append(
             PanelSeasonDisposition(
                 tour=inventory_row.tour,
@@ -571,7 +615,7 @@ def _parse_args() -> argparse.Namespace:
         "--access-failure",
         action="append",
         default=[],
-        help="prebuilt ProviderAccessFailureEvidence JSON; repeat",
+        help="self-contained ProviderAccessFailureEvidence JSON; repeat",
     )
     parser.add_argument("--output", type=Path)
     return parser.parse_args()
