@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from tennis_genome.prospective.provider_batch import ProviderBatchStore, capture_provider_batch
 from tennis_genome.prospective import settlement_identity as identity
+from tennis_genome.prospective.provider_batch import ProviderBatchStore, capture_provider_batch
 
 
 def _raw_payload() -> dict[str, object]:
@@ -210,6 +210,7 @@ def test_prediction_identity_must_be_retained_as_source_evidence(
         "tour": "ATP",
         "player_a_id": "atp:id:1",
         "player_b_id": "atp:id:2",
+        "scheduled_start": "2026-09-15T16:00:00+00:00",
         "source_manifest_hashes": [digest],
     }
     found, source_sha, _ = identity.find_prediction_identity_binding(
