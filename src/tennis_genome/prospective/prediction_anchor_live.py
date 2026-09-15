@@ -278,7 +278,9 @@ class LivePredictionAnchorStore:
                     get_bytes=github_get_bytes,
                 )
                 if not _same_commitment(retained, current):
-                    raise ValueError("live GitHub prediction commitment differs from retained evidence")
+                    raise ValueError(
+                        "live GitHub prediction commitment differs from retained evidence"
+                    )
 
             if prediction_sha in prediction_shas:
                 raise ValueError("prediction has more than one live anchor")
