@@ -159,6 +159,32 @@ class SportradarSeasonInventory(WorkbenchRecord):
     not_yet_historical_count: int
     disabled_season_count: int
 
+    def model_post_init(self, __context: object) -> None:
+        provider_times = [
+            _aware_time(
+                self.atp_competitions_generated_at,
+                field="atp_competitions_generated_at",
+            ),
+            _aware_time(
+                self.wta_competitions_generated_at,
+                field="wta_competitions_generated_at",
+            ),
+            *(
+                _aware_time(
+                    row.provider_generated_at,
+                    field=f"Competition Seasons {row.competition_id} provider_generated_at",
+                )
+                for row in self.season_catalogs
+            ),
+        ]
+        provider_dates = {value.date() for value in provider_times}
+        if len(provider_dates) != 1:
+            raise ValueError("inventory provider generated_at evidence crosses UTC dates")
+        expected_snapshot = max(provider_times)
+        actual_snapshot = _aware_time(self.snapshot_at, field="snapshot_at")
+        if actual_snapshot != expected_snapshot:
+            raise ValueError("inventory snapshot_at does not equal latest provider generated_at")
+
 
 def _parse_category_catalog(
     raw: bytes,
