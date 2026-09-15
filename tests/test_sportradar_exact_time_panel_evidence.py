@@ -7,6 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from tennis_genome.research_workbench.sportradar_exact_time_panel import (
+    SportradarExactTimePanelManifest,
+    build_provider_access_failure_evidence,
+)
 from tennis_genome.research_workbench.sportradar_exact_time_panel_evidence import (
     EvidenceBoundExactTimePanelReceipt,
     build_evidence_bound_exact_time_panel_receipt,
@@ -66,18 +70,27 @@ def _raw_evidence(tmp_path: Path) -> tuple[Path, Path, Path]:
     return atp, wta, seasons
 
 
+def _inventory(
+    *,
+    atp: Path,
+    wta: Path,
+    seasons: Path,
+):
+    return build_sportradar_season_inventory(
+        atp_competitions_path=atp,
+        wta_competitions_path=wta,
+        season_response_paths={"sr:competition:1": seasons},
+        snapshot_at=datetime(2026, 9, 14, 19, 5, tzinfo=UTC),
+    )
+
+
 def _inventory_content(
     *,
     atp: Path,
     wta: Path,
     seasons: Path,
 ) -> bytes:
-    inventory = build_sportradar_season_inventory(
-        atp_competitions_path=atp,
-        wta_competitions_path=wta,
-        season_response_paths={"sr:competition:1": seasons},
-        snapshot_at=datetime(2026, 9, 14, 19, 5, tzinfo=UTC),
-    )
+    inventory = _inventory(atp=atp, wta=wta, seasons=seasons)
     return (json.dumps(inventory.canonical_payload(), sort_keys=True) + "\n").encode()
 
 
@@ -130,6 +143,62 @@ def test_reloaded_receipt_rejects_raw_evidence_identity_detached_from_inventory(
     ).hexdigest()
 
     with pytest.raises(ValueError, match="do not match frozen inventory"):
+        EvidenceBoundExactTimePanelReceipt.model_validate(payload)
+
+
+@pytest.mark.parametrize("status", [401, 403])
+def test_authentication_failures_cannot_finalize_historical_panel(
+    tmp_path: Path,
+    status: int,
+) -> None:
+    atp, wta, seasons = _raw_evidence(tmp_path)
+    inventory = _inventory(atp=atp, wta=wta, seasons=seasons)
+    inventory_content = (
+        json.dumps(inventory.canonical_payload(), sort_keys=True) + "\n"
+    ).encode()
+    row = inventory.season_rows[0]
+    headers = tmp_path / f"auth-{status}.headers"
+    body = tmp_path / f"auth-{status}.body"
+    reason = "Unauthorized" if status == 401 else "Forbidden"
+    headers.write_bytes(f"HTTP/2 {status} {reason}\r\n\r\n".encode("ascii"))
+    body.write_bytes(b"Authentication Error\n")
+    access = build_provider_access_failure_evidence(
+        season=row,
+        endpoint_path=f"seasons/{row.season_id}/summaries.json",
+        attempted_at=datetime(2026, 9, 14, 19, 10, tzinfo=UTC),
+        http_status=status,
+        response_headers_path=headers,
+        response_body_path=body,
+    )
+
+    with pytest.raises(ValueError, match="authentication/authorization"):
+        build_evidence_bound_exact_time_panel_receipt(
+            inventory_content=inventory_content,
+            atp_competitions_path=atp,
+            wta_competitions_path=wta,
+            season_response_paths={"sr:competition:1": seasons},
+            admitted_audits={},
+            failed_audits={},
+            access_failures={row.season_id: access},
+            repo_root=_repo_root(),
+        )
+
+
+def test_reloaded_receipt_rejects_legacy_access_denied_disposition(
+    tmp_path: Path,
+) -> None:
+    receipt = _receipt(tmp_path)
+    payload = receipt.canonical_payload()
+    panel_payload = payload["panel_manifest"]
+    assert isinstance(panel_payload, dict)
+    rows = panel_payload["rows"]
+    assert isinstance(rows, list)
+    rows[0]["disposition"] = "ACCESS_FAILURE"
+    rows[0]["failure_reasons"] = ["ACCESS_DENIED"]
+    panel = SportradarExactTimePanelManifest.model_validate(panel_payload)
+    payload["panel_manifest_semantic_sha256"] = panel.semantic_sha256
+
+    with pytest.raises(ValueError, match="reject authentication/authorization"):
         EvidenceBoundExactTimePanelReceipt.model_validate(payload)
 
 
