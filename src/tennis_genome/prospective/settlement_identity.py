@@ -3,8 +3,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tennis_genome.prospective.provider_batch import ProviderBatchStore
@@ -16,6 +17,7 @@ from tennis_genome.prospective.trusted_capture_anchor import (
 IDENTITY_SCHEMA = "full-stack-pilot-sportradar-identity-v1"
 IDENTITY_VERSION = "FULL-STACK-PILOT-001-sportradar-identity-v1"
 _PROVIDER = "SPORTRADAR_TENNIS_V3"
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -81,6 +83,26 @@ def _required_text(raw: dict[str, object], field: str) -> str:
     return value
 
 
+def _require_sha256(value: object, *, field: str) -> str:
+    text = str(value if value is not None else "").strip()
+    if not _SHA256_RE.fullmatch(text):
+        raise ValueError(f"{field} must be lowercase SHA-256")
+    return text
+
+
+def _parse_time(value: object, *, field: str) -> datetime:
+    text = str(value if value is not None else "").strip()
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"{field} must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must be timezone-aware")
+    return parsed.astimezone(UTC)
+
+
 def _as_dict(value: object, *, field: str) -> dict[str, object]:
     if not isinstance(value, dict):
         raise ValueError(f"{field} must be an object")
@@ -107,6 +129,7 @@ def _find_batch_record(
     batch_store: ProviderBatchStore,
     record_sha256: str,
 ) -> dict[str, object]:
+    _require_sha256(record_sha256, field="provider_batch_record_sha256")
     matches = [
         record
         for record in batch_store.records()
@@ -159,7 +182,7 @@ def build_identity_binding(
     player_b_sportradar_id: str,
     github_get_bytes: GitHubGetBytes | None = None,
 ) -> SettlementIdentityBinding:
-    """Seal the provider/canonical A/B mapping from genuine pre-match evidence."""
+    """Seal provider/canonical A/B identity from authenticated pre-match evidence."""
 
     batch_store.verify()
     batch_record = _find_batch_record(batch_store, batch_record_sha256)
@@ -184,7 +207,10 @@ def build_identity_binding(
     if provider_anchor_comment_id <= 0:
         raise ValueError("provider anchor comment ID must be positive")
 
-    raw_sha = _required_text(batch_record, "raw_payload_sha256")
+    raw_sha = _require_sha256(
+        batch_record.get("raw_payload_sha256"),
+        field="provider_batch_raw_sha256",
+    )
     raw_path = batch_store.evidence_dir / raw_sha
     if not raw_path.is_file():
         raise ValueError("trusted provider batch raw evidence is missing")
@@ -208,14 +234,8 @@ def build_identity_binding(
     if _required_text(competition, "type").lower() != "singles":
         raise ValueError("settlement identity event is not singles")
 
-    scheduled_start = _required_text(event, "start_time")
-    observed_at = _required_text(batch_record, "observed_at")
-    scheduled_dt = datetime.fromisoformat(scheduled_start.replace("Z", "+00:00"))
-    observed_dt = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
-    if scheduled_dt.tzinfo is None or scheduled_dt.utcoffset() is None:
-        raise ValueError("Sportradar scheduled start must be timezone-aware")
-    if observed_dt.tzinfo is None or observed_dt.utcoffset() is None:
-        raise ValueError("provider observed_at must be timezone-aware")
+    scheduled_dt = _parse_time(event.get("start_time"), field="sport_event.start_time")
+    observed_dt = _parse_time(batch_record.get("observed_at"), field="provider.observed_at")
     if observed_dt >= scheduled_dt:
         raise ValueError("settlement identity must be bound from a pre-match provider batch")
 
@@ -279,10 +299,13 @@ def verify_identity_binding(payload: dict[str, object]) -> SettlementIdentityBin
         raise ValueError("settlement identity mapping method is not supported")
     if binding.provider_anchor_comment_id <= 0:
         raise ValueError("settlement identity provider anchor comment ID must be positive")
-    if len(binding.provider_batch_record_sha256) != 64:
-        raise ValueError("settlement identity provider batch SHA must be SHA-256")
-    if len(binding.provider_batch_raw_sha256) != 64:
-        raise ValueError("settlement identity raw batch SHA must be SHA-256")
+    _require_sha256(
+        binding.provider_batch_record_sha256,
+        field="provider_batch_record_sha256",
+    )
+    _require_sha256(binding.provider_batch_raw_sha256, field="provider_batch_raw_sha256")
+    _parse_time(binding.scheduled_start, field="identity.scheduled_start")
+    _parse_time(binding.provider_observed_at, field="identity.provider_observed_at")
     return binding
 
 
@@ -318,6 +341,10 @@ def find_prediction_identity_binding(
     prediction: dict[str, object],
 ) -> tuple[SettlementIdentityBinding, str, dict[str, object]]:
     evidence_dir = Path(getattr(pilot_store, "evidence_dir"))
+    prediction_start = _parse_time(
+        prediction.get("scheduled_start"),
+        field="prediction.scheduled_start",
+    )
     candidates: list[tuple[SettlementIdentityBinding, str, dict[str, object]]] = []
     for raw_sha in prediction.get("source_manifest_hashes", []):
         digest = str(raw_sha)
@@ -338,6 +365,12 @@ def find_prediction_identity_binding(
         if binding.player_a_canonical_id != prediction.get("player_a_id"):
             continue
         if binding.player_b_canonical_id != prediction.get("player_b_id"):
+            continue
+        identity_start = _parse_time(
+            binding.scheduled_start,
+            field="identity.scheduled_start",
+        )
+        if identity_start != prediction_start:
             continue
         candidates.append((binding, digest, payload))
     if len(candidates) != 1:
