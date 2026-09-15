@@ -97,11 +97,8 @@ def _aware_time(value: object, *, field: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
-def _optional_generated_at(payload: dict[str, object]) -> str | None:
-    raw = payload.get("generated_at")
-    if raw is None or not str(raw).strip():
-        return None
-    return _aware_time(raw, field="generated_at").isoformat()
+def _required_generated_at(payload: dict[str, object], *, field: str) -> str:
+    return _aware_time(payload.get("generated_at"), field=field).isoformat()
 
 
 class CompetitionInventoryRow(WorkbenchRecord):
@@ -122,7 +119,7 @@ class CompetitionSeasonCatalogEvidence(WorkbenchRecord):
     tour: Literal["ATP", "WTA"]
     competition_id: str
     payload_sha256: str
-    provider_generated_at: str | None
+    provider_generated_at: str
     returned_season_count: int
 
 
@@ -149,6 +146,8 @@ class SportradarSeasonInventory(WorkbenchRecord):
     snapshot_at: str
     atp_competitions_sha256: str
     wta_competitions_sha256: str
+    atp_competitions_generated_at: str
+    wta_competitions_generated_at: str
     competition_rows: tuple[CompetitionInventoryRow, ...]
     season_catalogs: tuple[CompetitionSeasonCatalogEvidence, ...]
     season_rows: tuple[SeasonInventoryRow, ...]
@@ -165,9 +164,13 @@ def _parse_category_catalog(
     raw: bytes,
     *,
     tour: Literal["ATP", "WTA"],
-) -> tuple[str, list[CompetitionInventoryRow], set[str]]:
+) -> tuple[str, str, list[CompetitionInventoryRow], set[str]]:
     payload = _json_object_bytes(raw, label=f"{tour} Competitions by Category response")
     digest = _sha256_bytes(raw)
+    generated_at = _required_generated_at(
+        payload,
+        field=f"{tour} Competitions by Category generated_at",
+    )
     category_id, category_name = _CATEGORY_SCOPE[tour]
     rows: list[CompetitionInventoryRow] = []
     required: set[str] = set()
@@ -219,7 +222,7 @@ def _parse_category_catalog(
         )
 
     rows.sort(key=lambda row: (row.tour, row.competition_id))
-    return digest, rows, required
+    return digest, generated_at, rows, required
 
 
 def _parse_season_catalog(
@@ -235,6 +238,10 @@ def _parse_season_catalog(
         label=f"Competition Seasons {competition.competition_id}",
     )
     digest = _sha256_bytes(raw)
+    generated_at = _required_generated_at(
+        payload,
+        field=f"Competition Seasons {competition.competition_id} generated_at",
+    )
     raw_seasons = _as_list(payload.get("seasons"), field="seasons")
     rows: list[SeasonInventoryRow] = []
 
@@ -290,7 +297,7 @@ def _parse_season_catalog(
         tour=tour,
         competition_id=competition.competition_id,
         payload_sha256=digest,
-        provider_generated_at=_optional_generated_at(payload),
+        provider_generated_at=generated_at,
         returned_season_count=len(rows),
     )
     return evidence, rows
@@ -305,13 +312,13 @@ def build_sportradar_season_inventory(
 ) -> SportradarSeasonInventory:
     if snapshot_at.tzinfo is None or snapshot_at.utcoffset() is None:
         raise ValueError("snapshot_at must be timezone-aware")
-    snapshot_at = snapshot_at.astimezone(UTC)
-    snapshot_date = snapshot_at.date()
+    asserted_snapshot = snapshot_at.astimezone(UTC)
+    snapshot_date = asserted_snapshot.date()
 
-    atp_sha, atp_rows, atp_required = _parse_category_catalog(
+    atp_sha, atp_generated_at, atp_rows, atp_required = _parse_category_catalog(
         atp_competitions_path.read_bytes(), tour="ATP"
     )
-    wta_sha, wta_rows, wta_required = _parse_category_catalog(
+    wta_sha, wta_generated_at, wta_rows, wta_required = _parse_category_catalog(
         wta_competitions_path.read_bytes(), tour="WTA"
     )
     competition_rows = [*atp_rows, *wta_rows]
@@ -344,6 +351,25 @@ def build_sportradar_season_inventory(
         season_catalogs.append(evidence)
         season_rows.extend(rows)
 
+    provider_times = [
+        _aware_time(atp_generated_at, field="ATP competitions generated_at"),
+        _aware_time(wta_generated_at, field="WTA competitions generated_at"),
+        *(
+            _aware_time(
+                row.provider_generated_at,
+                field=f"Competition Seasons {row.competition_id} generated_at",
+            )
+            for row in season_catalogs
+        ),
+    ]
+    provider_dates = {value.date() for value in provider_times}
+    if len(provider_dates) != 1:
+        raise ValueError("retained provider inventory catalogs cross UTC dates; recapture one UTC day")
+    provider_snapshot = max(provider_times)
+    provider_snapshot_date = provider_snapshot.date()
+    if asserted_snapshot.date() != provider_snapshot_date:
+        raise ValueError("snapshot_at UTC date must match retained provider generated_at date")
+
     competition_rows.sort(key=lambda row: (row.tour, row.competition_id))
     season_catalogs.sort(key=lambda row: (row.tour, row.competition_id))
     season_rows.sort(
@@ -354,9 +380,11 @@ def build_sportradar_season_inventory(
     disabled = sum(row.status == "DISABLED_PROVIDER_SEASON" for row in season_rows)
 
     return SportradarSeasonInventory(
-        snapshot_at=snapshot_at.isoformat(),
+        snapshot_at=provider_snapshot.isoformat(),
         atp_competitions_sha256=atp_sha,
         wta_competitions_sha256=wta_sha,
+        atp_competitions_generated_at=atp_generated_at,
+        wta_competitions_generated_at=wta_generated_at,
         competition_rows=tuple(competition_rows),
         season_catalogs=tuple(season_catalogs),
         season_rows=tuple(season_rows),
@@ -394,7 +422,11 @@ def _parse_args() -> argparse.Namespace:
         type=_parse_binding,
         help="retained Competition Seasons binding COMPETITION_ID::RAW_JSON; repeat",
     )
-    parser.add_argument("--snapshot-at", required=True)
+    parser.add_argument(
+        "--snapshot-at",
+        required=True,
+        help="operator capture-time assertion; UTC date must match provider generated_at evidence",
+    )
     parser.add_argument("--output", type=Path)
     return parser.parse_args()
 
