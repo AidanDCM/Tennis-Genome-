@@ -26,6 +26,7 @@ FINALIZER_PATH = (
     "src/tennis_genome/research_workbench/sportradar_exact_time_panel_evidence.py"
 )
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_FINALIZABLE_ACCESS_STATUSES = frozenset({404, 410})
 
 
 class RawInventoryEvidenceIdentity(WorkbenchRecord):
@@ -80,6 +81,7 @@ class EvidenceBoundExactTimePanelReceipt(WorkbenchRecord):
             raise ValueError(
                 "receipt inventory semantic SHA-256 does not match panel manifest"
             )
+        _verify_manifest_has_only_resource_level_access_failures(self.panel_manifest)
 
         evidence = self.raw_inventory_evidence
         if not evidence:
@@ -190,6 +192,39 @@ def _strict_json_object(content: bytes, *, label: str) -> dict[str, object]:
     return payload
 
 
+def _validate_finalizable_access_failures(
+    access_failures: dict[str, ProviderAccessFailureEvidence],
+) -> None:
+    """Reject authentication/configuration failures as season-level negative evidence."""
+
+    for season_id, evidence in access_failures.items():
+        if evidence.season_id != season_id:
+            raise ValueError("access-failure dictionary key does not match evidence season ID")
+        if evidence.http_status not in _FINALIZABLE_ACCESS_STATUSES:
+            raise ValueError(
+                "authentication/authorization or transient HTTP failures do not finalize "
+                f"historical season {season_id}; only retained 404/410 resource responses "
+                "may finalize HISTORY_NOT_AVAILABLE"
+            )
+        if evidence.failure_class != "HISTORY_NOT_AVAILABLE":
+            raise ValueError(
+                "only HISTORY_NOT_AVAILABLE may finalize an evidence-bound historical panel"
+            )
+
+
+def _verify_manifest_has_only_resource_level_access_failures(
+    manifest: SportradarExactTimePanelManifest,
+) -> None:
+    for row in manifest.rows:
+        if row.disposition != "ACCESS_FAILURE":
+            continue
+        if row.failure_reasons != ("HISTORY_NOT_AVAILABLE",):
+            raise ValueError(
+                "evidence-bound panel receipts reject authentication/authorization access "
+                "failures; ACCESS_FAILURE must be resource-level HISTORY_NOT_AVAILABLE"
+            )
+
+
 def verify_inventory_against_raw_provider_evidence(
     *,
     inventory_content: bytes,
@@ -285,6 +320,7 @@ def build_evidence_bound_exact_time_panel_receipt(
         wta_competitions_path=wta_competitions_path,
         season_response_paths=season_response_paths,
     )
+    _validate_finalizable_access_failures(access_failures)
     manifest = build_exact_time_panel_manifest(
         inventory_content=inventory_content,
         admitted_audits=admitted_audits,
@@ -360,7 +396,10 @@ def _parse_args() -> argparse.Namespace:
         "--access-failure",
         action="append",
         default=[],
-        help="self-contained ProviderAccessFailureEvidence JSON; repeat",
+        help=(
+            "self-contained ProviderAccessFailureEvidence JSON for a retained 404/410 "
+            "resource response; repeat"
+        ),
     )
     parser.add_argument("--output", type=Path)
     return parser.parse_args()
