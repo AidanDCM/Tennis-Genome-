@@ -1,0 +1,47 @@
+name: Apply GitHub Anchor Timestamp Precision Fix
+
+on:
+  push:
+    branches:
+      - dev/github-anchor-timestamp-precision
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/github-anchor-timestamp-precision
+      - name: Apply precision-safe validation and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/tennis_genome/prospective/provider_batch_github_anchor.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    if anchor_created_at < runner_receipt_created_at:\n        raise ValueError("GitHub ledger anchor predates runner receipt creation")\n'''
+          new = '''    # GitHub issue/comment timestamps are exposed at whole-second precision, while\n    # the runner receipt is recorded with microseconds. Compare at the provider's\n    # observable timestamp precision so a later comment in the same second is not\n    # falsely treated as predating the runner receipt. Distinct seconds still fail.\n    if anchor_created_at.replace(microsecond=0) < runner_receipt_created_at.replace(\n        microsecond=0\n    ):\n        raise ValueError("GitHub ledger anchor predates runner receipt creation")\n'''
+          if old in text:
+              text = text.replace(old, new, 1)
+              path.write_text(text, encoding="utf-8")
+          elif new not in text:
+              raise SystemExit("expected anchor timestamp validation block was not found")
+
+          test_path = Path("tests/test_github_anchor_timestamp_precision.py")
+          test_path.write_text('''from __future__ import annotations\n\nfrom datetime import UTC, datetime, timedelta\n\nimport pytest\n\nfrom tennis_genome.prospective.provider_batch_github_anchor import (\n    _validate_workflow_run,\n)\nfrom tennis_genome.prospective.trusted_provider_capture import (\n    TRUSTED_CAPTURE_WORKFLOW_PATH,\n)\n\n\ndef _payloads(*, runner_receipt_created_at: datetime):\n    anchor_created_at = datetime(2026, 9, 15, 16, 52, 49, tzinfo=UTC)\n    run_id = 34997744882\n    source_sha = "e176d4e5a9d2451a7a46b0ebcd66837b40504ffc"\n    receipt = {\n        "workflow_run_id": run_id,\n        "workflow_run_attempt": 1,\n        "workflow_source_sha": source_sha,\n        "runner_receipt_created_at_utc": runner_receipt_created_at.isoformat(),\n    }\n    run = {\n        "id": run_id,\n        "repository": {"full_name": "AidanDCM/Tennis-Genome-"},\n        "event": "workflow_dispatch",\n        "status": "completed",\n        "conclusion": "success",\n        "path": TRUSTED_CAPTURE_WORKFLOW_PATH,\n        "head_branch": "main",\n        "head_sha": source_sha,\n        "run_attempt": 1,\n        "html_url": f"https://github.com/AidanDCM/Tennis-Genome-/actions/runs/{run_id}",\n        "created_at": "2026-09-15T16:52:41Z",\n    }\n    return receipt, run, anchor_created_at\n\n\ndef test_runner_receipt_later_within_same_github_second_is_valid() -> None:\n    receipt, run, anchor = _payloads(\n        runner_receipt_created_at=datetime(\n            2026, 9, 15, 16, 52, 49, 405862, tzinfo=UTC\n        )\n    )\n    _validate_workflow_run(\n        run=run,\n        receipt=receipt,\n        anchor_created_at=anchor,\n        expected_workflow_path=TRUSTED_CAPTURE_WORKFLOW_PATH,\n        require_main_ref=True,\n    )\n\n\ndef test_runner_receipt_in_later_github_second_still_fails_closed() -> None:\n    receipt, run, anchor = _payloads(\n        runner_receipt_created_at=datetime(2026, 9, 15, 16, 52, 50, tzinfo=UTC)\n    )\n    with pytest.raises(ValueError, match="anchor predates runner receipt"):\n        _validate_workflow_run(\n            run=run,\n            receipt=receipt,\n            anchor_created_at=anchor,\n            expected_workflow_path=TRUSTED_CAPTURE_WORKFLOW_PATH,\n            require_main_ref=True,\n        )\n''', encoding="utf-8")
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/tennis_genome/prospective/provider_batch_github_anchor.py tests/test_github_anchor_timestamp_precision.py
+          if git diff --cached --quiet; then
+            echo "Precision fix already applied."
+            exit 0
+          fi
+          git commit -m "Honor GitHub timestamp precision in anchor validation"
+          git push origin HEAD:dev/github-anchor-timestamp-precision
