@@ -1,0 +1,189 @@
+name: Prospective Trusted Provider Capture Anchor
+
+on:
+  workflow_dispatch:
+    inputs:
+      schedule_date:
+        description: UTC provider schedule date in YYYY-MM-DD
+        required: true
+        type: string
+      sportradar_access_level:
+        description: Sportradar API access level
+        required: true
+        default: production
+        type: choice
+        options:
+          - trial
+          - production
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: prospective-trusted-provider-capture-${{ inputs.schedule_date }}
+  cancel-in-progress: false
+
+jobs:
+  capture-and-anchor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
+      SCHEDULE_DATE: ${{ inputs.schedule_date }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          if [ -z "${SPORTRADAR_API_KEY:-}" ]; then
+            echo "::error::SPORTRADAR_API_KEY repository secret is not configured"
+            exit 1
+          fi
+
+      - name: Install frozen project
+        run: pip install -e .
+
+      - name: Fetch complete Sportradar batch inside GitHub runner
+        shell: bash
+        run: |
+          python -m tennis_genome.prospective.trusted_provider_capture \
+            --output-dir trusted-provider-capture \
+            --schedule-date "${SCHEDULE_DATE}" \
+            --access-level "${SPORTRADAR_ACCESS_LEVEL}"
+
+      - name: Build trusted provider anchor receipt
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from tennis_genome.prospective.provider_batch_operator import ANCHOR_INPUT_FIELDS
+          from tennis_genome.prospective.trusted_provider_capture import (
+              TRUSTED_CAPTURE_SCHEMA,
+              TRUSTED_CAPTURE_WORKFLOW_PATH,
+          )
+
+          capture_dir = Path("trusted-provider-capture")
+          packet = json.loads((capture_dir / "anchor_packet.json").read_text(encoding="utf-8"))
+          capture_receipt_bytes = (capture_dir / "trusted_capture_receipt.json").read_bytes()
+          capture_receipt = json.loads(capture_receipt_bytes)
+          inputs = packet.get("inputs")
+          if not isinstance(inputs, dict) or tuple(inputs) != ANCHOR_INPUT_FIELDS:
+              raise SystemExit("trusted capture anchor packet input contract drifted")
+          if inputs["schedule_date"] != os.environ["SCHEDULE_DATE"]:
+              raise SystemExit("trusted capture schedule date differs from workflow input")
+          if capture_receipt.get("schema_version") != TRUSTED_CAPTURE_SCHEMA:
+              raise SystemExit("trusted capture receipt schema drifted")
+          if capture_receipt.get("workflow_path") != TRUSTED_CAPTURE_WORKFLOW_PATH:
+              raise SystemExit("trusted capture receipt workflow path drifted")
+          if capture_receipt.get("access_level") != os.environ["SPORTRADAR_ACCESS_LEVEL"]:
+              raise SystemExit("trusted capture access level differs from workflow input")
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          receipt = {
+              "schema_version": "full-stack-forward-provider-batch-github-anchor-v1",
+              "provider": "GITHUB_ACTIONS",
+              "repository": repository,
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": int(run_id),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_run_url": f"https://github.com/{repository}/actions/runs/{run_id}",
+              "batch_record_sha256": inputs["batch_record_sha256"],
+              "batch_chain_head_sha256": inputs["batch_chain_head_sha256"],
+              "schedule_date": inputs["schedule_date"],
+              "raw_payload_sha256": inputs["raw_payload_sha256"],
+              "manifest_sha256": inputs["manifest_sha256"],
+              "observed_at": inputs["observed_at"],
+              "runner_receipt_created_at_utc": datetime.now(UTC).isoformat(),
+              "trusted_capture_schema": TRUSTED_CAPTURE_SCHEMA,
+              "trusted_capture_receipt_sha256": hashlib.sha256(capture_receipt_bytes).hexdigest(),
+              "sportradar_access_level": os.environ["SPORTRADAR_ACCESS_LEVEL"],
+          }
+          rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
+          Path("provider_batch_anchor_receipt.json").write_text(rendered, encoding="utf-8")
+          PY
+          sha256sum provider_batch_anchor_receipt.json > provider_batch_anchor_receipt.sha256
+
+      - name: Publish trusted capture to public anchor ledger
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LEDGER_ISSUE_NUMBER: "111"
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          from pathlib import Path
+
+          from tennis_genome.prospective.provider_batch_github_anchor import (
+              ANCHOR_BOT_LOGIN,
+              build_anchor_comment_body,
+          )
+
+          receipt = json.loads(
+              Path("provider_batch_anchor_receipt.json").read_text(encoding="utf-8")
+          )
+          body = build_anchor_comment_body(receipt)
+          repository = os.environ["GITHUB_REPOSITORY"]
+          issue_number = os.environ["LEDGER_ISSUE_NUMBER"]
+          url = f"https://api.github.com/repos/{repository}/issues/{issue_number}/comments"
+          request = urllib.request.Request(
+              url,
+              data=json.dumps({"body": body}).encode("utf-8"),
+              method="POST",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "User-Agent": "tennis-genome-trusted-provider-capture",
+                  "Content-Type": "application/json",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              response_bytes = response.read()
+          Path("provider_batch_anchor_comment.json").write_bytes(response_bytes)
+          comment = json.loads(response_bytes.decode("utf-8"))
+          expected_issue_url = f"https://api.github.com/repos/{repository}/issues/{issue_number}"
+          actor = comment.get("user")
+          if comment.get("issue_url") != expected_issue_url:
+              raise SystemExit("trusted capture anchor was written to wrong ledger issue")
+          if not isinstance(actor, dict) or actor.get("login") != ANCHOR_BOT_LOGIN:
+              raise SystemExit("trusted capture anchor actor is not github-actions[bot]")
+          if actor.get("type") != "Bot":
+              raise SystemExit("trusted capture anchor actor is not a GitHub bot")
+          if comment.get("body") != body:
+              raise SystemExit("trusted capture anchor comment body does not reproduce")
+          if comment.get("updated_at") != comment.get("created_at"):
+              raise SystemExit("new trusted capture anchor comment is unexpectedly edited")
+          Path("provider_batch_anchor_comment_id.txt").write_text(
+              f"{int(comment['id'])}\n",
+              encoding="utf-8",
+          )
+          PY
+          sha256sum provider_batch_anchor_comment.json > provider_batch_anchor_comment.sha256
+
+      - name: Upload complete trusted provider capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: trusted-provider-capture-${{ github.run_id }}
+          path: |
+            trusted-provider-capture/
+            provider_batch_anchor_receipt.json
+            provider_batch_anchor_receipt.sha256
+            provider_batch_anchor_comment.json
+            provider_batch_anchor_comment.sha256
+            provider_batch_anchor_comment_id.txt
+          retention-days: 90
