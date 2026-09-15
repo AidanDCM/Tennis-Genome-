@@ -1,0 +1,137 @@
+name: WTA Live Prediction Probe 001
+
+on:
+  push:
+    branches:
+      - dev/wta-live-prediction-001
+    paths:
+      - ".github/workflows/wta_live_prediction_probe_001.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      SPORTRADAR_ACCESS_LEVEL: trial
+      TARGET_EVENT_ID: sr:sport_event:74574094
+      TARGET_SEASON_ID: sr:season:136184
+      TARGET_START_DATE: "2026-09-12"
+      PARRY_ID: sr:competitor:318195
+      STEARNS_ID: sr:competitor:360038
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+      - name: Fetch authenticated WTA catalog and target context
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SPORTRADAR_API_KEY"
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
+          from collections import Counter
+          from datetime import date
+          from pathlib import Path
+
+          key = os.environ["SPORTRADAR_API_KEY"].strip()
+          access = os.environ["SPORTRADAR_ACCESS_LEVEL"]
+          base = f"https://api.sportradar.com/tennis/{access}/v3/en"
+
+          def get(path):
+              url = f"{base}/{path.lstrip('/')}"
+              for attempt in range(6):
+                  req = urllib.request.Request(
+                      url,
+                      headers={
+                          "x-api-key": key,
+                          "Accept": "application/json",
+                          "User-Agent": "tennis-genome-wta-probe-001",
+                      },
+                  )
+                  try:
+                      with urllib.request.urlopen(req, timeout=30) as response:
+                          return json.loads(response.read())
+                  except urllib.error.HTTPError as exc:
+                      if exc.code == 429 and attempt < 5:
+                          delay = int(exc.headers.get("Retry-After", "2"))
+                          time.sleep(max(delay, 2))
+                          continue
+                      raise
+              raise RuntimeError("unreachable")
+
+          competitions = get("competitions.json")
+          seasons = get("seasons.json")
+          target_summary = get(f"sport_events/{os.environ['TARGET_EVENT_ID']}/summary.json")
+          target_info = get(f"seasons/{os.environ['TARGET_SEASON_ID']}/info.json")
+          parry_profile = get(f"competitors/{os.environ['PARRY_ID']}/profile.json")
+          stearns_profile = get(f"competitors/{os.environ['STEARNS_ID']}/profile.json")
+
+          wta_competitions = {}
+          levels = Counter()
+          for row in competitions.get("competitions", []):
+              category = row.get("category") or {}
+              if category.get("id") != "sr:category:6":
+                  continue
+              if str(row.get("type", "")).lower() != "singles":
+                  continue
+              wta_competitions[str(row["id"])] = row
+              levels[str(row.get("level", "")).lower()] += 1
+
+          cutoff = date.fromisoformat(os.environ["TARGET_START_DATE"])
+          selected = []
+          for season in seasons.get("seasons", []):
+              cid = str(season.get("competition_id", ""))
+              if cid not in wta_competitions or season.get("disabled") is True:
+                  continue
+              try:
+                  start = date.fromisoformat(str(season.get("start_date", "")))
+              except ValueError:
+                  continue
+              if date(2026, 1, 1) <= start < cutoff:
+                  comp = wta_competitions[cid]
+                  selected.append({
+                      "season_id": season.get("id"),
+                      "start_date": start.isoformat(),
+                      "competition_id": cid,
+                      "competition_name": comp.get("name"),
+                      "level": comp.get("level"),
+                  })
+          selected.sort(key=lambda row: (row["start_date"], row["season_id"]))
+
+          out = {
+              "schema_version": "wta-live-prediction-probe-001",
+              "access_level": access,
+              "target_event_id": os.environ["TARGET_EVENT_ID"],
+              "target_start_date": os.environ["TARGET_START_DATE"],
+              "wta_singles_level_counts": dict(sorted(levels.items())),
+              "selected_prior_2026_seasons": selected,
+              "target_summary": target_summary,
+              "target_season_info": target_info,
+              "parry_profile": parry_profile,
+              "stearns_profile": stearns_profile,
+          }
+          Path("wta-live-prediction-probe.json").write_text(
+              json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps({
+              "levels": out["wta_singles_level_counts"],
+              "prior_season_count": len(selected),
+              "target_event_id": out["target_event_id"],
+          }, indent=2, sort_keys=True))
+          PY
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wta-live-prediction-probe-001
+          path: wta-live-prediction-probe.json
+          if-no-files-found: error
+          retention-days: 30
