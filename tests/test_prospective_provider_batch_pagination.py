@@ -13,6 +13,8 @@ from tennis_genome.prospective.provider_batch_pagination import (
     verify_paginated_provider_batches,
 )
 
+_DEFAULT_GENERATED_AT = "2026-09-15T11:58:00+00:00"
+
 
 def _summary(event_id: str, *, start: datetime) -> dict[str, object]:
     return {
@@ -39,12 +41,18 @@ def _page(
     total: int,
     summaries: list[dict[str, object]],
     name_offset: int | None = None,
+    generated_at: str = _DEFAULT_GENERATED_AT,
 ) -> tuple[Path, Path]:
     file_offset = offset if name_offset is None else name_offset
     raw = tmp_path / f"page-{file_offset}.json"
     headers = tmp_path / f"page-{file_offset}.headers.txt"
     raw.write_text(
-        json.dumps({"summaries": summaries}, indent=2, sort_keys=True) + "\n",
+        json.dumps(
+            {"generated_at": generated_at, "summaries": summaries},
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
         encoding="utf-8",
     )
     headers.write_text(
@@ -70,12 +78,14 @@ def test_two_page_capture_proves_complete_denominator_and_retains_page_evidence(
             _summary("sr:sport_event:1", start=start),
             _summary("sr:sport_event:2", start=start),
         ],
+        generated_at="2026-09-15T11:57:00+00:00",
     )
     second = _page(
         tmp_path,
         offset=2,
         total=3,
         summaries=[_summary("sr:sport_event:3", start=start)],
+        generated_at="2026-09-15T11:58:00+00:00",
     )
     store = ProviderBatchStore(tmp_path / "store")
     record = capture_paginated_provider_batch(
@@ -87,6 +97,8 @@ def test_two_page_capture_proves_complete_denominator_and_retains_page_evidence(
 
     assert record["raw_summary_count"] == 3
     assert record["page_count"] == 2
+    assert record["provider_generated_at_min"] == "2026-09-15T11:57:00+00:00"
+    assert record["provider_generated_at_max"] == "2026-09-15T11:58:00+00:00"
     report = verify_paginated_provider_batches(store)
     assert report["paginated_record_count"] == 1
     assert report["legacy_record_count"] == 0
@@ -98,8 +110,10 @@ def test_two_page_capture_proves_complete_denominator_and_retains_page_evidence(
         )
     )
     assert aggregate["x_max_results"] == 3
+    assert aggregate["provider_generated_at_spread_seconds"] == 60
     assert [page["offset"] for page in aggregate["pages"]] == [0, 2]
     for page in aggregate["pages"]:
+        assert page["provider_generated_at"]
         assert (store.evidence_dir / page["raw_payload_sha256"]).is_file()
         assert (store.evidence_dir / page["response_headers_sha256"]).is_file()
 
@@ -221,6 +235,7 @@ def test_zero_result_day_is_valid_as_exactly_one_empty_page(tmp_path: Path) -> N
     payload = build_complete_daily_payload([page])
     assert payload["x_max_results"] == 0
     assert payload["page_count"] == 1
+    assert payload["provider_generated_at_min"] == _DEFAULT_GENERATED_AT
     assert payload["summaries"] == []
 
 
