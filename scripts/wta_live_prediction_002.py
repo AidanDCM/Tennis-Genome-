@@ -94,7 +94,9 @@ def main() -> None:
             rows = page.get("summaries")
             if not isinstance(rows, list):
                 raise RuntimeError("season summaries missing array")
-            raw_source["summaries"].append({"season_id": season_id, "start": offset, "payload": page})
+            raw_source["summaries"].append(
+                {"season_id": season_id, "start": offset, "payload": page}
+            )
             for summary in rows:
                 if not isinstance(summary, dict):
                     continue
@@ -130,7 +132,9 @@ def main() -> None:
                     for sr in involved_targets:
                         target_player_exclusions[sr][reason] += 1
                     if reason == "UNRESOLVED_CANONICAL_ID":
-                        unresolved_events.append(str((summary.get("sport_event") or {}).get("id", "UNKNOWN")))
+                        unresolved_events.append(
+                            str((summary.get("sport_event") or {}).get("id", "UNKNOWN"))
+                        )
                     continue
                 extension.append(match)
                 if pair:
@@ -142,7 +146,14 @@ def main() -> None:
             offset += 200
             if offset > 2000:
                 raise RuntimeError("unexpected WTA season pagination depth")
-        raw_source["seasons"].append({"season_id": season_id, "competition_id": cid, "start_date": start.isoformat(), "info": info})
+        raw_source["seasons"].append(
+            {
+                "season_id": season_id,
+                "competition_id": cid,
+                "start_date": start.isoformat(),
+                "info": info,
+            }
+        )
 
     if not extension:
         raise RuntimeError("no authenticated 2026 WTA extension matches")
@@ -151,17 +162,31 @@ def main() -> None:
 
     for sr_id, label in ((h.PARRY_SR, "Parry"), (h.STEARNS_SR, "Stearns")):
         exclusions = target_player_exclusions[sr_id]
-        disallowed = {reason: count for reason, count in exclusions.items() if reason not in LEGITIMATE_TARGET_EXCLUSIONS}
+        disallowed = {
+            reason: count
+            for reason, count in exclusions.items()
+            if reason not in LEGITIMATE_TARGET_EXCLUSIONS
+        }
         if disallowed:
-            raise RuntimeError(f"{label} has non-legitimate provider-history exclusions: {disallowed}")
+            raise RuntimeError(
+                f"{label} has non-legitimate provider-history exclusions: {disallowed}"
+            )
         accounted = target_player_accepted[sr_id] + sum(exclusions.values())
         if accounted != target_player_seen[sr_id]:
-            raise RuntimeError(f"{label} provider-history accounting mismatch: accepted={target_player_accepted[sr_id]} exclusions={dict(exclusions)} seen={target_player_seen[sr_id]}")
+            raise RuntimeError(
+                f"{label} provider-history accounting mismatch: "
+                f"accepted={target_player_accepted[sr_id]} "
+                f"exclusions={dict(exclusions)} "
+                f"seen={target_player_seen[sr_id]}"
+            )
 
     current_target_summary = h.http_json(f"sport_events/{h.TARGET_EVENT_ID}/summary.json")
     current_target_info = h.http_json(f"seasons/{h.TARGET_SEASON_ID}/info.json")
     status = current_target_summary.get("sport_event_status") or {}
-    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {"not_started", "scheduled"}:
+    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {
+        "not_started",
+        "scheduled",
+    }:
         raise RuntimeError(f"target is no longer pre-match: {status}")
     target_event = current_target_summary.get("sport_event")
     if not isinstance(target_event, dict):
@@ -176,10 +201,20 @@ def main() -> None:
         None,
     )
     combined = base_history + extension + [target_sentinel]
-    foundational = next(s for s in walk_forward_foundational_features(combined, exclude_retirements=False) if s.match_id == h.TARGET_MATCH_ID)
-    serve_return = next(s for s in walk_forward_serve_return(combined, exclude_retirements=False) if s.match_id == h.TARGET_MATCH_ID)
+    foundational = next(
+        s
+        for s in walk_forward_foundational_features(combined, exclude_retirements=False)
+        if s.match_id == h.TARGET_MATCH_ID
+    )
+    serve_return = next(
+        s
+        for s in walk_forward_serve_return(combined, exclude_retirements=False)
+        if s.match_id == h.TARGET_MATCH_ID
+    )
 
-    provider_store = ProviderBatchStore(Path("trusted-provider-artifact/trusted-provider-capture/provider-batch-store"))
+    provider_store = ProviderBatchStore(
+        Path("trusted-provider-artifact/trusted-provider-capture/provider-batch-store")
+    )
     identity = build_identity_binding(
         batch_store=provider_store,
         batch_record_sha256=h.PROVIDER_BATCH_SHA,
@@ -201,13 +236,17 @@ def main() -> None:
         "base_match_count": len(base_history),
         "authenticated_2026_match_count": len(extension),
         "authenticated_prior_season_count": len(selected),
-        "authenticated_state_max_tournament_date": max(m.pre_match.event_date for m in extension).isoformat(),
+        "authenticated_state_max_tournament_date": max(
+            m.pre_match.event_date for m in extension
+        ).isoformat(),
         "crosswalk_size": len(sr_to_canonical),
         "unresolved_event_count": len(unresolved_events),
         "exclusion_counts": dict(sorted(exclusion_counts.items())),
         "target_player_provider_matches_seen": dict(target_player_seen),
         "target_player_provider_matches_accepted": dict(target_player_accepted),
-        "target_player_exclusions": {sr: dict(counts) for sr, counts in target_player_exclusions.items()},
+        "target_player_exclusions": {
+            sr: dict(counts) for sr, counts in target_player_exclusions.items()
+        },
         "raw_source_sha256": h.sha_bytes(h.canonical_json(raw_source)),
         "target_state": h.dataclass_payload(target_state),
     }
@@ -234,7 +273,10 @@ def main() -> None:
     scheduled = datetime.fromisoformat(h.SCHEDULED_START)
     if created_at >= scheduled:
         raise RuntimeError("prediction creation is not pre-start")
-    prediction_id = f"FULL-STACK-FORWARD-001-{h.TARGET_EVENT_ID.replace(':', '-')}-{created_at.strftime('%Y%m%dT%H%M%SZ')}"
+    prediction_id = (
+        f"FULL-STACK-FORWARD-001-{h.TARGET_EVENT_ID.replace(':', '-')}-"
+        f"{created_at.strftime('%Y%m%dT%H%M%SZ')}"
+    )
     matchup_payload = {
         "prediction_id": prediction_id,
         "match_id": h.TARGET_MATCH_ID,
@@ -292,8 +334,16 @@ def main() -> None:
             "surface": target_state.surface,
             "round": target_state.round,
             "best_of": target_state.best_of,
-            "player_a": {"id": h.PARRY_CANONICAL, "name": target_state.player_a_name, "seed": target_state.seed_a},
-            "player_b": {"id": h.STEARNS_CANONICAL, "name": target_state.player_b_name, "seed": target_state.seed_b},
+            "player_a": {
+                "id": h.PARRY_CANONICAL,
+                "name": target_state.player_a_name,
+                "seed": target_state.seed_a,
+            },
+            "player_b": {
+                "id": h.STEARNS_CANONICAL,
+                "name": target_state.player_b_name,
+                "seed": target_state.seed_b,
+            },
         },
         "calculation": calculation.to_dict(),
         "foundational": h.dataclass_payload(foundational),
@@ -308,21 +358,27 @@ def main() -> None:
         },
     }
     (root / "prediction-dossier.json").write_text(h.pretty(dossier), encoding="utf-8")
-    print(h.pretty({
-        "prediction_id": prediction_id,
-        "prediction_record_sha256": prediction_record["record_sha256"],
-        "chain_head_sha256": pilot_report["chain_head_sha256"],
-        "p_player_a": calculation.prediction.p_player_a,
-        "p_player_b": calculation.prediction.p_player_b,
-        "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
-        "assessment_status": calculation.assessment_status,
-        "authenticated_2026_match_count": len(extension),
-        "crosswalk_size": len(sr_to_canonical),
-        "unresolved_event_count": len(unresolved_events),
-        "target_player_seen": dict(target_player_seen),
-        "target_player_accepted": dict(target_player_accepted),
-        "target_player_exclusions": {sr: dict(counts) for sr, counts in target_player_exclusions.items()},
-    }))
+    print(
+        h.pretty(
+            {
+                "prediction_id": prediction_id,
+                "prediction_record_sha256": prediction_record["record_sha256"],
+                "chain_head_sha256": pilot_report["chain_head_sha256"],
+                "p_player_a": calculation.prediction.p_player_a,
+                "p_player_b": calculation.prediction.p_player_b,
+                "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
+                "assessment_status": calculation.assessment_status,
+                "authenticated_2026_match_count": len(extension),
+                "crosswalk_size": len(sr_to_canonical),
+                "unresolved_event_count": len(unresolved_events),
+                "target_player_seen": dict(target_player_seen),
+                "target_player_accepted": dict(target_player_accepted),
+                "target_player_exclusions": {
+                    sr: dict(counts) for sr, counts in target_player_exclusions.items()
+                },
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

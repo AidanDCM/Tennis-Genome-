@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import math
 import os
 import re
 import time
@@ -81,7 +80,9 @@ ROUND_MAP = {
 
 
 def canonical_json(value: object) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+    ).encode("utf-8")
 
 
 def pretty(value: object) -> str:
@@ -203,14 +204,22 @@ def qualified_competitors(event: dict[str, object]) -> tuple[dict[str, object], 
     comps = event.get("competitors")
     if not isinstance(comps, list):
         raise ValueError("competitors missing")
-    home = next((c for c in comps if isinstance(c, dict) and str(c.get("qualifier", "")).lower() == "home"), None)
-    away = next((c for c in comps if isinstance(c, dict) and str(c.get("qualifier", "")).lower() == "away"), None)
+    home = next(
+        (c for c in comps if isinstance(c, dict) and str(c.get("qualifier", "")).lower() == "home"),
+        None,
+    )
+    away = next(
+        (c for c in comps if isinstance(c, dict) and str(c.get("qualifier", "")).lower() == "away"),
+        None,
+    )
     if not isinstance(home, dict) or not isinstance(away, dict):
         raise ValueError("home/away missing")
     return home, away
 
 
-def stats_side(summary: dict[str, object], qualifier: str, expected_id: str) -> dict[str, object] | None:
+def stats_side(
+    summary: dict[str, object], qualifier: str, expected_id: str
+) -> dict[str, object] | None:
     statistics = summary.get("statistics")
     if not isinstance(statistics, dict):
         return None
@@ -223,13 +232,18 @@ def stats_side(summary: dict[str, object], qualifier: str, expected_id: str) -> 
     for row in comps:
         if not isinstance(row, dict):
             continue
-        if str(row.get("qualifier", "")).lower() == qualifier and str(row.get("id", "")) == expected_id:
+        if (
+            str(row.get("qualifier", "")).lower() == qualifier
+            and str(row.get("id", "")) == expected_id
+        ):
             s = row.get("statistics")
             return s if isinstance(s, dict) else None
     return None
 
 
-def make_stats(summary: dict[str, object], match_id: str, *, home_sr: str, away_sr: str, a_is_home: bool) -> MatchStats | None:
+def make_stats(
+    summary: dict[str, object], match_id: str, *, home_sr: str, away_sr: str, a_is_home: bool
+) -> MatchStats | None:
     hs = stats_side(summary, "home", home_sr)
     aws = stats_side(summary, "away", away_sr)
     if hs is None or aws is None:
@@ -387,7 +401,9 @@ def dataclass_payload(value: object) -> dict[str, object]:
     return payload
 
 
-def target_state_from_provider(target_summary: dict[str, object], target_info: dict[str, object], by_id) -> PreMatchState:
+def target_state_from_provider(
+    target_summary: dict[str, object], target_info: dict[str, object], by_id
+) -> PreMatchState:
     event = target_summary["sport_event"]
     context = event["sport_event_context"]
     home, away = qualified_competitors(event)
@@ -436,7 +452,9 @@ def target_state_from_provider(target_summary: dict[str, object], target_info: d
     )
 
 
-def recent_player_rows(history: list[HistoricalMatch], player_id: str, limit: int = 10) -> list[dict[str, object]]:
+def recent_player_rows(
+    history: list[HistoricalMatch], player_id: str, limit: int = 10
+) -> list[dict[str, object]]:
     rows = []
     for match in history:
         s = match.pre_match
@@ -445,15 +463,17 @@ def recent_player_rows(history: list[HistoricalMatch], player_id: str, limit: in
         is_a = player_id == s.player_a_id
         won = match.outcome.a_won if is_a else not match.outcome.a_won
         opponent = s.player_b_name if is_a else s.player_a_name
-        rows.append({
-            "event_date": s.event_date.isoformat(),
-            "tournament": s.tournament_name,
-            "surface": s.surface,
-            "round": s.round,
-            "opponent": opponent,
-            "won": won,
-            "stats_available": match.stats is not None,
-        })
+        rows.append(
+            {
+                "event_date": s.event_date.isoformat(),
+                "tournament": s.tournament_name,
+                "surface": s.surface,
+                "round": s.round,
+                "opponent": opponent,
+                "won": won,
+                "stats_available": match.stats is not None,
+            }
+        )
     rows.sort(key=lambda r: (r["event_date"], r["tournament"]), reverse=True)
     return rows[:limit]
 
@@ -519,7 +539,9 @@ def main() -> None:
             rows = page.get("summaries")
             if not isinstance(rows, list):
                 raise RuntimeError("season summaries missing array")
-            raw_source["summaries"].append({"season_id": season_id, "start": offset, "payload": page})
+            raw_source["summaries"].append(
+                {"season_id": season_id, "start": offset, "payload": page}
+            )
             for summary in rows:
                 if not isinstance(summary, dict):
                     continue
@@ -550,7 +572,9 @@ def main() -> None:
                 if match is None:
                     exclusion_counts[reason or "UNKNOWN"] += 1
                     if reason == "UNRESOLVED_CANONICAL_ID":
-                        unresolved_events.append(str((summary.get("sport_event") or {}).get("id", "UNKNOWN")))
+                        unresolved_events.append(
+                            str((summary.get("sport_event") or {}).get("id", "UNKNOWN"))
+                        )
                     continue
                 extension.append(match)
                 if pair:
@@ -562,21 +586,37 @@ def main() -> None:
             offset += 200
             if offset > 2000:
                 raise RuntimeError("unexpected WTA season pagination depth")
-        raw_source["seasons"].append({"season_id": season_id, "competition_id": cid, "start_date": start.isoformat(), "info": info})
+        raw_source["seasons"].append(
+            {
+                "season_id": season_id,
+                "competition_id": cid,
+                "start_date": start.isoformat(),
+                "info": info,
+            }
+        )
 
     if not extension:
         raise RuntimeError("no authenticated 2026 WTA extension matches")
     if max(m.pre_match.event_date for m in extension) >= TARGET_TOURNEY_DATE:
         raise RuntimeError("live extension leaks target tournament date or later")
     if target_player_seen[PARRY_SR] != target_player_accepted[PARRY_SR]:
-        raise RuntimeError(f"Parry provider history mapping incomplete: {target_player_accepted[PARRY_SR]}/{target_player_seen[PARRY_SR]}")
+        raise RuntimeError(
+            "Parry provider history mapping incomplete: "
+            f"{target_player_accepted[PARRY_SR]}/{target_player_seen[PARRY_SR]}"
+        )
     if target_player_seen[STEARNS_SR] != target_player_accepted[STEARNS_SR]:
-        raise RuntimeError(f"Stearns provider history mapping incomplete: {target_player_accepted[STEARNS_SR]}/{target_player_seen[STEARNS_SR]}")
+        raise RuntimeError(
+            "Stearns provider history mapping incomplete: "
+            f"{target_player_accepted[STEARNS_SR]}/{target_player_seen[STEARNS_SR]}"
+        )
 
     current_target_summary = http_json(f"sport_events/{TARGET_EVENT_ID}/summary.json")
     current_target_info = http_json(f"seasons/{TARGET_SEASON_ID}/info.json")
     status = current_target_summary.get("sport_event_status") or {}
-    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {"not_started", "scheduled"}:
+    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {
+        "not_started",
+        "scheduled",
+    }:
         raise RuntimeError(f"target is no longer pre-match: {status}")
     target_event = current_target_summary.get("sport_event")
     if not isinstance(target_event, dict):
@@ -591,10 +631,20 @@ def main() -> None:
         None,
     )
     combined = base_history + extension + [target_sentinel]
-    foundational = next(s for s in walk_forward_foundational_features(combined, exclude_retirements=False) if s.match_id == TARGET_MATCH_ID)
-    serve_return = next(s for s in walk_forward_serve_return(combined, exclude_retirements=False) if s.match_id == TARGET_MATCH_ID)
+    foundational = next(
+        s
+        for s in walk_forward_foundational_features(combined, exclude_retirements=False)
+        if s.match_id == TARGET_MATCH_ID
+    )
+    serve_return = next(
+        s
+        for s in walk_forward_serve_return(combined, exclude_retirements=False)
+        if s.match_id == TARGET_MATCH_ID
+    )
 
-    provider_store = ProviderBatchStore(Path("trusted-provider-artifact/trusted-provider-capture/provider-batch-store"))
+    provider_store = ProviderBatchStore(
+        Path("trusted-provider-artifact/trusted-provider-capture/provider-batch-store")
+    )
     identity = build_identity_binding(
         batch_store=provider_store,
         batch_record_sha256=PROVIDER_BATCH_SHA,
@@ -616,7 +666,9 @@ def main() -> None:
         "base_match_count": len(base_history),
         "authenticated_2026_match_count": len(extension),
         "authenticated_prior_season_count": len(selected),
-        "authenticated_state_max_tournament_date": max(m.pre_match.event_date for m in extension).isoformat(),
+        "authenticated_state_max_tournament_date": max(
+            m.pre_match.event_date for m in extension
+        ).isoformat(),
         "crosswalk_size": len(sr_to_canonical),
         "unresolved_event_count": len(unresolved_events),
         "exclusion_counts": dict(sorted(exclusion_counts.items())),
@@ -648,7 +700,10 @@ def main() -> None:
     scheduled = datetime.fromisoformat(SCHEDULED_START)
     if created_at >= scheduled:
         raise RuntimeError("prediction creation is not pre-start")
-    prediction_id = f"FULL-STACK-FORWARD-001-{TARGET_EVENT_ID.replace(':', '-')}-{created_at.strftime('%Y%m%dT%H%M%SZ')}"
+    prediction_id = (
+        f"FULL-STACK-FORWARD-001-{TARGET_EVENT_ID.replace(':', '-')}-"
+        f"{created_at.strftime('%Y%m%dT%H%M%SZ')}"
+    )
     matchup_payload = {
         "prediction_id": prediction_id,
         "match_id": TARGET_MATCH_ID,
@@ -709,8 +764,16 @@ def main() -> None:
             "surface": target_state.surface,
             "round": target_state.round,
             "best_of": target_state.best_of,
-            "player_a": {"id": PARRY_CANONICAL, "name": target_state.player_a_name, "seed": target_state.seed_a},
-            "player_b": {"id": STEARNS_CANONICAL, "name": target_state.player_b_name, "seed": target_state.seed_b},
+            "player_a": {
+                "id": PARRY_CANONICAL,
+                "name": target_state.player_a_name,
+                "seed": target_state.seed_a,
+            },
+            "player_b": {
+                "id": STEARNS_CANONICAL,
+                "name": target_state.player_b_name,
+                "seed": target_state.seed_b,
+            },
         },
         "calculation": calculation.to_dict(),
         "foundational": dataclass_payload(foundational),
@@ -726,20 +789,24 @@ def main() -> None:
     }
     dossier_path = root / "prediction-dossier.json"
     dossier_path.write_text(pretty(dossier), encoding="utf-8")
-    print(pretty({
-        "prediction_id": prediction_id,
-        "prediction_record_sha256": prediction_record["record_sha256"],
-        "chain_head_sha256": pilot_report["chain_head_sha256"],
-        "p_player_a": calculation.prediction.p_player_a,
-        "p_player_b": calculation.prediction.p_player_b,
-        "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
-        "assessment_status": calculation.assessment_status,
-        "authenticated_2026_match_count": len(extension),
-        "crosswalk_size": len(sr_to_canonical),
-        "unresolved_event_count": len(unresolved_events),
-        "target_player_seen": dict(target_player_seen),
-        "target_player_accepted": dict(target_player_accepted),
-    }))
+    print(
+        pretty(
+            {
+                "prediction_id": prediction_id,
+                "prediction_record_sha256": prediction_record["record_sha256"],
+                "chain_head_sha256": pilot_report["chain_head_sha256"],
+                "p_player_a": calculation.prediction.p_player_a,
+                "p_player_b": calculation.prediction.p_player_b,
+                "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
+                "assessment_status": calculation.assessment_status,
+                "authenticated_2026_match_count": len(extension),
+                "crosswalk_size": len(sr_to_canonical),
+                "unresolved_event_count": len(unresolved_events),
+                "target_player_seen": dict(target_player_seen),
+                "target_player_accepted": dict(target_player_accepted),
+            }
+        )
+    )
 
 
 if __name__ == "__main__":
