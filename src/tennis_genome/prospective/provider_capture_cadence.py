@@ -9,8 +9,12 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from tennis_genome.prospective.provider_batch import BATCH_VERSION, ProviderBatchStore
+from tennis_genome.prospective.provider_batch_pagination import (
+    PAGINATION_SCHEMA,
+    verify_paginated_provider_batches,
+)
 
-CADENCE_VERSION = "FULL-STACK-FORWARD-001-provider-capture-cadence-v1"
+CADENCE_VERSION = "FULL-STACK-FORWARD-001-provider-capture-cadence-v2"
 ANCHOR_SCHEMA = "full-stack-forward-provider-batch-github-anchor-v1"
 _ANCHOR_REPOSITORY = "AidanDCM/Tennis-Genome-"
 _ANCHOR_WORKFLOW_PATH = ".github/workflows/prospective_provider_batch_anchor.yml"
@@ -126,6 +130,24 @@ def _find_batch_record(
     return matches[0]
 
 
+def _provider_generation_bounds(batch_record: dict[str, object]) -> tuple[datetime, datetime]:
+    if batch_record.get("pagination_schema") != PAGINATION_SCHEMA:
+        raise ValueError(
+            "provider-capture cadence requires complete Sportradar pagination-v2 evidence"
+        )
+    earliest = _parse_time(
+        batch_record.get("provider_generated_at_min"),
+        field="provider_batch.provider_generated_at_min",
+    )
+    latest = _parse_time(
+        batch_record.get("provider_generated_at_max"),
+        field="provider_batch.provider_generated_at_max",
+    )
+    if earliest > latest:
+        raise ValueError("provider batch generated_at bounds are inverted")
+    return earliest, latest
+
+
 def _verify_anchor_payloads(
     *,
     batch_record: dict[str, object],
@@ -139,6 +161,7 @@ def _verify_anchor_payloads(
     if receipt.get("repository") != _ANCHOR_REPOSITORY:
         raise ValueError("provider-batch anchor repository differs from frozen repository")
 
+    provider_min, provider_max = _provider_generation_bounds(batch_record)
     batch_sha = _required_text(batch_record, "record_sha256")
     if receipt.get("batch_record_sha256") != batch_sha:
         raise ValueError("provider-batch anchor record SHA does not match batch record")
@@ -179,14 +202,24 @@ def _verify_anchor_payloads(
         _required_text(receipt, "runner_receipt_created_at_utc"),
         field="provider_batch_anchor.runner_receipt_created_at_utc",
     )
+    if anchor_created_at < provider_max:
+        raise ValueError("provider-batch anchor predates newest retained provider generation")
+    if anchor_created_at - provider_min > _MAX_ANCHOR_LAG:
+        raise ValueError(
+            "provider-batch anchor was created too long after earliest retained provider generation"
+        )
     if anchor_created_at < observed_at:
         raise ValueError("provider-batch anchor predates the retained provider observation")
     if anchor_created_at - observed_at > _MAX_ANCHOR_LAG:
         raise ValueError("provider-batch anchor was created too long after provider observation")
     if runner_created_at < anchor_created_at:
         raise ValueError("provider-batch runner receipt predates GitHub workflow creation")
-    if str(batch_record.get("schedule_date")) != observed_at.date().isoformat():
+
+    schedule_date = str(batch_record.get("schedule_date"))
+    if schedule_date != observed_at.date().isoformat():
         raise ValueError("cadence batch schedule_date must equal provider observation UTC date")
+    if schedule_date != provider_min.date().isoformat() or schedule_date != provider_max.date().isoformat():
+        raise ValueError("cadence batch schedule_date must equal provider generation UTC date")
     return anchor_created_at
 
 
@@ -257,6 +290,7 @@ class ProviderCaptureCadenceStore:
 
     def verify(self, *, batch_store: ProviderBatchStore) -> dict[str, object]:
         batch_store.verify()
+        verify_paginated_provider_batches(batch_store)
         paths = self._record_paths()
         records = self.records()
         previous = _ZERO_SHA256
@@ -302,6 +336,7 @@ class ProviderCaptureCadenceStore:
             )
             batch_sha = _required_text(record, "batch_record_sha256")
             batch_record = _find_batch_record(batch_store, batch_sha)
+            provider_min, provider_max = _provider_generation_bounds(batch_record)
             anchor_created_at = _verify_anchor_payloads(
                 batch_record=batch_record,
                 receipt=receipt,
@@ -309,10 +344,16 @@ class ProviderCaptureCadenceStore:
             )
             if record.get("batch_version") != BATCH_VERSION:
                 raise ValueError("cadence record batch version mismatch")
+            if record.get("pagination_schema") != PAGINATION_SCHEMA:
+                raise ValueError("cadence record pagination schema mismatch")
             if record.get("schedule_date") != batch_record.get("schedule_date"):
                 raise ValueError("cadence schedule_date does not reproduce from batch")
             if record.get("batch_observed_at") != batch_record.get("observed_at"):
                 raise ValueError("cadence observed_at does not reproduce from batch")
+            if record.get("provider_generated_at_min") != provider_min.isoformat():
+                raise ValueError("cadence provider min generated_at does not reproduce from batch")
+            if record.get("provider_generated_at_max") != provider_max.isoformat():
+                raise ValueError("cadence provider max generated_at does not reproduce from batch")
             if record.get("anchor_created_at") != anchor_created_at.isoformat():
                 raise ValueError(
                     "cadence anchor_created_at does not reproduce from GitHub evidence"
@@ -361,6 +402,7 @@ def attest_provider_batch(
         )
         batch_sha = _required_text(receipt, "batch_record_sha256")
         batch_record = _find_batch_record(batch_store, batch_sha)
+        provider_min, provider_max = _provider_generation_bounds(batch_record)
         anchor_created_at = _verify_anchor_payloads(
             batch_record=batch_record,
             receipt=receipt,
@@ -372,9 +414,12 @@ def attest_provider_batch(
             {
                 "record_type": "PROVIDER_BATCH_ATTESTATION",
                 "batch_version": BATCH_VERSION,
+                "pagination_schema": PAGINATION_SCHEMA,
                 "batch_record_sha256": batch_sha,
                 "schedule_date": batch_record["schedule_date"],
                 "batch_observed_at": batch_record["observed_at"],
+                "provider_generated_at_min": provider_min.isoformat(),
+                "provider_generated_at_max": provider_max.isoformat(),
                 "anchor_created_at": anchor_created_at.isoformat(),
                 "anchor_receipt_sha256": receipt_sha,
                 "workflow_run_metadata_sha256": run_sha,
@@ -393,6 +438,7 @@ def verify_capture_cadence(
         raise ValueError("complete_through must be timezone-aware")
     cutoff = complete_through.astimezone(UTC)
     batch_store.verify()
+    verify_paginated_provider_batches(batch_store)
     cadence_store.verify(batch_store=batch_store)
 
     attestations = cadence_store.records()
@@ -420,14 +466,17 @@ def verify_capture_cadence(
     if cutoff - anchor_times[-1] > _MAX_CADENCE_GAP:
         raise ValueError("provider capture cadence is stale at completeness cutoff")
 
-    attested_batch_shas = {
-        str(record["batch_record_sha256"])
-        for record in due_attestations
-    }
+    attested_batch_shas = {str(record["batch_record_sha256"]) for record in due_attestations}
     unanchored_due: list[str] = []
     for batch in batch_store.records():
-        observed_at = _parse_time(batch.get("observed_at"), field="provider_batch.observed_at")
-        if observed_at <= cutoff and str(batch["record_sha256"]) not in attested_batch_shas:
+        provider_generated_at = _parse_time(
+            batch.get("provider_generated_at_max"),
+            field="provider_batch.provider_generated_at_max",
+        )
+        if (
+            provider_generated_at <= cutoff
+            and str(batch["record_sha256"]) not in attested_batch_shas
+        ):
             unanchored_due.append(str(batch["record_sha256"]))
     if unanchored_due:
         raise ValueError(
