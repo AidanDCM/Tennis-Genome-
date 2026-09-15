@@ -127,15 +127,19 @@ jobs:
           import urllib.request
           from pathlib import Path
 
-          from tennis_genome.prospective.provider_batch_github_anchor import (
-              ANCHOR_BOT_LOGIN,
-              build_anchor_comment_body,
-          )
-
+          marker = "<!-- FULL-STACK-FORWARD-001-PROVIDER-BATCH-ANCHOR-V1 -->"
+          bot_login = "github-actions[bot]"
           receipt = json.loads(
               Path("provider_batch_anchor_receipt.json").read_text(encoding="utf-8")
           )
-          body = build_anchor_comment_body(receipt)
+          canonical = json.dumps(
+              receipt,
+              sort_keys=True,
+              separators=(",", ":"),
+              ensure_ascii=False,
+              allow_nan=False,
+          )
+          body = f"{marker}\n```json\n{canonical}\n```"
           repository = os.environ["GITHUB_REPOSITORY"]
           issue_number = os.environ["LEDGER_ISSUE_NUMBER"]
           url = f"https://api.github.com/repos/{repository}/issues/{issue_number}/comments"
@@ -159,7 +163,7 @@ jobs:
           actor = comment.get("user")
           if comment.get("issue_url") != expected_issue_url:
               raise SystemExit("trusted capture anchor was written to wrong ledger issue")
-          if not isinstance(actor, dict) or actor.get("login") != ANCHOR_BOT_LOGIN:
+          if not isinstance(actor, dict) or actor.get("login") != bot_login:
               raise SystemExit("trusted capture anchor actor is not github-actions[bot]")
           if actor.get("type") != "Bot":
               raise SystemExit("trusted capture anchor actor is not a GitHub bot")
