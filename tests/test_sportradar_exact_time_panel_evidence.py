@@ -39,19 +39,28 @@ def _competition() -> dict[str, object]:
     }
 
 
-def _season(*, name: str = "ATP Evidence Test 2026") -> dict[str, object]:
+def _season(
+    *,
+    name: str = "ATP Evidence Test 2026",
+    start_date: str = "2026-09-20",
+    end_date: str = "2026-09-27",
+) -> dict[str, object]:
     return {
         "id": "sr:season:1",
         "name": name,
         "competition_id": "sr:competition:1",
-        "start_date": "2026-09-20",
-        "end_date": "2026-09-27",
+        "start_date": start_date,
+        "end_date": end_date,
         "year": "2026",
         "disabled": False,
     }
 
 
-def _raw_evidence(tmp_path: Path) -> tuple[Path, Path, Path]:
+def _raw_evidence(
+    tmp_path: Path,
+    *,
+    season: dict[str, object] | None = None,
+) -> tuple[Path, Path, Path]:
     atp = _write_json(
         tmp_path / "atp.json",
         {
@@ -65,7 +74,10 @@ def _raw_evidence(tmp_path: Path) -> tuple[Path, Path, Path]:
     )
     seasons = _write_json(
         tmp_path / "seasons.json",
-        {"generated_at": "2026-09-14T19:01:00Z", "seasons": [_season()]},
+        {
+            "generated_at": "2026-09-14T19:01:00Z",
+            "seasons": [season or _season()],
+        },
     )
     return atp, wta, seasons
 
@@ -109,6 +121,38 @@ def _receipt(tmp_path: Path) -> EvidenceBoundExactTimePanelReceipt:
     )
 
 
+def _historical_access_receipt(tmp_path: Path) -> EvidenceBoundExactTimePanelReceipt:
+    historical = _season(start_date="2026-08-01", end_date="2026-08-07")
+    atp, wta, seasons = _raw_evidence(tmp_path, season=historical)
+    inventory = _inventory(atp=atp, wta=wta, seasons=seasons)
+    inventory_content = (
+        json.dumps(inventory.canonical_payload(), sort_keys=True) + "\n"
+    ).encode()
+    row = inventory.season_rows[0]
+    headers = tmp_path / "gone.headers"
+    body = tmp_path / "gone.body"
+    headers.write_bytes(b"HTTP/2 410 Gone\r\n\r\n")
+    body.write_bytes(b"history unavailable\n")
+    access = build_provider_access_failure_evidence(
+        season=row,
+        endpoint_path=f"seasons/{row.season_id}/summaries.json",
+        attempted_at=datetime(2026, 9, 14, 19, 10, tzinfo=UTC),
+        http_status=410,
+        response_headers_path=headers,
+        response_body_path=body,
+    )
+    return build_evidence_bound_exact_time_panel_receipt(
+        inventory_content=inventory_content,
+        atp_competitions_path=atp,
+        wta_competitions_path=wta,
+        season_response_paths={"sr:competition:1": seasons},
+        admitted_audits={},
+        failed_audits={},
+        access_failures={row.season_id: access},
+        repo_root=_repo_root(),
+    )
+
+
 def test_evidence_bound_panel_receipt_rederives_inventory_from_raw_bytes(
     tmp_path: Path,
 ) -> None:
@@ -143,6 +187,37 @@ def test_reloaded_receipt_rejects_raw_evidence_identity_detached_from_inventory(
     ).hexdigest()
 
     with pytest.raises(ValueError, match="do not match frozen inventory"):
+        EvidenceBoundExactTimePanelReceipt.model_validate(payload)
+
+
+def test_reloaded_receipt_rejects_coherently_rewritten_panel_selection(
+    tmp_path: Path,
+) -> None:
+    receipt = _receipt(tmp_path)
+    payload = receipt.canonical_payload()
+    panel_payload = payload["panel_manifest"]
+    assert isinstance(panel_payload, dict)
+    rows = panel_payload["rows"]
+    assert isinstance(rows, list)
+    row = rows[0]
+
+    row["disposition"] = "CHRONOLOGY_ADMITTED"
+    row["selected_for_exact_time_panel"] = True
+    row["evidence_file_sha256"] = "1" * 64
+    row["evidence_semantic_sha256"] = "2" * 64
+    row["chronology_season_summaries_sha256"] = "3" * 64
+    row["chronology_timeline_bundle_sha256"] = "4" * 64
+    row["failure_reasons"] = []
+    panel_payload["historical_candidate_count"] = 1
+    panel_payload["chronology_admitted_count"] = 1
+    panel_payload["not_yet_historical_count"] = 0
+    panel_payload["selected_season_ids"] = [row["season_id"]]
+    panel_payload["admitted_receipt_sha256s"] = ["5" * 64]
+
+    panel = SportradarExactTimePanelManifest.model_validate(panel_payload)
+    payload["panel_manifest_semantic_sha256"] = panel.semantic_sha256
+
+    with pytest.raises(ValueError, match="not-yet-historical panel row"):
         EvidenceBoundExactTimePanelReceipt.model_validate(payload)
 
 
@@ -187,13 +262,12 @@ def test_authentication_failures_cannot_finalize_historical_panel(
 def test_reloaded_receipt_rejects_legacy_access_denied_disposition(
     tmp_path: Path,
 ) -> None:
-    receipt = _receipt(tmp_path)
+    receipt = _historical_access_receipt(tmp_path)
     payload = receipt.canonical_payload()
     panel_payload = payload["panel_manifest"]
     assert isinstance(panel_payload, dict)
     rows = panel_payload["rows"]
     assert isinstance(rows, list)
-    rows[0]["disposition"] = "ACCESS_FAILURE"
     rows[0]["failure_reasons"] = ["ACCESS_DENIED"]
     panel = SportradarExactTimePanelManifest.model_validate(panel_payload)
     payload["panel_manifest_semantic_sha256"] = panel.semantic_sha256
