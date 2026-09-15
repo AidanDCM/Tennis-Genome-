@@ -12,16 +12,19 @@ from tennis_genome.prospective.provider_batch import BATCH_VERSION, ProviderBatc
 from tennis_genome.prospective.provider_batch_github_anchor import (
     GitHubGetBytes,
     LiveProviderBatchAnchorEvidence,
-    fetch_live_anchor_evidence,
+    fetch_trusted_capture_anchor_evidence,
     verify_live_anchor_against_batch,
 )
 from tennis_genome.prospective.provider_batch_pagination import (
     PAGINATION_SCHEMA,
     verify_paginated_provider_batches,
 )
+from tennis_genome.prospective.trusted_capture_anchor import (
+    fetch_authenticated_trusted_capture_evidence,
+)
 
 LIVE_CADENCE_VERSION = "FULL-STACK-FORWARD-001-provider-capture-cadence-v3"
-LIVE_EVIDENCE_MODE = "LIVE_GITHUB_LEDGER_V1"
+LIVE_EVIDENCE_MODE = "TRUSTED_GITHUB_SPORTRADAR_CAPTURE_V1"
 _ZERO_SHA256 = "0" * 64
 _MAX_CADENCE_GAP = timedelta(hours=7)
 
@@ -179,7 +182,7 @@ def _same_anchor_commitment(
 
 
 class LiveProviderCaptureCadenceStore:
-    """Append-only cadence ledger authenticated from live GitHub server evidence."""
+    """Append-only cadence ledger authenticated from trusted provider transport."""
 
     def __init__(self, root: Path) -> None:
         self.root = root
@@ -269,7 +272,7 @@ class LiveProviderCaptureCadenceStore:
                 raise ValueError(f"unexpected live cadence record type at sequence {sequence}")
             if record.get("anchor_evidence_mode") != LIVE_EVIDENCE_MODE:
                 raise ValueError(
-                    "live cadence record does not use authenticated GitHub ledger evidence"
+                    "live cadence record does not use trusted provider-capture evidence"
                 )
             if int(record.get("sequence", -1)) != sequence:
                 raise ValueError(f"live provider-capture cadence sequence gap at {sequence}")
@@ -317,7 +320,7 @@ class LiveProviderCaptureCadenceStore:
 
             comment_bytes = (self.evidence_dir / comment_sha).read_bytes()
             run_bytes = (self.evidence_dir / run_sha).read_bytes()
-            retained = fetch_live_anchor_evidence(
+            retained = fetch_trusted_capture_anchor_evidence(
                 comment_id=comment_id,
                 batch_record=batch_record,
                 get_bytes=_stored_evidence_getter(
@@ -334,13 +337,13 @@ class LiveProviderCaptureCadenceStore:
             if retained.workflow_run_response_sha256 != run_sha:
                 raise ValueError("retained GitHub run response SHA does not reproduce")
 
-            current = fetch_live_anchor_evidence(
+            current = fetch_authenticated_trusted_capture_evidence(
                 comment_id=comment_id,
                 batch_record=batch_record,
                 get_bytes=github_get_bytes,
             )
             if not _same_anchor_commitment(retained, current):
-                raise ValueError("live GitHub anchor commitment differs from retained evidence")
+                raise ValueError("trusted GitHub anchor commitment differs from retained evidence")
 
             anchor_created_at = current.anchor_created_at
             if record.get("batch_version") != BATCH_VERSION:
@@ -388,14 +391,14 @@ def attest_live_provider_batch(
     github_comment_id: int,
     github_get_bytes: GitHubGetBytes | None = None,
 ) -> dict[str, object]:
-    """Append one provider batch only after live GitHub ledger authentication."""
+    """Append one batch only after trusted GitHub-hosted provider capture authentication."""
 
     with cadence_store.write_lock():
         cadence_store.verify(
             batch_store=batch_store,
             github_get_bytes=github_get_bytes,
         )
-        evidence = fetch_live_anchor_evidence(
+        evidence = fetch_authenticated_trusted_capture_evidence(
             comment_id=github_comment_id,
             get_bytes=github_get_bytes,
         )
@@ -407,7 +410,7 @@ def attest_live_provider_batch(
         report = batch_store.verify()
         if report.get("chain_head_sha256") != batch_sha:
             raise ValueError(
-                "live GitHub anchor may only admit the current provider-batch chain head"
+                "trusted GitHub anchor may only admit the current provider-batch chain head"
             )
         verify_live_anchor_against_batch(batch_record=batch_record, evidence=evidence)
         provider_min, provider_max = _provider_generation_bounds(batch_record)
@@ -447,7 +450,7 @@ def verify_live_capture_cadence(
     complete_through: datetime,
     github_get_bytes: GitHubGetBytes | None = None,
 ) -> dict[str, object]:
-    """Authoritative promotion gate; every attestation is re-fetched live from GitHub."""
+    """Promotion gate; every attestation re-authenticates trusted GitHub capture."""
 
     if complete_through.tzinfo is None or complete_through.utcoffset() is None:
         raise ValueError("complete_through must be timezone-aware")
@@ -496,7 +499,7 @@ def verify_live_capture_cadence(
             unanchored_due.append(str(batch["record_sha256"]))
     if unanchored_due:
         raise ValueError(
-            "provider batches due by cutoff lack live GitHub cadence attestation: "
+            "provider batches due by cutoff lack trusted GitHub cadence attestation: "
             + ", ".join(sorted(unanchored_due))
         )
 
