@@ -112,9 +112,12 @@ jobs:
           if generated_text.endswith("Z"):
               generated_text = f"{generated_text[:-1]}+00:00"
           try:
-              generated_at = datetime.fromisoformat(generated_text).astimezone(UTC)
+              generated_at = datetime.fromisoformat(generated_text)
           except ValueError as exc:
               raise SystemExit("Sportradar generated_at is invalid") from exc
+          if generated_at.tzinfo is None or generated_at.utcoffset() is None:
+              raise SystemExit("Sportradar generated_at must be timezone-aware")
+          generated_at = generated_at.astimezone(UTC)
           if generated_at > observed_at:
               raise SystemExit("Sportradar generated_at is after runner observation")
           if observed_at - generated_at > timedelta(minutes=10):
