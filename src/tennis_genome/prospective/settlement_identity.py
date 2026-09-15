@@ -286,13 +286,39 @@ def verify_identity_binding(payload: dict[str, object]) -> SettlementIdentityBin
     return binding
 
 
+def authenticate_identity_binding(
+    *,
+    payload: dict[str, object],
+    batch_store: ProviderBatchStore,
+    github_get_bytes: GitHubGetBytes | None = None,
+) -> SettlementIdentityBinding:
+    """Rebuild a committed identity from trusted provider evidence and compare exactly."""
+
+    binding = verify_identity_binding(payload)
+    rebuilt = build_identity_binding(
+        batch_store=batch_store,
+        batch_record_sha256=binding.provider_batch_record_sha256,
+        provider_anchor_comment_id=binding.provider_anchor_comment_id,
+        match_id=binding.match_id,
+        player_a_canonical_id=binding.player_a_canonical_id,
+        player_b_canonical_id=binding.player_b_canonical_id,
+        sportradar_event_id=binding.sportradar_event_id,
+        player_a_sportradar_id=binding.player_a_sportradar_id,
+        player_b_sportradar_id=binding.player_b_sportradar_id,
+        github_get_bytes=github_get_bytes,
+    )
+    if _canonical_json(identity_as_dict(binding)) != _canonical_json(identity_as_dict(rebuilt)):
+        raise ValueError("settlement identity does not reproduce from trusted provider evidence")
+    return binding
+
+
 def find_prediction_identity_binding(
     *,
     pilot_store: object,
     prediction: dict[str, object],
-) -> tuple[SettlementIdentityBinding, str]:
+) -> tuple[SettlementIdentityBinding, str, dict[str, object]]:
     evidence_dir = Path(getattr(pilot_store, "evidence_dir"))
-    candidates: list[tuple[SettlementIdentityBinding, str]] = []
+    candidates: list[tuple[SettlementIdentityBinding, str, dict[str, object]]] = []
     for raw_sha in prediction.get("source_manifest_hashes", []):
         digest = str(raw_sha)
         path = evidence_dir / digest
@@ -313,7 +339,7 @@ def find_prediction_identity_binding(
             continue
         if binding.player_b_canonical_id != prediction.get("player_b_id"):
             continue
-        candidates.append((binding, digest))
+        candidates.append((binding, digest, payload))
     if len(candidates) != 1:
         raise ValueError(
             "prediction must retain exactly one matching pre-match Sportradar identity binding"
