@@ -6,11 +6,9 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from tennis_genome.prospective.provider_batch import (
-    ProviderBatchStore,
-    capture_provider_batch,
-)
+from tennis_genome.prospective.provider_batch import ProviderBatchStore
 from tennis_genome.prospective.provider_batch_pagination import (
+    PAGINATION_SCHEMA,
     capture_paginated_provider_batch,
     verify_paginated_provider_batches,
 )
@@ -96,7 +94,7 @@ def build_anchor_dispatch_packet(
     store: ProviderBatchStore,
     record_sha256: str | None = None,
 ) -> dict[str, object]:
-    """Build exact workflow inputs only for the current verified provider-batch head."""
+    """Build exact workflow inputs only for a verified pagination-v2 chain head."""
 
     report = store.verify()
     verify_paginated_provider_batches(store)
@@ -111,11 +109,18 @@ def build_anchor_dispatch_packet(
         raise ValueError("anchor packet requires a PROVIDER_BATCH record")
     if record.get("provider") != "SPORTRADAR":
         raise ValueError("anchor packet requires a Sportradar provider batch")
+    if record.get("pagination_schema") != PAGINATION_SCHEMA:
+        raise ValueError(
+            "prospective anchor packet requires complete Sportradar pagination-v2 evidence"
+        )
 
     schedule_date = _parse_date(str(record.get("schedule_date", "")))
     observed_at = _parse_time(str(record.get("observed_at", "")))
+    provider_generated_at = _parse_time(str(record.get("provider_generated_at_max", "")))
     if schedule_date != observed_at.date():
         raise ValueError("provider-batch schedule date must equal observed_at UTC date")
+    if schedule_date != provider_generated_at.date():
+        raise ValueError("provider-batch schedule date must equal provider generated_at UTC date")
 
     inputs = {
         "batch_record_sha256": record_sha,
@@ -158,22 +163,13 @@ def capture_batch_and_build_anchor_packet(
     schedule_date: date,
     observed_at: datetime,
 ) -> tuple[dict[str, object], dict[str, object]]:
-    """Capture one legacy raw provider response and return its dispatch packet."""
+    """Reject the retired single-response path before it can create anchorable evidence."""
 
-    normalized_observed_at = observed_at.astimezone(UTC)
-    if schedule_date != normalized_observed_at.date():
-        raise ValueError("schedule_date must equal observed_at UTC date")
-    record = capture_provider_batch(
-        store=store,
-        raw_payload_path=raw_payload_path,
-        schedule_date=schedule_date,
-        observed_at=normalized_observed_at,
+    del store, raw_payload_path, schedule_date, observed_at
+    raise ValueError(
+        "legacy single-response capture cannot produce prospective anchor evidence; "
+        "use capture-pages with complete pagination-v2 evidence"
     )
-    packet = build_anchor_dispatch_packet(
-        store=store,
-        record_sha256=str(record["record_sha256"]),
-    )
-    return record, packet
 
 
 def capture_pages_and_build_anchor_packet(
@@ -221,7 +217,7 @@ def _parse_args() -> argparse.Namespace:
 
     capture = subparsers.add_parser(
         "capture",
-        help="legacy single-response capture; use capture-pages for live API evidence",
+        help="retired single-response path; retained only to fail closed with guidance",
     )
     capture.add_argument("--store", required=True, type=Path)
     capture.add_argument("--raw-payload", required=True, type=Path)
@@ -242,7 +238,7 @@ def _parse_args() -> argparse.Namespace:
 
     packet = subparsers.add_parser(
         "packet",
-        help="rebuild anchor inputs for the current verified chain head",
+        help="rebuild anchor inputs for the current verified pagination-v2 chain head",
     )
     packet.add_argument("--store", required=True, type=Path)
     packet.add_argument("--record-sha256")

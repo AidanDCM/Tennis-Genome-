@@ -39,9 +39,13 @@ def _page(
     *,
     total: int,
     offset: int,
+    generated_at: str = "2026-09-15T11:58:00+00:00",
 ) -> tuple[Path, Path]:
     raw = tmp_path / f"{name}.json"
-    raw.write_text(json.dumps({"summaries": summaries}) + "\n", encoding="utf-8")
+    raw.write_text(
+        json.dumps({"generated_at": generated_at, "summaries": summaries}) + "\n",
+        encoding="utf-8",
+    )
     headers = tmp_path / f"{name}.headers"
     headers.write_text(
         "HTTP/2 200\n"
@@ -64,6 +68,7 @@ def test_paginated_capture_emits_anchor_packet_only_after_complete_verification(
         [_summary("sr:sport_event:op-page-1", start=start)],
         total=2,
         offset=0,
+        generated_at="2026-09-15T11:57:00+00:00",
     )
     page1 = _page(
         tmp_path,
@@ -89,6 +94,8 @@ def test_paginated_capture_emits_anchor_packet_only_after_complete_verification(
     assert inputs["batch_chain_head_sha256"] == record["record_sha256"]
     assert record["page_count"] == 2
     assert record["raw_summary_count"] == 2
+    assert record["provider_generated_at_min"] == "2026-09-15T11:57:00+00:00"
+    assert record["provider_generated_at_max"] == "2026-09-15T11:58:00+00:00"
 
 
 def test_paginated_capture_requires_equal_raw_and_header_counts(tmp_path: Path) -> None:
@@ -103,6 +110,29 @@ def test_paginated_capture_requires_equal_raw_and_header_counts(tmp_path: Path) 
             schedule_date=observed.date(),
             observed_at=observed,
         )
+
+
+def test_operator_rejects_stale_provider_generation_time(tmp_path: Path) -> None:
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    page = _page(
+        tmp_path,
+        "stale",
+        [_summary("sr:sport_event:op-stale", start=observed + timedelta(hours=4))],
+        total=1,
+        offset=0,
+        generated_at="2026-09-15T11:49:00+00:00",
+    )
+    store = ProviderBatchStore(tmp_path / "store")
+
+    with pytest.raises(ValueError, match="exceeds frozen 10-minute provider-generation lag"):
+        capture_pages_and_build_anchor_packet(
+            store=store,
+            raw_page_paths=[page[0]],
+            header_page_paths=[page[1]],
+            schedule_date=observed.date(),
+            observed_at=observed,
+        )
+    assert store.verify()["record_count"] == 0
 
 
 def test_anchor_packet_rechecks_retained_paginated_evidence(tmp_path: Path) -> None:
