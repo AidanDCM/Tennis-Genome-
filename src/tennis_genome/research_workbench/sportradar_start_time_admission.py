@@ -96,6 +96,12 @@ def _parse_audit_bytes(content: bytes) -> StartTimeCoverageAuditV2:
     return StartTimeCoverageAuditV2.model_validate(payload)
 
 
+def parse_exact_time_audit_bytes(content: bytes) -> StartTimeCoverageAuditV2:
+    """Public strict parser used by source-inventory reconciliation."""
+
+    return _parse_audit_bytes(content)
+
+
 def _require_sha256(value: str, *, field: str) -> None:
     if not _SHA256_RE.fullmatch(value):
         raise ValueError(f"{field} must be a lowercase SHA-256")
@@ -143,12 +149,12 @@ def _code_sha256(repo_root: Path, relative_path: str) -> str:
     return _file_sha256(path)
 
 
-def verify_exact_time_audit_for_admission(
+def verify_exact_time_audit_integrity(
     audit: StartTimeCoverageAuditV2,
     *,
     policy: ExactTimeChronologyAdmissionPolicy = DEFAULT_POLICY,
 ) -> Literal["ATP", "WTA"]:
-    """Independently rederive one season's chronology gate from the audit payload."""
+    """Verify audit structure and arithmetic without requiring chronology admission."""
 
     if audit.audit_id != policy.required_audit_id:
         raise ValueError("exact-time audit version does not match frozen admission policy")
@@ -175,7 +181,7 @@ def verify_exact_time_audit_for_admission(
     _require_sha256(base.timeline_bundle_sha256, field="timeline_bundle_sha256")
     if base.raw_summary_count != base.in_scope_count:
         raise ValueError(
-            "admitted season may not silently drop provider summaries "
+            "season audit may not silently drop provider summaries "
             "from the main-tour singles denominator"
         )
     if len(base.events) != base.in_scope_count:
@@ -251,18 +257,71 @@ def verify_exact_time_audit_for_admission(
                 raise ValueError("walkover disposition lacks provider walkover reason")
             if event.match_started_time is not None:
                 raise ValueError("walkover must not be treated as a played exact-start row")
+        elif event.disposition == "NOT_TERMINAL":
+            if event.provider_status in terminal_statuses:
+                raise ValueError("NOT_TERMINAL disposition has terminal provider status")
+            if event.match_started_time is not None:
+                raise ValueError("nonterminal audit row unexpectedly carries exact start")
+        elif event.disposition == "MISSING_TIMELINE":
+            if event.provider_status not in terminal_statuses:
+                raise ValueError("missing-timeline row is not terminal")
+            if event.timeline_sha256 is not None or event.match_started_time is not None:
+                raise ValueError("missing-timeline row contains retained timeline chronology")
+        elif event.disposition in {
+            "MISSING_MATCH_STARTED",
+            "CONFLICTING_MATCH_STARTED",
+            "INVALID_MATCH_STARTED_TIME",
+        }:
+            if event.provider_status not in terminal_statuses:
+                raise ValueError("chronology-failure row is not terminal")
+            if event.timeline_sha256 is None:
+                raise ValueError("chronology-failure row lacks retained timeline evidence")
+            _require_sha256(event.timeline_sha256, field="timeline_sha256")
+            if event.match_started_time is not None:
+                raise ValueError("failed chronology row unexpectedly carries exact start")
+    return tour
 
+
+def chronology_admission_failure_reasons(
+    audit: StartTimeCoverageAuditV2,
+    *,
+    policy: ExactTimeChronologyAdmissionPolicy = DEFAULT_POLICY,
+) -> tuple[str, ...]:
+    """Return deterministic frozen gate failures after audit integrity has passed."""
+
+    verify_exact_time_audit_integrity(audit, policy=policy)
+    base = audit.base_audit
+    counts = Counter(event.disposition for event in base.events)
+    reasons: list[str] = []
     if base.in_scope_count <= 0:
-        raise ValueError("exact-time admission requires a non-empty season")
+        reasons.append("EMPTY_SEASON")
     if base.played_terminal_count <= 0:
-        raise ValueError("exact-time admission requires at least one played terminal match")
+        reasons.append("NO_PLAYED_TERMINAL_MATCH")
     if base.nonterminal_count != 0:
-        raise ValueError("exact-time admission requires a completed season")
-    if any(counts[disposition] for disposition in _FAILURE_DISPOSITIONS):
-        raise ValueError("every played terminal match must have one valid match_started time")
-    if base.exact_match_started_count != base.played_terminal_count:
-        raise ValueError("exact-start coverage is not complete")
-    _assert_close("admission exact coverage rate", base.exact_coverage_rate, 1.0)
+        reasons.append("SEASON_NOT_COMPLETE")
+    for disposition in sorted(_FAILURE_DISPOSITIONS):
+        if counts[disposition]:
+            reasons.append(disposition)
+    if (
+        base.played_terminal_count > 0
+        and base.exact_match_started_count != base.played_terminal_count
+    ):
+        reasons.append("INCOMPLETE_EXACT_START_COVERAGE")
+    return tuple(reasons)
+
+
+def verify_exact_time_audit_for_admission(
+    audit: StartTimeCoverageAuditV2,
+    *,
+    policy: ExactTimeChronologyAdmissionPolicy = DEFAULT_POLICY,
+) -> Literal["ATP", "WTA"]:
+    """Independently rederive one season's chronology gate from the audit payload."""
+
+    tour = verify_exact_time_audit_integrity(audit, policy=policy)
+    failures = chronology_admission_failure_reasons(audit, policy=policy)
+    if failures:
+        raise ValueError("exact-time chronology admission failed: " + ", ".join(failures))
+    _assert_close("admission exact coverage rate", audit.base_audit.exact_coverage_rate, 1.0)
     return tour
 
 
