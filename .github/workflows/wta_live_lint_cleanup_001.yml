@@ -31,6 +31,56 @@ jobs:
           set -euo pipefail
           ruff check scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py --fix --exit-zero
           ruff format scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py
+          python - <<'PY'
+          from pathlib import Path
+
+          p1 = Path("scripts/wta_live_prediction_001.py")
+          s1 = p1.read_text(encoding="utf-8")
+          replacements1 = {
+              '            f"Parry provider history mapping incomplete: {target_player_accepted[PARRY_SR]}/{target_player_seen[PARRY_SR]}"\n': (
+                  '            "Parry provider history mapping incomplete: "\n'
+                  '            f"{target_player_accepted[PARRY_SR]}/{target_player_seen[PARRY_SR]}"\n'
+              ),
+              '            f"Stearns provider history mapping incomplete: {target_player_accepted[STEARNS_SR]}/{target_player_seen[STEARNS_SR]}"\n': (
+                  '            "Stearns provider history mapping incomplete: "\n'
+                  '            f"{target_player_accepted[STEARNS_SR]}/{target_player_seen[STEARNS_SR]}"\n'
+              ),
+              '    prediction_id = f"FULL-STACK-FORWARD-001-{TARGET_EVENT_ID.replace(\':\', \'-\')}-{created_at.strftime(\'%Y%m%dT%H%M%SZ\')}"\n': (
+                  '    prediction_id = (\n'
+                  '        f"FULL-STACK-FORWARD-001-{TARGET_EVENT_ID.replace(\':\', \'-\')}-"\n'
+                  '        f"{created_at.strftime(\'%Y%m%dT%H%M%SZ\')}"\n'
+                  '    )\n'
+              ),
+          }
+          for old, new in replacements1.items():
+              if old not in s1:
+                  raise SystemExit(f"expected _001 formatting target missing: {old!r}")
+              s1 = s1.replace(old, new, 1)
+          p1.write_text(s1, encoding="utf-8")
+
+          p2 = Path("scripts/wta_live_prediction_002.py")
+          s2 = p2.read_text(encoding="utf-8")
+          replacements2 = {
+              '                f"{label} provider-history accounting mismatch: accepted={target_player_accepted[sr_id]} exclusions={dict(exclusions)} seen={target_player_seen[sr_id]}"\n': (
+                  '                f"{label} provider-history accounting mismatch: "\n'
+                  '                f"accepted={target_player_accepted[sr_id]} "\n'
+                  '                f"exclusions={dict(exclusions)} "\n'
+                  '                f"seen={target_player_seen[sr_id]}"\n'
+              ),
+              '    prediction_id = f"FULL-STACK-FORWARD-001-{h.TARGET_EVENT_ID.replace(\':\', \'-\')}-{created_at.strftime(\'%Y%m%dT%H%M%SZ\')}"\n': (
+                  '    prediction_id = (\n'
+                  '        f"FULL-STACK-FORWARD-001-{h.TARGET_EVENT_ID.replace(\':\', \'-\')}-"\n'
+                  '        f"{created_at.strftime(\'%Y%m%dT%H%M%SZ\')}"\n'
+                  '    )\n'
+              ),
+          }
+          for old, new in replacements2.items():
+              if old not in s2:
+                  raise SystemExit(f"expected _002 formatting target missing: {old!r}")
+              s2 = s2.replace(old, new, 1)
+          p2.write_text(s2, encoding="utf-8")
+          PY
+          ruff format scripts/wta_live_prediction_001.py scripts/wta_live_prediction_002.py
           ruff check .
           pytest
       - name: Commit verified lint-only cleanup
