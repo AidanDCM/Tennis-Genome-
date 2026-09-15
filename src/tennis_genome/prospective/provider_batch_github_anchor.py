@@ -10,6 +10,10 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 
 from tennis_genome.prospective.provider_batch_pagination import PAGINATION_SCHEMA
+from tennis_genome.prospective.trusted_provider_capture import (
+    TRUSTED_CAPTURE_SCHEMA,
+    TRUSTED_CAPTURE_WORKFLOW_PATH,
+)
 
 ANCHOR_RECEIPT_SCHEMA = "full-stack-forward-provider-batch-github-anchor-v1"
 ANCHOR_COMMENT_MARKER = "<!-- FULL-STACK-FORWARD-001-PROVIDER-BATCH-ANCHOR-V1 -->"
@@ -173,6 +177,17 @@ def _validate_receipt_shape(receipt: dict[str, object]) -> None:
     )
 
 
+def _validate_trusted_capture_receipt(receipt: dict[str, object]) -> None:
+    if receipt.get("trusted_capture_schema") != TRUSTED_CAPTURE_SCHEMA:
+        raise ValueError("GitHub anchor receipt is not trusted provider-capture evidence")
+    _require_sha256(
+        receipt.get("trusted_capture_receipt_sha256"),
+        field="receipt.trusted_capture_receipt_sha256",
+    )
+    if receipt.get("sportradar_access_level") not in {"trial", "production"}:
+        raise ValueError("trusted provider-capture access level is not supported")
+
+
 def _validate_comment(
     *,
     comment: dict[str, object],
@@ -210,6 +225,8 @@ def _validate_workflow_run(
     run: dict[str, object],
     receipt: dict[str, object],
     anchor_created_at: datetime,
+    expected_workflow_path: str,
+    require_main_ref: bool,
 ) -> None:
     run_id = int(receipt["workflow_run_id"])
     if int(run.get("id", -1)) != run_id:
@@ -221,8 +238,10 @@ def _validate_workflow_run(
         raise ValueError("GitHub provider anchor run was not workflow_dispatch")
     if run.get("status") != "completed" or run.get("conclusion") != "success":
         raise ValueError("GitHub provider anchor run did not complete successfully")
-    if run.get("path") != ANCHOR_WORKFLOW_PATH:
+    if run.get("path") != expected_workflow_path:
         raise ValueError("GitHub provider anchor run used the wrong workflow path")
+    if require_main_ref and run.get("head_branch") != "main":
+        raise ValueError("trusted provider capture was not dispatched from main")
     if run.get("head_sha") != receipt.get("workflow_source_sha"):
         raise ValueError("GitHub provider anchor run source SHA differs from receipt")
     if int(run.get("run_attempt", -1)) != int(receipt["workflow_run_attempt"]):
@@ -303,6 +322,9 @@ def fetch_live_anchor_evidence(
     comment_id: int,
     batch_record: dict[str, object] | None = None,
     get_bytes: GitHubGetBytes | None = None,
+    expected_workflow_path: str = ANCHOR_WORKFLOW_PATH,
+    require_main_ref: bool = False,
+    require_trusted_capture: bool = False,
 ) -> LiveProviderBatchAnchorEvidence:
     if comment_id <= 0:
         raise ValueError("GitHub anchor comment ID must be positive")
@@ -311,6 +333,8 @@ def fetch_live_anchor_evidence(
     comment_bytes = fetch(comment_url)
     comment = _strict_json_object(comment_bytes, label="GitHub anchor comment response")
     receipt, anchor_created_at = _validate_comment(comment=comment, comment_id=comment_id)
+    if require_trusted_capture:
+        _validate_trusted_capture_receipt(receipt)
 
     run_id = int(receipt["workflow_run_id"])
     run_url = f"{_GITHUB_API}/repos/{ANCHOR_REPOSITORY}/actions/runs/{run_id}"
@@ -320,6 +344,8 @@ def fetch_live_anchor_evidence(
         run=run,
         receipt=receipt,
         anchor_created_at=anchor_created_at,
+        expected_workflow_path=expected_workflow_path,
+        require_main_ref=require_main_ref,
     )
 
     evidence = LiveProviderBatchAnchorEvidence(
@@ -335,3 +361,21 @@ def fetch_live_anchor_evidence(
     if batch_record is not None:
         verify_live_anchor_against_batch(batch_record=batch_record, evidence=evidence)
     return evidence
+
+
+def fetch_trusted_capture_anchor_evidence(
+    *,
+    comment_id: int,
+    batch_record: dict[str, object] | None = None,
+    get_bytes: GitHubGetBytes | None = None,
+) -> LiveProviderBatchAnchorEvidence:
+    """Fetch promotion-capable evidence from the trusted capture+anchor workflow only."""
+
+    return fetch_live_anchor_evidence(
+        comment_id=comment_id,
+        batch_record=batch_record,
+        get_bytes=get_bytes,
+        expected_workflow_path=TRUSTED_CAPTURE_WORKFLOW_PATH,
+        require_main_ref=True,
+        require_trusted_capture=True,
+    )
