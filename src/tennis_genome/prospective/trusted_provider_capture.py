@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
@@ -28,6 +29,9 @@ _LANGUAGE = "en"
 _PAGE_LIMIT = 200
 _MAX_PAGES = 100
 _ALLOWED_ACCESS = {"trial", "production"}
+_TRIAL_MIN_REQUEST_INTERVAL_SECONDS = 1.05
+_MAX_HTTP_429_RETRIES = 4
+_MAX_RETRY_DELAY_SECONDS = 16.0
 
 
 @dataclass(frozen=True)
@@ -129,27 +133,50 @@ def _default_now() -> datetime:
     return datetime.now(UTC)
 
 
-def _default_provider_get(url: str, headers: dict[str, str]) -> ProviderHttpResponse:
-    request = Request(url, headers=headers)
-    try:
-        with urlopen(request, timeout=30) as response:  # noqa: S310 - frozen HTTPS host
-            body = response.read()
-            status = int(response.status)
-            raw_headers = tuple((str(k), str(v)) for k, v in response.headers.raw_items())
-            version = {10: "HTTP/1.0", 11: "HTTP/1.1"}.get(
-                getattr(response, "version", 11),
-                "HTTP/1.1",
+def _rate_limit_retry_delay(exc: HTTPError, *, attempt: int) -> float:
+    raw_retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
+    if raw_retry_after is not None:
+        try:
+            retry_after = float(str(raw_retry_after).strip())
+        except ValueError:
+            retry_after = 0.0
+        if retry_after > 0:
+            return min(
+                max(retry_after, _TRIAL_MIN_REQUEST_INTERVAL_SECONDS),
+                _MAX_RETRY_DELAY_SECONDS,
             )
-    except HTTPError as exc:
-        raise RuntimeError(f"Sportradar request failed with HTTP {exc.code}") from exc
-    except URLError as exc:
-        raise RuntimeError("Sportradar HTTPS transport failed") from exc
-    return ProviderHttpResponse(
-        status=status,
-        body=body,
-        headers=raw_headers,
-        http_version=version,
+    return min(
+        _TRIAL_MIN_REQUEST_INTERVAL_SECONDS * (2**attempt),
+        _MAX_RETRY_DELAY_SECONDS,
     )
+
+
+def _default_provider_get(url: str, headers: dict[str, str]) -> ProviderHttpResponse:
+    for attempt in range(_MAX_HTTP_429_RETRIES + 1):
+        request = Request(url, headers=headers)
+        try:
+            with urlopen(request, timeout=30) as response:  # noqa: S310 - frozen HTTPS host
+                body = response.read()
+                status = int(response.status)
+                raw_headers = tuple((str(k), str(v)) for k, v in response.headers.raw_items())
+                version = {10: "HTTP/1.0", 11: "HTTP/1.1"}.get(
+                    getattr(response, "version", 11),
+                    "HTTP/1.1",
+                )
+        except HTTPError as exc:
+            if exc.code == 429 and attempt < _MAX_HTTP_429_RETRIES:
+                time.sleep(_rate_limit_retry_delay(exc, attempt=attempt))
+                continue
+            raise RuntimeError(f"Sportradar request failed with HTTP {exc.code}") from exc
+        except URLError as exc:
+            raise RuntimeError("Sportradar HTTPS transport failed") from exc
+        return ProviderHttpResponse(
+            status=status,
+            body=body,
+            headers=raw_headers,
+            http_version=version,
+        )
+    raise AssertionError("Sportradar HTTP retry loop exhausted unexpectedly")
 
 
 def _validate_routing(*, schedule_date: date, access_level: str, api_key: str) -> None:
@@ -234,6 +261,8 @@ def fetch_daily_summary_pages(
     expected_total: int | None = None
     start = 0
     for page_number in range(_MAX_PAGES):
+        if page_number > 0 and access_level == "trial":
+            time.sleep(_TRIAL_MIN_REQUEST_INTERVAL_SECONDS)
         url = _daily_summaries_url(
             schedule_date=schedule_date,
             access_level=access_level,
