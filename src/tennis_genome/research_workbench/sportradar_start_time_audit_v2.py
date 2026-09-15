@@ -8,17 +8,12 @@ from datetime import date
 from pathlib import Path
 from typing import Literal
 
+from . import sportradar_start_time_audit as audit_v1
 from .contracts import WorkbenchRecord
-from .sportradar_start_time_audit import (
-    AUDIT_ID as AUDIT_V1_ID,
-    EVIDENCE_ROLE,
-    StartTimeCoverageAudit,
-    audit_sportradar_start_time_coverage,
-    build_complete_season_summaries,
-)
 
 AUDIT_ID = "SPORTRADAR-HISTORICAL-START-TIME-AUDIT-002"
 SOURCE_CONTRACT = "SPORTRADAR_TENNIS_V3_SEASON_SUMMARIES_PLUS_TIMELINE_V2"
+EVIDENCE_ROLE = audit_v1.EVIDENCE_ROLE
 
 
 def _canonical_json(value: object) -> bytes:
@@ -88,7 +83,7 @@ class StartTimeCoverageAuditV2(WorkbenchRecord):
         "SPORTRADAR_TENNIS_V3_SEASON_SUMMARIES_PLUS_TIMELINE_V2"
     ] = SOURCE_CONTRACT
     season: SportradarSeasonIdentity
-    base_audit: StartTimeCoverageAudit
+    base_audit: audit_v1.StartTimeCoverageAudit
 
 
 def _season_identity(summary: object) -> SportradarSeasonIdentity:
@@ -156,7 +151,7 @@ def audit_sportradar_start_time_coverage_v2(
 ) -> StartTimeCoverageAuditV2:
     """Bind the v1 chronology audit to one exact Sportradar season identity."""
 
-    aggregate = build_complete_season_summaries(page_pairs)
+    aggregate = audit_v1.build_complete_season_summaries(page_pairs)
     summaries = _as_list(aggregate.get("summaries"), field="summaries")
     season = derive_single_season_identity(summaries)
 
@@ -174,11 +169,11 @@ def audit_sportradar_start_time_coverage_v2(
             + ", ".join(extras)
         )
 
-    base = audit_sportradar_start_time_coverage(
+    base = audit_v1.audit_sportradar_start_time_coverage(
         page_pairs=page_pairs,
         timeline_paths=timeline_paths,
     )
-    if base.audit_id != AUDIT_V1_ID:
+    if base.audit_id != audit_v1.AUDIT_ID:
         raise ValueError("unexpected base start-time audit version")
     expected_aggregate_sha = _sha256_bytes(_canonical_json(aggregate))
     if base.season_summaries_sha256 != expected_aggregate_sha:
