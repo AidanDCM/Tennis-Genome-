@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
@@ -20,6 +21,7 @@ from .sportradar_season_inventory import (
     SportradarSeasonInventory,
     build_sportradar_season_inventory,
 )
+from .sportradar_start_time_admission import DEFAULT_POLICY
 
 RECEIPT_ID = "SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001"
 FINALIZER_PATH = (
@@ -81,7 +83,10 @@ class EvidenceBoundExactTimePanelReceipt(WorkbenchRecord):
             raise ValueError(
                 "receipt inventory semantic SHA-256 does not match panel manifest"
             )
-        _verify_manifest_has_only_resource_level_access_failures(self.panel_manifest)
+        _verify_panel_manifest_against_frozen_inventory(
+            self.panel_manifest,
+            self.frozen_inventory,
+        )
 
         evidence = self.raw_inventory_evidence
         if not evidence:
@@ -142,6 +147,11 @@ def _canonical_json(value: object) -> bytes:
 def _require_sha256(value: str, *, field: str) -> None:
     if not _SHA256_RE.fullmatch(value):
         raise ValueError(f"{field} must be a lowercase SHA-256")
+
+
+def _require_optional_sha256(value: str | None, *, field: str) -> None:
+    if value is not None:
+        _require_sha256(value, field=field)
 
 
 def _file_sha256(path: Path) -> str:
@@ -212,17 +222,192 @@ def _validate_finalizable_access_failures(
             )
 
 
-def _verify_manifest_has_only_resource_level_access_failures(
-    manifest: SportradarExactTimePanelManifest,
-) -> None:
-    for row in manifest.rows:
-        if row.disposition != "ACCESS_FAILURE":
-            continue
-        if row.failure_reasons != ("HISTORY_NOT_AVAILABLE",):
+def _verify_null_evidence_fields(row: object) -> None:
+    evidence_fields = (
+        "evidence_file_sha256",
+        "evidence_semantic_sha256",
+        "chronology_season_summaries_sha256",
+        "chronology_timeline_bundle_sha256",
+    )
+    for field_name in evidence_fields:
+        if getattr(row, field_name) is not None:
             raise ValueError(
-                "evidence-bound panel receipts reject authentication/authorization access "
-                "failures; ACCESS_FAILURE must be resource-level HISTORY_NOT_AVAILABLE"
+                f"structural panel row unexpectedly contains evidence field {field_name}"
             )
+    if getattr(row, "failure_reasons"):
+        raise ValueError("structural panel row unexpectedly contains failure reasons")
+
+
+def _verify_panel_manifest_against_frozen_inventory(
+    manifest: SportradarExactTimePanelManifest,
+    inventory: SportradarSeasonInventory,
+) -> None:
+    """Reproduce panel structure from the embedded frozen inventory on receipt reload."""
+
+    if manifest.inventory_id != inventory.inventory_id:
+        raise ValueError("panel inventory ID does not match frozen inventory")
+    if manifest.inventory_source_contract != inventory.source_contract:
+        raise ValueError("panel source contract does not match frozen inventory")
+    if manifest.inventory_semantic_sha256 != inventory.semantic_sha256:
+        raise ValueError("panel inventory semantic identity does not match frozen inventory")
+    if manifest.admission_policy_sha256 != DEFAULT_POLICY.semantic_sha256:
+        raise ValueError("panel admission policy does not match frozen policy")
+    for field_name in (
+        "inventory_file_sha256",
+        "inventory_semantic_sha256",
+        "inventory_code_sha256",
+        "admission_code_sha256",
+        "panel_code_sha256",
+    ):
+        _require_sha256(getattr(manifest, field_name), field=f"panel {field_name}")
+
+    inventory_by_season = {row.season_id: row for row in inventory.season_rows}
+    panel_ids = [row.season_id for row in manifest.rows]
+    if len(panel_ids) != len(set(panel_ids)):
+        raise ValueError("panel manifest contains duplicate season IDs")
+    if set(panel_ids) != set(inventory_by_season):
+        raise ValueError("panel manifest season set does not exactly match frozen inventory")
+    expected_order = tuple(
+        sorted(
+            manifest.rows,
+            key=lambda row: (
+                row.tour,
+                row.competition_id,
+                row.season_start_date,
+                row.season_id,
+            ),
+        )
+    )
+    if manifest.rows != expected_order:
+        raise ValueError("panel manifest rows are not canonically ordered")
+
+    counts: Counter[str] = Counter()
+    selected: list[str] = []
+    for row in manifest.rows:
+        frozen = inventory_by_season[row.season_id]
+        if (
+            row.tour != frozen.tour
+            or row.competition_id != frozen.competition_id
+            or row.competition_name != frozen.competition_name
+            or row.season_start_date != frozen.start_date
+            or row.season_end_date != frozen.end_date
+            or row.inventory_status != frozen.status
+        ):
+            raise ValueError("panel row metadata does not match frozen inventory")
+
+        if frozen.status == "NOT_YET_HISTORICAL":
+            if row.disposition != "NOT_YET_HISTORICAL" or row.selected_for_exact_time_panel:
+                raise ValueError("not-yet-historical panel row has invalid disposition semantics")
+            _verify_null_evidence_fields(row)
+        elif frozen.status == "DISABLED_PROVIDER_SEASON":
+            if (
+                row.disposition != "DISABLED_PROVIDER_SEASON"
+                or row.selected_for_exact_time_panel
+            ):
+                raise ValueError("disabled panel row has invalid disposition semantics")
+            _verify_null_evidence_fields(row)
+        elif frozen.status == "HISTORICAL_CANDIDATE":
+            if row.disposition == "CHRONOLOGY_ADMITTED":
+                if not row.selected_for_exact_time_panel:
+                    raise ValueError("admitted panel row is not selected")
+                for field_name in (
+                    "evidence_file_sha256",
+                    "evidence_semantic_sha256",
+                    "chronology_season_summaries_sha256",
+                    "chronology_timeline_bundle_sha256",
+                ):
+                    value = getattr(row, field_name)
+                    if value is None:
+                        raise ValueError(f"admitted panel row is missing {field_name}")
+                    _require_sha256(value, field=f"admitted panel {field_name}")
+                if row.failure_reasons:
+                    raise ValueError("admitted panel row contains failure reasons")
+                selected.append(row.season_id)
+            elif row.disposition == "CHRONOLOGY_FAILED":
+                if row.selected_for_exact_time_panel:
+                    raise ValueError("failed chronology panel row is selected")
+                for field_name in (
+                    "evidence_file_sha256",
+                    "evidence_semantic_sha256",
+                    "chronology_season_summaries_sha256",
+                    "chronology_timeline_bundle_sha256",
+                ):
+                    value = getattr(row, field_name)
+                    if value is None:
+                        raise ValueError(f"failed chronology panel row is missing {field_name}")
+                    _require_sha256(value, field=f"failed panel {field_name}")
+                if not row.failure_reasons:
+                    raise ValueError("failed chronology panel row lacks failure reasons")
+            elif row.disposition == "ACCESS_FAILURE":
+                if row.selected_for_exact_time_panel:
+                    raise ValueError("access-failure panel row is selected")
+                if row.evidence_file_sha256 is not None:
+                    raise ValueError("access-failure panel row must not carry evidence-file SHA")
+                if row.evidence_semantic_sha256 is None:
+                    raise ValueError("access-failure panel row lacks evidence semantic SHA")
+                _require_sha256(
+                    row.evidence_semantic_sha256,
+                    field="access-failure evidence_semantic_sha256",
+                )
+                if (
+                    row.chronology_season_summaries_sha256 is not None
+                    or row.chronology_timeline_bundle_sha256 is not None
+                ):
+                    raise ValueError("access-failure panel row contains chronology hashes")
+                if row.failure_reasons != ("HISTORY_NOT_AVAILABLE",):
+                    raise ValueError(
+                        "evidence-bound panel receipts reject authentication/authorization "
+                        "access failures; ACCESS_FAILURE must be resource-level "
+                        "HISTORY_NOT_AVAILABLE"
+                    )
+            else:
+                raise ValueError("historical candidate has invalid panel disposition")
+        else:
+            raise ValueError("frozen inventory contains unknown structural season status")
+
+        _require_optional_sha256(
+            row.evidence_file_sha256,
+            field="panel evidence_file_sha256",
+        )
+        _require_optional_sha256(
+            row.evidence_semantic_sha256,
+            field="panel evidence_semantic_sha256",
+        )
+        _require_optional_sha256(
+            row.chronology_season_summaries_sha256,
+            field="panel chronology_season_summaries_sha256",
+        )
+        _require_optional_sha256(
+            row.chronology_timeline_bundle_sha256,
+            field="panel chronology_timeline_bundle_sha256",
+        )
+        counts[row.disposition] += 1
+
+    expected_counts = {
+        "historical_candidate_count": inventory.historical_candidate_count,
+        "chronology_admitted_count": counts["CHRONOLOGY_ADMITTED"],
+        "chronology_failed_count": counts["CHRONOLOGY_FAILED"],
+        "access_failure_count": counts["ACCESS_FAILURE"],
+        "not_yet_historical_count": counts["NOT_YET_HISTORICAL"],
+        "disabled_season_count": counts["DISABLED_PROVIDER_SEASON"],
+    }
+    for field_name, expected in expected_counts.items():
+        if getattr(manifest, field_name) != expected:
+            raise ValueError(f"panel {field_name} does not reproduce")
+
+    expected_selected = tuple(sorted(selected))
+    if manifest.selected_season_ids != expected_selected:
+        raise ValueError("panel selected season IDs do not reproduce from admitted rows")
+
+    receipt_hashes = manifest.admitted_receipt_sha256s
+    if receipt_hashes != tuple(sorted(receipt_hashes)):
+        raise ValueError("admitted receipt SHA-256 identities are not canonically ordered")
+    if len(receipt_hashes) != manifest.chronology_admitted_count:
+        raise ValueError("admitted receipt count does not match admitted season count")
+    if len(receipt_hashes) != len(set(receipt_hashes)):
+        raise ValueError("admitted receipt SHA-256 identities must be unique")
+    for value in receipt_hashes:
+        _require_sha256(value, field="admitted receipt semantic SHA-256")
 
 
 def verify_inventory_against_raw_provider_evidence(
