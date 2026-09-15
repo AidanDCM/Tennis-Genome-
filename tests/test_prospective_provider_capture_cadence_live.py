@@ -17,8 +17,18 @@ from tennis_genome.prospective.provider_capture_cadence_live import (
     attest_live_provider_batch,
     verify_live_capture_cadence,
 )
+from tennis_genome.prospective.trusted_capture_provenance import (
+    TRUSTED_CAPTURE_FROZEN_BLOBS,
+    trusted_capture_contents_url,
+)
+from tennis_genome.prospective.trusted_provider_capture import (
+    TRUSTED_CAPTURE_SCHEMA,
+    TRUSTED_CAPTURE_WORKFLOW_PATH,
+)
 
 _REPOSITORY = "AidanDCM/Tennis-Genome-"
+_SOURCE_SHA = "d" * 40
+_OLD_ANCHOR_WORKFLOW_PATH = ".github/workflows/prospective_provider_batch_anchor.yml"
 
 
 def _capture(
@@ -56,15 +66,15 @@ def _live_payloads(
     comment_id: int,
     run_id: int,
     anchor_created_at: datetime,
+    workflow_path: str = TRUSTED_CAPTURE_WORKFLOW_PATH,
 ) -> tuple[str, str, bytes, bytes]:
-    source_sha = "d" * 40
     run_created_at = anchor_created_at - timedelta(minutes=2)
     runner_receipt_created_at = anchor_created_at - timedelta(minutes=1)
     receipt = {
         "schema_version": "full-stack-forward-provider-batch-github-anchor-v1",
         "provider": "GITHUB_ACTIONS",
         "repository": _REPOSITORY,
-        "workflow_source_sha": source_sha,
+        "workflow_source_sha": _SOURCE_SHA,
         "workflow_run_id": run_id,
         "workflow_run_attempt": 1,
         "workflow_run_url": f"https://github.com/{_REPOSITORY}/actions/runs/{run_id}",
@@ -75,6 +85,9 @@ def _live_payloads(
         "manifest_sha256": batch["manifest_sha256"],
         "observed_at": batch["observed_at"],
         "runner_receipt_created_at_utc": runner_receipt_created_at.isoformat(),
+        "trusted_capture_schema": TRUSTED_CAPTURE_SCHEMA,
+        "trusted_capture_receipt_sha256": "e" * 64,
+        "sportradar_access_level": "production",
     }
     comment_url = f"https://api.github.com/repos/{_REPOSITORY}/issues/comments/{comment_id}"
     run_url = f"https://api.github.com/repos/{_REPOSITORY}/actions/runs/{run_id}"
@@ -92,8 +105,9 @@ def _live_payloads(
         "event": "workflow_dispatch",
         "status": "completed",
         "conclusion": "success",
-        "path": ".github/workflows/prospective_provider_batch_anchor.yml",
-        "head_sha": source_sha,
+        "path": workflow_path,
+        "head_branch": "main",
+        "head_sha": _SOURCE_SHA,
         "run_attempt": 1,
         "html_url": f"https://github.com/{_REPOSITORY}/actions/runs/{run_id}",
         "created_at": run_created_at.isoformat(),
@@ -108,10 +122,20 @@ def _live_payloads(
 
 
 def _mutable_getter(payloads: dict[str, bytes]):
+    source_payloads = {
+        trusted_capture_contents_url(path=path, source_sha=_SOURCE_SHA): json.dumps(
+            {"type": "file", "path": path, "sha": blob_sha},
+            sort_keys=True,
+        ).encode("utf-8")
+        for path, blob_sha in TRUSTED_CAPTURE_FROZEN_BLOBS.items()
+    }
+
     def get_bytes(url: str) -> bytes:
-        if url not in payloads:
-            raise ValueError(f"missing mocked GitHub object: {url}")
-        return payloads[url]
+        if url in payloads:
+            return payloads[url]
+        if url in source_payloads:
+            return source_payloads[url]
+        raise ValueError(f"missing mocked GitHub object: {url}")
 
     return get_bytes
 
@@ -160,6 +184,65 @@ def test_live_attestation_retains_server_evidence_and_verifies_cadence(tmp_path:
     )
     assert report["status"] == "LIVE_CADENCE_VERIFIED"
     assert report["attested_batch_count"] == 1
+
+
+def test_hash_only_anchor_workflow_cannot_enter_live_cadence(tmp_path: Path) -> None:
+    batch_store = ProviderBatchStore(tmp_path / "batches")
+    cadence_store = LiveProviderCaptureCadenceStore(tmp_path / "live-cadence")
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    batch = _capture(tmp_path=tmp_path, store=batch_store, observed_at=observed, index=1)
+    comment_url, run_url, comment_bytes, run_bytes = _live_payloads(
+        batch=batch,
+        comment_id=7099,
+        run_id=8099,
+        anchor_created_at=observed + timedelta(minutes=5),
+        workflow_path=_OLD_ANCHOR_WORKFLOW_PATH,
+    )
+    getter = _mutable_getter({comment_url: comment_bytes, run_url: run_bytes})
+
+    with pytest.raises(ValueError, match="wrong workflow path"):
+        attest_live_provider_batch(
+            batch_store=batch_store,
+            cadence_store=cadence_store,
+            github_comment_id=7099,
+            github_get_bytes=getter,
+        )
+
+
+def test_source_blob_drift_fails_live_reverification(tmp_path: Path) -> None:
+    batch_store = ProviderBatchStore(tmp_path / "batches")
+    cadence_store = LiveProviderCaptureCadenceStore(tmp_path / "live-cadence")
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    batch = _capture(tmp_path=tmp_path, store=batch_store, observed_at=observed, index=1)
+    anchor = observed + timedelta(minutes=5)
+    comment_url, run_url, comment_bytes, run_bytes = _live_payloads(
+        batch=batch,
+        comment_id=7098,
+        run_id=8098,
+        anchor_created_at=anchor,
+    )
+    payloads = {comment_url: comment_bytes, run_url: run_bytes}
+    normal_getter = _mutable_getter(payloads)
+    attest_live_provider_batch(
+        batch_store=batch_store,
+        cadence_store=cadence_store,
+        github_comment_id=7098,
+        github_get_bytes=normal_getter,
+    )
+
+    drift_path = "src/tennis_genome/prospective/provider_batch_pagination.py"
+    drift_url = trusted_capture_contents_url(path=drift_path, source_sha=_SOURCE_SHA)
+
+    def drift_getter(url: str) -> bytes:
+        if url == drift_url:
+            return json.dumps(
+                {"type": "file", "path": drift_path, "sha": "f" * 40},
+                sort_keys=True,
+            ).encode("utf-8")
+        return normal_getter(url)
+
+    with pytest.raises(ValueError, match="blob differs from frozen identity"):
+        cadence_store.verify(batch_store=batch_store, github_get_bytes=drift_getter)
 
 
 def test_later_comment_edit_fails_live_reverification(tmp_path: Path) -> None:
