@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from tennis_genome.prospective.provider_batch import ProviderBatchStore, capture_provider_batch
+from tennis_genome.prospective.provider_batch_pagination import capture_paginated_provider_batch
 from tennis_genome.prospective.provider_capture_cadence import (
     ProviderCaptureCadenceStore,
     attest_provider_batch,
@@ -14,12 +15,33 @@ from tennis_genome.prospective.provider_capture_cadence import (
 )
 
 
-def _write_payload(path: Path) -> Path:
-    path.write_text(
-        json.dumps({"summaries": []}, indent=2, sort_keys=True) + "\n",
+def _write_page(
+    *,
+    tmp_path: Path,
+    index: int,
+    offset: int,
+    total: int,
+    generated_at: datetime,
+) -> tuple[Path, Path]:
+    raw = tmp_path / f"batch-{index}-page-{offset}.json"
+    headers = tmp_path / f"batch-{index}-page-{offset}.headers"
+    raw.write_text(
+        json.dumps(
+            {"generated_at": generated_at.isoformat(), "summaries": []},
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
         encoding="utf-8",
     )
-    return path
+    headers.write_text(
+        "HTTP/2 200\n"
+        f"X-Max-Results: {total}\n"
+        f"X-Offset: {offset}\n"
+        "X-Result: 0\n",
+        encoding="utf-8",
+    )
+    return raw, headers
 
 
 def _capture(
@@ -29,10 +51,94 @@ def _capture(
     observed_at: datetime,
     index: int,
 ) -> dict[str, object]:
-    payload = _write_payload(tmp_path / f"batch-{index}.json")
-    return capture_provider_batch(
+    page = _write_page(
+        tmp_path=tmp_path,
+        index=index,
+        offset=0,
+        total=0,
+        generated_at=observed_at,
+    )
+    return capture_paginated_provider_batch(
         store=store,
-        raw_payload_path=payload,
+        page_pairs=[page],
+        schedule_date=observed_at.date(),
+        observed_at=observed_at,
+    )
+
+
+def _capture_with_generation_spread(
+    *,
+    tmp_path: Path,
+    store: ProviderBatchStore,
+    observed_at: datetime,
+    index: int,
+) -> dict[str, object]:
+    first_raw = tmp_path / f"spread-{index}-0.json"
+    first_headers = tmp_path / f"spread-{index}-0.headers"
+    second_raw = tmp_path / f"spread-{index}-1.json"
+    second_headers = tmp_path / f"spread-{index}-1.headers"
+    summaries = [
+        {
+            "sport_event": {
+                "id": f"sr:sport_event:spread-{index}-0",
+                "start_time": (observed_at + timedelta(hours=2)).isoformat(),
+                "sport_event_context": {
+                    "category": {"id": "sr:category:3", "name": "ATP"},
+                    "competition": {
+                        "id": "sr:competition:spread",
+                        "name": "Spread Test",
+                        "type": "singles",
+                    },
+                },
+            },
+            "sport_event_status": {"status": "not_started"},
+        },
+        {
+            "sport_event": {
+                "id": f"sr:sport_event:spread-{index}-1",
+                "start_time": (observed_at + timedelta(hours=2)).isoformat(),
+                "sport_event_context": {
+                    "category": {"id": "sr:category:3", "name": "ATP"},
+                    "competition": {
+                        "id": "sr:competition:spread",
+                        "name": "Spread Test",
+                        "type": "singles",
+                    },
+                },
+            },
+            "sport_event_status": {"status": "not_started"},
+        },
+    ]
+    first_raw.write_text(
+        json.dumps(
+            {
+                "generated_at": (observed_at - timedelta(minutes=10)).isoformat(),
+                "summaries": [summaries[0]],
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    second_raw.write_text(
+        json.dumps(
+            {"generated_at": observed_at.isoformat(), "summaries": [summaries[1]]},
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    first_headers.write_text(
+        "HTTP/2 200\nX-Max-Results: 2\nX-Offset: 0\nX-Result: 1\n",
+        encoding="utf-8",
+    )
+    second_headers.write_text(
+        "HTTP/2 200\nX-Max-Results: 2\nX-Offset: 1\nX-Result: 1\n",
+        encoding="utf-8",
+    )
+    return capture_paginated_provider_batch(
+        store=store,
+        page_pairs=[(first_raw, first_headers), (second_raw, second_headers)],
         schedule_date=observed_at.date(),
         observed_at=observed_at,
     )
@@ -113,7 +219,9 @@ def _attest(
     )
 
 
-def test_attestation_rederives_batch_identity_and_server_time(tmp_path: Path) -> None:
+def test_attestation_rederives_batch_identity_provider_time_and_server_time(
+    tmp_path: Path,
+) -> None:
     batch_store = ProviderBatchStore(tmp_path / "batches")
     cadence_store = ProviderCaptureCadenceStore(tmp_path / "cadence")
     observed = datetime(2026, 9, 15, 0, tzinfo=UTC)
@@ -131,19 +239,23 @@ def test_attestation_rederives_batch_identity_and_server_time(tmp_path: Path) ->
     )
 
     assert record["batch_record_sha256"] == batch["record_sha256"]
+    assert record["provider_generated_at_min"] == observed.isoformat()
+    assert record["provider_generated_at_max"] == observed.isoformat()
     assert record["anchor_created_at"] == anchor.isoformat()
     report = cadence_store.verify(batch_store=batch_store)
     assert report["status"] == "VERIFIED"
     assert report["attested_batch_count"] == 1
 
 
-def test_anchor_more_than_thirty_minutes_after_observation_is_rejected(tmp_path: Path) -> None:
+def test_anchor_more_than_thirty_minutes_after_provider_generation_is_rejected(
+    tmp_path: Path,
+) -> None:
     batch_store = ProviderBatchStore(tmp_path / "batches")
     cadence_store = ProviderCaptureCadenceStore(tmp_path / "cadence")
     observed = datetime(2026, 9, 15, 6, tzinfo=UTC)
     batch = _capture(tmp_path=tmp_path, store=batch_store, observed_at=observed, index=1)
 
-    with pytest.raises(ValueError, match="too long after provider observation"):
+    with pytest.raises(ValueError, match="too long after earliest retained provider generation"):
         _attest(
             tmp_path=tmp_path,
             batch_store=batch_store,
@@ -151,6 +263,54 @@ def test_anchor_more_than_thirty_minutes_after_observation_is_rejected(tmp_path:
             batch=batch,
             run_id=1002,
             anchor_created_at=observed + timedelta(minutes=31),
+            index=1,
+        )
+
+
+def test_entire_page_set_must_be_anchored_within_thirty_minutes(tmp_path: Path) -> None:
+    batch_store = ProviderBatchStore(tmp_path / "batches")
+    cadence_store = ProviderCaptureCadenceStore(tmp_path / "cadence")
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    batch = _capture_with_generation_spread(
+        tmp_path=tmp_path,
+        store=batch_store,
+        observed_at=observed,
+        index=1,
+    )
+
+    with pytest.raises(ValueError, match="too long after earliest retained provider generation"):
+        _attest(
+            tmp_path=tmp_path,
+            batch_store=batch_store,
+            cadence_store=cadence_store,
+            batch=batch,
+            run_id=1003,
+            anchor_created_at=observed + timedelta(minutes=21),
+            index=1,
+        )
+
+
+def test_legacy_non_paginated_batch_cannot_be_attested(tmp_path: Path) -> None:
+    batch_store = ProviderBatchStore(tmp_path / "batches")
+    cadence_store = ProviderCaptureCadenceStore(tmp_path / "cadence")
+    observed = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    payload = tmp_path / "legacy.json"
+    payload.write_text('{"summaries": []}\n', encoding="utf-8")
+    batch = capture_provider_batch(
+        store=batch_store,
+        raw_payload_path=payload,
+        schedule_date=observed.date(),
+        observed_at=observed,
+    )
+
+    with pytest.raises(ValueError, match="requires complete Sportradar pagination-v2 evidence"):
+        _attest(
+            tmp_path=tmp_path,
+            batch_store=batch_store,
+            cadence_store=cadence_store,
+            batch=batch,
+            run_id=1004,
+            anchor_created_at=observed + timedelta(minutes=5),
             index=1,
         )
 
