@@ -65,7 +65,7 @@ The audit must first pass independent structural/integrity verification: identit
 
 A malformed or tampered audit blocks panel finalization. It is not converted into a convenient failure row.
 
-## 6. Access failures are narrow
+## 6. Access failures are narrow and self-contained
 
 `ACCESS_FAILURE` is deliberately not a generic escape hatch.
 
@@ -76,7 +76,7 @@ The canonical evidence builder only finalizes an access failure when the exact i
 
 Transient `429` and `5xx` responses do not finalize a season and must be retried. If Season Summaries are available but one or more Sport Event Timelines are missing, that is chronology evidence handled by the chronology audit, not a season-level access failure.
 
-The access artifact binds exact response-header and response-body SHA-256 identities.
+An access-failure artifact is self-contained: it carries the exact retained response-header and response-body bytes in canonical base64 plus their SHA-256 identities. Loading the artifact must independently decode those bytes, reproduce both hashes, re-read the final HTTP status line from the retained headers, and re-derive the allowed failure class. A JSON object that merely declares plausible hashes or a convenient status is invalid. The endpoint path, provider-attempt timestamp, season, competition and tour remain bound to the frozen inventory row.
 
 ## 7. Final exact-time panel manifest
 
@@ -84,9 +84,10 @@ The access artifact binds exact response-header and response-body SHA-256 identi
 
 - raw inventory-file SHA-256;
 - inventory semantic SHA-256;
+- provider-derived inventory snapshot semantics;
 - frozen chronology-admission policy SHA-256;
 - every season and its final disposition;
-- every chronology audit or access-failure evidence identity;
+- every chronology audit or self-contained access-failure evidence identity;
 - deterministic failure reasons for chronology-negative seasons;
 - exact selected season IDs;
 - every admitted chronology-receipt semantic SHA-256;
