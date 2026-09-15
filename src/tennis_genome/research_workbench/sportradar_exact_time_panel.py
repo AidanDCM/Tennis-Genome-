@@ -12,10 +12,10 @@ from typing import Literal
 from .contracts import WorkbenchRecord
 from .sportradar_season_inventory import (
     INVENTORY_ID,
-    SOURCE_CONTRACT as INVENTORY_SOURCE_CONTRACT,
     SeasonInventoryRow,
     SportradarSeasonInventory,
 )
+from .sportradar_season_inventory import SOURCE_CONTRACT as INVENTORY_SOURCE_CONTRACT
 from .sportradar_start_time_admission import (
     DEFAULT_POLICY,
     ExactTimeChronologyAdmissionReceipt,
