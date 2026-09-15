@@ -38,9 +38,15 @@ def _find_target_summary(h) -> dict[str, object]:
                 continue
             category = context.get("category") or {}
             competition = context.get("competition") or {}
-            if not isinstance(category, dict) or str(category.get("id")) != "sr:category:6":
+            if (
+                not isinstance(category, dict)
+                or str(category.get("id")) != "sr:category:6"
+            ):
                 continue
-            if not isinstance(competition, dict) or str(competition.get("type", "")).lower() != "singles":
+            if (
+                not isinstance(competition, dict)
+                or str(competition.get("type", "")).lower() != "singles"
+            ):
                 continue
             competitors = event.get("competitors")
             if not isinstance(competitors, list) or len(competitors) != 2:
@@ -91,8 +97,14 @@ def main() -> None:
     if not scheduled_start:
         raise RuntimeError("target start time missing")
 
-    receipt = json.loads(Path("provider_batch_anchor_receipt.json").read_text(encoding="utf-8"))
-    anchor_comment_id = int(Path("provider_batch_anchor_comment_id.txt").read_text(encoding="utf-8").strip())
+    receipt = json.loads(
+        Path("provider_batch_anchor_receipt.json").read_text(encoding="utf-8")
+    )
+    anchor_comment_id = int(
+        Path("provider_batch_anchor_comment_id.txt")
+        .read_text(encoding="utf-8")
+        .strip()
+    )
 
     h.TARGET_EVENT_ID = str(event["id"])
     h.TARGET_MATCH_ID = h.TARGET_EVENT_ID
