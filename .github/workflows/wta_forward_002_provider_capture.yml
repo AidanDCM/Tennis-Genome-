@@ -1,41 +1,45 @@
-name: WTA Forward 002 Provider Capture
+name: WTA Forward 002 Stephens-Tjen Lock
 
 on:
   push:
     branches:
       - dev/wta-live-prediction-002
     paths:
-      - ".github/workflows/wta_forward_002_provider_capture.yml"
+      - ".github/forward-002-trigger.txt"
 
 permissions:
+  actions: write
   contents: read
   issues: write
 
 concurrency:
-  group: wta-forward-002-provider-capture
+  group: wta-forward-002-stephens-tjen
   cancel-in-progress: false
 
 jobs:
-  capture-and-anchor:
+  capture-predict-anchor:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 28
     env:
       PYTHONPATH: src
       SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
       SPORTRADAR_ACCESS_LEVEL: trial
       SCHEDULE_DATE: "2026-09-16"
+      PINNED_ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      PINNED_ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11.16"
           check-latest: false
-      - name: Require provider credential
+      - name: Require provider credential and exact UTC capture date
         shell: bash
         run: |
           set -euo pipefail
           test -n "${SPORTRADAR_API_KEY:-}"
-      - name: Fetch complete authenticated Sportradar batch
+          test "$(date -u +%F)" = "$SCHEDULE_DATE"
+      - name: Capture complete authenticated Sportradar Sep 16 batch
         shell: bash
         run: |
           set -euo pipefail
@@ -98,11 +102,13 @@ jobs:
               "sportradar_access_level": os.environ["SPORTRADAR_ACCESS_LEVEL"],
               "forward_protocol": "FULL-STACK-FORWARD-002",
           }
-          rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
-          Path("provider_batch_anchor_receipt.json").write_text(rendered, encoding="utf-8")
+          Path("provider_batch_anchor_receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
           PY
           sha256sum provider_batch_anchor_receipt.json > provider_batch_anchor_receipt.sha256
-      - name: Publish trusted capture to public anchor ledger
+      - name: Publish trusted provider capture anchor
         env:
           GITHUB_TOKEN: ${{ github.token }}
           LEDGER_ISSUE_NUMBER: "111"
@@ -116,7 +122,6 @@ jobs:
           from pathlib import Path
 
           marker = "<!-- FULL-STACK-FORWARD-002-PROVIDER-BATCH-ANCHOR-V1 -->"
-          bot_login = "github-actions[bot]"
           receipt = json.loads(Path("provider_batch_anchor_receipt.json").read_text(encoding="utf-8"))
           canonical = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
           body = f"{marker}\n```json\n{canonical}\n```"
@@ -143,7 +148,7 @@ jobs:
           actor = comment.get("user")
           if comment.get("issue_url") != expected_issue_url:
               raise SystemExit("trusted capture anchor was written to wrong ledger issue")
-          if not isinstance(actor, dict) or actor.get("login") != bot_login or actor.get("type") != "Bot":
+          if not isinstance(actor, dict) or actor.get("login") != "github-actions[bot]" or actor.get("type") != "Bot":
               raise SystemExit("trusted capture anchor actor is not github-actions[bot]")
           if comment.get("body") != body:
               raise SystemExit("trusted capture anchor comment body does not reproduce")
@@ -152,10 +157,103 @@ jobs:
           Path("provider_batch_anchor_comment_id.txt").write_text(f"{int(comment['id'])}\n", encoding="utf-8")
           PY
           sha256sum provider_batch_anchor_comment.json > provider_batch_anchor_comment.sha256
-      - name: Upload complete trusted provider capture
+      - name: Install pinned prediction runtime
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+      - name: Download frozen 2000-2025 WTA source and player registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/wta-live-raw data/wta-live-base
+          for year in $(seq 2000 2025); do
+            curl --fail --location --silent --show-error --retry 4 --retry-all-errors \
+              "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_${year}.csv" \
+              --output "data/wta-live-raw/wta_matches_${year}.csv"
+          done
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors \
+            "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_players.csv" \
+            --output data/wta_players.csv
+          test "$(find data/wta-live-raw -type f | wc -l)" -eq 26
+      - name: Rebuild canonical frozen WTA history
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for year in $(seq 2000 2025); do
+            args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset \
+            "${args[@]}" \
+            --tour WTA \
+            --output-dir data/wta-live-base \
+            --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-2000-2025" \
+            --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror" \
+            --source-version "$PINNED_ARCHIVE_COMMIT" \
+            --license-name "CC BY-NC-SA 4.0" \
+            --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/" \
+            --allowed-use-status research_allowed \
+            > data/wta-live-base/build_output.json
+      - name: Stage trusted provider evidence for prediction binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p trusted-provider-artifact
+          cp -a trusted-provider-capture trusted-provider-artifact/trusted-provider-capture
+      - name: Calculate and immutably commit Stephens-Tjen prediction
+        id: prediction
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python scripts/wta_live_prediction_forward_002.py | tee prediction-summary.json
+          record=$(find prediction-work/prospective-pilot-store/records -type f -name '*.json' | sort | tail -1)
+          prediction_sha=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["record_sha256"])' "$record")
+          chain_head=$(python - <<'PY'
+          from pathlib import Path
+          from tennis_genome.prospective.pilot import ProspectivePilotStore
+          print(ProspectivePilotStore(Path("prediction-work/prospective-pilot-store")).verify()["chain_head_sha256"])
+          PY
+          )
+          test "$prediction_sha" = "$chain_head"
+          echo "prediction_sha=$prediction_sha" >> "$GITHUB_OUTPUT"
+          echo "chain_head=$chain_head" >> "$GITHUB_OUTPUT"
+      - name: Dispatch trusted prediction anchor on main
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREDICTION_SHA: ${{ steps.prediction.outputs.prediction_sha }}
+          CHAIN_HEAD: ${{ steps.prediction.outputs.chain_head }}
+        run: |
+          set -euo pipefail
+          payload=$(python - <<'PY'
+          import json, os
+          print(json.dumps({
+              "ref": "main",
+              "inputs": {
+                  "prediction_record_sha256": os.environ["PREDICTION_SHA"],
+                  "chain_head_sha256": os.environ["CHAIN_HEAD"],
+              },
+          }))
+          PY
+          )
+          code=$(curl --silent --show-error --output prediction-anchor-dispatch-response.txt --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/prospective_evidence_anchor.yml/dispatches" \
+            -d "$payload")
+          test "$code" = "204"
+          printf '%s\n' "$PREDICTION_SHA" > prediction-work/prediction-record-sha256.txt
+          printf '%s\n' "$CHAIN_HEAD" > prediction-work/chain-head-sha256.txt
+      - name: Upload complete forward 002 evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: wta-forward-002-provider-capture
+          name: wta-forward-002-stephens-tjen
           path: |
             trusted-provider-capture/
             provider_batch_anchor_receipt.json
@@ -163,4 +261,9 @@ jobs:
             provider_batch_anchor_comment.json
             provider_batch_anchor_comment.sha256
             provider_batch_anchor_comment_id.txt
+            forward-002-target-resolution.json
+            prediction-work/
+            prediction-summary.json
+            prediction-anchor-dispatch-response.txt
+          if-no-files-found: warn
           retention-days: 90
