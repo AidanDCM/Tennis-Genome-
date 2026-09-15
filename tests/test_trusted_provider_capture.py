@@ -82,14 +82,24 @@ def test_trusted_capture_fetches_complete_pages_and_derives_batch(tmp_path: Path
         if start == 0:
             return _response(
                 generated_at=generated,
-                summaries=[_summary("sr:sport_event:trusted-1", start=observed + timedelta(hours=2))],
+                summaries=[
+                    _summary(
+                        "sr:sport_event:trusted-1",
+                        start=observed + timedelta(hours=2),
+                    )
+                ],
                 total=2,
                 offset=0,
             )
         if start == 1:
             return _response(
                 generated_at=generated + timedelta(seconds=20),
-                summaries=[_summary("sr:sport_event:trusted-2", start=observed + timedelta(hours=3))],
+                summaries=[
+                    _summary(
+                        "sr:sport_event:trusted-2",
+                        start=observed + timedelta(hours=3),
+                    )
+                ],
                 total=2,
                 offset=1,
             )
@@ -106,7 +116,6 @@ def test_trusted_capture_fetches_complete_pages_and_derives_batch(tmp_path: Path
 
     assert starts == [0, 1]
     assert all(headers["x-api-key"] == "provider-secret" for headers in seen_headers)
-    assert all("provider-secret" not in url for url in [])
     record = result["record"]
     assert record["page_count"] == 2
     assert record["raw_summary_count"] == 2
@@ -227,13 +236,23 @@ def test_pagination_total_drift_fails_closed(tmp_path: Path) -> None:
         if start == 0:
             return _response(
                 generated_at=generated,
-                summaries=[_summary("sr:sport_event:drift-1", start=generated + timedelta(hours=2))],
+                summaries=[
+                    _summary(
+                        "sr:sport_event:drift-1",
+                        start=generated + timedelta(hours=2),
+                    )
+                ],
                 total=2,
                 offset=0,
             )
         return _response(
             generated_at=generated,
-            summaries=[_summary("sr:sport_event:drift-2", start=generated + timedelta(hours=3))],
+            summaries=[
+                _summary(
+                    "sr:sport_event:drift-2",
+                    start=generated + timedelta(hours=3),
+                )
+            ],
             total=3,
             offset=1,
         )
