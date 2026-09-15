@@ -95,11 +95,7 @@ def test_inventory_requires_every_singles_competition_and_keeps_doubles_visible(
     wta = _catalog(
         tmp_path,
         "wta",
-        [
-            _competition(
-                "sr:competition:3", tour="WTA", level="wta_1000"
-            )
-        ],
+        [_competition("sr:competition:3", tour="WTA", level="wta_1000")],
     )
     atp_seasons = _seasons(
         tmp_path,
@@ -127,12 +123,18 @@ def test_inventory_requires_every_singles_competition_and_keeps_doubles_visible(
     assert report.non_singles_competition_count == 1
     assert report.season_count == 2
     assert report.historical_candidate_count == 2
-    doubles = next(row for row in report.competition_rows if row.competition_id.endswith(":2"))
+    doubles = next(
+        row
+        for row in report.competition_rows
+        if row.competition_id.endswith(":2")
+    )
     assert doubles.scope == "NON_SINGLES_STRUCTURAL_EXCLUSION"
-    assert {row.level for row in report.competition_rows if row.scope == "SEASON_INVENTORY_REQUIRED"} == {
-        "atp_250",
-        "wta_1000",
+    selected_levels = {
+        row.level
+        for row in report.competition_rows
+        if row.scope == "SEASON_INVENTORY_REQUIRED"
     }
+    assert selected_levels == {"atp_250", "wta_1000"}
 
 
 def test_missing_or_extra_competition_seasons_evidence_fails_closed(tmp_path: Path) -> None:
