@@ -4,7 +4,7 @@ import hashlib
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 from tennis_genome.prospective.provider_batch import (
@@ -14,9 +14,11 @@ from tennis_genome.prospective.provider_batch import (
     build_batch_manifest,
 )
 
-PAGINATION_SCHEMA = "full-stack-forward-sportradar-pagination-v1"
+PAGINATION_SCHEMA = "full-stack-forward-sportradar-pagination-v2"
 _PROVIDER = "SPORTRADAR"
 _REQUIRED_HEADERS = ("x-max-results", "x-offset", "x-result")
+_MAX_PROVIDER_GENERATION_SPREAD = timedelta(minutes=10)
+_MAX_OBSERVED_AFTER_PROVIDER_GENERATION = timedelta(minutes=10)
 
 
 def _canonical_json(value: object) -> bytes:
@@ -52,6 +54,19 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _parse_time(value: object, *, field: str) -> datetime:
+    text = str(value if value is not None else "").strip()
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"{field} must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must be timezone-aware")
+    return parsed.astimezone(UTC)
 
 
 def _json_object_bytes(payload: bytes, *, label: str) -> dict[str, object]:
@@ -105,6 +120,7 @@ class PageEvidence:
     offset: int
     result_count: int
     max_results: int
+    provider_generated_at: str
     raw_payload_sha256: str
     response_headers_sha256: str
     summaries: tuple[object, ...]
@@ -114,6 +130,7 @@ class PageEvidence:
             "offset": self.offset,
             "result_count": self.result_count,
             "max_results": self.max_results,
+            "provider_generated_at": self.provider_generated_at,
             "raw_payload_sha256": self.raw_payload_sha256,
             "response_headers_sha256": self.response_headers_sha256,
         }
@@ -123,6 +140,10 @@ def _load_page(raw_path: Path, headers_path: Path) -> PageEvidence:
     raw_bytes = raw_path.read_bytes()
     header_bytes = headers_path.read_bytes()
     raw = _json_object_bytes(raw_bytes, label="Sportradar page payload")
+    generated_at = _parse_time(
+        raw.get("generated_at"),
+        field="Sportradar page generated_at",
+    )
     summaries = raw.get("summaries")
     if not isinstance(summaries, list):
         raise ValueError("Sportradar page payload summaries must be an array")
@@ -138,10 +159,57 @@ def _load_page(raw_path: Path, headers_path: Path) -> PageEvidence:
         offset=offset,
         result_count=result_count,
         max_results=max_results,
+        provider_generated_at=generated_at.isoformat(),
         raw_payload_sha256=_sha256_bytes(raw_bytes),
         response_headers_sha256=_sha256_bytes(header_bytes),
         summaries=tuple(summaries),
     )
+
+
+def _provider_generation_bounds(pages: Sequence[PageEvidence]) -> tuple[datetime, datetime]:
+    generated = [
+        _parse_time(page.provider_generated_at, field="page.provider_generated_at")
+        for page in pages
+    ]
+    earliest = min(generated)
+    latest = max(generated)
+    if earliest.date() != latest.date():
+        raise ValueError("Sportradar pages cross a UTC provider-generation date boundary")
+    if latest - earliest > _MAX_PROVIDER_GENERATION_SPREAD:
+        raise ValueError("Sportradar page generated_at spread exceeds frozen 10-minute bound")
+    return earliest, latest
+
+
+def _validate_capture_timing(
+    *,
+    aggregate: dict[str, object],
+    schedule_date: date,
+    observed_at: datetime,
+) -> tuple[datetime, datetime, datetime]:
+    if observed_at.tzinfo is None or observed_at.utcoffset() is None:
+        raise ValueError("observed_at must be timezone-aware")
+    observed = observed_at.astimezone(UTC)
+    earliest = _parse_time(
+        aggregate.get("provider_generated_at_min"),
+        field="provider_generated_at_min",
+    )
+    latest = _parse_time(
+        aggregate.get("provider_generated_at_max"),
+        field="provider_generated_at_max",
+    )
+    if earliest > latest:
+        raise ValueError("provider generation bounds are inverted")
+    if earliest.date() != latest.date():
+        raise ValueError("provider generation bounds cross a UTC date boundary")
+    if schedule_date != latest.date():
+        raise ValueError("schedule_date must equal provider generated_at UTC date")
+    if observed.date() != schedule_date:
+        raise ValueError("schedule_date must equal observed_at UTC date")
+    if observed < latest:
+        raise ValueError("observed_at cannot predate provider generated_at")
+    if observed - latest > _MAX_OBSERVED_AFTER_PROVIDER_GENERATION:
+        raise ValueError("observed_at exceeds frozen 10-minute provider-generation lag")
+    return observed, earliest, latest
 
 
 def build_complete_daily_payload(
@@ -161,6 +229,7 @@ def build_complete_daily_payload(
     if pages[0].offset != 0:
         raise ValueError("Sportradar pagination must begin at X-Offset 0")
 
+    provider_generated_at_min, provider_generated_at_max = _provider_generation_bounds(pages)
     expected_offset = 0
     summaries: list[object] = []
     ids: set[str] = set()
@@ -187,6 +256,11 @@ def build_complete_daily_payload(
         "provider": _PROVIDER,
         "x_max_results": expected_total,
         "page_count": len(pages),
+        "provider_generated_at_min": provider_generated_at_min.isoformat(),
+        "provider_generated_at_max": provider_generated_at_max.isoformat(),
+        "provider_generated_at_spread_seconds": int(
+            (provider_generated_at_max - provider_generated_at_min).total_seconds()
+        ),
         "pages": [page.metadata() for page in pages],
         "summaries": summaries,
     }
@@ -239,6 +313,24 @@ def verify_paginated_provider_batches(store: ProviderBatchStore) -> dict[str, ob
         _verify_page_evidence(store=store, aggregate=aggregate)
         if int(record.get("raw_summary_count", -1)) != int(aggregate["x_max_results"]):
             raise ValueError("provider record count differs from paginated X-Max-Results")
+        observed_at = _parse_time(record.get("observed_at"), field="record.observed_at")
+        try:
+            schedule_date = date.fromisoformat(str(record.get("schedule_date", "")))
+        except ValueError as exc:
+            raise ValueError("record schedule_date must be YYYY-MM-DD") from exc
+        _, provider_min, provider_max = _validate_capture_timing(
+            aggregate=aggregate,
+            schedule_date=schedule_date,
+            observed_at=observed_at,
+        )
+        if record.get("provider_generated_at_min") != provider_min.isoformat():
+            raise ValueError("provider record min generated_at does not reproduce")
+        if record.get("provider_generated_at_max") != provider_max.isoformat():
+            raise ValueError("provider record max generated_at does not reproduce")
+        if int(record.get("provider_generated_at_spread_seconds", -1)) != int(
+            aggregate["provider_generated_at_spread_seconds"]
+        ):
+            raise ValueError("provider record generated_at spread does not reproduce")
         paginated += 1
     return {
         "pagination_schema": PAGINATION_SCHEMA,
@@ -258,6 +350,11 @@ def capture_paginated_provider_batch(
     """Capture one complete multi-page Daily Summaries response fail-closed."""
 
     aggregate = build_complete_daily_payload(page_pairs)
+    normalized_observed_at, provider_min, provider_max = _validate_capture_timing(
+        aggregate=aggregate,
+        schedule_date=schedule_date,
+        observed_at=observed_at,
+    )
     with store.write_lock():
         store.verify()
         for raw_path, headers_path in page_pairs:
@@ -268,7 +365,7 @@ def capture_paginated_provider_batch(
         manifest = build_batch_manifest(
             raw_payload=aggregate,
             schedule_date=schedule_date,
-            observed_at=observed_at,
+            observed_at=normalized_observed_at,
             raw_payload_sha256=aggregate_sha,
         )
         if manifest.get("schema_version") != BATCH_SCHEMA:
@@ -280,6 +377,11 @@ def capture_paginated_provider_batch(
                 "provider": _PROVIDER,
                 "schedule_date": manifest["schedule_date"],
                 "observed_at": manifest["observed_at"],
+                "provider_generated_at_min": provider_min.isoformat(),
+                "provider_generated_at_max": provider_max.isoformat(),
+                "provider_generated_at_spread_seconds": aggregate[
+                    "provider_generated_at_spread_seconds"
+                ],
                 "raw_payload_sha256": aggregate_sha,
                 "manifest_sha256": manifest_sha,
                 "raw_summary_count": manifest["raw_summary_count"],
