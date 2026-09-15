@@ -340,7 +340,7 @@ def find_prediction_identity_binding(
     pilot_store: object,
     prediction: dict[str, object],
 ) -> tuple[SettlementIdentityBinding, str, dict[str, object]]:
-    evidence_dir = Path(getattr(pilot_store, "evidence_dir"))
+    evidence_dir = Path(pilot_store.evidence_dir)
     prediction_start = _parse_time(
         prediction.get("scheduled_start"),
         field="prediction.scheduled_start",
