@@ -218,7 +218,11 @@ def _verify_anchor_payloads(
     schedule_date = str(batch_record.get("schedule_date"))
     if schedule_date != observed_at.date().isoformat():
         raise ValueError("cadence batch schedule_date must equal provider observation UTC date")
-    if schedule_date != provider_min.date().isoformat() or schedule_date != provider_max.date().isoformat():
+    provider_dates_match = (
+        schedule_date == provider_min.date().isoformat()
+        and schedule_date == provider_max.date().isoformat()
+    )
+    if not provider_dates_match:
         raise ValueError("cadence batch schedule_date must equal provider generation UTC date")
     return anchor_created_at
 
