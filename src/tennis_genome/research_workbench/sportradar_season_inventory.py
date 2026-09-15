@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Literal
@@ -183,8 +182,13 @@ def _parse_category_catalog(
         category = _as_dict(competition.get("category"), field="competition.category")
         observed_category_id = _required_text(category.get("id"), field="category.id")
         observed_category_name = _required_text(category.get("name"), field="category.name")
-        if observed_category_id != category_id or observed_category_name.upper() != category_name:
-            raise ValueError(f"{tour} category catalog contains a competition from another category")
+        if (
+            observed_category_id != category_id
+            or observed_category_name.upper() != category_name
+        ):
+            raise ValueError(
+                f"{tour} category catalog contains a competition from another category"
+            )
 
         competition_type = _required_text(
             competition.get("type"), field="competition.type"
@@ -226,7 +230,10 @@ def _parse_season_catalog(
     snapshot_date: date,
     seen_season_ids: set[str],
 ) -> tuple[CompetitionSeasonCatalogEvidence, list[SeasonInventoryRow]]:
-    payload = _json_object_bytes(raw, label=f"Competition Seasons {competition.competition_id}")
+    payload = _json_object_bytes(
+        raw,
+        label=f"Competition Seasons {competition.competition_id}",
+    )
     digest = _sha256_bytes(raw)
     raw_seasons = _as_list(payload.get("seasons"), field="seasons")
     rows: list[SeasonInventoryRow] = []
@@ -235,13 +242,17 @@ def _parse_season_catalog(
         season = _as_dict(raw_season, field="season")
         season_id = _required_text(season.get("id"), field="season.id")
         if season_id in seen_season_ids:
-            raise ValueError("provider season ID appears more than once across inventory responses")
+            raise ValueError(
+                "provider season ID appears more than once across inventory responses"
+            )
         seen_season_ids.add(season_id)
         competition_id = _required_text(
             season.get("competition_id"), field="season.competition_id"
         )
         if competition_id != competition.competition_id:
-            raise ValueError("Competition Seasons response contains a season for another competition")
+            raise ValueError(
+                "Competition Seasons response contains a season for another competition"
+            )
         start_date = _iso_date(season.get("start_date"), field="season.start_date")
         end_date = _iso_date(season.get("end_date"), field="season.end_date")
         if date.fromisoformat(end_date) < date.fromisoformat(start_date):
