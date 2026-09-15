@@ -2,11 +2,13 @@
 
 Status: **pre-result finalization rule frozen before real historical chronology results are opened**
 
-This receipt closes denominator and access-disposition integrity gaps left after `SPORTRADAR-HISTORICAL-SEASON-INVENTORY-001` and `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001`.
+This receipt closes denominator, access-disposition and panel-reload integrity gaps left after `SPORTRADAR-HISTORICAL-SEASON-INVENTORY-001` and `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001`.
 
 The season inventory already records provider-payload hashes and the exact ATP/WTA competition and season rows. The panel finalizer already verifies that the serialized inventory is internally consistent. Internal consistency alone, however, does not prove that the serialized inventory still equals the retained provider evidence from which it was originally built. A coherently rewritten inventory could otherwise omit a competition or season while updating its internal counts and declared hashes consistently.
 
-`SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001` makes raw-evidence re-derivation and resource-level access-failure validation mandatory for the real historical operator path.
+Likewise, a semantic hash only proves the bytes of one serialized panel object have not changed relative to that hash. If an attacker can rewrite the panel object and recompute the hash, the receipt still needs an independent structural verifier that reproduces the panel's allowed season rows, counts and selections from the embedded frozen inventory.
+
+`SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001` therefore makes raw-evidence re-derivation, resource-level access-failure validation and panel-manifest re-verification mandatory for the real historical operator path.
 
 ## Required retained evidence
 
@@ -28,7 +30,8 @@ Before chronology dispositions are converted into a final evidence receipt, the 
 4. requires the rebuilt canonical inventory payload to equal the supplied frozen inventory payload exactly;
 5. re-hashes every raw inventory file after re-derivation and requires those hashes to equal the hashes embedded in the frozen inventory;
 6. validates that every proposed season-level access failure is a resource-level `404` or `410`, never an authentication/authorization failure;
-7. only then builds the existing exact-time panel manifest.
+7. builds the exact-time panel manifest from the complete frozen historical-candidate disposition set;
+8. embeds both the frozen inventory and the panel manifest in the final evidence receipt.
 
 An internally valid inventory that drops a competition or season is therefore rejected if it no longer re-derives from the retained provider bytes. Raw evidence that changes after the inventory freeze is also rejected.
 
@@ -53,6 +56,27 @@ The lower-level `ProviderAccessFailureEvidence` object may still deserialize 401
 
 This distinction is necessary to prevent an invalid/missing key from becoming a convenient way to exclude an otherwise inventory-required season.
 
+## Panel-manifest reload integrity
+
+A final evidence receipt does not trust the embedded panel manifest merely because its semantic SHA-256 has been recomputed successfully.
+
+Every time `EvidenceBoundExactTimePanelReceipt` is loaded, the panel manifest is independently checked against the embedded frozen inventory. The verifier requires:
+
+- the panel season-ID set to equal the frozen inventory season-ID set exactly, with no duplicates or omissions;
+- canonical panel row ordering;
+- each row's tour, competition ID/name, season dates and inventory status to equal its frozen inventory row;
+- `NOT_YET_HISTORICAL` and `DISABLED_PROVIDER_SEASON` rows to retain their structural disposition, remain unselected and carry no chronology evidence fields;
+- every historical candidate to resolve only as `CHRONOLOGY_ADMITTED`, `CHRONOLOGY_FAILED`, or admissible resource-level `ACCESS_FAILURE`;
+- admitted rows to be selected and carry the expected chronology/audit SHA-256 identities with no failure reasons;
+- failed chronology rows to remain unselected, retain their chronology/audit SHA-256 identities and carry at least one failure reason;
+- access-failure rows to remain unselected, carry only their access-evidence semantic identity, carry no chronology hashes, and have exactly `HISTORY_NOT_AVAILABLE` as the failure reason;
+- all disposition counts to reproduce from the rows, with `historical_candidate_count` reproducing from the frozen inventory;
+- `selected_season_ids` to reproduce exactly from the admitted rows;
+- admitted receipt SHA-256 identities to be canonically ordered, unique, valid SHA-256 values, and equal in count to admitted seasons;
+- the frozen chronology-admission policy semantic identity to match the current frozen policy.
+
+This means a coherent rewrite of a panel row, its aggregate counts, its selected IDs and the panel semantic hash still fails if those claims no longer agree with the embedded frozen inventory and structural rules.
+
 ## Receipt bindings
 
 The final receipt embeds both the complete frozen season inventory and the complete `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001` manifest and binds:
@@ -66,7 +90,7 @@ The final receipt embeds both the complete frozen season inventory and the compl
 - one deterministic aggregate SHA-256 over the canonically ordered raw-evidence identity set;
 - the SHA-256 of the evidence-bound finalizer code itself.
 
-The raw-evidence identities are canonically ordered and uniqueness checked. When the receipt is loaded again, it revalidates the embedded frozen inventory, nested panel/inventory identities, exact raw-evidence identity map, aggregate evidence-set identity, and resource-level access-failure rule.
+The raw-evidence identities are canonically ordered and uniqueness checked. When the receipt is loaded again, it revalidates the embedded frozen inventory, panel structure/counts/selections, nested panel/inventory identities, exact raw-evidence identity map, aggregate evidence-set identity, frozen admission policy and resource-level access-failure rule.
 
 ## Authoritative operator command
 
