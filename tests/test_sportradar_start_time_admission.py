@@ -237,7 +237,7 @@ def test_one_missing_start_rejects_season_instead_of_using_percentage(tmp_path: 
         page_pairs=(page,), timeline_paths=(exact, missing)
     )
 
-    with pytest.raises(ValueError, match="every played terminal match"):
+    with pytest.raises(ValueError, match="MISSING_MATCH_STARTED"):
         admit_exact_time_audit_bytes(_render(report), repo_root=_repo_root())
 
 
@@ -257,7 +257,7 @@ def test_nonterminal_row_blocks_completed_season_admission(tmp_path: Path) -> No
         page_pairs=(page,), timeline_paths=(exact,)
     )
 
-    with pytest.raises(ValueError, match="completed season"):
+    with pytest.raises(ValueError, match="SEASON_NOT_COMPLETE"):
         admit_exact_time_audit_bytes(_render(report), repo_root=_repo_root())
 
 
