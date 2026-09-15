@@ -51,7 +51,7 @@ Every `HISTORICAL_CANDIDATE` must receive exactly one final chronology dispositi
 
 - `CHRONOLOGY_ADMITTED`: the season’s retained audit independently passes `SPORTRADAR-HISTORICAL-EXACT-TIME-ADMISSION-001`;
 - `CHRONOLOGY_FAILED`: the season has a structurally valid audit, but the frozen chronology gate returns one or more deterministic failure reasons;
-- `ACCESS_FAILURE`: the inventory-proven Season Summaries endpoint itself is unavailable under a retained finalizable provider response.
+- `ACCESS_FAILURE`: the inventory-proven Season Summaries resource itself is unavailable under a retained finalizable resource-level provider response.
 
 A historical candidate cannot be absent from this disposition set, and it cannot receive more than one disposition.
 
@@ -65,22 +65,34 @@ The audit must first pass independent structural/integrity verification: identit
 
 A malformed or tampered audit blocks panel finalization. It is not converted into a convenient failure row.
 
-## 6. Access failures are narrow and self-contained
+## 6. Access failures are narrow, self-contained and resource-level
 
 `ACCESS_FAILURE` is deliberately not a generic escape hatch.
 
-The canonical evidence builder only finalizes an access failure when the exact inventory season’s Season Summaries endpoint returns retained HTTP evidence with one of:
+The authoritative real-data path only finalizes `HISTORY_NOT_AVAILABLE` from retained HTTP `404` or `410` evidence for the exact frozen inventory season’s Season Summaries endpoint after the existing endpoint/season identity checks pass.
 
-- `401` or `403` -> `ACCESS_DENIED`;
-- `404` or `410` -> `HISTORY_NOT_AVAILABLE`.
+`401` and `403` are **not** final historical-season evidence. Sportradar’s current Tennis v3 documentation states that a missing or invalid API key can itself return `403 Authentication Error`, while its response-code documentation describes `401` as lacking valid authentication credentials and `403` as lacking proper authorization. Those statuses therefore describe authentication/authorization state rather than proving that one required historical season is unavailable.
 
-Transient `429` and `5xx` responses do not finalize a season and must be retried. If Season Summaries are available but one or more Sport Event Timelines are missing, that is chronology evidence handled by the chronology audit, not a season-level access failure.
+Accordingly:
 
-An access-failure artifact is self-contained: it carries the exact retained response-header and response-body bytes in canonical base64 plus their SHA-256 identities. Loading the artifact must independently decode those bytes, reproduce both hashes, re-read the final HTTP status line from the retained headers, and re-derive the allowed failure class. A JSON object that merely declares plausible hashes or a convenient status is invalid. The endpoint path, provider-attempt timestamp, season, competition and tour remain bound to the frozen inventory row.
+- `401` / `403` -> non-finalizing authentication/authorization failure; correct access and retry;
+- `404` / `410` -> eligible `HISTORY_NOT_AVAILABLE` resource evidence after exact frozen-season binding checks;
+- `429` / `5xx` -> non-finalizing transient failure; retry.
 
-## 7. Final exact-time panel manifest
+Primary provider references:
 
-`SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001` binds:
+- https://developer.sportradar.com/tennis/docs/tennis-ig-api-basics
+- https://developer.sportradar.com/getting-started/docs/response-codes
+
+If Season Summaries are available but one or more Sport Event Timelines are missing, that is chronology evidence handled by the chronology audit, not a season-level access failure.
+
+An access-failure artifact is self-contained: it carries the exact retained response-header and response-body bytes in canonical base64 plus their SHA-256 identities. Loading the lower-level artifact must independently decode those bytes, reproduce both hashes, re-read the final HTTP status line from the retained headers, and re-derive its diagnostic failure class. A JSON object that merely declares plausible hashes or a convenient status is invalid. The endpoint path, provider-attempt timestamp, season, competition and tour remain bound to the frozen inventory row.
+
+The lower-level object may still deserialize legacy 401/403 diagnostic evidence, but `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001` rejects it before genuine panel construction and rejects any reloaded receipt whose access disposition is `ACCESS_DENIED`. This evidence-bound receipt is the authoritative real-data finalization path.
+
+## 7. Final exact-time panel evidence receipt
+
+The lower-level `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-001` manifest binds:
 
 - raw inventory-file SHA-256;
 - inventory semantic SHA-256;
@@ -97,9 +109,11 @@ Only `CHRONOLOGY_ADMITTED` seasons receive `selected_for_exact_time_panel=true`.
 
 The failed/access/active/disabled rows remain in the same panel manifest and may not be deleted merely because they are not model rows.
 
+For genuine provider evidence, the lower-level manifest is then wrapped by `SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001`, which re-derives the frozen inventory from the retained raw provider catalogs, binds the exact raw-evidence identities and finalizer code, and enforces the resource-level access-failure rule above.
+
 ## 8. This still does not authorize a protected model comparison
 
-The panel manifest closes season-selection leakage only. Before any protected v2 comparison uses the selected exact-time seasons, separate pre-result work must still establish:
+The panel evidence closes season-selection and access-disposition leakage only. Before any protected v2 comparison uses the selected exact-time seasons, separate pre-result work must still establish:
 
 - event/player crosswalk quality and failure rules;
 - target-feature T0 availability;
