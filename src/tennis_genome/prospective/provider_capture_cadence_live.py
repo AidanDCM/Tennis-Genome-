@@ -268,7 +268,9 @@ class LiveProviderCaptureCadenceStore:
             if record.get("record_type") != "PROVIDER_BATCH_ATTESTATION":
                 raise ValueError(f"unexpected live cadence record type at sequence {sequence}")
             if record.get("anchor_evidence_mode") != LIVE_EVIDENCE_MODE:
-                raise ValueError("live cadence record does not use authenticated GitHub ledger evidence")
+                raise ValueError(
+                    "live cadence record does not use authenticated GitHub ledger evidence"
+                )
             if int(record.get("sequence", -1)) != sequence:
                 raise ValueError(f"live provider-capture cadence sequence gap at {sequence}")
 
@@ -404,7 +406,9 @@ def attest_live_provider_batch(
         batch_record = _find_batch_record(batch_store, batch_sha)
         report = batch_store.verify()
         if report.get("chain_head_sha256") != batch_sha:
-            raise ValueError("live GitHub anchor may only admit the current provider-batch chain head")
+            raise ValueError(
+                "live GitHub anchor may only admit the current provider-batch chain head"
+            )
         verify_live_anchor_against_batch(batch_record=batch_record, evidence=evidence)
         provider_min, provider_max = _provider_generation_bounds(batch_record)
 
