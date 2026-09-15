@@ -47,6 +47,7 @@ class EvidenceBoundExactTimePanelReceipt(WorkbenchRecord):
     receipt_id: Literal[
         "SPORTRADAR-HISTORICAL-EXACT-TIME-PANEL-EVIDENCE-RECEIPT-001"
     ] = RECEIPT_ID
+    frozen_inventory: SportradarSeasonInventory
     panel_manifest: SportradarExactTimePanelManifest
     panel_manifest_semantic_sha256: str
     inventory_file_sha256: str
@@ -68,6 +69,9 @@ class EvidenceBoundExactTimePanelReceipt(WorkbenchRecord):
         ):
             _require_sha256(value, field=field_name)
 
+        verify_season_inventory_integrity(self.frozen_inventory)
+        if self.inventory_semantic_sha256 != self.frozen_inventory.semantic_sha256:
+            raise ValueError("receipt frozen inventory semantic SHA-256 does not reproduce")
         if self.panel_manifest_semantic_sha256 != self.panel_manifest.semantic_sha256:
             raise ValueError("panel manifest semantic SHA-256 does not reproduce")
         if self.inventory_file_sha256 != self.panel_manifest.inventory_file_sha256:
@@ -83,14 +87,39 @@ class EvidenceBoundExactTimePanelReceipt(WorkbenchRecord):
         keys = [(row.role, row.binding_id) for row in evidence]
         if len(keys) != len(set(keys)):
             raise ValueError("raw inventory evidence identities must be unique")
-        if sum(row.role == "ATP_COMPETITIONS_BY_CATEGORY" for row in evidence) != 1:
-            raise ValueError("receipt requires exactly one ATP category catalog identity")
-        if sum(row.role == "WTA_COMPETITIONS_BY_CATEGORY" for row in evidence) != 1:
-            raise ValueError("receipt requires exactly one WTA category catalog identity")
-
         expected_order = tuple(sorted(evidence, key=_evidence_sort_key))
         if evidence != expected_order:
             raise ValueError("raw inventory evidence identities are not canonically ordered")
+
+        atp_rows = [
+            row for row in evidence if row.role == "ATP_COMPETITIONS_BY_CATEGORY"
+        ]
+        wta_rows = [
+            row for row in evidence if row.role == "WTA_COMPETITIONS_BY_CATEGORY"
+        ]
+        if len(atp_rows) != 1 or atp_rows[0].binding_id != "sr:category:3":
+            raise ValueError("receipt requires exactly the ATP category 3 catalog identity")
+        if len(wta_rows) != 1 or wta_rows[0].binding_id != "sr:category:6":
+            raise ValueError("receipt requires exactly the WTA category 6 catalog identity")
+        if atp_rows[0].sha256 != self.frozen_inventory.atp_competitions_sha256:
+            raise ValueError("ATP raw evidence identity does not match frozen inventory")
+        if wta_rows[0].sha256 != self.frozen_inventory.wta_competitions_sha256:
+            raise ValueError("WTA raw evidence identity does not match frozen inventory")
+
+        expected_seasons = {
+            row.competition_id: row.payload_sha256
+            for row in self.frozen_inventory.season_catalogs
+        }
+        observed_seasons = {
+            row.binding_id: row.sha256
+            for row in evidence
+            if row.role == "COMPETITION_SEASONS"
+        }
+        if observed_seasons != expected_seasons:
+            raise ValueError(
+                "Competition Seasons raw evidence identities do not match frozen inventory"
+            )
+
         expected_set_sha = hashlib.sha256(
             _canonical_json([row.canonical_payload() for row in evidence])
         ).hexdigest()
@@ -270,6 +299,7 @@ def build_evidence_bound_exact_time_panel_receipt(
     if not finalizer_path.is_file():
         raise ValueError(f"required evidence finalizer code file is missing: {FINALIZER_PATH}")
     return EvidenceBoundExactTimePanelReceipt(
+        frozen_inventory=inventory,
         panel_manifest=manifest,
         panel_manifest_semantic_sha256=manifest.semantic_sha256,
         inventory_file_sha256=hashlib.sha256(inventory_content).hexdigest(),
