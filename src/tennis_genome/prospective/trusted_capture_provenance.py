@@ -17,7 +17,7 @@ TRUSTED_CAPTURE_FROZEN_BLOBS: dict[str, str] = {
         "a5651fdea9ba5adb693156f3ce2ffe1503397ccd"
     ),
     "src/tennis_genome/prospective/trusted_provider_capture.py": (
-        "7f332d1a9d77b99fa862be776a928e55bf2e7fed"
+        "9dcc1dd69591d013472ec5e2138397fb8916cb14"
     ),
     "src/tennis_genome/prospective/provider_batch.py": (
         "44d4f0fce51e93641e00b99dafab263b08de52d9"
