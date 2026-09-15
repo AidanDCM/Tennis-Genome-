@@ -234,7 +234,7 @@ def _verify_null_evidence_fields(row: object) -> None:
             raise ValueError(
                 f"structural panel row unexpectedly contains evidence field {field_name}"
             )
-    if getattr(row, "failure_reasons"):
+    if row.failure_reasons:
         raise ValueError("structural panel row unexpectedly contains failure reasons")
 
 
