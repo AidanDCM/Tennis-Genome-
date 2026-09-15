@@ -52,7 +52,7 @@ jobs:
       - name: Fetch complete Sportradar batch inside GitHub runner
         shell: bash
         run: |
-          python -m tennis_genome.prospective.trusted_provider_capture \
+          python -S -m tennis_genome.prospective.trusted_provider_capture \
             --output-dir trusted-provider-capture \
             --schedule-date "${SCHEDULE_DATE}" \
             --access-level "${SPORTRADAR_ACCESS_LEVEL}"
@@ -60,7 +60,7 @@ jobs:
       - name: Build trusted provider anchor receipt
         shell: bash
         run: |
-          python - <<'PY'
+          python -S - <<'PY'
           import hashlib
           import json
           import os
@@ -121,7 +121,7 @@ jobs:
           LEDGER_ISSUE_NUMBER: "111"
         shell: bash
         run: |
-          python - <<'PY'
+          python -S - <<'PY'
           import json
           import os
           import urllib.request
