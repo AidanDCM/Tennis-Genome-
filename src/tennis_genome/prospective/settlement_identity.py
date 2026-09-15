@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 
 from tennis_genome.prospective.provider_batch import ProviderBatchStore
@@ -102,6 +103,20 @@ def _load_json_object(path: Path, *, label: str) -> dict[str, object]:
     return value
 
 
+def _find_batch_record(
+    batch_store: ProviderBatchStore,
+    record_sha256: str,
+) -> dict[str, object]:
+    matches = [
+        record
+        for record in batch_store.records()
+        if str(record.get("record_sha256", "")) == record_sha256
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"expected exactly one provider batch record {record_sha256}")
+    return matches[0]
+
+
 def _provider_event(
     raw_payload: dict[str, object],
     *,
@@ -147,7 +162,7 @@ def build_identity_binding(
     """Seal the provider/canonical A/B mapping from genuine pre-match evidence."""
 
     batch_store.verify()
-    batch_record = batch_store.find_record(batch_record_sha256)
+    batch_record = _find_batch_record(batch_store, batch_record_sha256)
     fetch_authenticated_trusted_capture_evidence(
         comment_id=provider_anchor_comment_id,
         batch_record=batch_record,
@@ -195,8 +210,6 @@ def build_identity_binding(
 
     scheduled_start = _required_text(event, "start_time")
     observed_at = _required_text(batch_record, "observed_at")
-    from datetime import datetime
-
     scheduled_dt = datetime.fromisoformat(scheduled_start.replace("Z", "+00:00"))
     observed_dt = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
     if scheduled_dt.tzinfo is None or scheduled_dt.utcoffset() is None:
