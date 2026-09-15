@@ -175,7 +175,8 @@ def verify_exact_time_audit_for_admission(
     _require_sha256(base.timeline_bundle_sha256, field="timeline_bundle_sha256")
     if base.raw_summary_count != base.in_scope_count:
         raise ValueError(
-            "admitted season may not silently drop provider summaries from the main-tour singles denominator"
+            "admitted season may not silently drop provider summaries "
+            "from the main-tour singles denominator"
         )
     if len(base.events) != base.in_scope_count:
         raise ValueError("event rows do not reproduce the in-scope denominator")
