@@ -14,23 +14,30 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   anchor:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - name: Build public anchor receipt
+      - name: Publish trusted prediction anchor
         env:
           PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
           CHAIN_HEAD_SHA256: ${{ inputs.chain_head_sha256 }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python - <<'PY'
+          python -S - <<'PY'
           import json
           import os
           import re
+          import urllib.request
           from datetime import UTC, datetime
-          from pathlib import Path
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          if repository != "AidanDCM/Tennis-Genome-":
+              raise SystemExit("unexpected repository")
+          if os.environ.get("GITHUB_REF_NAME") != "main":
+              raise SystemExit("trusted prediction anchor must run from main")
 
           sha_re = re.compile(r"^[0-9a-f]{64}$")
           prediction_sha = os.environ["PREDICTION_RECORD_SHA256"]
@@ -39,31 +46,68 @@ jobs:
               raise SystemExit("prediction_record_sha256 must be lowercase SHA-256")
           if not sha_re.fullmatch(chain_head):
               raise SystemExit("chain_head_sha256 must be lowercase SHA-256")
+          if prediction_sha != chain_head:
+              raise SystemExit("prediction must be the immediate prospective ledger head")
 
-          repository = os.environ["GITHUB_REPOSITORY"]
-          run_id = os.environ["GITHUB_RUN_ID"]
+          run_id = int(os.environ["GITHUB_RUN_ID"])
           receipt = {
               "schema_version": "full-stack-pilot-github-anchor-v1",
+              "trusted_prediction_anchor_schema": (
+                  "full-stack-pilot-trusted-github-anchor-v1"
+              ),
               "provider": "GITHUB_ACTIONS",
               "repository": repository,
+              "prediction_anchor_ledger_issue": 119,
+              "prediction_anchor_workflow_version": (
+                  "FULL-STACK-PILOT-001-live-anchor-v1"
+              ),
               "workflow_source_sha": os.environ["GITHUB_SHA"],
-              "workflow_run_id": int(run_id),
+              "workflow_run_id": run_id,
               "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
-              "workflow_run_url": f"https://github.com/{repository}/actions/runs/{run_id}",
+              "workflow_run_url": (
+                  f"https://github.com/{repository}/actions/runs/{run_id}"
+              ),
               "prediction_record_sha256": prediction_sha,
               "chain_head_sha256": chain_head,
               "runner_receipt_created_at_utc": datetime.now(UTC).isoformat(),
           }
-          rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
-          Path("prospective_anchor_receipt.json").write_text(rendered)
-          print(rendered, end="")
+          canonical = json.dumps(
+              receipt,
+              sort_keys=True,
+              separators=(",", ":"),
+              ensure_ascii=False,
+              allow_nan=False,
+          )
+          marker = "<!-- FULL-STACK-PILOT-001-PREDICTION-ANCHOR-V1 -->"
+          body = f"{marker}\n```json\n{canonical}\n```"
+          api_url = (
+              f"https://api.github.com/repos/{repository}/issues/119/comments"
+          )
+          request = urllib.request.Request(
+              api_url,
+              data=json.dumps({"body": body}).encode("utf-8"),
+              method="POST",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Content-Type": "application/json",
+                  "User-Agent": "tennis-genome-trusted-prediction-anchor",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              if response.status != 201:
+                  raise SystemExit(f"unexpected GitHub comment status: {response.status}")
+              comment = json.loads(response.read().decode("utf-8"))
+          if not isinstance(comment, dict):
+              raise SystemExit("GitHub comment response must be an object")
+          if comment.get("body") != body:
+              raise SystemExit("GitHub comment body does not reproduce")
+          actor = comment.get("user")
+          if not isinstance(actor, dict) or actor.get("login") != "github-actions[bot]":
+              raise SystemExit("prediction anchor comment actor is not github-actions[bot]")
+          if comment.get("created_at") != comment.get("updated_at"):
+              raise SystemExit("prediction anchor comment was edited during creation")
+          print(f"prediction_anchor_comment_id={int(comment['id'])}")
+          print(body)
           PY
-          sha256sum prospective_anchor_receipt.json > prospective_anchor_receipt.sha256
-      - name: Upload anchor receipt
-        uses: actions/upload-artifact@v4
-        with:
-          name: prospective-anchor-${{ inputs.prediction_record_sha256 }}
-          path: |
-            prospective_anchor_receipt.json
-            prospective_anchor_receipt.sha256
-          retention-days: 90
