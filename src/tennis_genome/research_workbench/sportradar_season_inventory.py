@@ -390,7 +390,9 @@ def build_sportradar_season_inventory(
     ]
     provider_dates = {value.date() for value in provider_times}
     if len(provider_dates) != 1:
-        raise ValueError("retained provider inventory catalogs cross UTC dates; recapture one UTC day")
+        raise ValueError(
+            "retained provider inventory catalogs cross UTC dates; recapture one UTC day"
+        )
     provider_snapshot = max(provider_times)
     provider_snapshot_date = provider_snapshot.date()
     if asserted_snapshot.date() != provider_snapshot_date:
