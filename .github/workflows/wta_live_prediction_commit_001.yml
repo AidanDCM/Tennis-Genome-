@@ -94,7 +94,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python scripts/wta_live_prediction_001.py | tee prediction-summary.json
+          python scripts/wta_live_prediction_002.py | tee prediction-summary.json
           record=$(find prediction-work/prospective-pilot-store/records -type f -name '*.json' | sort | tail -1)
           prediction_sha=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["record_sha256"])' "$record")
           chain_head=$(python - <<'PY'
