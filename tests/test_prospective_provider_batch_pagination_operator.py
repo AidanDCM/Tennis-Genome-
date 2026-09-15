@@ -28,10 +28,20 @@ def _summary(event_id: str, *, start: datetime) -> dict[str, object]:
     }
 
 
-def _page(tmp_path: Path, *, offset: int, total: int, summaries: list[dict[str, object]]):
+def _page(
+    tmp_path: Path,
+    *,
+    offset: int,
+    total: int,
+    summaries: list[dict[str, object]],
+    generated_at: str = "2026-09-15T11:58:00+00:00",
+):
     raw = tmp_path / f"page-{offset}.json"
     headers = tmp_path / f"page-{offset}.headers.txt"
-    raw.write_text(json.dumps({"summaries": summaries}) + "\n", encoding="utf-8")
+    raw.write_text(
+        json.dumps({"generated_at": generated_at, "summaries": summaries}) + "\n",
+        encoding="utf-8",
+    )
     headers.write_text(
         f"X-Max-Results: {total}\nX-Offset: {offset}\nX-Result: {len(summaries)}\n",
         encoding="iso-8859-1",
@@ -49,6 +59,7 @@ def test_operator_emits_exact_six_field_anchor_packet_after_complete_pages(
         offset=0,
         total=2,
         summaries=[_summary("sr:sport_event:1", start=start)],
+        generated_at="2026-09-15T11:57:00+00:00",
     )
     second = _page(
         tmp_path,
