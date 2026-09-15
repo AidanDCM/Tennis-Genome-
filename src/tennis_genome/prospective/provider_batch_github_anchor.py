@@ -258,7 +258,13 @@ def _validate_workflow_run(
     )
     if runner_receipt_created_at < run_created_at:
         raise ValueError("runner receipt predates workflow-run creation")
-    if anchor_created_at < runner_receipt_created_at:
+    # GitHub issue/comment timestamps are exposed at whole-second precision, while
+    # the runner receipt is recorded with microseconds. Compare at the provider's
+    # observable timestamp precision so a later comment in the same second is not
+    # falsely treated as predating the runner receipt. Distinct seconds still fail.
+    if anchor_created_at.replace(microsecond=0) < runner_receipt_created_at.replace(
+        microsecond=0
+    ):
         raise ValueError("GitHub ledger anchor predates runner receipt creation")
 
 
