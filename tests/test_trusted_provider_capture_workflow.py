@@ -197,6 +197,8 @@ def test_trusted_workflow_has_only_routing_inputs_and_pinned_runtime_surface() -
     assert "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" in workflow
     assert "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" in workflow
     assert "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" in workflow
-    assert "python -m tennis_genome.prospective.trusted_provider_capture" in workflow
+    assert "python -S -m tennis_genome.prospective.trusted_provider_capture" in workflow
+    assert "python -S - <<'PY'" in workflow
+    assert "python - <<'PY'" not in workflow
     assert 'LEDGER_ISSUE_NUMBER: "111"' in workflow
     assert "trusted-provider-capture/" in workflow
