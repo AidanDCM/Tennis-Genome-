@@ -1,0 +1,219 @@
+name: Prospective Trusted Settlement Capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      prediction_record_sha256:
+        description: Frozen pilot prediction record SHA-256
+        required: true
+        type: string
+      identity_binding_sha256:
+        description: Pre-match Sportradar identity-binding file SHA-256
+        required: true
+        type: string
+      sportradar_event_id:
+        description: Sportradar sport-event ID, e.g. sr:sport_event:123
+        required: true
+        type: string
+      sportradar_access_level:
+        description: Sportradar Tennis API access level
+        required: true
+        type: choice
+        options:
+          - trial
+          - production
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    env:
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
+      IDENTITY_BINDING_SHA256: ${{ inputs.identity_binding_sha256 }}
+      SPORTRADAR_EVENT_ID: ${{ inputs.sportradar_event_id }}
+      SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
+    steps:
+      - name: Fetch terminal timeline and publish machine commitment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p trusted-settlement-capture
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          from datetime import UTC, datetime, timedelta
+          from pathlib import Path
+
+          repository = os.environ["GITHUB_REPOSITORY"]
+          if repository != "AidanDCM/Tennis-Genome-":
+              raise SystemExit("unexpected repository")
+          if os.environ.get("GITHUB_REF_NAME") != "main":
+              raise SystemExit("trusted settlement capture must run from main")
+
+          key = os.environ.get("SPORTRADAR_API_KEY", "").strip()
+          if not key:
+              raise SystemExit("SPORTRADAR_API_KEY is not configured")
+          sha_re = re.compile(r"^[0-9a-f]{64}$")
+          prediction_sha = os.environ["PREDICTION_RECORD_SHA256"].strip()
+          identity_sha = os.environ["IDENTITY_BINDING_SHA256"].strip()
+          if not sha_re.fullmatch(prediction_sha):
+              raise SystemExit("prediction_record_sha256 must be lowercase SHA-256")
+          if not sha_re.fullmatch(identity_sha):
+              raise SystemExit("identity_binding_sha256 must be lowercase SHA-256")
+
+          event_id = os.environ["SPORTRADAR_EVENT_ID"].strip()
+          if re.fullmatch(r"sr:sport_event:[0-9]+", event_id) is None:
+              raise SystemExit("sportradar_event_id has unsupported format")
+          access = os.environ["SPORTRADAR_ACCESS_LEVEL"].strip()
+          if access not in {"trial", "production"}:
+              raise SystemExit("sportradar_access_level must be trial or production")
+
+          encoded_event = urllib.parse.quote(event_id, safe=":")
+          url = (
+              "https://api.sportradar.com/tennis/"
+              f"{access}/v3/en/sport_events/{encoded_event}/timeline.json"
+          )
+          request = urllib.request.Request(
+              url,
+              headers={
+                  "Accept": "application/json",
+                  "User-Agent": "tennis-genome-trusted-settlement-capture",
+                  "x-api-key": key,
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status != 200:
+                      raise SystemExit(f"unexpected Sportradar status: {response.status}")
+                  body = response.read()
+                  headers = list(response.headers.raw_items())
+          except urllib.error.HTTPError as exc:
+              raise SystemExit(f"Sportradar HTTP status: {exc.code}") from exc
+          except urllib.error.URLError as exc:
+              raise SystemExit(f"Sportradar transport failure: {exc.reason}") from exc
+
+          observed_at = datetime.now(UTC)
+          try:
+              payload = json.loads(body.decode("utf-8"))
+          except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+              raise SystemExit("Sportradar timeline response is not UTF-8 JSON") from exc
+          if not isinstance(payload, dict):
+              raise SystemExit("Sportradar timeline response must be an object")
+          generated_text = str(payload.get("generated_at", "")).strip()
+          if generated_text.endswith("Z"):
+              generated_text = f"{generated_text[:-1]}+00:00"
+          try:
+              generated_at = datetime.fromisoformat(generated_text).astimezone(UTC)
+          except ValueError as exc:
+              raise SystemExit("Sportradar generated_at is invalid") from exc
+          if generated_at > observed_at:
+              raise SystemExit("Sportradar generated_at is after runner observation")
+          if observed_at - generated_at > timedelta(minutes=10):
+              raise SystemExit("Sportradar timeline response is stale by more than 10 minutes")
+
+          event = payload.get("sport_event")
+          if not isinstance(event, dict) or event.get("id") != event_id:
+              raise SystemExit("Sportradar timeline event ID does not match request")
+          status = payload.get("sport_event_status")
+          if not isinstance(status, dict):
+              raise SystemExit("Sportradar timeline lacks sport_event_status")
+          if str(status.get("status", "")).strip().lower() not in {"ended", "closed"}:
+              raise SystemExit("Sportradar settlement capture requires ended/closed status")
+          winner_id = str(status.get("winner_id", "")).strip()
+          if not winner_id:
+              raise SystemExit("Sportradar terminal timeline lacks winner_id")
+
+          root = Path("trusted-settlement-capture")
+          body_path = root / "sportradar_timeline.json"
+          headers_path = root / "sportradar_response_headers.json"
+          body_path.write_bytes(body)
+          header_bytes = (
+              json.dumps(headers, ensure_ascii=False, separators=(",", ":")) + "\n"
+          ).encode("utf-8")
+          headers_path.write_bytes(header_bytes)
+          body_sha = hashlib.sha256(body).hexdigest()
+          headers_sha = hashlib.sha256(header_bytes).hexdigest()
+
+          run_id = int(os.environ["GITHUB_RUN_ID"])
+          receipt = {
+              "schema_version": "full-stack-pilot-trusted-settlement-capture-v1",
+              "settlement_capture_version": "FULL-STACK-PILOT-001-settlement-capture-v1",
+              "provider": "SPORTRADAR_TENNIS_V3",
+              "repository": repository,
+              "settlement_ledger_issue": 122,
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": run_id,
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_run_url": (
+                  f"https://github.com/{repository}/actions/runs/{run_id}"
+              ),
+              "prediction_record_sha256": prediction_sha,
+              "identity_binding_sha256": identity_sha,
+              "sportradar_event_id": event_id,
+              "sportradar_access_level": access,
+              "provider_generated_at": generated_at.isoformat(),
+              "observed_at": observed_at.isoformat(),
+              "timeline_sha256": body_sha,
+              "response_headers_sha256": headers_sha,
+              "provider_status": str(status["status"]).strip().lower(),
+              "winner_sportradar_id": winner_id,
+          }
+          canonical = json.dumps(
+              receipt,
+              sort_keys=True,
+              separators=(",", ":"),
+              ensure_ascii=False,
+              allow_nan=False,
+          )
+          receipt_bytes = (canonical + "\n").encode("utf-8")
+          (root / "trusted_settlement_receipt.json").write_bytes(receipt_bytes)
+          marker = "<!-- FULL-STACK-PILOT-001-SETTLEMENT-CAPTURE-V1 -->"
+          comment_body = f"{marker}\n```json\n{canonical}\n```"
+          api_url = f"https://api.github.com/repos/{repository}/issues/122/comments"
+          gh_request = urllib.request.Request(
+              api_url,
+              data=json.dumps({"body": comment_body}).encode("utf-8"),
+              method="POST",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Content-Type": "application/json",
+                  "User-Agent": "tennis-genome-trusted-settlement-capture",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          with urllib.request.urlopen(gh_request, timeout=30) as response:
+              if response.status != 201:
+                  raise SystemExit(f"unexpected GitHub comment status: {response.status}")
+              comment_bytes = response.read()
+          comment = json.loads(comment_bytes.decode("utf-8"))
+          if comment.get("body") != comment_body:
+              raise SystemExit("GitHub settlement comment body does not reproduce")
+          actor = comment.get("user")
+          if not isinstance(actor, dict) or actor.get("login") != "github-actions[bot]":
+              raise SystemExit("settlement comment actor is not github-actions[bot]")
+          if comment.get("created_at") != comment.get("updated_at"):
+              raise SystemExit("settlement comment was edited during creation")
+          (root / "github_comment_response.json").write_bytes(comment_bytes)
+          (root / "github_comment_id.txt").write_text(f"{int(comment['id'])}\n")
+          print(f"settlement_comment_id={int(comment['id'])}")
+          print(f"timeline_sha256={body_sha}")
+          print(f"identity_binding_sha256={identity_sha}")
+          PY
+
+      - name: Upload trusted settlement evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: prospective-trusted-settlement-capture
+          path: trusted-settlement-capture/
+          if-no-files-found: error
+          retention-days: 90
