@@ -78,7 +78,7 @@ jobs:
           capture_receipt_bytes = (capture_dir / "trusted_capture_receipt.json").read_bytes()
           capture_receipt = json.loads(capture_receipt_bytes)
           inputs = packet.get("inputs")
-          if not isinstance(inputs, dict) or tuple(inputs) != ANCHOR_INPUT_FIELDS:
+          if not isinstance(inputs, dict) or set(inputs) != set(ANCHOR_INPUT_FIELDS):
               raise SystemExit("trusted capture anchor packet input contract drifted")
           if inputs["schedule_date"] != os.environ["SCHEDULE_DATE"]:
               raise SystemExit("trusted capture schedule date differs from workflow input")
