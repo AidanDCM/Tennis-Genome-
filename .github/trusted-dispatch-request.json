@@ -1,6 +1,6 @@
 {
   "schema_version": "tennis-genome-trusted-dispatch-request-v1",
-  "request_id": "FULL-STACK-FORWARD-001-finalize-20260916-01",
+  "request_id": "FULL-STACK-FORWARD-001-finalize-20260916-02",
   "target_workflow": "prospective_settlement_finalize.yml",
   "ref": "main",
   "inputs": {
