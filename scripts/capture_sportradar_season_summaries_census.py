@@ -5,7 +5,7 @@ import json
 import os
 from pathlib import Path
 
-from tennis_genome.research_workbench.sportradar_season_summaries_census import (
+from tennis_genome.research_workbench.sportradar_season_summaries_census_v2 import (
     capture_season_summaries_census,
 )
 
