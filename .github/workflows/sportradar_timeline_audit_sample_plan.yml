@@ -1,0 +1,269 @@
+name: Sportradar Timeline Audit Sample Plan
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/sportradar-timeline-audit-sample-request.json"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sportradar-timeline-audit-sample-plan
+  cancel-in-progress: false
+
+jobs:
+  build-sample-plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate sample-plan request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/sportradar-timeline-audit-sample-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {
+              'schema_version',
+              'request_id',
+              'inventory_artifact_id',
+              'census_artifact_id',
+              'timeline_request_budget_cap',
+              'max_seasons',
+          }
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('timeline sample request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-sportradar-timeline-audit-sample-request-v1':
+              raise SystemExit('unsupported timeline sample request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          for field in ('inventory_artifact_id', 'census_artifact_id'):
+              value = request[field]
+              if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                  raise SystemExit(f'{field} must be a positive integer')
+          budget = request['timeline_request_budget_cap']
+          if not isinstance(budget, int) or isinstance(budget, bool) or not 1 <= budget <= 150:
+              raise SystemExit('timeline_request_budget_cap must be in [1, 150]')
+          max_seasons = request['max_seasons']
+          if not isinstance(max_seasons, int) or isinstance(max_seasons, bool) or not 1 <= max_seasons <= 20:
+              raise SystemExit('max_seasons must be in [1, 20]')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('timeline sample plan must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          output = Path(os.environ['GITHUB_OUTPUT'])
+          with output.open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+              handle.write(f'inventory_artifact_id={request["inventory_artifact_id"]}\n')
+              handle.write(f'census_artifact_id={request["census_artifact_id"]}\n')
+              handle.write(f'timeline_request_budget_cap={budget}\n')
+              handle.write(f'max_seasons={max_seasons}\n')
+          PY
+
+      - name: Download frozen inventory and census artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p inventory-artifact census-artifact
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact "$INVENTORY_ARTIFACT_ID" inventory-artifact.zip inventory-artifact
+          download_artifact "$CENSUS_ARTIFACT_ID" census-artifact.zip census-artifact
+          test -f inventory-artifact/historical-inventory-capture/inventory.json
+          test -f inventory-artifact/historical-inventory-github-receipt.json
+          test -f census-artifact/season-summaries-census/census.json
+          test -f census-artifact/season-summaries-census/manifest.json
+          test -f census-artifact/season-summaries-census-github-receipt.json
+          sha256sum inventory-artifact.zip census-artifact.zip > source-artifacts.sha256
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Revalidate source artifact provenance
+        env:
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from tennis_genome.research_workbench.sportradar_exact_time_panel import (
+              parse_season_inventory_bytes,
+              verify_season_inventory_integrity,
+          )
+          from tennis_genome.research_workbench.sportradar_season_summaries_census import (
+              SeasonSummariesCensus,
+          )
+
+          inventory_path = Path('inventory-artifact/historical-inventory-capture/inventory.json')
+          inventory_bytes = inventory_path.read_bytes()
+          inventory = parse_season_inventory_bytes(inventory_bytes)
+          verify_season_inventory_integrity(inventory)
+          inventory_receipt = json.loads(
+              Path('inventory-artifact/historical-inventory-github-receipt.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          if inventory_receipt['inventory_file_sha256'] != hashlib.sha256(inventory_bytes).hexdigest():
+              raise SystemExit('inventory bytes differ from retained inventory receipt')
+          if inventory_receipt['inventory_semantic_sha256'] != inventory.semantic_sha256:
+              raise SystemExit('inventory semantic identity differs from retained receipt')
+
+          census_path = Path('census-artifact/season-summaries-census/census.json')
+          census_bytes = census_path.read_bytes()
+          census = SeasonSummariesCensus.model_validate_json(census_bytes)
+          census_manifest = json.loads(
+              Path('census-artifact/season-summaries-census/manifest.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          census_receipt = json.loads(
+              Path('census-artifact/season-summaries-census-github-receipt.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          if census_manifest['census_semantic_sha256'] != census.semantic_sha256:
+              raise SystemExit('census semantic SHA differs from retained manifest')
+          if census_receipt['census_file_sha256'] != hashlib.sha256(census_bytes).hexdigest():
+              raise SystemExit('census bytes differ from retained GitHub receipt')
+          if census_receipt['census_semantic_sha256'] != census.semantic_sha256:
+              raise SystemExit('census semantic identity differs from retained receipt')
+          if int(census_receipt['source_inventory_artifact_id']) != int(os.environ['INVENTORY_ARTIFACT_ID']):
+              raise SystemExit('census receipt references a different inventory artifact')
+          if census.inventory_semantic_sha256 != inventory.semantic_sha256:
+              raise SystemExit('census is detached from frozen inventory')
+          Path('source-provenance-verification.json').write_text(
+              json.dumps(
+                  {
+                      'inventory_artifact_id': int(os.environ['INVENTORY_ARTIFACT_ID']),
+                      'inventory_semantic_sha256': inventory.semantic_sha256,
+                      'census_artifact_id': int(os.environ['CENSUS_ARTIFACT_ID']),
+                      'census_semantic_sha256': census.semantic_sha256,
+                      'census_total_required_timeline_count': census.total_required_timeline_count,
+                  },
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Build immutable preregistered sample plan
+        env:
+          TIMELINE_REQUEST_BUDGET_CAP: ${{ steps.request.outputs.timeline_request_budget_cap }}
+          MAX_SEASONS: ${{ steps.request.outputs.max_seasons }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p timeline-audit-sample-plan
+          python scripts/build_sportradar_timeline_audit_sample.py \
+            --inventory inventory-artifact/historical-inventory-capture/inventory.json \
+            --census census-artifact/season-summaries-census/census.json \
+            --request-budget-cap "$TIMELINE_REQUEST_BUDGET_CAP" \
+            --max-seasons "$MAX_SEASONS" \
+            --output timeline-audit-sample-plan/sample-plan.json \
+            | tee timeline-audit-sample-plan/summary.json
+          test -f timeline-audit-sample-plan/sample-plan.json
+          test -f timeline-audit-sample-plan/sample-plan.sha256
+
+      - name: Build immutable GitHub plan receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          plan_bytes = Path('timeline-audit-sample-plan/sample-plan.json').read_bytes()
+          summary = json.loads(
+              Path('timeline-audit-sample-plan/summary.json').read_text(encoding='utf-8')
+          )
+          payload = {
+              'schema_version': 'tennis-genome-sportradar-timeline-audit-sample-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'inventory_artifact_id': int(os.environ['INVENTORY_ARTIFACT_ID']),
+              'census_artifact_id': int(os.environ['CENSUS_ARTIFACT_ID']),
+              'sample_plan_file_sha256': hashlib.sha256(plan_bytes).hexdigest(),
+              'sample_plan_semantic_sha256': summary['sample_plan_semantic_sha256'],
+              'selected_season_count': summary['selected_season_count'],
+              'selected_timeline_count': summary['selected_timeline_count'],
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('timeline-audit-sample-plan-github-receipt.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          sha256sum timeline-audit-sample-plan-github-receipt.json \
+            > timeline-audit-sample-plan-github-receipt.sha256
+
+      - name: Upload frozen timeline audit sample plan
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sportradar-timeline-audit-sample-plan-${{ github.run_id }}
+          path: |
+            source-artifacts.sha256
+            source-provenance-verification.json
+            timeline-audit-sample-plan/
+            timeline-audit-sample-plan-github-receipt.json
+            timeline-audit-sample-plan-github-receipt.sha256
+          if-no-files-found: error
+          retention-days: 90
