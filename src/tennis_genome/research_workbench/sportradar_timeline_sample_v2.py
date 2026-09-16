@@ -57,7 +57,7 @@ class TimelineAuditSampleV2(WorkbenchRecord):
     selected_rows: tuple[TimelineAuditSampleV2Row, ...]
 
     @model_validator(mode="after")
-    def _reproduce(self) -> "TimelineAuditSampleV2":
+    def _reproduce(self) -> TimelineAuditSampleV2:
         if self.timeline_request_budget_cap <= 0:
             raise ValueError("timeline_request_budget_cap must be positive")
         if self.max_seasons <= 0:
