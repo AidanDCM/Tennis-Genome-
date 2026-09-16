@@ -1,0 +1,191 @@
+name: Sportradar Historical Season Inventory Capture
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/sportradar-historical-inventory-request.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sportradar-historical-season-inventory-capture
+  cancel-in-progress: false
+
+jobs:
+  capture-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate frozen inventory request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/sportradar-historical-inventory-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {'schema_version', 'request_id', 'sportradar_access_level'}
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('historical inventory request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-sportradar-historical-inventory-request-v1':
+              raise SystemExit('unsupported historical inventory request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          access = str(request['sportradar_access_level'])
+          if access not in {'trial', 'production'}:
+              raise SystemExit('sportradar_access_level must be trial or production')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('historical inventory capture must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          output = Path(os.environ['GITHUB_OUTPUT'])
+          with output.open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+              handle.write(f'access_level={access}\n')
+          PY
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SPORTRADAR_API_KEY:-}"
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Capture complete ATP/WTA competition-season inventory
+        env:
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_sportradar_historical_inventory.py \
+            --output-dir historical-inventory-capture \
+            --access-level "${SPORTRADAR_ACCESS_LEVEL}" \
+            | tee historical-inventory-summary.json
+
+      - name: Independently verify frozen inventory structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from tennis_genome.research_workbench.sportradar_exact_time_panel import (
+              parse_season_inventory_bytes,
+              verify_season_inventory_integrity,
+          )
+          from tennis_genome.research_workbench.sportradar_inventory_capture import (
+              HistoricalInventoryCaptureReceipt,
+          )
+
+          root = Path('historical-inventory-capture')
+          inventory_bytes = (root / 'inventory.json').read_bytes()
+          inventory = parse_season_inventory_bytes(inventory_bytes)
+          verify_season_inventory_integrity(inventory)
+          receipt = HistoricalInventoryCaptureReceipt.model_validate_json(
+              (root / 'capture-receipt.json').read_text(encoding='utf-8')
+          )
+          if receipt.inventory_semantic_sha256 != inventory.semantic_sha256:
+              raise SystemExit('capture receipt detached from frozen inventory')
+          if receipt.singles_competition_count != inventory.required_singles_competition_count:
+              raise SystemExit('capture singles denominator does not match inventory')
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          if manifest['inventory_semantic_sha256'] != inventory.semantic_sha256:
+              raise SystemExit('capture manifest detached from frozen inventory')
+          print(json.dumps({
+              'inventory_semantic_sha256': inventory.semantic_sha256,
+              'historical_candidate_count': inventory.historical_candidate_count,
+              'not_yet_historical_count': inventory.not_yet_historical_count,
+              'disabled_season_count': inventory.disabled_season_count,
+              'season_count': inventory.season_count,
+              'singles_competition_count': inventory.required_singles_competition_count,
+          }, sort_keys=True))
+          PY
+
+      - name: Build GitHub capture provenance receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          root = Path('historical-inventory-capture')
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          capture_receipt_bytes = (root / 'capture-receipt.json').read_bytes()
+          inventory_bytes = (root / 'inventory.json').read_bytes()
+          payload = {
+              'schema_version': 'tennis-genome-sportradar-historical-inventory-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'sportradar_access_level': os.environ['SPORTRADAR_ACCESS_LEVEL'],
+              'inventory_file_sha256': hashlib.sha256(inventory_bytes).hexdigest(),
+              'inventory_semantic_sha256': manifest['inventory_semantic_sha256'],
+              'capture_receipt_file_sha256': hashlib.sha256(capture_receipt_bytes).hexdigest(),
+              'capture_receipt_semantic_sha256': manifest['capture_receipt_sha256'],
+              'historical_candidate_count': manifest['historical_candidate_count'],
+              'not_yet_historical_count': manifest['not_yet_historical_count'],
+              'disabled_season_count': manifest['disabled_season_count'],
+              'season_count': manifest['season_count'],
+              'singles_competition_count': manifest['singles_competition_count'],
+              'raw_request_count': manifest['raw_request_count'],
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('historical-inventory-github-receipt.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          sha256sum historical-inventory-github-receipt.json \
+            > historical-inventory-github-receipt.sha256
+
+      - name: Upload complete historical inventory evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sportradar-historical-season-inventory-${{ github.run_id }}
+          path: |
+            historical-inventory-capture/
+            historical-inventory-summary.json
+            historical-inventory-github-receipt.json
+            historical-inventory-github-receipt.sha256
+          if-no-files-found: error
+          retention-days: 90
