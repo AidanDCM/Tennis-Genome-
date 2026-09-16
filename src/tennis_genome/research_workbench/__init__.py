@@ -102,6 +102,12 @@ from .protected import (
 )
 from .registry import ImmutableResearchRegistry
 from .sackmann_availability import sackmann_research_availability_registry
+from .shadow_finalize import (
+    ShadowFinalizationBundle,
+    VerifiedSettlementBinding,
+    binding_from_verified_dossier,
+    finalize_shadow_match,
+)
 from .synthetic import SyntheticWorld, interaction_world, miscalibration_world, null_world
 from .synthetic_benchmark import SyntheticBenchmarkReport, run_synthetic_benchmark
 
@@ -154,6 +160,7 @@ __all__ = [
     "ResearchLifecycleAudit",
     "ResearchLifecycleLedger",
     "RevisionSemantics",
+    "ShadowFinalizationBundle",
     "ShadowModelOutput",
     "ShadowPredictionAnchor",
     "ShadowPredictionRecord",
@@ -163,8 +170,10 @@ __all__ = [
     "T0Policy",
     "TargetBoundary",
     "TimestampSemantics",
+    "VerifiedSettlementBinding",
     "WorkbenchRecord",
     "assert_features_available",
+    "binding_from_verified_dossier",
     "build_canonical_evaluation_binding",
     "build_component_shadow_bundle",
     "build_dynamic_state_development_evidence",
@@ -174,6 +183,7 @@ __all__ = [
     "canonical_record_json",
     "evaluate_feature_availability",
     "evaluate_probabilities",
+    "finalize_shadow_match",
     "fingerprint_code_components",
     "fingerprint_match_population",
     "interaction_world",
