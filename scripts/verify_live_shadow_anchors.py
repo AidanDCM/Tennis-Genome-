@@ -4,9 +4,9 @@ import argparse
 import json
 import os
 import urllib.request
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Callable
 
 
 def _load_object(path: Path) -> dict[str, object]:
