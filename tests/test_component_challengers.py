@@ -63,6 +63,10 @@ def _matchup_input() -> dict[str, object]:
             "elo_logit": 0.21,
             "form_result_30_diff": 0.11,
             "surface_hard_elo": 0.21,
+            "serve_return_edge": 0.03,
+            "h2h_edge": 0.08,
+            "h2h_weighted_edge": 0.06,
+            "opposite_hand_serve_edge": 0.01,
         },
         "serve_return": {
             "probability_a_serve_point": 0.585,
@@ -140,10 +144,15 @@ def test_component_shadow_bundle_rejects_late_capture() -> None:
         _build(created_at=START)
 
 
-def test_component_shadow_bundle_contains_no_fair_price_or_market_payload() -> None:
+def test_component_shadow_bundle_hash_binds_raw_tennis_features_without_copying_them() -> None:
     bundle = _build()
     payload = bundle.snapshot.feature_payload
 
+    assert "matchup_input" not in payload
+    assert len(str(payload["matchup_input_sha256"])) == 64
+    assert len(str(payload["target_resolution_sha256"])) == 64
     assert "fair_decimal_odds" not in payload
     assert "market" not in str(payload).lower()
+    assert "h2h_edge" not in str(payload)
+    assert "serve_return_edge" not in str(payload)
     assert payload["champion_probability_a"] == pytest.approx(0.604)
