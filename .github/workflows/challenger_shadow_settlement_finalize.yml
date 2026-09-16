@@ -1,0 +1,198 @@
+name: Challenger Shadow Trusted Settlement Finalize
+
+on:
+  workflow_dispatch:
+    inputs:
+      shadow_artifact_id:
+        description: Trusted pre-start challenger shadow artifact ID
+        required: true
+        type: string
+      verified_settlement_artifact_id:
+        description: Fully verified champion settlement artifact ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+concurrency:
+  group: challenger-shadow-settlement-${{ inputs.shadow_artifact_id }}
+  cancel-in-progress: false
+
+jobs:
+  finalize-shadow-settlement:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: src
+      SHADOW_LEDGER_ISSUE: "139"
+      SHADOW_SETTLEMENT_LEDGER_ISSUE: "142"
+      SHADOW_ARTIFACT_ID: ${{ inputs.shadow_artifact_id }}
+      VERIFIED_SETTLEMENT_ARTIFACT_ID: ${{ inputs.verified_settlement_artifact_id }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate trusted dispatch inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_EVENT_NAME}" = "workflow_dispatch"
+          test "${GITHUB_REF_NAME}" = "main"
+          test "${GITHUB_REPOSITORY}" = "AidanDCM/Tennis-Genome-"
+          for value in "${SHADOW_ARTIFACT_ID}" "${VERIFIED_SETTLEMENT_ARTIFACT_ID}"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "artifact IDs must be positive integers" >&2; exit 1 ;;
+            esac
+            test "$value" -gt 0
+          done
+
+      - name: Download retained shadow and verified settlement artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            mkdir -p "$out_dir"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact "$SHADOW_ARTIFACT_ID" shadow.zip shadow-artifact
+          download_artifact "$VERIFIED_SETTLEMENT_ARTIFACT_ID" verified-settlement.zip verified-settlement-artifact
+          test -f shadow-artifact/shadow-work/snapshot.json
+          test -d shadow-artifact/shadow-work/predictions
+          test -d shadow-artifact/shadow-work/anchors
+          test -f verified-settlement-artifact/finalized/verified-settlement-dossier.json
+          test -f verified-settlement-artifact/finalized/verified-settlement-dossier.sha256
+          sha256sum shadow.zip verified-settlement.zip | tee input-artifact-sha256.txt
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Revalidate original live shadow anchors
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_live_shadow_anchors.py \
+            --shadow-root shadow-artifact/shadow-work \
+            --repository "$GITHUB_REPOSITORY" \
+            --issue-number "$SHADOW_LEDGER_ISSUE" \
+            --output-dir live-shadow-anchor-verification \
+            | tee live-shadow-anchor-verification.json
+
+      - name: Finalize shadow scores and Failure Atlas
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/finalize_live_shadows.py \
+            --shadow-root shadow-artifact/shadow-work \
+            --verified-settlement-dossier verified-settlement-artifact/finalized/verified-settlement-dossier.json \
+            --verified-settlement-artifact-id "$VERIFIED_SETTLEMENT_ARTIFACT_ID" \
+            --source-shadow-artifact-id "$SHADOW_ARTIFACT_ID" \
+            --output-dir shadow-finalized \
+            | tee shadow-finalization-summary.json
+          test -f shadow-finalized/manifest.json
+          test -f shadow-finalized/finalization-bundle.json
+          test "$(find shadow-finalized/settlements -type f -name '*.json' | wc -l)" -eq 3
+          test "$(find shadow-finalized/failure-atlas -type f -name '*.json' | wc -l)" -eq 3
+
+      - name: Build trusted shadow settlement commitment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_shadow_settlement_anchor.py \
+            --manifest shadow-finalized/manifest.json \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-source-sha "$GITHUB_SHA" \
+            --settlement-ledger-issue "$SHADOW_SETTLEMENT_LEDGER_ISSUE" \
+            --output-json shadow-settlement-anchor-payload.json \
+            --output-body shadow-settlement-anchor.md
+
+      - name: Publish and verify trusted shadow settlement commitment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(cat shadow-settlement-anchor.md)
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/issues/${SHADOW_SETTLEMENT_LEDGER_ISSUE}/comments" \
+            -f body="$body" \
+            > shadow-settlement-comment.json
+          python - <<'PY'
+          import json
+          from datetime import datetime
+          from pathlib import Path
+
+          expected = Path('shadow-settlement-anchor.md').read_text(encoding='utf-8')
+          comment = json.loads(Path('shadow-settlement-comment.json').read_text(encoding='utf-8'))
+          manifest = json.loads(Path('shadow-finalized/manifest.json').read_text(encoding='utf-8'))
+          bundle = json.loads(Path('shadow-finalized/finalization-bundle.json').read_text(encoding='utf-8'))
+          if comment.get('user', {}).get('login') != 'github-actions[bot]':
+              raise SystemExit('shadow settlement anchor author is not github-actions[bot]')
+          if comment.get('created_at') != comment.get('updated_at'):
+              raise SystemExit('shadow settlement anchor comment is edited')
+          if comment.get('body') != expected:
+              raise SystemExit('shadow settlement anchor comment body changed during publication')
+          if not str(comment.get('issue_url', '')).endswith('/issues/142'):
+              raise SystemExit('shadow settlement anchor is not on canonical settlement ledger')
+          created = datetime.fromisoformat(str(comment['created_at']).replace('Z', '+00:00'))
+          actual_start = datetime.fromisoformat(
+              str(bundle['settlement_binding']['actual_start']).replace('Z', '+00:00')
+          )
+          if created <= actual_start:
+              raise SystemExit('shadow settlement anchor predates verified actual start')
+          receipt = {
+              'schema_version': 'tennis-genome-challenger-shadow-settlement-receipt-v1',
+              'comment_id': int(comment['id']),
+              'comment_created_at': comment['created_at'],
+              'comment_updated_at': comment['updated_at'],
+              'source_shadow_artifact_id': manifest['source_shadow_artifact_id'],
+              'verified_settlement_artifact_id': manifest['verified_settlement_artifact_id'],
+              'finalization_bundle_sha256': manifest['finalization_bundle_sha256'],
+          }
+          Path('shadow-settlement-comment-receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Upload complete trusted shadow settlement state
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: challenger-shadow-settlement-${{ inputs.shadow_artifact_id }}
+          path: |
+            input-artifact-sha256.txt
+            live-shadow-anchor-verification.json
+            live-shadow-anchor-verification/
+            shadow-finalization-summary.json
+            shadow-finalized/
+            shadow-settlement-anchor-payload.json
+            shadow-settlement-anchor.md
+            shadow-settlement-comment.json
+            shadow-settlement-comment-receipt.json
+          if-no-files-found: error
+          retention-days: 90
