@@ -259,7 +259,8 @@ jobs:
           sha256sum season-summaries-census-github-receipt.json \
             > season-summaries-census-github-receipt.sha256
 
-      - name: Upload complete Season Summaries census evidence
+      - name: Upload Season Summaries census evidence, including failed partial captures
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: sportradar-historical-season-summaries-census-${{ github.run_id }}
