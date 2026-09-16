@@ -34,6 +34,11 @@ from .challenger import (
     validate_shadow_prediction_set,
     verify_shadow_anchor,
 )
+from .component_challengers import (
+    ComponentShadowBundle,
+    build_component_shadow_bundle,
+    canonical_record_json,
+)
 from .constitution import (
     DEFAULT_TENNIS_RESEARCH_CONSTITUTION,
     REQUIRED_TENNIS_RESEARCH_INVARIANTS,
@@ -108,6 +113,7 @@ __all__ = [
     "ChronologySemantics",
     "CodeFingerprint",
     "CommonPreMatchSnapshot",
+    "ComponentShadowBundle",
     "DEFAULT_TENNIS_RESEARCH_CONSTITUTION",
     "DatasetFingerprint",
     "DynamicStateDevelopmentEvidence",
@@ -160,10 +166,12 @@ __all__ = [
     "WorkbenchRecord",
     "assert_features_available",
     "build_canonical_evaluation_binding",
+    "build_component_shadow_bundle",
     "build_dynamic_state_development_evidence",
     "build_failure_atlas_record",
     "build_league_table",
     "build_shadow_prediction",
+    "canonical_record_json",
     "evaluate_feature_availability",
     "evaluate_probabilities",
     "fingerprint_code_components",
