@@ -119,8 +119,17 @@ def build_component_shadow_bundle(
     if abs(champion_probability_a + champion_probability_b - 1.0) > 1e-9:
         raise ValueError("champion probabilities do not sum to one")
 
+    # The raw matchup is retained inside the trusted champion artifact, but its
+    # legitimate tennis feature names include tokens such as ``serve_return_edge``.
+    # Those tokens intentionally trip the independent-lane market firewall. Bind
+    # the exact raw bytes semantically by canonical SHA instead of copying raw
+    # feature names across that firewall. Challengers consume only the explicit
+    # safe probability/diagnostic fields below.
+    matchup_input_sha256 = _sha256_json(matchup_input)
+    target_resolution_sha256 = _sha256_json(target_resolution)
     safe_payload = {
-        "matchup_input": matchup_input,
+        "matchup_input_sha256": matchup_input_sha256,
+        "target_resolution_sha256": target_resolution_sha256,
         "champion_model_version": str(prediction["model_version"]),
         "champion_probability_a": champion_probability_a,
         "champion_probability_b": champion_probability_b,
