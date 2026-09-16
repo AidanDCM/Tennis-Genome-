@@ -1,0 +1,12 @@
+{
+  "schema_version": "tennis-genome-trusted-dispatch-request-v1",
+  "request_id": "FULL-STACK-FORWARD-001-settlement-20260916-01",
+  "target_workflow": "prospective_settlement_capture.yml",
+  "ref": "main",
+  "inputs": {
+    "prediction_record_sha256": "0a7a6d04000d3def88f52df4304c2d520f3efd007a3614c36078840938cb6e23",
+    "identity_binding_sha256": "d0f56e608619c175e3ca65f5ebd6803246647df946ccd7bbb0d8282c6249f248",
+    "sportradar_event_id": "sr:sport_event:74574094",
+    "sportradar_access_level": "trial"
+  }
+}
