@@ -324,11 +324,11 @@ def capture_timeline_quality_pilot(
             request_count += 1
             stem = _event_filename(event_id)
             if response.status == 200:
-                _validate_timeline_payload(response.body, expected_event_id=event_id)
                 raw_path = timeline_dir / f"{stem}.json"
                 headers_path = timeline_dir / f"{stem}.headers"
                 raw_path.write_bytes(response.body)
                 headers_path.write_bytes(response.headers_bytes())
+                _validate_timeline_payload(response.body, expected_event_id=event_id)
                 valid_timeline_paths.append(raw_path)
                 continue
 
@@ -353,7 +353,9 @@ def capture_timeline_quality_pilot(
                     f"timeline authentication/authorization failed with HTTP {response.status}"
                 )
             if response.status == 429:
-                raise RuntimeError("timeline provider returned HTTP 429; audit stopped without retry")
+                raise RuntimeError(
+                    "timeline provider returned HTTP 429; audit stopped without retry"
+                )
             raise RuntimeError(f"timeline provider returned unexpected HTTP {response.status}")
 
         audit = audit_sportradar_start_time_coverage_v2(
