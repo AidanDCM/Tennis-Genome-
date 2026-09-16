@@ -1,0 +1,223 @@
+name: Challenger Shadow From Prediction Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      prediction_artifact_id:
+        description: Trusted champion prediction artifact ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+concurrency:
+  group: challenger-shadow-${{ inputs.prediction_artifact_id }}
+  cancel-in-progress: false
+
+jobs:
+  build-anchor-shadow:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: src
+      SHADOW_LEDGER_ISSUE: "139"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate dispatch provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_EVENT_NAME}" = "workflow_dispatch"
+          test "${GITHUB_REF_NAME}" = "main"
+          case "${{ inputs.prediction_artifact_id }}" in
+            ''|*[!0-9]*) echo "invalid prediction_artifact_id" >&2; exit 1 ;;
+          esac
+          test "${{ inputs.prediction_artifact_id }}" -gt 0
+
+      - name: Download trusted champion prediction artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p champion-artifact
+          curl --fail --location --silent --show-error \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            --output champion-artifact.zip
+          unzip -q champion-artifact.zip -d champion-artifact
+          test -f champion-artifact/prediction-work/prediction-dossier.json
+          test -f champion-artifact/prediction-work/matchup-input.json
+          mapfile -t targets < <(find champion-artifact -maxdepth 1 -type f -name 'forward-*-target-resolution.json' | sort)
+          test "${#targets[@]}" -eq 1
+          printf '%s\n' "${targets[0]}" > target-resolution-path.txt
+          sha256sum champion-artifact.zip > champion-artifact.zip.sha256
+
+      - name: Install pinned shadow runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Build immutable component shadows
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=$(cat target-resolution-path.txt)
+          python scripts/build_live_component_shadows.py \
+            --prediction-dossier champion-artifact/prediction-work/prediction-dossier.json \
+            --matchup-input champion-artifact/prediction-work/matchup-input.json \
+            --target-resolution "$target" \
+            --output-dir shadow-work \
+            | tee shadow-build-summary.json
+          test -f shadow-work/manifest.json
+          test "$(find shadow-work/predictions -type f -name '*.json' | wc -l)" -eq 3
+
+      - name: Publish and verify trusted shadow anchors
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p shadow-work/anchors
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('shadow-work/manifest.json').read_text(encoding='utf-8'))
+          requests = manifest['anchor_requests']
+          if not isinstance(requests, list) or len(requests) != 3:
+              raise SystemExit('expected exactly three anchor requests')
+          for index, request in enumerate(requests, start=1):
+              Path(f'shadow-work/anchors/request-{index:02d}.json').write_text(
+                  json.dumps(request, sort_keys=True, separators=(',', ':'), ensure_ascii=False),
+                  encoding='utf-8',
+              )
+          PY
+
+          for request in shadow-work/anchors/request-*.json; do
+            python - "$request" "${ARTIFACT_ID}" "${GITHUB_RUN_ID}" <<'PY'
+          import hashlib
+          import json
+          import sys
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          request_path = Path(sys.argv[1])
+          artifact_id = int(sys.argv[2])
+          run_id = int(sys.argv[3])
+          request = json.loads(request_path.read_text(encoding='utf-8'))
+          record_json = request['shadow_record_json']
+          record = json.loads(record_json)
+          canonical = json.dumps(
+              record,
+              sort_keys=True,
+              separators=(',', ':'),
+              ensure_ascii=False,
+              allow_nan=False,
+          )
+          if canonical != record_json:
+              raise SystemExit('shadow record transport is not canonical JSON')
+          digest = hashlib.sha256(canonical.encode('utf-8')).hexdigest()
+          if digest != request['shadow_prediction_sha256']:
+              raise SystemExit('shadow prediction semantic SHA mismatch')
+          scheduled = datetime.fromisoformat(record['scheduled_start'])
+          if scheduled.tzinfo is None or scheduled.utcoffset() is None:
+              raise SystemExit('shadow scheduled_start must be timezone-aware')
+          now = datetime.now(UTC)
+          if now >= scheduled:
+              raise SystemExit('shadow anchor attempted at/after scheduled start')
+          payload = {
+              'schema_version': 'tennis-genome-challenger-shadow-anchor-v1',
+              'repository': 'AidanDCM/Tennis-Genome-',
+              'shadow_ledger_issue': 139,
+              'source_prediction_artifact_id': artifact_id,
+              'workflow_run_id': run_id,
+              'runner_receipt_created_at_utc': now.isoformat(),
+              'shadow_prediction_sha256': digest,
+              'shadow_record': record,
+          }
+          body = (
+              '<!-- TENNIS-GENOME-CHALLENGER-SHADOW-ANCHOR-V1 -->\n'
+              '```json\n'
+              + json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+              + '\n```'
+          )
+          stem = request_path.stem
+          Path(f'shadow-work/anchors/{stem}.comment.md').write_text(body, encoding='utf-8')
+          PY
+
+            stem=$(basename "$request" .json)
+            body=$(cat "shadow-work/anchors/${stem}.comment.md")
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "repos/${GITHUB_REPOSITORY}/issues/${SHADOW_LEDGER_ISSUE}/comments" \
+              -f body="$body" \
+              > "shadow-work/anchors/${stem}.comment.json"
+
+            python - "$request" "shadow-work/anchors/${stem}.comment.md" "shadow-work/anchors/${stem}.comment.json" <<'PY'
+          import json
+          import sys
+          from datetime import datetime
+          from pathlib import Path
+
+          request = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          expected_body = Path(sys.argv[2]).read_text(encoding='utf-8')
+          comment = json.loads(Path(sys.argv[3]).read_text(encoding='utf-8'))
+          if comment.get('user', {}).get('login') != 'github-actions[bot]':
+              raise SystemExit('shadow anchor author is not github-actions[bot]')
+          if comment.get('created_at') != comment.get('updated_at'):
+              raise SystemExit('shadow anchor comment is edited')
+          if comment.get('body') != expected_body:
+              raise SystemExit('shadow anchor comment body changed during publication')
+          record = json.loads(request['shadow_record_json'])
+          created = datetime.fromisoformat(str(comment['created_at']).replace('Z', '+00:00'))
+          scheduled = datetime.fromisoformat(record['scheduled_start'])
+          if created >= scheduled:
+              raise SystemExit('shadow anchor comment is not pre-start')
+          receipt = {
+              'schema_version': 'tennis-genome-challenger-shadow-anchor-receipt-v1',
+              'comment_id': int(comment['id']),
+              'comment_created_at': comment['created_at'],
+              'comment_updated_at': comment['updated_at'],
+              'shadow_prediction_id': request['shadow_prediction_id'],
+              'shadow_prediction_sha256': request['shadow_prediction_sha256'],
+              'scheduled_start': record['scheduled_start'],
+              'snapshot_sha256': record['snapshot_sha256'],
+              'registration_sha256': record['registration_sha256'],
+          }
+          Path(sys.argv[3] + '.receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          done
+
+      - name: Upload shadow evidence bundle
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: challenger-shadow-${{ inputs.prediction_artifact_id }}
+          path: |
+            champion-artifact.zip.sha256
+            target-resolution-path.txt
+            shadow-build-summary.json
+            shadow-work/
+          if-no-files-found: error
+          retention-days: 90
