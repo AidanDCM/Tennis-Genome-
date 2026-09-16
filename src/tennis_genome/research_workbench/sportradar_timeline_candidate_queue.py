@@ -98,7 +98,7 @@ class TimelineCandidateQueue(WorkbenchRecord):
     unavailable_strata: tuple[str, ...]
 
     @model_validator(mode="after")
-    def _reproduce(self) -> "TimelineCandidateQueue":
+    def _reproduce(self) -> TimelineCandidateQueue:
         if self.candidates_per_tour_era_stratum <= 0:
             raise ValueError("candidates_per_tour_era_stratum must be positive")
         if self.candidate_count != len(self.rows):
@@ -167,7 +167,7 @@ def build_timeline_candidate_queue(
             unavailable.append(f"{tour}:{era}")
             continue
         covered.append(f"{tour}:{era}")
-        for rank, season, competition, level in pool[
+        for rank, season, competition, _level in pool[
             :candidates_per_tour_era_stratum
         ]:
             selected_raw.append((tour, era, season, competition, rank))
