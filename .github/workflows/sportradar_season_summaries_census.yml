@@ -1,0 +1,274 @@
+name: Sportradar Historical Season Summaries Census
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/sportradar-season-summaries-census-request.json"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sportradar-historical-season-summaries-census
+  cancel-in-progress: false
+
+jobs:
+  capture-census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate census request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/sportradar-season-summaries-census-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {
+              'schema_version',
+              'request_id',
+              'inventory_artifact_id',
+              'sportradar_access_level',
+              'request_budget_cap',
+          }
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('Season Summaries census request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-sportradar-season-summaries-census-request-v1':
+              raise SystemExit('unsupported Season Summaries census request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          artifact_id = str(request['inventory_artifact_id'])
+          if re.fullmatch(r'[1-9][0-9]*', artifact_id) is None:
+              raise SystemExit('inventory_artifact_id must be a positive integer')
+          access = str(request['sportradar_access_level'])
+          if access not in {'trial', 'production'}:
+              raise SystemExit('sportradar_access_level must be trial or production')
+          budget = request['request_budget_cap']
+          if not isinstance(budget, int) or isinstance(budget, bool) or not 1 <= budget <= 1000:
+              raise SystemExit('request_budget_cap must be an integer in [1, 1000]')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('Season Summaries census must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          output = Path(os.environ['GITHUB_OUTPUT'])
+          with output.open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+              handle.write(f'inventory_artifact_id={artifact_id}\n')
+              handle.write(f'access_level={access}\n')
+              handle.write(f'request_budget_cap={budget}\n')
+          PY
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SPORTRADAR_API_KEY:-}"
+
+      - name: Download frozen inventory artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p inventory-artifact
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${INVENTORY_ARTIFACT_ID}/zip" \
+            --output inventory-artifact.zip
+          unzip -q inventory-artifact.zip -d inventory-artifact
+          test -f inventory-artifact/historical-inventory-capture/inventory.json
+          test -f inventory-artifact/historical-inventory-github-receipt.json
+          sha256sum inventory-artifact.zip > inventory-artifact.zip.sha256
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Verify source inventory and request budget before provider calls
+        env:
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+          REQUEST_BUDGET_CAP: ${{ steps.request.outputs.request_budget_cap }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from tennis_genome.research_workbench.sportradar_exact_time_panel import (
+              parse_season_inventory_bytes,
+              verify_season_inventory_integrity,
+          )
+
+          root = Path('inventory-artifact')
+          inventory_path = root / 'historical-inventory-capture' / 'inventory.json'
+          content = inventory_path.read_bytes()
+          inventory = parse_season_inventory_bytes(content)
+          verify_season_inventory_integrity(inventory)
+          receipt = json.loads(
+              (root / 'historical-inventory-github-receipt.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          if receipt['inventory_file_sha256'] != hashlib.sha256(content).hexdigest():
+              raise SystemExit('downloaded inventory bytes differ from source receipt')
+          if receipt['inventory_semantic_sha256'] != inventory.semantic_sha256:
+              raise SystemExit('downloaded inventory semantic identity differs from source receipt')
+          if str(receipt['sportradar_access_level']) != os.environ['SPORTRADAR_ACCESS_LEVEL']:
+              raise SystemExit('census access level differs from frozen inventory capture')
+          budget = int(os.environ['REQUEST_BUDGET_CAP'])
+          lower_bound = inventory.historical_candidate_count
+          if lower_bound > budget:
+              raise SystemExit(
+                  f'historical candidate lower-bound calls {lower_bound} exceed '
+                  f'explicit request budget cap {budget}; no provider calls made'
+              )
+          Path('source-inventory-verification.json').write_text(
+              json.dumps({
+                  'inventory_artifact_id': int(os.environ['INVENTORY_ARTIFACT_ID']),
+                  'inventory_file_sha256': hashlib.sha256(content).hexdigest(),
+                  'inventory_semantic_sha256': inventory.semantic_sha256,
+                  'historical_candidate_count': inventory.historical_candidate_count,
+                  'request_budget_cap': budget,
+              }, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Capture every historical candidate Season Summaries resource
+        env:
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_sportradar_season_summaries_census.py \
+            --inventory inventory-artifact/historical-inventory-capture/inventory.json \
+            --output-dir season-summaries-census \
+            --access-level "${SPORTRADAR_ACCESS_LEVEL}" \
+            | tee season-summaries-census-summary.json
+
+      - name: Enforce actual request budget and census denominator
+        env:
+          REQUEST_BUDGET_CAP: ${{ steps.request.outputs.request_budget_cap }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          census = json.loads(
+              (Path('season-summaries-census') / 'census.json').read_text(encoding='utf-8')
+          )
+          verification = json.loads(
+              Path('source-inventory-verification.json').read_text(encoding='utf-8')
+          )
+          if census['inventory_semantic_sha256'] != verification['inventory_semantic_sha256']:
+              raise SystemExit('census detached from source inventory')
+          if census['historical_candidate_count'] != verification['historical_candidate_count']:
+              raise SystemExit('census historical denominator differs from source inventory')
+          if len(census['rows']) != census['historical_candidate_count']:
+              raise SystemExit('not every historical candidate has a census row')
+          budget = int(os.environ['REQUEST_BUDGET_CAP'])
+          if census['provider_request_count'] > budget:
+              raise SystemExit(
+                  f"actual census calls {census['provider_request_count']} exceed budget {budget}"
+              )
+          timeline_sum = sum(row['required_timeline_count'] for row in census['rows'])
+          if timeline_sum != census['total_required_timeline_count']:
+              raise SystemExit('timeline request budget does not reproduce from census rows')
+          PY
+
+      - name: Build GitHub census provenance receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          REQUEST_BUDGET_CAP: ${{ steps.request.outputs.request_budget_cap }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          census_bytes = Path('season-summaries-census/census.json').read_bytes()
+          census = json.loads(census_bytes)
+          manifest = json.loads(
+              Path('season-summaries-census/manifest.json').read_text(encoding='utf-8')
+          )
+          payload = {
+              'schema_version': 'tennis-genome-sportradar-season-summaries-census-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'source_inventory_artifact_id': int(os.environ['INVENTORY_ARTIFACT_ID']),
+              'request_budget_cap': int(os.environ['REQUEST_BUDGET_CAP']),
+              'census_file_sha256': hashlib.sha256(census_bytes).hexdigest(),
+              'census_semantic_sha256': manifest['census_semantic_sha256'],
+              'provider_request_count': census['provider_request_count'],
+              'historical_candidate_count': census['historical_candidate_count'],
+              'summaries_captured_count': census['summaries_captured_count'],
+              'history_not_available_count': census['history_not_available_count'],
+              'total_required_timeline_count': census['total_required_timeline_count'],
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('season-summaries-census-github-receipt.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          sha256sum season-summaries-census-github-receipt.json \
+            > season-summaries-census-github-receipt.sha256
+
+      - name: Upload complete Season Summaries census evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sportradar-historical-season-summaries-census-${{ github.run_id }}
+          path: |
+            inventory-artifact.zip.sha256
+            source-inventory-verification.json
+            season-summaries-census/
+            season-summaries-census-summary.json
+            season-summaries-census-github-receipt.json
+            season-summaries-census-github-receipt.sha256
+          if-no-files-found: error
+          retention-days: 90
