@@ -135,6 +135,37 @@ def test_retained_evidence_reproduces_without_network_source_check() -> None:
     assert evidence.anchor_created_at.isoformat() == "2026-09-15T14:00:31+00:00"
 
 
+def test_prediction_anchor_accepts_same_second_comment_precision() -> None:
+    receipt = _receipt()
+    receipt["runner_receipt_created_at_utc"] = "2026-09-15T14:00:30.750000+00:00"
+    comment = _comment(receipt)
+    comment["created_at"] = "2026-09-15T14:00:30Z"
+    comment["updated_at"] = comment["created_at"]
+
+    evidence = fetch_authenticated_prediction_anchor_evidence(
+        comment_id=987654321,
+        expected_prediction_sha256="a" * 64,
+        get_bytes=_fake_get(comment=comment, run=_run(receipt)),
+    )
+
+    assert evidence.anchor_created_at.isoformat() == "2026-09-15T14:00:30+00:00"
+
+
+def test_prediction_anchor_rejects_comment_from_previous_second() -> None:
+    receipt = _receipt()
+    receipt["runner_receipt_created_at_utc"] = "2026-09-15T14:00:30.000001+00:00"
+    comment = _comment(receipt)
+    comment["created_at"] = "2026-09-15T14:00:29Z"
+    comment["updated_at"] = comment["created_at"]
+
+    with pytest.raises(ValueError, match="predates runner receipt"):
+        fetch_authenticated_prediction_anchor_evidence(
+            comment_id=987654321,
+            expected_prediction_sha256="a" * 64,
+            get_bytes=_fake_get(comment=comment, run=_run(receipt)),
+        )
+
+
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [

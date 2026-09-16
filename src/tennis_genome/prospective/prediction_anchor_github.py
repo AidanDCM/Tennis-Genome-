@@ -251,9 +251,15 @@ def _validate_run(
     )
     if runner_created_at < run_created_at:
         raise ValueError("prediction anchor runner receipt predates workflow run")
-    if anchor_created_at < runner_created_at:
+    # GitHub issue-comment timestamps are exposed at whole-second precision while
+    # the runner receipt contains microseconds. Compare at GitHub's observable
+    # precision so a later comment in the same second is not falsely rejected.
+    # A comment in an earlier whole second still fails closed.
+    anchor_second = anchor_created_at.replace(microsecond=0)
+    runner_second = runner_created_at.replace(microsecond=0)
+    if anchor_second < runner_second:
         raise ValueError("prediction anchor comment predates runner receipt")
-    if anchor_created_at - runner_created_at > _MAX_COMMENT_AFTER_RECEIPT:
+    if anchor_second - runner_second > _MAX_COMMENT_AFTER_RECEIPT:
         raise ValueError("prediction anchor comment is too late after runner receipt")
 
 

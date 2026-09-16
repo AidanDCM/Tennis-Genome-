@@ -244,9 +244,14 @@ def _validate_comment(
         expected_identity_sha256=expected_identity_sha256,
         expected_event_id=expected_event_id,
     )
-    if created_at < observed_at:
+    # GitHub issue-comment timestamps have whole-second precision while the runner
+    # observation carries microseconds. Compare at the observable precision so a
+    # comment posted later in the same second is accepted; earlier seconds fail.
+    created_second = created_at.replace(microsecond=0)
+    observed_second = observed_at.replace(microsecond=0)
+    if created_second < observed_second:
         raise ValueError("settlement GitHub comment predates runner observation")
-    if created_at - observed_at > _MAX_COMMENT_AFTER_OBSERVATION:
+    if created_second - observed_second > _MAX_COMMENT_AFTER_OBSERVATION:
         raise ValueError("settlement GitHub commitment is too late after provider observation")
     return receipt, created_at, provider_generated, observed_at
 
