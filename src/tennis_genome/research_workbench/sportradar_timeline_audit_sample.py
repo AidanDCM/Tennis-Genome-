@@ -81,7 +81,7 @@ class TimelineAuditSamplePlan(WorkbenchRecord):
     conflict_or_invalid_timestamps_required_for_promising: int = 0
 
     @model_validator(mode="after")
-    def _reproduce_counts(self) -> "TimelineAuditSamplePlan":
+    def _reproduce_counts(self) -> TimelineAuditSamplePlan:
         if self.request_budget_cap <= 0:
             raise ValueError("request_budget_cap must be positive")
         if self.max_seasons <= 0:
@@ -132,7 +132,7 @@ def _level_family(level: str | None) -> LevelFamily:
 
 
 def _rank_sha(inventory_sha: str, season_id: str) -> str:
-    payload = f"{SELECTION_SEED}|{inventory_sha}|{season_id}".encode("utf-8")
+    payload = f"{SELECTION_SEED}|{inventory_sha}|{season_id}".encode()
     return hashlib.sha256(payload).hexdigest()
 
 
