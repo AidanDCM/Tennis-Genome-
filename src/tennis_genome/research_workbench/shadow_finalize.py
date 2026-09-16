@@ -226,7 +226,7 @@ def _atlas_record(
             "period_scores": list(binding.period_scores),
             "winner_player_id": binding.winner_player_id,
         },
-        deterministic_tags=tuple(tags),
+        deterministic_tags=tuple(sorted(tags)),
     )
 
 
