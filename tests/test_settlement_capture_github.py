@@ -142,6 +142,38 @@ def test_retained_settlement_capture_reproduces_without_source_fetch() -> None:
     assert evidence.comment_id == 975318642
 
 
+def test_settlement_accepts_same_second_comment_precision() -> None:
+    receipt = _receipt()
+    receipt["observed_at"] = "2026-09-15T15:00:30.750000+00:00"
+    comment = _comment(receipt)
+    comment["created_at"] = "2026-09-15T15:00:30Z"
+    comment["updated_at"] = comment["created_at"]
+
+    evidence = fetch_authenticated_settlement_capture_evidence(
+        comment_id=975318642,
+        expected_prediction_sha256="a" * 64,
+        expected_identity_sha256="b" * 64,
+        expected_event_id="sr:sport_event:123456",
+        get_bytes=_fake_get(comment=comment, run=_run(receipt)),
+    )
+
+    assert evidence.comment_created_at.isoformat() == "2026-09-15T15:00:30+00:00"
+
+
+def test_settlement_rejects_comment_from_previous_second() -> None:
+    receipt = _receipt()
+    receipt["observed_at"] = "2026-09-15T15:00:30.000001+00:00"
+    comment = _comment(receipt)
+    comment["created_at"] = "2026-09-15T15:00:29Z"
+    comment["updated_at"] = comment["created_at"]
+
+    with pytest.raises(ValueError, match="predates runner observation"):
+        fetch_authenticated_settlement_capture_evidence(
+            comment_id=975318642,
+            get_bytes=_fake_get(comment=comment, run=_run(receipt)),
+        )
+
+
 @pytest.mark.parametrize(
     ("mutation", "message"),
     [
