@@ -33,6 +33,8 @@ class VerifiedSettlementBinding(WorkbenchRecord):
     player_a_id: str
     player_b_id: str
     winner_player_id: str
+    p_player_a: float
+    p_player_b: float
     actual_start: datetime
     provider_status: str
     finish_status: str
@@ -54,6 +56,13 @@ class VerifiedSettlementBinding(WorkbenchRecord):
         if _SHA256_RE.fullmatch(value) is None:
             raise ValueError("settlement binding hashes must be lowercase SHA-256")
         return value
+
+    @field_validator("p_player_a", "p_player_b")
+    @classmethod
+    def _probability(cls, value: float) -> float:
+        if not math.isfinite(value) or not 0.0 <= value <= 1.0:
+            raise ValueError("champion probabilities must be finite in [0, 1]")
+        return float(value)
 
     @field_validator("actual_start")
     @classmethod
@@ -78,6 +87,8 @@ class VerifiedSettlementBinding(WorkbenchRecord):
             raise ValueError("champion player identities must differ")
         if self.winner_player_id not in (self.player_a_id, self.player_b_id):
             raise ValueError("champion winner does not match player orientation")
+        if abs((self.p_player_a + self.p_player_b) - 1.0) > 1e-9:
+            raise ValueError("champion probabilities must sum to one")
         return self
 
 
@@ -135,6 +146,8 @@ def binding_from_verified_dossier(
         player_a_id=str(dossier["player_a_id"]),
         player_b_id=str(dossier["player_b_id"]),
         winner_player_id=str(dossier["winner_player_id"]),
+        p_player_a=float(dossier["p_player_a"]),
+        p_player_b=float(dossier["p_player_b"]),
         actual_start=datetime.fromisoformat(str(dossier["actual_start"])),
         provider_status=str(dossier["provider_status"]),
         finish_status=str(dossier["finish_status"]),
@@ -227,6 +240,8 @@ def finalize_shadow_match(
 ) -> ShadowFinalizationBundle:
     if settled_at.tzinfo is None or settled_at.utcoffset() is None:
         raise ValueError("settled_at must be timezone-aware")
+    if settled_at < binding.actual_start:
+        raise ValueError("shadow settlement cannot predate the verified actual start")
     validate_shadow_prediction_set(predictions)
     if not predictions:
         raise ValueError("at least one shadow prediction is required")
@@ -240,6 +255,10 @@ def finalize_shadow_match(
     identity = [p for p in predictions if p.output.challenger_id == "TGE-SHADOW-IDENTITY-V1"]
     if len(identity) != 1:
         raise ValueError("exactly one identity shadow control is required")
+    if abs(identity[0].output.p_player_a - binding.p_player_a) > 1e-12:
+        raise ValueError("identity shadow no longer matches the verified champion probability")
+    if abs(identity[0].output.p_player_b - binding.p_player_b) > 1e-12:
+        raise ValueError("identity shadow no longer matches the verified champion probability")
 
     settlements = tuple(
         settle_shadow_prediction(
