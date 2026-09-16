@@ -151,7 +151,7 @@ class TimelineCostProbe(WorkbenchRecord):
     rows: tuple[TimelineCostProbeRow, ...]
 
     @model_validator(mode="after")
-    def _reproduce(self) -> "TimelineCostProbe":
+    def _reproduce(self) -> TimelineCostProbe:
         if self.access_level not in _ALLOWED_ACCESS:
             raise ValueError("unsupported Sportradar access level")
         if self.request_budget_cap <= 0:
