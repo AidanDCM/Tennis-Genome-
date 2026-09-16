@@ -7,6 +7,7 @@ import os
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tennis_genome.prospective.pilot import ProspectivePilotStore, attest_anchor
@@ -62,6 +63,19 @@ def _require_sha256(value: object, *, field: str) -> str:
     if len(text) != 64 or any(char not in "0123456789abcdef" for char in text):
         raise ValueError(f"{field} must be lowercase SHA-256")
     return text
+
+
+def _parse_time(value: object, *, field: str) -> datetime:
+    text = str(value if value is not None else "").strip()
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"{field} must be ISO-8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must be timezone-aware")
+    return parsed.astimezone(UTC)
 
 
 def _record_sha256(unsigned: dict[str, object]) -> str:
@@ -227,7 +241,7 @@ class LivePredictionAnchorStore:
                 record.get("prediction_record_sha256"),
                 field="prediction_record_sha256",
             )
-            _prediction_record(pilot_store, prediction_sha)
+            prediction = _prediction_record(pilot_store, prediction_sha)
             comment_id = int(record.get("github_comment_id", -1))
             run_id = int(record.get("workflow_run_id", -1))
             if comment_id <= 0 or run_id <= 0:
@@ -263,13 +277,24 @@ class LivePredictionAnchorStore:
             if record.get("workflow_source_sha") != retained.workflow_source_sha:
                 raise ValueError("retained prediction anchor source SHA does not reproduce")
 
+            scheduled_start = _parse_time(
+                prediction.get("scheduled_start"),
+                field="prediction.scheduled_start",
+            )
+            if retained.anchor_created_at >= scheduled_start:
+                raise ValueError("live prediction anchor comment was not pre-start")
+
             pilot_anchor = pilot_anchors.get(prediction_sha)
             if pilot_anchor is None:
                 raise ValueError("live prediction anchor lacks corresponding pilot attestation")
             if int(pilot_anchor.get("workflow_run_id", -1)) != run_id:
                 raise ValueError("pilot/live prediction anchor workflow run differs")
-            if pilot_anchor.get("anchor_created_at") != retained.anchor_created_at.isoformat():
-                raise ValueError("pilot/live prediction anchor timestamp differs")
+            pilot_anchor_created_at = _parse_time(
+                pilot_anchor.get("anchor_created_at"),
+                field="pilot_anchor.anchor_created_at",
+            )
+            if pilot_anchor_created_at > retained.anchor_created_at:
+                raise ValueError("pilot prediction anchor timestamp follows live comment")
 
             if revalidate_live:
                 current = fetch_authenticated_prediction_anchor_evidence(
@@ -352,6 +377,13 @@ def attest_live_prediction_anchor(
         if evidence.receipt.get("chain_head_sha256") != prediction_record_sha256:
             raise ValueError("GitHub prediction anchor does not attest current pilot head")
 
+        scheduled_start = _parse_time(
+            prediction.get("scheduled_start"),
+            field="prediction.scheduled_start",
+        )
+        if evidence.anchor_created_at >= scheduled_start:
+            raise ValueError("live prediction anchor comment was not pre-start")
+
         with tempfile.TemporaryDirectory() as temp_dir:
             receipt_path = Path(temp_dir) / "anchor-receipt.json"
             run_path = Path(temp_dir) / "workflow-run.json"
@@ -363,6 +395,13 @@ def attest_live_prediction_anchor(
                 anchor_receipt_path=receipt_path,
                 github_run_metadata_path=run_path,
             )
+
+        pilot_anchor_created_at = _parse_time(
+            pilot_anchor.get("anchor_created_at"),
+            field="pilot_anchor.anchor_created_at",
+        )
+        if pilot_anchor_created_at > evidence.anchor_created_at:
+            raise ValueError("pilot prediction anchor timestamp follows live comment")
 
         comment_sha = live_store._store_evidence(evidence.comment_response_bytes)
         run_sha = live_store._store_evidence(evidence.workflow_run_response_bytes)

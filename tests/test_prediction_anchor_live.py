@@ -26,6 +26,7 @@ class _FakePilotStore:
             "prediction_id": "prediction-001",
             "match_id": "match-001",
             "tour": "ATP",
+            "scheduled_start": "2026-09-15T15:00:00+00:00",
         }
         self._records: list[dict[str, object]] = [self.prediction]
 
@@ -134,7 +135,7 @@ def _patch_attest(monkeypatch: pytest.MonkeyPatch, pilot: _FakePilotStore) -> No
             "record_sha256": "b" * 64,
             "prediction_record_sha256": "a" * 64,
             "workflow_run_id": 123456789,
-            "anchor_created_at": "2026-09-15T14:00:31+00:00",
+            "anchor_created_at": "2026-09-15T14:00:00+00:00",
         }
         pilot._records.append(record)
         return dict(record)
@@ -224,7 +225,7 @@ def test_primary_settlement_without_live_anchor_is_not_promotion_capable(
                 "record_sha256": "b" * 64,
                 "prediction_record_sha256": "a" * 64,
                 "workflow_run_id": 123456789,
-                "anchor_created_at": "2026-09-15T14:00:31+00:00",
+                "anchor_created_at": "2026-09-15T14:00:00+00:00",
             },
             {
                 "record_type": "SETTLEMENT",
