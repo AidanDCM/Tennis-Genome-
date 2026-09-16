@@ -38,9 +38,15 @@ def _find_target_summary(h) -> dict[str, object]:
                 continue
             category = context.get("category") or {}
             competition = context.get("competition") or {}
-            if not isinstance(category, dict) or str(category.get("id")) != "sr:category:6":
+            if (
+                not isinstance(category, dict)
+                or str(category.get("id")) != "sr:category:6"
+            ):
                 continue
-            if not isinstance(competition, dict) or str(competition.get("type", "")).lower() != "singles":
+            if (
+                not isinstance(competition, dict)
+                or str(competition.get("type", "")).lower() != "singles"
+            ):
                 continue
             competitors = event.get("competitors")
             if not isinstance(competitors, list) or len(competitors) != 2:
@@ -53,7 +59,9 @@ def _find_target_summary(h) -> dict[str, object]:
             if names == TARGET_PLAYER_NAMES:
                 candidates.append(summary)
     if len(candidates) != 1:
-        raise RuntimeError(f"expected exactly one Frech-Dolehide target, found {len(candidates)}")
+        raise RuntimeError(
+            f"expected exactly one Frech-Dolehide target, found {len(candidates)}"
+        )
     return candidates[0]
 
 
