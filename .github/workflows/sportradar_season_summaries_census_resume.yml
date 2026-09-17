@@ -1,0 +1,237 @@
+name: Sportradar Historical Season Summaries Census Resume
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/sportradar-season-summaries-resume-request.json"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sportradar-historical-season-summaries-census-resume
+  cancel-in-progress: false
+
+jobs:
+  resume-census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate resume request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/sportradar-season-summaries-resume-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {
+              'schema_version',
+              'request_id',
+              'inventory_artifact_id',
+              'partial_census_artifact_id',
+              'sportradar_access_level',
+              'expected_completed_candidate_count',
+              'expected_next_season_id',
+          }
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('resume request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-sportradar-season-summaries-resume-request-v1':
+              raise SystemExit('unsupported resume request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          for field in ('inventory_artifact_id', 'partial_census_artifact_id'):
+              value = request[field]
+              if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                  raise SystemExit(f'{field} must be a positive integer')
+          access = str(request['sportradar_access_level'])
+          if access not in {'trial', 'production'}:
+              raise SystemExit('sportradar_access_level must be trial or production')
+          completed = request['expected_completed_candidate_count']
+          if not isinstance(completed, int) or isinstance(completed, bool) or completed < 0:
+              raise SystemExit('expected_completed_candidate_count must be non-negative')
+          next_season = request['expected_next_season_id']
+          if next_season is not None and re.fullmatch(r'sr:season:[A-Za-z0-9._-]+', str(next_season)) is None:
+              raise SystemExit('expected_next_season_id has unsupported format')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('census resume must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          output = Path(os.environ['GITHUB_OUTPUT'])
+          with output.open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+              handle.write(f'inventory_artifact_id={request["inventory_artifact_id"]}\n')
+              handle.write(f'partial_artifact_id={request["partial_census_artifact_id"]}\n')
+              handle.write(f'access_level={access}\n')
+              handle.write(f'expected_completed={completed}\n')
+              handle.write(f'expected_next_season={next_season or ""}\n')
+          PY
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SPORTRADAR_API_KEY:-}"
+
+      - name: Download frozen inventory and partial census artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          PARTIAL_ARTIFACT_ID: ${{ steps.request.outputs.partial_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p inventory-artifact partial-artifact
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact "$INVENTORY_ARTIFACT_ID" inventory-artifact.zip inventory-artifact
+          download_artifact "$PARTIAL_ARTIFACT_ID" partial-artifact.zip partial-artifact
+          test -f inventory-artifact/historical-inventory-capture/inventory.json
+          test -d partial-artifact/season-summaries-census/seasons
+          sha256sum inventory-artifact.zip partial-artifact.zip > source-artifacts.sha256
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Reconstruct and verify resume frontier before provider calls
+        env:
+          EXPECTED_COMPLETED: ${{ steps.request.outputs.expected_completed }}
+          EXPECTED_NEXT_SEASON: ${{ steps.request.outputs.expected_next_season }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from tennis_genome.research_workbench.sportradar_season_summaries_resume import (
+              reconstruct_resume_checkpoint,
+          )
+
+          checkpoint = reconstruct_resume_checkpoint(
+              inventory_path=Path('inventory-artifact/historical-inventory-capture/inventory.json'),
+              partial_census_root=Path('partial-artifact/season-summaries-census'),
+          )
+          if checkpoint.completed_candidate_count != int(os.environ['EXPECTED_COMPLETED']):
+              raise SystemExit('reconstructed completed candidate count differs from request')
+          expected_next = os.environ['EXPECTED_NEXT_SEASON'] or None
+          if checkpoint.next_season_id != expected_next:
+              raise SystemExit('reconstructed next season differs from request')
+          if not checkpoint.quota_exhausted:
+              raise SystemExit('source partial artifact is not a quota-paused checkpoint')
+          Path('source-resume-checkpoint.json').write_text(
+              json.dumps(checkpoint.canonical_payload(), indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Resume census from reusable prefix
+        env:
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/resume_sportradar_season_summaries_census.py \
+            --inventory inventory-artifact/historical-inventory-capture/inventory.json \
+            --partial-census-root partial-artifact/season-summaries-census \
+            --output-dir resumed-season-summaries-census \
+            --access-level "${SPORTRADAR_ACCESS_LEVEL}" \
+            | tee resume-summary.json
+
+      - name: Build GitHub resume provenance receipt
+        if: always()
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          INVENTORY_ARTIFACT_ID: ${{ steps.request.outputs.inventory_artifact_id }}
+          PARTIAL_ARTIFACT_ID: ${{ steps.request.outputs.partial_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          checkpoint_path = Path('resumed-season-summaries-census/checkpoint.json')
+          payload = {
+              'schema_version': 'tennis-genome-sportradar-season-summaries-resume-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'source_inventory_artifact_id': int(os.environ['INVENTORY_ARTIFACT_ID']),
+              'source_partial_census_artifact_id': int(os.environ['PARTIAL_ARTIFACT_ID']),
+              'source_artifacts_sha256': hashlib.sha256(Path('source-artifacts.sha256').read_bytes()).hexdigest(),
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          if checkpoint_path.is_file():
+              checkpoint_bytes = checkpoint_path.read_bytes()
+              checkpoint = json.loads(checkpoint_bytes)
+              payload['checkpoint_file_sha256'] = hashlib.sha256(checkpoint_bytes).hexdigest()
+              payload['checkpoint_semantic_sha256'] = checkpoint.get('semantic_sha256')
+              payload['completed_candidate_count'] = checkpoint.get('completed_candidate_count')
+              payload['next_season_id'] = checkpoint.get('next_season_id')
+              payload['quota_exhausted'] = checkpoint.get('quota_exhausted')
+          summary_path = Path('resume-summary.json')
+          if summary_path.is_file():
+              payload['resume_summary'] = json.loads(summary_path.read_text(encoding='utf-8'))
+          Path('season-summaries-resume-github-receipt.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Upload resumed census evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sportradar-historical-season-summaries-resume-${{ github.run_id }}
+          path: |
+            source-artifacts.sha256
+            source-resume-checkpoint.json
+            resumed-season-summaries-census/
+            resume-summary.json
+            season-summaries-resume-github-receipt.json
+          if-no-files-found: error
+          retention-days: 90
