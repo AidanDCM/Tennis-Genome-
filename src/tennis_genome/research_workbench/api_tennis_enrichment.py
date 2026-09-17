@@ -136,6 +136,20 @@ def _parse_percent(value: object, *, field: str) -> float:
     return float(value[:-1]) / 100.0
 
 
+def _parse_qualification(value: object) -> bool:
+    if value in {True, 1, "1"}:
+        return True
+    if value in {False, 0, "0", None}:
+        return False
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized == "true":
+            return True
+        if normalized == "false":
+            return False
+    raise ValueError("event_qualification must be a recognized boolean value")
+
+
 def _stat_lookup(statistics: list[object], *, player_key: int) -> dict[str, dict[str, object]]:
     result: dict[str, dict[str, object]] = {}
     for item in statistics:
@@ -268,7 +282,7 @@ def parse_api_tennis_match_enrichment(row: dict[str, object]) -> ApiTennisMatchE
         tournament_key=tournament_key,
         tournament_round=str(row.get("tournament_round", "")),
         tournament_season=str(row.get("tournament_season", "")),
-        qualification=bool(row.get("event_qualification")),
+        qualification=_parse_qualification(row.get("event_qualification")),
         player_a_stats=_build_player_stats(statistics, player_key=player_a_key),
         player_b_stats=_build_player_stats(statistics, player_key=player_b_key),
         pointbypoint_game_count=len(pointbypoint),
