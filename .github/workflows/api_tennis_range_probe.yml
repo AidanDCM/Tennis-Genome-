@@ -161,7 +161,7 @@ jobs:
               'request_sha256': os.environ['REQUEST_SHA256'],
               'provider_request_count': audit['provider_request_count'],
               'audit_file_sha256': hashlib.sha256(audit_bytes).hexdigest(),
-              'audit_semantic_sha256': audit.get('semantic_sha256'),
+              'audit_semantic_sha256': manifest['audit_semantic_sha256'],
               'raw_response_sha256': hashlib.sha256(raw_bytes).hexdigest(),
               'response_bytes': len(raw_bytes),
               'fixture_count': audit['fixture_count'],
