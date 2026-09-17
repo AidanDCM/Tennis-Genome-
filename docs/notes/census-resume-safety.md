@@ -1,0 +1,1 @@
+Safety invariant: no historical resume request is active while the provider returns quota exhaustion. Resume infrastructure may merge dormant; provider calls require a separate deliberate request artifact.
