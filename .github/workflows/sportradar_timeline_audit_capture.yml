@@ -1,0 +1,272 @@
+name: Sportradar Timeline Audit Capture
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/sportradar-timeline-audit-capture-request.json"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sportradar-timeline-audit-capture
+  cancel-in-progress: false
+
+jobs:
+  capture-timelines:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate capture request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/sportradar-timeline-audit-capture-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {
+              'schema_version',
+              'request_id',
+              'sample_plan_artifact_id',
+              'census_artifact_id',
+              'sportradar_access_level',
+          }
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('timeline capture request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-sportradar-timeline-audit-capture-request-v1':
+              raise SystemExit('unsupported timeline capture request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          for field in ('sample_plan_artifact_id', 'census_artifact_id'):
+              value = request[field]
+              if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                  raise SystemExit(f'{field} must be a positive integer')
+          access = str(request['sportradar_access_level'])
+          if access not in {'trial', 'production'}:
+              raise SystemExit('sportradar_access_level must be trial or production')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('timeline capture must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+              handle.write(f'sample_plan_artifact_id={request["sample_plan_artifact_id"]}\n')
+              handle.write(f'census_artifact_id={request["census_artifact_id"]}\n')
+              handle.write(f'access_level={access}\n')
+          PY
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SPORTRADAR_API_KEY:-}"
+
+      - name: Download frozen sample-plan and census artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SAMPLE_PLAN_ARTIFACT_ID: ${{ steps.request.outputs.sample_plan_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sample-plan-artifact census-artifact
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact "$SAMPLE_PLAN_ARTIFACT_ID" sample-plan-artifact.zip sample-plan-artifact
+          download_artifact "$CENSUS_ARTIFACT_ID" census-artifact.zip census-artifact
+          test -f sample-plan-artifact/timeline-audit-sample-plan/sample-plan.json
+          test -f sample-plan-artifact/timeline-audit-sample-plan-github-receipt.json
+          test -f census-artifact/season-summaries-census/census.json
+          test -f census-artifact/season-summaries-census/manifest.json
+          test -f census-artifact/season-summaries-census-github-receipt.json
+          sha256sum sample-plan-artifact.zip census-artifact.zip > source-artifacts.sha256
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Revalidate source provenance and frozen budget
+        env:
+          SAMPLE_PLAN_ARTIFACT_ID: ${{ steps.request.outputs.sample_plan_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from tennis_genome.research_workbench.sportradar_season_summaries_census import (
+              SeasonSummariesCensus,
+          )
+          from tennis_genome.research_workbench.sportradar_timeline_audit_sample import (
+              TimelineAuditSamplePlan,
+          )
+
+          plan_path = Path('sample-plan-artifact/timeline-audit-sample-plan/sample-plan.json')
+          census_path = Path('census-artifact/season-summaries-census/census.json')
+          plan_bytes = plan_path.read_bytes()
+          census_bytes = census_path.read_bytes()
+          plan = TimelineAuditSamplePlan.model_validate_json(plan_bytes)
+          census = SeasonSummariesCensus.model_validate_json(census_bytes)
+          plan_receipt = json.loads(
+              Path('sample-plan-artifact/timeline-audit-sample-plan-github-receipt.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          census_receipt = json.loads(
+              Path('census-artifact/season-summaries-census-github-receipt.json').read_text(
+                  encoding='utf-8'
+              )
+          )
+          if int(plan_receipt['census_artifact_id']) != int(os.environ['CENSUS_ARTIFACT_ID']):
+              raise SystemExit('sample-plan receipt references a different census artifact')
+          if plan_receipt['sample_plan_file_sha256'] != hashlib.sha256(plan_bytes).hexdigest():
+              raise SystemExit('sample-plan bytes differ from retained GitHub receipt')
+          if plan_receipt['sample_plan_semantic_sha256'] != plan.semantic_sha256:
+              raise SystemExit('sample-plan semantic identity differs from retained receipt')
+          if census_receipt['census_file_sha256'] != hashlib.sha256(census_bytes).hexdigest():
+              raise SystemExit('census bytes differ from retained GitHub receipt')
+          if census_receipt['census_semantic_sha256'] != census.semantic_sha256:
+              raise SystemExit('census semantic identity differs from retained receipt')
+          if plan.census_semantic_sha256 != census.semantic_sha256:
+              raise SystemExit('sample plan is detached from the supplied census')
+          if census.access_level != os.environ['SPORTRADAR_ACCESS_LEVEL']:
+              raise SystemExit('timeline capture access level differs from frozen census')
+          if plan.selected_timeline_count > 150:
+              raise SystemExit('selected timeline sample exceeds hard 150-call workflow ceiling')
+          if plan.selected_timeline_count <= 0:
+              raise SystemExit('selected timeline sample is empty')
+          Path('source-provenance-verification.json').write_text(
+              json.dumps(
+                  {
+                      'sample_plan_artifact_id': int(os.environ['SAMPLE_PLAN_ARTIFACT_ID']),
+                      'sample_plan_semantic_sha256': plan.semantic_sha256,
+                      'census_artifact_id': int(os.environ['CENSUS_ARTIFACT_ID']),
+                      'census_semantic_sha256': census.semantic_sha256,
+                      'selected_timeline_count': plan.selected_timeline_count,
+                      'selected_season_count': plan.selected_season_count,
+                  },
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Capture frozen Timeline sample and apply exact-time admission
+        env:
+          SPORTRADAR_ACCESS_LEVEL: ${{ steps.request.outputs.access_level }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_sportradar_timeline_audit_sample.py \
+            --sample-plan sample-plan-artifact/timeline-audit-sample-plan/sample-plan.json \
+            --census census-artifact/season-summaries-census/census.json \
+            --census-root census-artifact/season-summaries-census \
+            --output-dir timeline-audit-capture \
+            --repo-root . \
+            --access-level "${SPORTRADAR_ACCESS_LEVEL}" \
+            | tee timeline-audit-capture-summary.json
+
+      - name: Build GitHub capture provenance receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          SAMPLE_PLAN_ARTIFACT_ID: ${{ steps.request.outputs.sample_plan_artifact_id }}
+          CENSUS_ARTIFACT_ID: ${{ steps.request.outputs.census_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          capture_bytes = Path('timeline-audit-capture/capture.json').read_bytes()
+          capture = json.loads(capture_bytes)
+          manifest = json.loads(
+              Path('timeline-audit-capture/manifest.json').read_text(encoding='utf-8')
+          )
+          payload = {
+              'schema_version': 'tennis-genome-sportradar-timeline-audit-capture-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'sample_plan_artifact_id': int(os.environ['SAMPLE_PLAN_ARTIFACT_ID']),
+              'census_artifact_id': int(os.environ['CENSUS_ARTIFACT_ID']),
+              'capture_file_sha256': hashlib.sha256(capture_bytes).hexdigest(),
+              'capture_semantic_sha256': manifest['capture_semantic_sha256'],
+              'provider_request_count': capture['provider_request_count'],
+              'selected_timeline_count': capture['selected_timeline_count'],
+              'captured_timeline_count': capture['captured_timeline_count'],
+              'history_not_available_count': capture['history_not_available_count'],
+              'admitted_season_count': capture['admitted_season_count'],
+              'rejected_season_count': capture['rejected_season_count'],
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('timeline-audit-capture-github-receipt.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          sha256sum timeline-audit-capture-github-receipt.json \
+            > timeline-audit-capture-github-receipt.sha256
+
+      - name: Upload Timeline audit evidence, including failed partial captures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: sportradar-timeline-audit-capture-${{ github.run_id }}
+          path: |
+            source-artifacts.sha256
+            source-provenance-verification.json
+            timeline-audit-capture/
+            timeline-audit-capture-summary.json
+            timeline-audit-capture-github-receipt.json
+            timeline-audit-capture-github-receipt.sha256
+          if-no-files-found: error
+          retention-days: 90
