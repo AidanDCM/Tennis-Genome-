@@ -121,7 +121,7 @@ def inspect_fixture_payload(raw: bytes, *, requested_date: str) -> ApiTennisSour
         raise ValueError("API-Tennis response must be UTF-8 JSON") from exc
     if not isinstance(payload, dict):
         raise ValueError("API-Tennis response must be a JSON object")
-    if payload.get("success") not in {1, "1", True}:
+    if payload.get("success") not in (1, "1"):
         raise ValueError("API-Tennis response did not report success")
     fixtures = payload.get("result")
     if not isinstance(fixtures, list):
