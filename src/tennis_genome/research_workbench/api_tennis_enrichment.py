@@ -190,7 +190,9 @@ def _plain_int(stats: dict[str, dict[str, object]], name: str) -> int:
     return value
 
 
-def _build_player_stats(statistics: list[object], *, player_key: int) -> ApiTennisPlayerMatchStats:
+def _build_player_stats(
+    statistics: list[object], *, player_key: int
+) -> ApiTennisPlayerMatchStats:
     stats = _stat_lookup(statistics, player_key=player_key)
     first_serve_won, first_serve_total = _won_total(stats, "1st serve points won")
     second_serve_won, second_serve_total = _won_total(stats, "2nd serve points won")
@@ -250,7 +252,9 @@ def _canonical_match_sha(row: dict[str, object]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def parse_api_tennis_match_enrichment(row: dict[str, object]) -> ApiTennisMatchEnrichment:
+def parse_api_tennis_match_enrichment(
+    row: dict[str, object],
+) -> ApiTennisMatchEnrichment:
     event_type = row.get("event_type_type")
     if event_type not in _ALLOWED_TYPES:
         raise ValueError("match is not ATP/WTA singles")
@@ -296,7 +300,9 @@ def parse_api_tennis_match_enrichment(row: dict[str, object]) -> ApiTennisMatchE
     )
 
 
-def build_api_tennis_enrichment_batch(raw: bytes, *, requested_date: str) -> ApiTennisEnrichmentBatch:
+def build_api_tennis_enrichment_batch(
+    raw: bytes, *, requested_date: str
+) -> ApiTennisEnrichmentBatch:
     if date.fromisoformat(requested_date).isoformat() != requested_date:
         raise ValueError("requested_date must be canonical YYYY-MM-DD")
     payload = json.loads(raw.decode("utf-8"))
@@ -336,7 +342,13 @@ def build_api_tennis_enrichment_batch(raw: bytes, *, requested_date: str) -> Api
         seen_event_keys.add(record.event_key)
         admitted.append(record)
 
-    admitted.sort(key=lambda record: (record.event_date, record.scheduled_time_utc, record.event_key))
+    admitted.sort(
+        key=lambda record: (
+            record.event_date,
+            record.scheduled_time_utc,
+            record.event_key,
+        )
+    )
     return ApiTennisEnrichmentBatch(
         requested_date=requested_date,
         raw_response_sha256=hashlib.sha256(raw).hexdigest(),
