@@ -137,15 +137,20 @@ def _parse_percent(value: object, *, field: str) -> float:
 
 
 def _parse_qualification(value: object) -> bool:
-    if value in {True, 1, "1"}:
+    if value is True:
         return True
-    if value in {False, 0, "0", None}:
+    if value is False or value is None:
         return False
+    if type(value) is int:
+        if value == 1:
+            return True
+        if value == 0:
+            return False
     if isinstance(value, str):
         normalized = value.strip().lower()
-        if normalized == "true":
+        if normalized in {"1", "true"}:
             return True
-        if normalized == "false":
+        if normalized in {"0", "false"}:
             return False
     raise ValueError("event_qualification must be a recognized boolean value")
 
