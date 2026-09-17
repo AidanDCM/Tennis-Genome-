@@ -1,0 +1,1 @@
+Source artifacts for the current frozen resume point: historical inventory artifact `10463977199`; quota-limited Season Summaries partial artifact `10501779884`. These identifiers are evidence references only and do not themselves trigger provider calls.
