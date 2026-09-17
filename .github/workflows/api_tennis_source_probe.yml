@@ -1,0 +1,174 @@
+name: API-Tennis One-Request Source Admission Probe
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/api-tennis-source-probe-request.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-tennis-source-admission-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+      API_TENNIS_API: ${{ secrets.API_TENNIS_API }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate one-request probe contract
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from datetime import date
+          from pathlib import Path
+
+          path = Path('.github/api-tennis-source-probe-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {
+              'schema_version',
+              'request_id',
+              'requested_date',
+              'provider_request_budget',
+          }
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('API-Tennis probe request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-api-tennis-source-probe-request-v1':
+              raise SystemExit('unsupported API-Tennis probe request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          requested_date = str(request['requested_date'])
+          try:
+              parsed = date.fromisoformat(requested_date)
+          except ValueError as exc:
+              raise SystemExit('requested_date must be YYYY-MM-DD') from exc
+          if parsed.isoformat() != requested_date:
+              raise SystemExit('requested_date must use canonical YYYY-MM-DD form')
+          if request['provider_request_budget'] != 1:
+              raise SystemExit('API-Tennis source admission probe must spend exactly one request')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('API-Tennis probe must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'requested_date={requested_date}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+          PY
+
+      - name: Require API-Tennis credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${API_TENNIS_API:-}"
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Execute exactly one fixtures request
+        env:
+          REQUESTED_DATE: ${{ steps.request.outputs.requested_date }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/audit_api_tennis_source.py \
+            --date "${REQUESTED_DATE}" \
+            --output-dir api-tennis-source-probe \
+            | tee probe-summary.json
+
+      - name: Verify request budget and source-admission invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          audit = json.loads(Path('api-tennis-source-probe/audit.json').read_text(encoding='utf-8'))
+          manifest = json.loads(Path('api-tennis-source-probe/manifest.json').read_text(encoding='utf-8'))
+          if audit.get('provider_request_count') != 1:
+              raise SystemExit('provider request count is not exactly one')
+          if manifest.get('provider_request_count') != 1:
+              raise SystemExit('manifest provider request count is not exactly one')
+          if audit.get('historical_actual_start_admissible') is not False:
+              raise SystemExit('probe may not auto-admit scheduled event_time as historical actual start')
+          if manifest.get('historical_actual_start_admissible') is not False:
+              raise SystemExit('manifest may not auto-admit scheduled event_time as historical actual start')
+          if not Path('api-tennis-source-probe/raw-fixtures.json').is_file():
+              raise SystemExit('raw fixtures evidence is missing')
+          PY
+
+      - name: Build GitHub provenance receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          REQUESTED_DATE: ${{ steps.request.outputs.requested_date }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          audit_bytes = Path('api-tennis-source-probe/audit.json').read_bytes()
+          raw_bytes = Path('api-tennis-source-probe/raw-fixtures.json').read_bytes()
+          audit = json.loads(audit_bytes)
+          receipt = {
+              'schema_version': 'tennis-genome-api-tennis-source-probe-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'requested_date': os.environ['REQUESTED_DATE'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'provider_request_count': audit['provider_request_count'],
+              'audit_file_sha256': hashlib.sha256(audit_bytes).hexdigest(),
+              'audit_semantic_sha256': audit.get('semantic_sha256'),
+              'raw_response_sha256': hashlib.sha256(raw_bytes).hexdigest(),
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('api-tennis-source-probe-github-receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Upload source-admission evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-source-probe-${{ github.run_id }}
+          path: |
+            api-tennis-source-probe/
+            probe-summary.json
+            api-tennis-source-probe-github-receipt.json
+          if-no-files-found: error
+          retention-days: 90
