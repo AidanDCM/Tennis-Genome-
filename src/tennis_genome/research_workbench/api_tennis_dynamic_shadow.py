@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import date
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState
 from tennis_genome.ratings.dynamic_serve_return import walk_forward_dynamic_serve_return
@@ -14,6 +16,17 @@ from .api_tennis_matchstats_bridge import api_tennis_enrichment_to_match_stats
 from .contracts import WorkbenchRecord
 
 SHADOW_MODEL_ID = "TGE-SHADOW-API-TENNIS-DYNAMIC-SR-V1"
+
+
+def _canonical_sha256(payload: object) -> str:
+    raw = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
 
 
 class ApiTennisDynamicShadowRecord(WorkbenchRecord):
@@ -46,6 +59,13 @@ class ApiTennisDynamicShadowRecord(WorkbenchRecord):
             raise ValueError("probabilities must be in [0, 1]")
         return value
 
+    @field_validator("source_raw_match_sha256")
+    @classmethod
+    def _source_hash(cls, value: str) -> str:
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("source_raw_match_sha256 must be lowercase SHA-256")
+        return value
+
 
 class ApiTennisDynamicShadowBatch(WorkbenchRecord):
     model_id: Literal["TGE-SHADOW-API-TENNIS-DYNAMIC-SR-V1"] = SHADOW_MODEL_ID
@@ -53,12 +73,28 @@ class ApiTennisDynamicShadowBatch(WorkbenchRecord):
     record_count: int
     records: tuple[ApiTennisDynamicShadowRecord, ...]
 
+    @field_validator("source_batch_sha256")
+    @classmethod
+    def _source_hash(cls, value: str) -> str:
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("source_batch_sha256 must be lowercase SHA-256")
+        return value
+
     @field_validator("record_count")
     @classmethod
     def _record_count(cls, value: int) -> int:
         if value < 0:
             raise ValueError("record_count must be non-negative")
         return value
+
+    @model_validator(mode="after")
+    def _cardinality(self) -> Self:
+        if self.record_count != len(self.records):
+            raise ValueError("record_count must equal records cardinality")
+        match_ids = [record.match_id for record in self.records]
+        if len(match_ids) != len(set(match_ids)):
+            raise ValueError("shadow records must have unique match_id values")
+        return self
 
 
 def _historical_match(
@@ -172,7 +208,7 @@ def build_api_tennis_dynamic_shadow_batch(
             )
         )
 
-    combined_source_sha = WorkbenchRecord.semantic_hash_payload(
+    combined_source_sha = _canonical_sha256(
         {
             "source_batch_semantic_sha256": sorted(source_hashes),
             "event_semantic_sha256": [record.semantic_sha256 for record in ordered_records],
