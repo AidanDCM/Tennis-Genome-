@@ -22,6 +22,11 @@ def resume_season_summaries_census(
 ) -> tuple[SeasonSummariesCensus | None, v1.CensusResumeCheckpoint]:
     """Resume a census while preserving cumulative quota-stop response accounting."""
 
+    if access_level not in v1.v1._ALLOWED_ACCESS:
+        raise ValueError("Sportradar access level must be trial or production")
+    if not api_key.strip():
+        raise ValueError("SPORTRADAR_API_KEY must be configured")
+
     source_checkpoint = v1.reconstruct_resume_checkpoint(
         inventory_path=inventory_path,
         partial_census_root=partial_census_root,
