@@ -83,7 +83,10 @@ class TimelineSampleCapture(WorkbenchRecord):
             row.history_not_available_count for row in self.rows
         ):
             raise ValueError("unavailable timeline count does not reproduce from rows")
-        if self.captured_timeline_count + self.history_not_available_count != self.selected_timeline_count:
+        if (
+            self.captured_timeline_count + self.history_not_available_count
+            != self.selected_timeline_count
+        ):
             raise ValueError("timeline dispositions do not cover the frozen selected denominator")
         if self.admitted_season_count != sum(
             row.admission_status == "ADMITTED" for row in self.rows
