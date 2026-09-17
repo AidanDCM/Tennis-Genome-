@@ -1,21 +1,21 @@
-name: API-Tennis One-Request Seven-Day Range Probe
+name: API-Tennis Filtered ATP-WTA Range Capture
 
 on:
   push:
     branches:
       - main
     paths:
-      - ".github/api-tennis-range-probe-request.json"
+      - ".github/api-tennis-filtered-range-request.json"
 
 permissions:
   contents: read
 
 concurrency:
-  group: api-tennis-seven-day-range-probe
+  group: api-tennis-filtered-range-capture
   cancel-in-progress: false
 
 jobs:
-  probe:
+  capture:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
@@ -29,7 +29,7 @@ jobs:
           python-version: "3.11.16"
           check-latest: false
 
-      - name: Validate seven-day one-request contract
+      - name: Validate filtered two-request contract
         id: request
         shell: bash
         run: |
@@ -42,7 +42,7 @@ jobs:
           from datetime import date
           from pathlib import Path
 
-          path = Path('.github/api-tennis-range-probe-request.json')
+          path = Path('.github/api-tennis-filtered-range-request.json')
           raw = path.read_bytes()
           request = json.loads(raw)
           expected = {
@@ -51,11 +51,12 @@ jobs:
               'date_start',
               'date_stop',
               'provider_request_budget',
+              'event_type_keys',
           }
           if not isinstance(request, dict) or set(request) != expected:
-              raise SystemExit('API-Tennis range probe request has unexpected fields')
-          if request['schema_version'] != 'tennis-genome-api-tennis-range-probe-request-v1':
-              raise SystemExit('unsupported API-Tennis range probe request schema')
+              raise SystemExit('filtered API-Tennis request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-api-tennis-filtered-range-request-v1':
+              raise SystemExit('unsupported filtered request schema')
           request_id = str(request['request_id'])
           if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
               raise SystemExit('request_id has unsupported format')
@@ -65,12 +66,14 @@ jobs:
           except ValueError as exc:
               raise SystemExit('range dates must use YYYY-MM-DD') from exc
           span_days = (stop - start).days + 1
-          if span_days != 7:
-              raise SystemExit('first API-Tennis range probe must span exactly seven days')
-          if request['provider_request_budget'] != 1:
-              raise SystemExit('API-Tennis range probe must spend exactly one request')
+          if span_days < 1 or span_days > 31:
+              raise SystemExit('filtered range must span 1 to 31 days')
+          if request['provider_request_budget'] != 2:
+              raise SystemExit('filtered capture must spend exactly two requests')
+          if request['event_type_keys'] != ['265', '266']:
+              raise SystemExit('filtered capture is frozen to ATP/WTA singles keys 265/266')
           if os.environ.get('GITHUB_REF_NAME') != 'main':
-              raise SystemExit('API-Tennis range probe must run from main')
+              raise SystemExit('filtered capture must run from main')
           if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
               raise SystemExit('unexpected repository')
           with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
@@ -93,20 +96,20 @@ jobs:
           python -m pip install -r requirements/ci.lock
           python -m pip install -e . --no-deps
 
-      - name: Execute exactly one seven-day fixtures request
+      - name: Execute exactly two filtered fixtures requests
         env:
           DATE_START: ${{ steps.request.outputs.date_start }}
           DATE_STOP: ${{ steps.request.outputs.date_stop }}
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/audit_api_tennis_range.py \
+          python scripts/audit_api_tennis_filtered_range.py \
             --date-start "${DATE_START}" \
             --date-stop "${DATE_STOP}" \
-            --output-dir api-tennis-range-probe \
-            | tee range-probe-summary.json
+            --output-dir api-tennis-filtered-range \
+            | tee filtered-range-summary.json
 
-      - name: Verify request budget and range invariants
+      - name: Verify request budget and filtering invariants
         shell: bash
         run: |
           set -euo pipefail
@@ -114,20 +117,29 @@ jobs:
           import json
           from pathlib import Path
 
-          audit = json.loads(Path('api-tennis-range-probe/audit.json').read_text(encoding='utf-8'))
-          manifest = json.loads(
-              Path('api-tennis-range-probe/manifest.json').read_text(encoding='utf-8')
+          audit = json.loads(
+              Path('api-tennis-filtered-range/audit.json').read_text(encoding='utf-8')
           )
-          if audit.get('provider_request_count') != 1:
-              raise SystemExit('provider request count is not exactly one')
-          if audit.get('span_days') != 7 or manifest.get('span_days') != 7:
-              raise SystemExit('range probe did not retain the frozen seven-day span')
+          manifest = json.loads(
+              Path('api-tennis-filtered-range/manifest.json').read_text(encoding='utf-8')
+          )
+          if audit.get('provider_request_count') != 2:
+              raise SystemExit('provider request count is not exactly two')
+          if audit.get('atp_event_type_key') != '265':
+              raise SystemExit('ATP event type key mismatch')
+          if audit.get('wta_event_type_key') != '266':
+              raise SystemExit('WTA event type key mismatch')
           if audit.get('historical_actual_start_admissible') is not False:
-              raise SystemExit('scheduled time may not be promoted to historical actual start')
+              raise SystemExit('scheduled time may not become actual-start evidence')
           if manifest.get('historical_actual_start_admissible') is not False:
               raise SystemExit('manifest chronology policy mismatch')
-          if not Path('api-tennis-range-probe/raw-fixtures.json').is_file():
-              raise SystemExit('raw range evidence is missing')
+          if manifest.get('provider_request_count') != 2:
+              raise SystemExit('manifest provider request count mismatch')
+          if not manifest.get('serve_return_input_sha256'):
+              raise SystemExit('serve/return model-input hash missing')
+          for name in ('raw-atp-fixtures.json', 'raw-wta-fixtures.json'):
+              if not Path('api-tennis-filtered-range', name).is_file():
+                  raise SystemExit(f'missing retained raw response: {name}')
           PY
 
       - name: Build GitHub provenance receipt
@@ -146,11 +158,11 @@ jobs:
           from datetime import UTC, datetime
           from pathlib import Path
 
-          audit_bytes = Path('api-tennis-range-probe/audit.json').read_bytes()
-          raw_bytes = Path('api-tennis-range-probe/raw-fixtures.json').read_bytes()
-          audit = json.loads(audit_bytes)
+          audit_bytes = Path('api-tennis-filtered-range/audit.json').read_bytes()
+          manifest_bytes = Path('api-tennis-filtered-range/manifest.json').read_bytes()
+          manifest = json.loads(manifest_bytes)
           receipt = {
-              'schema_version': 'tennis-genome-api-tennis-range-probe-github-receipt-v1',
+              'schema_version': 'tennis-genome-api-tennis-filtered-range-github-receipt-v1',
               'repository': os.environ['GITHUB_REPOSITORY'],
               'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
               'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
@@ -159,29 +171,31 @@ jobs:
               'date_start': os.environ['DATE_START'],
               'date_stop': os.environ['DATE_STOP'],
               'request_sha256': os.environ['REQUEST_SHA256'],
-              'provider_request_count': audit['provider_request_count'],
+              'provider_request_count': manifest['provider_request_count'],
               'audit_file_sha256': hashlib.sha256(audit_bytes).hexdigest(),
+              'manifest_file_sha256': hashlib.sha256(manifest_bytes).hexdigest(),
               'audit_semantic_sha256': manifest['audit_semantic_sha256'],
-              'raw_response_sha256': hashlib.sha256(raw_bytes).hexdigest(),
-              'response_bytes': len(raw_bytes),
-              'fixture_count': audit['fixture_count'],
-              'atp_singles_count': audit['atp_singles_count'],
-              'wta_singles_count': audit['wta_singles_count'],
+              'raw_atp_sha256': manifest['raw_atp_sha256'],
+              'raw_wta_sha256': manifest['raw_wta_sha256'],
+              'combined_raw_sha256': manifest['combined_raw_sha256'],
+              'serve_return_input_sha256': manifest['serve_return_input_sha256'],
+              'fixture_count': manifest['fixture_count'],
+              'response_bytes_total': manifest['response_bytes_total'],
               'created_at_utc': datetime.now(UTC).isoformat(),
           }
-          Path('api-tennis-range-probe-github-receipt.json').write_text(
+          Path('api-tennis-filtered-range-github-receipt.json').write_text(
               json.dumps(receipt, indent=2, sort_keys=True) + '\n',
               encoding='utf-8',
           )
           PY
 
-      - name: Upload range-probe evidence
+      - name: Upload filtered range evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: api-tennis-range-probe-${{ github.run_id }}
+          name: api-tennis-filtered-range-${{ github.run_id }}
           path: |
-            api-tennis-range-probe/
-            range-probe-summary.json
-            api-tennis-range-probe-github-receipt.json
+            api-tennis-filtered-range/
+            filtered-range-summary.json
+            api-tennis-filtered-range-github-receipt.json
           if-no-files-found: error
           retention-days: 90
