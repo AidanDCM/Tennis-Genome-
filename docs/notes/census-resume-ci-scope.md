@@ -1,0 +1,1 @@
+CI scope for resumable census work: lint; full pytest; checkpoint reconstruction invariants; quota-pause behavior; no duplicate request of completed prefix; dormant workflow safety. No live Sportradar request is required for CI.

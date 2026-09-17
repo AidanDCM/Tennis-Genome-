@@ -1,0 +1,7 @@
+{
+  "schema_version": "tennis-genome-sportradar-season-summaries-resume-request-v1",
+  "request_id": "EXAMPLE-DO-NOT-RUN",
+  "inventory_artifact_id": 0,
+  "partial_census_artifact_id": 0,
+  "sportradar_access_level": "trial"
+}
