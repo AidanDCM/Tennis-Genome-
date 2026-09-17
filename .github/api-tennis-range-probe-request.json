@@ -1,0 +1,7 @@
+{
+  "schema_version": "tennis-genome-api-tennis-range-probe-request-v1",
+  "request_id": "API-TENNIS-RANGE-001-20260910-20260916",
+  "date_start": "2026-09-10",
+  "date_stop": "2026-09-16",
+  "provider_request_budget": 1
+}
