@@ -79,6 +79,9 @@ jobs:
                   'prediction_artifact_id',
                   'history_artifact_id',
               },
+              'api_tennis_daily_inventory.yml': {
+                  'schedule_date',
+              },
               'prospective_settlement_capture.yml': {
                   'prediction_record_sha256',
                   'prediction_artifact_id',
