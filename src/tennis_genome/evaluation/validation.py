@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from datetime import date
-from typing import Any, Iterable
+from typing import Any
 
 from .metrics import (
     accuracy,
@@ -187,7 +188,12 @@ def _calibration_fit(
     return CalibrationFit(intercept=intercept, slope=slope)
 
 
-def _wilson_interval(successes: int, n: int, *, z: float = 1.959963984540054) -> tuple[float, float]:
+def _wilson_interval(
+    successes: int,
+    n: int,
+    *,
+    z: float = 1.959963984540054,
+) -> tuple[float, float]:
     if n <= 0 or successes < 0 or successes > n:
         raise ValueError("Wilson interval requires 0 <= successes <= n and n > 0")
     p = successes / n
@@ -201,7 +207,11 @@ def _wilson_interval(successes: int, n: int, *, z: float = 1.959963984540054) ->
     return max(0.0, center - radius), min(1.0, center + radius)
 
 
-def _maximum_calibration_error(y_true: list[bool], probabilities: list[float], n_bins: int) -> float:
+def _maximum_calibration_error(
+    y_true: list[bool],
+    probabilities: list[float],
+    n_bins: int,
+) -> float:
     buckets = calibration_bins(y_true, probabilities, n_bins=n_bins)
     return max(
         abs(bucket.mean_probability - bucket.observed_rate)
@@ -220,8 +230,16 @@ def _summary(observations: list[ValidationObservation], *, n_bins: int) -> dict[
     log_loss = binary_log_loss(outcomes, probabilities)
     ci_low, ci_high = _wilson_interval(correct_count, len(observations))
     fit = _calibration_fit(outcomes, probabilities)
-    high_65 = [row for row in observations if max(row.probability_a, 1.0 - row.probability_a) >= 0.65]
-    high_75 = [row for row in observations if max(row.probability_a, 1.0 - row.probability_a) >= 0.75]
+    high_65 = [
+        row
+        for row in observations
+        if max(row.probability_a, 1.0 - row.probability_a) >= 0.65
+    ]
+    high_75 = [
+        row
+        for row in observations
+        if max(row.probability_a, 1.0 - row.probability_a) >= 0.75
+    ]
 
     return {
         "n": len(observations),
