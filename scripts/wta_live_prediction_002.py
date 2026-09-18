@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import importlib.util
 from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import NamedTuple
 
 from tennis_genome.calculator.contract import load_validated_matchup_calculator
 from tennis_genome.calculator.io import load_matchup_input
@@ -32,8 +33,7 @@ LEGITIMATE_TARGET_EXCLUSIONS = {
 }
 
 
-@dataclass(frozen=True)
-class LivePredictionPreparation:
+class LivePredictionPreparation(NamedTuple):
     base_history: tuple[HistoricalMatch, ...]
     by_name: object
     by_id: dict[str, dict[str, str]]
