@@ -98,6 +98,40 @@ class CalibrationFit:
     slope: float
 
 
+
+def _binary_auc(labels: list[bool], scores: list[float]) -> float | None:
+    """Tie-aware ROC AUC without external dependencies."""
+
+    if len(labels) != len(scores) or not labels:
+        raise ValueError("AUC labels and scores must have equal non-zero length")
+    positives = sum(int(value) for value in labels)
+    negatives = len(labels) - positives
+    if positives == 0 or negatives == 0:
+        return None
+
+    ordered = sorted(
+        enumerate(scores),
+        key=lambda item: (item[1], item[0]),
+    )
+    ranks = [0.0] * len(scores)
+    cursor = 0
+    while cursor < len(ordered):
+        stop = cursor + 1
+        while stop < len(ordered) and ordered[stop][1] == ordered[cursor][1]:
+            stop += 1
+        average_rank = ((cursor + 1) + stop) / 2.0
+        for index in range(cursor, stop):
+            ranks[ordered[index][0]] = average_rank
+        cursor = stop
+
+    positive_rank_sum = sum(
+        rank for rank, label in zip(ranks, labels, strict=True) if label
+    )
+    return (
+        positive_rank_sum - positives * (positives + 1) / 2.0
+    ) / (positives * negatives)
+
+
 def _calibration_fit(
     y_true: list[bool],
     probabilities: list[float],
@@ -214,6 +248,10 @@ def _summary(observations: list[ValidationObservation], *, n_bins: int) -> dict[
         "mean_probability_a": sum(probabilities) / len(probabilities),
         "observed_rate_a": sum(int(value) for value in outcomes) / len(outcomes),
         "mean_confidence": sum(row.confidence for row in observations) / len(observations),
+        "confidence_correctness_auc": _binary_auc(
+            [row.correct for row in observations],
+            [row.confidence for row in observations],
+        ),
         "high_confidence_65_count": len(high_65),
         "high_confidence_65_miss_count": sum(int(not row.correct) for row in high_65),
         "high_confidence_65_miss_rate": (
