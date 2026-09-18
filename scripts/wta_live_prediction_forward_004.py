@@ -158,6 +158,7 @@ def run_forward_004_slate(
         lambda summary, info, by_id: _generic_target_state(h, summary, info, by_id)
     )
     lifecycle = MatchLifecycleLedger(output_root / "match-lifecycle-ledger")
+    prepared = module.prepare_live_context()
     results: list[dict[str, object]] = []
     skipped_targets: list[dict[str, object]] = []
 
@@ -219,7 +220,10 @@ def run_forward_004_slate(
                 provider_anchor_comment_id=provider_anchor_comment_id,
             )
             prediction_root = match_root / "prediction-work"
-            prediction_summary = module.run_prediction(root=prediction_root)
+            prediction_summary = module.run_prediction(
+                root=prediction_root,
+                prepared=prepared,
+            )
             prediction_sha = str(prediction_summary["prediction_record_sha256"])
             lifecycle.advance(
                 lifecycle_id=lifecycle_id,

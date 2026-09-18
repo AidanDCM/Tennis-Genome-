@@ -158,8 +158,18 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
         http_json=provider_get,
         target_state_from_provider=lambda *args: None,
     )
+    prepared_context = object()
+    prepare_calls = 0
 
-    def run_prediction(*, root):
+    def prepare_live_context():
+        nonlocal prepare_calls
+        prepare_calls += 1
+        assert h.http_json("competitions.json") == {"path": "competitions.json"}
+        assert h.http_json("seasons.json") == {"path": "seasons.json"}
+        return prepared_context
+
+    def run_prediction(*, root, prepared):
+        assert prepared is prepared_context
         root.mkdir(parents=True, exist_ok=True)
         common = h.http_json("competitions.json")
         common_again = h.http_json("competitions.json")
@@ -181,7 +191,11 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
             "p_player_b": 0.4,
         }
 
-    module = SimpleNamespace(h=h, run_prediction=run_prediction)
+    module = SimpleNamespace(
+        h=h,
+        prepare_live_context=prepare_live_context,
+        run_prediction=run_prediction,
+    )
     observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
     slate = []
     for event_id, start in (
@@ -222,9 +236,11 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
 
     assert provider_calls == [
         "competitions.json",
+        "seasons.json",
         "seasons/sr:season:10/info.json",
     ]
-    assert manifest["provider_unique_request_count"] == 2
+    assert prepare_calls == 1
+    assert manifest["provider_unique_request_count"] == 3
     assert manifest["eligible_target_count"] == 2
     assert manifest["target_count"] == 2
     assert manifest["skipped_target_count"] == 0
@@ -247,7 +263,16 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
 def test_slate_executor_skips_late_member_and_continues_later_target(tmp_path) -> None:
     predicted: list[str] = []
 
-    def run_prediction(*, root):
+    prepared_context = object()
+    prepare_calls = 0
+
+    def prepare_live_context():
+        nonlocal prepare_calls
+        prepare_calls += 1
+        return prepared_context
+
+    def run_prediction(*, root, prepared):
+        assert prepared is prepared_context
         root.mkdir(parents=True, exist_ok=True)
         event_id = h.TARGET_EVENT_ID
         predicted.append(event_id)
@@ -268,7 +293,11 @@ def test_slate_executor_skips_late_member_and_continues_later_target(tmp_path) -
         http_json=lambda path: {"path": path},
         target_state_from_provider=lambda *args: None,
     )
-    module = SimpleNamespace(h=h, run_prediction=run_prediction)
+    module = SimpleNamespace(
+        h=h,
+        prepare_live_context=prepare_live_context,
+        run_prediction=run_prediction,
+    )
     observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
     slate = []
     for event_id, start in (
@@ -302,6 +331,7 @@ def test_slate_executor_skips_late_member_and_continues_later_target(tmp_path) -
         now=datetime(2026, 9, 18, 15, 30, tzinfo=UTC),
     )
 
+    assert prepare_calls == 1
     assert predicted == ["sr:sport_event:future"]
     assert manifest["eligible_target_count"] == 2
     assert manifest["target_count"] == 1
@@ -315,8 +345,16 @@ def test_slate_executor_fails_when_all_members_are_late(tmp_path) -> None:
         http_json=lambda path: {"path": path},
         target_state_from_provider=lambda *args: None,
     )
+    prepare_calls = 0
+
+    def prepare_live_context():
+        nonlocal prepare_calls
+        prepare_calls += 1
+        return object()
+
     module = SimpleNamespace(
         h=h,
+        prepare_live_context=prepare_live_context,
         run_prediction=lambda **kwargs: (_ for _ in ()).throw(
             AssertionError("late target must not reach predictor")
         ),
@@ -346,6 +384,7 @@ def test_slate_executor_fails_when_all_members_are_late(tmp_path) -> None:
             output_root=tmp_path / "slate",
             now=datetime(2026, 9, 18, 15, 0, tzinfo=UTC),
         )
+    assert prepare_calls == 1
 
 
 def test_selector_uses_earliest_confirmed_resolvable_target_after_fixed_lead() -> None:

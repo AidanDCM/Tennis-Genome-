@@ -5,6 +5,7 @@ from collections import Counter, defaultdict
 from dataclasses import asdict
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import NamedTuple
 
 from tennis_genome.calculator.contract import load_validated_matchup_calculator
 from tennis_genome.calculator.io import load_matchup_input
@@ -32,22 +33,34 @@ LEGITIMATE_TARGET_EXCLUSIONS = {
 }
 
 
-def run_prediction(*, root: Path = Path("prediction-work")) -> dict[str, object]:
-    root.mkdir(parents=True, exist_ok=True)
+class LivePredictionPreparation(NamedTuple):
+    base_history: tuple[HistoricalMatch, ...]
+    by_name: object
+    by_id: dict[str, dict[str, str]]
+    season_rows: tuple[dict[str, object], ...]
+    wta_competition_ids: frozenset[str]
+
+
+def prepare_live_context() -> LivePredictionPreparation:
+    """Load target-independent live prediction inputs once for slate reuse."""
+
     base_dir = Path("data/wta-live-base")
     history = load_canonical_parquet(
         pre_match_path=base_dir / "wta_pre_match.parquet",
         outcome_path=base_dir / "wta_outcomes.parquet",
         stats_path=base_dir / "wta_stats.parquet",
     )
-    base_history = [m for m in history if not m.outcome.walkover and not m.outcome.retirement]
+    base_history = tuple(
+        match
+        for match in history
+        if not match.outcome.walkover and not match.outcome.retirement
+    )
 
     by_name, by_id = h.player_index(Path("data/wta_players.csv"))
-    explicit = {h.PARRY_SR: h.PARRY_CANONICAL, h.STEARNS_SR: h.STEARNS_CANONICAL}
-
     competitions = h.http_json("competitions.json")
     seasons = h.http_json("seasons.json")
-    wta_comps = {}
+
+    wta_competition_ids: set[str] = set()
     for comp in competitions.get("competitions", []):
         if not isinstance(comp, dict):
             continue
@@ -56,16 +69,42 @@ def run_prediction(*, root: Path = Path("prediction-work")) -> dict[str, object]
             continue
         if str(comp.get("type", "")).lower() != "singles":
             continue
-        level = str(comp.get("level", "")).lower()
-        if level in h.ALLOWED_LEVELS:
-            wta_comps[str(comp["id"])] = comp
+        if str(comp.get("level", "")).lower() in h.ALLOWED_LEVELS:
+            wta_competition_ids.add(str(comp["id"]))
+
+    season_rows = tuple(
+        dict(season)
+        for season in seasons.get("seasons", [])
+        if isinstance(season, dict)
+    )
+    return LivePredictionPreparation(
+        base_history=base_history,
+        by_name=by_name,
+        by_id=by_id,
+        season_rows=season_rows,
+        wta_competition_ids=frozenset(wta_competition_ids),
+    )
+
+
+def run_prediction(
+    *,
+    root: Path = Path("prediction-work"),
+    prepared: LivePredictionPreparation | None = None,
+) -> dict[str, object]:
+    root.mkdir(parents=True, exist_ok=True)
+    prepared = prepared or prepare_live_context()
+    base_dir = Path("data/wta-live-base")
+    base_history = prepared.base_history
+    by_name = prepared.by_name
+    by_id = prepared.by_id
+    explicit = {h.PARRY_SR: h.PARRY_CANONICAL, h.STEARNS_SR: h.STEARNS_CANONICAL}
 
     selected = []
-    for season in seasons.get("seasons", []):
+    for season in prepared.season_rows:
         if not isinstance(season, dict) or season.get("disabled") is True:
             continue
         cid = str(season.get("competition_id", ""))
-        if cid not in wta_comps:
+        if cid not in prepared.wta_competition_ids:
             continue
         try:
             start = date.fromisoformat(str(season.get("start_date", "")))
@@ -199,7 +238,7 @@ def run_prediction(*, root: Path = Path("prediction-work")) -> dict[str, object]
         MatchOutcome(h.TARGET_MATCH_ID, False, None, False, False),
         None,
     )
-    combined = base_history + extension + [target_sentinel]
+    combined = [*base_history, *extension, target_sentinel]
     foundational = next(
         s
         for s in walk_forward_foundational_features(combined, exclude_retirements=False)
