@@ -81,6 +81,9 @@ jobs:
               },
               'prospective_settlement_capture.yml': {
                   'prediction_record_sha256',
+                  'prediction_artifact_id',
+                  'provider_artifact_id',
+                  'prediction_anchor_comment_id',
                   'identity_binding_sha256',
                   'sportradar_event_id',
                   'sportradar_access_level',

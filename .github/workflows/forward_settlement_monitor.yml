@@ -1,0 +1,43 @@
+name: Forward Settlement Monitor
+
+on:
+  schedule:
+    - cron: "37 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: forward-settlement-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Dispatch due anchored Forward-004 settlements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S scripts/dispatch_due_forward_settlements.py
+
+      - name: Upload monitor report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forward-settlement-monitor-${{ github.run_id }}
+          path: settlement-monitor-report.json
+          if-no-files-found: warn
+          retention-days: 30
