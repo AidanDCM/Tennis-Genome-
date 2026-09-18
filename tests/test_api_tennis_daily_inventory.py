@@ -116,6 +116,13 @@ def test_daily_inventory_workflow_freezes_single_call_and_retention_contract() -
     assert "unexpectedly used an event-type provider filter" in text
     assert "api-tennis-daily-inventory-${{ inputs.schedule_date }}" in text
     assert "retention-days: 90" in text
+    assert "| tee api-tennis-daily-inventory-summary.json" in text
+    normalized = " ".join(text.replace("\\\n", " ").split())
+    assert (
+        "cp api-tennis-daily-inventory-summary.json "
+        "api-tennis-daily-inventory/summary.json"
+        in normalized
+    )
     assert (
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
         in text
