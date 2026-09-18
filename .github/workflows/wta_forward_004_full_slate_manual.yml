@@ -145,13 +145,24 @@ jobs:
               )
           )
           target_count = int(execution.get("target_count", -1))
+          skipped_count = int(execution.get("skipped_target_count", -1))
+          eligible_count = int(resolution.get("eligible_target_count", -2))
           if target_count <= 0:
               raise SystemExit("full-slate execution produced no Champion predictions")
-          if target_count != int(resolution.get("eligible_target_count", -2)):
-              raise SystemExit("executed target count differs from deterministic slate")
+          if skipped_count < 0:
+              raise SystemExit("full-slate skipped target count is invalid")
+          if target_count + skipped_count != eligible_count:
+              raise SystemExit(
+                  "predicted + skipped target counts differ from deterministic slate"
+              )
+          if int(execution.get("eligible_target_count", -3)) != eligible_count:
+              raise SystemExit("execution manifest eligible target count drifted")
           results = execution.get("results")
+          skipped = execution.get("skipped_targets")
           if not isinstance(results, list) or len(results) != target_count:
               raise SystemExit("slate execution results do not reproduce target count")
+          if not isinstance(skipped, list) or len(skipped) != skipped_count:
+              raise SystemExit("slate skipped results do not reproduce skipped count")
           if int(execution.get("provider_cached_path_count", -1)) != int(
               execution.get("provider_unique_request_count", -2)
           ):
