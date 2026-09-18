@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-import tennis_genome.research_workbench.api_tennis_filtered_replay as replay_module
+from tennis_genome.research_workbench import api_tennis_filtered_replay
 
 
 _REQUIRED = (
@@ -141,13 +141,13 @@ def test_replay_builds_daily_batches_and_carries_only_prior_day_history() -> Non
         )
     )
 
-    batches = replay_module.build_filtered_daily_enrichment_batches(
+    batches = api_tennis_filtered_replay.build_filtered_daily_enrichment_batches(
         raw_atp=raw_atp,
         raw_wta=raw_wta,
     )
     assert [batch.requested_date for batch in batches] == ["2026-09-10", "2026-09-11"]
 
-    replay = replay_module.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    replay = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
     scores = {row.event_key: row for row in replay.scores}
 
     assert replay.admitted_match_count == 3
@@ -179,7 +179,7 @@ def test_replay_excludes_walkover_and_tracks_source_accounting() -> None:
     )
     raw_wta = _raw()
 
-    replay = replay_module.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    replay = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
 
     assert replay.source_fixture_count == 2
     assert replay.admitted_match_count == 1
@@ -206,8 +206,15 @@ def test_replay_rejects_duplicate_event_ids_across_retained_responses() -> None:
         )
     )
 
-    with pytest.raises(ValueError, match="duplicate event_key"):
-        replay_module.build_filtered_daily_enrichment_batches(raw_atp=raw_atp, raw_wta=raw_wta)
+    try:
+        api_tennis_filtered_replay.build_filtered_daily_enrichment_batches(
+            raw_atp=raw_atp,
+            raw_wta=raw_wta,
+        )
+    except ValueError as exc:
+        assert "duplicate event_key" in str(exc)
+    else:
+        raise AssertionError("duplicate event_key should fail closed")
 
 
 def test_replay_metrics_are_deterministic() -> None:
@@ -230,8 +237,8 @@ def test_replay_metrics_are_deterministic() -> None:
     )
     raw_wta = _raw()
 
-    first = replay_module.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
-    second = replay_module.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    first = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    second = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
 
     assert first.semantic_sha256 == second.semantic_sha256
     assert first.all_brier >= 0.0
