@@ -13,19 +13,42 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: read
   issues: write
+
+concurrency:
+  group: prospective-prediction-anchor-${{ inputs.prediction_record_sha256 }}
+  cancel-in-progress: false
 
 jobs:
   anchor:
     runs-on: ubuntu-24.04
     steps:
+      - name: Refuse duplicate completed prediction anchor artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="prospective-prediction-anchor-${PREDICTION_RECORD_SHA256}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::prediction anchor artifact already exists"
+            exit 1
+          fi
+
       - name: Publish trusted prediction anchor
         env:
           PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
           CHAIN_HEAD_SHA256: ${{ inputs.chain_head_sha256 }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p prediction-anchor
           python -S - <<'PY'
           import json
           import os
@@ -108,6 +131,27 @@ jobs:
               raise SystemExit("prediction anchor comment actor is not github-actions[bot]")
           if comment.get("created_at") != comment.get("updated_at"):
               raise SystemExit("prediction anchor comment was edited during creation")
+          anchor_dir = __import__("pathlib").Path("prediction-anchor")
+          (anchor_dir / "receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          (anchor_dir / "comment-response.json").write_text(
+              json.dumps(comment, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          (anchor_dir / "comment-id.txt").write_text(
+              f"{int(comment['id'])}\n",
+              encoding="utf-8",
+          )
           print(f"prediction_anchor_comment_id={int(comment['id'])}")
           print(body)
           PY
+
+      - name: Upload immutable prediction anchor receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: prospective-prediction-anchor-${{ inputs.prediction_record_sha256 }}
+          path: prediction-anchor/
+          if-no-files-found: error
+          retention-days: 90
