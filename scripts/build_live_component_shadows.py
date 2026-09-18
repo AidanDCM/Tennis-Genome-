@@ -95,17 +95,18 @@ def build(
         if supplemental_bundle.prediction is not None:
             predictions.append(supplemental_bundle.prediction)
 
-        deep_history_bundle = build_api_tennis_deep_history_prospective_shadow_bundle(
-            snapshot=component_bundle.snapshot,
-            evidence=evidence,
-            crosswalk=crosswalk,
-            created_at=created_at,
-            implementation_sha256=api_tennis_implementation_sha,
-            registered_at=_API_TENNIS_DEEP500_REGISTRATION_EPOCH,
-        )
-        registrations.append(deep_history_bundle.registration)
-        if deep_history_bundle.prediction is not None:
-            predictions.append(deep_history_bundle.prediction)
+        if created_at >= _API_TENNIS_DEEP500_REGISTRATION_EPOCH:
+            deep_history_bundle = build_api_tennis_deep_history_prospective_shadow_bundle(
+                snapshot=component_bundle.snapshot,
+                evidence=evidence,
+                crosswalk=crosswalk,
+                created_at=created_at,
+                implementation_sha256=api_tennis_implementation_sha,
+                registered_at=_API_TENNIS_DEEP500_REGISTRATION_EPOCH,
+            )
+            registrations.append(deep_history_bundle.registration)
+            if deep_history_bundle.prediction is not None:
+                predictions.append(deep_history_bundle.prediction)
 
     prediction_tuple = tuple(predictions)
     validate_shadow_prediction_set(prediction_tuple)
@@ -169,12 +170,11 @@ def build(
             supplemental_dir / "bundle.json",
             canonical_record_json(supplemental_bundle),
         )
-        if deep_history_bundle is None:
-            raise RuntimeError("deep-history API-Tennis bundle was not built")
-        _write_exact(
-            supplemental_dir / "deep-history-bundle.json",
-            canonical_record_json(deep_history_bundle),
-        )
+        if deep_history_bundle is not None:
+            _write_exact(
+                supplemental_dir / "deep-history-bundle.json",
+                canonical_record_json(deep_history_bundle),
+            )
         supplemental_payload = {
             "bundle_sha256": supplemental_bundle.semantic_sha256,
             "evidence_sha256": supplemental_bundle.evidence.semantic_sha256,
@@ -186,16 +186,30 @@ def build(
                 else None
             ),
             "abstained": supplemental_bundle.prediction is None,
-            "deep_history_bundle_sha256": deep_history_bundle.semantic_sha256,
+            "deep_history_registered": deep_history_bundle is not None,
+            "deep_history_bundle_sha256": (
+                deep_history_bundle.semantic_sha256
+                if deep_history_bundle is not None
+                else None
+            ),
             "deep_history_registration_sha256": (
                 deep_history_bundle.registration.semantic_sha256
+                if deep_history_bundle is not None
+                else None
             ),
             "deep_history_prediction_sha256": (
                 deep_history_bundle.prediction.semantic_sha256
-                if deep_history_bundle.prediction is not None
+                if (
+                    deep_history_bundle is not None
+                    and deep_history_bundle.prediction is not None
+                )
                 else None
             ),
-            "deep_history_abstained": deep_history_bundle.prediction is None,
+            "deep_history_abstained": (
+                deep_history_bundle.prediction is None
+                if deep_history_bundle is not None
+                else None
+            ),
         }
 
     manifest = {
