@@ -10,6 +10,9 @@ from scripts.build_live_component_shadows import build
 from tennis_genome.research_workbench.api_tennis_conservative_wta_shadow import (
     CHALLENGER_ID,
 )
+from tennis_genome.research_workbench.api_tennis_prospective_shadow import (
+    DEEP_HISTORY_CHALLENGER_ID,
+)
 
 CREATED = datetime(2026, 9, 18, 16, 0, tzinfo=UTC)
 START = datetime(2026, 9, 18, 19, 0, tzinfo=UTC)
@@ -167,8 +170,9 @@ def test_live_shadow_builder_adds_eligible_api_tennis_fourth_prediction(
     )
 
     assert manifest["prediction_count"] == 4
-    assert manifest["registration_count"] == 4
+    assert manifest["registration_count"] == 5
     assert manifest["supplemental_api_tennis"]["abstained"] is False
+    assert manifest["supplemental_api_tennis"]["deep_history_abstained"] is True
     prediction_path = output / "predictions" / f"{CHALLENGER_ID}.json"
     payload = json.loads(prediction_path.read_text(encoding="utf-8"))
     assert payload["output"]["p_player_a"] == pytest.approx(0.56)
@@ -192,3 +196,58 @@ def test_live_shadow_builder_requires_evidence_and_crosswalk_as_a_pair(
             created_at=CREATED,
             api_tennis_evidence_path=evidence,
         )
+
+
+
+def test_live_shadow_builder_adds_deep_history_fifth_prediction(
+    tmp_path: Path,
+) -> None:
+    prediction, matchup, target = _champion_inputs(tmp_path)
+    evidence, crosswalk = _supplemental_inputs(tmp_path)
+    payload = json.loads(evidence.read_text(encoding="utf-8"))
+    payload.update(
+        {
+            "prior_serve_points_a": 300,
+            "prior_return_points_a": 300,
+            "prior_serve_points_b": 300,
+            "prior_return_points_b": 300,
+        }
+    )
+    evidence.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "deep-supplemental-shadow"
+
+    manifest = build(
+        prediction_dossier_path=prediction,
+        matchup_input_path=matchup,
+        target_resolution_path=target,
+        output_dir=output,
+        created_at=CREATED,
+        api_tennis_evidence_path=evidence,
+        api_tennis_crosswalk_path=crosswalk,
+    )
+
+    assert manifest["prediction_count"] == 5
+    assert manifest["registration_count"] == 5
+    assert manifest["supplemental_api_tennis"]["abstained"] is False
+    assert manifest["supplemental_api_tennis"]["deep_history_abstained"] is False
+    deep_path = output / "predictions" / f"{DEEP_HISTORY_CHALLENGER_ID}.json"
+    deep = json.loads(deep_path.read_text(encoding="utf-8"))
+    assert deep["output"]["p_player_a"] == pytest.approx(0.56)
+    assert (output / "supplemental-api-tennis" / "deep-history-bundle.json").is_file()
+
+
+def test_live_shadow_workflows_allow_three_four_or_five_predictions() -> None:
+    anchor_workflow = Path(
+        ".github/workflows/challenger_shadow_from_prediction_artifact.yml"
+    ).read_text(encoding="utf-8")
+    settlement_workflow = Path(
+        ".github/workflows/challenger_shadow_settlement_finalize.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "prediction_count not in {3, 4, 5}" in anchor_workflow
+    assert "registration_count != 5" in anchor_workflow
+    assert "expected not in {3, 4, 5}" in anchor_workflow
+    assert "expected not in {3, 4, 5}" in settlement_workflow
