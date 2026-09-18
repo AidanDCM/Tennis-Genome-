@@ -1,0 +1,6 @@
+{
+  "schema_version": "tennis-genome-forward-automation-mode-v1",
+  "mode": "LEGACY_SINGLE_TARGET",
+  "legacy_workflow": "wta_forward_004_auto_shadow_chain.yml",
+  "full_slate_workflow": "wta_forward_004_full_slate_manual.yml"
+}
