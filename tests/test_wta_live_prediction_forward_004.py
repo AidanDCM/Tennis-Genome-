@@ -225,7 +225,9 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
         "seasons/sr:season:10/info.json",
     ]
     assert manifest["provider_unique_request_count"] == 2
+    assert manifest["eligible_target_count"] == 2
     assert manifest["target_count"] == 2
+    assert manifest["skipped_target_count"] == 0
     assert h.http_json is original_http
     assert h.target_state_from_provider is original_target_state
     roots = [item["prediction_root"] for item in manifest["results"]]
@@ -242,25 +244,89 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
     assert set(audit.lifecycle_states.values()) == {"CHAMPION_PREDICTED"}
 
 
-def test_slate_executor_rejects_post_start_member_before_prediction(tmp_path) -> None:
-    calls = 0
+def test_slate_executor_skips_late_member_and_continues_later_target(tmp_path) -> None:
+    predicted: list[str] = []
 
     def run_prediction(*, root):
-        nonlocal calls
-        calls += 1
-        raise AssertionError("post-start target must not reach predictor")
+        root.mkdir(parents=True, exist_ok=True)
+        event_id = h.TARGET_EVENT_ID
+        predicted.append(event_id)
+        (root / "matchup-input.json").write_text(
+            json.dumps({"match_id": event_id}),
+            encoding="utf-8",
+        )
+        digest = hashlib.sha256(event_id.encode("utf-8")).hexdigest()
+        return {
+            "prediction_id": f"prediction-{event_id}",
+            "prediction_record_sha256": digest,
+            "chain_head_sha256": digest,
+            "p_player_a": 0.6,
+            "p_player_b": 0.4,
+        }
 
     h = SimpleNamespace(
         http_json=lambda path: {"path": path},
         target_state_from_provider=lambda *args: None,
     )
     module = SimpleNamespace(h=h, run_prediction=run_prediction)
+    observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
+    slate = []
+    for event_id, start in (
+        ("sr:sport_event:late", "2026-09-18T15:00:00+00:00"),
+        ("sr:sport_event:future", "2026-09-18T17:00:00+00:00"),
+    ):
+        slate.append(
+            (
+                _summary(event_id=event_id, start=start),
+                {
+                    "event_id": event_id,
+                    "season_id": "sr:season:10",
+                    "competition_id": "sr:competition:10",
+                    "tournament_start_date": "2026-09-18",
+                    "scheduled_start": start,
+                    "capture_observed_at": observed.isoformat(),
+                    "player_a_canonical_id": "100",
+                    "player_a_sportradar_id": "sr:competitor:1",
+                    "player_b_canonical_id": "200",
+                    "player_b_sportradar_id": "sr:competitor:2",
+                },
+            )
+        )
+
+    manifest = fwd.run_forward_004_slate(
+        module=module,
+        slate=tuple(slate),
+        provider_batch_record_sha256="a" * 64,
+        provider_anchor_comment_id=12345,
+        output_root=tmp_path / "slate",
+        now=datetime(2026, 9, 18, 15, 30, tzinfo=UTC),
+    )
+
+    assert predicted == ["sr:sport_event:future"]
+    assert manifest["eligible_target_count"] == 2
+    assert manifest["target_count"] == 1
+    assert manifest["skipped_target_count"] == 1
+    assert manifest["skipped_targets"][0]["event_id"] == "sr:sport_event:late"
+    assert manifest["skipped_targets"][0]["skip_reason"] == "SCHEDULED_START_REACHED"
+
+
+def test_slate_executor_fails_when_all_members_are_late(tmp_path) -> None:
+    h = SimpleNamespace(
+        http_json=lambda path: {"path": path},
+        target_state_from_provider=lambda *args: None,
+    )
+    module = SimpleNamespace(
+        h=h,
+        run_prediction=lambda **kwargs: (_ for _ in ()).throw(
+            AssertionError("late target must not reach predictor")
+        ),
+    )
     summary = _summary(
-        event_id="sr:sport_event:10",
+        event_id="sr:sport_event:late",
         start="2026-09-18T15:00:00+00:00",
     )
     resolution = {
-        "event_id": "sr:sport_event:10",
+        "event_id": "sr:sport_event:late",
         "season_id": "sr:season:10",
         "competition_id": "sr:competition:10",
         "tournament_start_date": "2026-09-18",
@@ -271,7 +337,7 @@ def test_slate_executor_rejects_post_start_member_before_prediction(tmp_path) ->
         "player_b_sportradar_id": "sr:competitor:2",
     }
 
-    with pytest.raises(RuntimeError, match="no longer pre-start"):
+    with pytest.raises(RuntimeError, match="no targets remaining pre-start"):
         fwd.run_forward_004_slate(
             module=module,
             slate=((summary, resolution),),
@@ -280,7 +346,6 @@ def test_slate_executor_rejects_post_start_member_before_prediction(tmp_path) ->
             output_root=tmp_path / "slate",
             now=datetime(2026, 9, 18, 15, 0, tzinfo=UTC),
         )
-    assert calls == 0
 
 
 def test_selector_uses_earliest_confirmed_resolvable_target_after_fixed_lead() -> None:
