@@ -1,0 +1,125 @@
+name: Forward Validation Aggregate
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: forward-validation-aggregate
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Download all active settled shadow artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p forward-settlements
+          page=1
+          ids=()
+          while true; do
+            response=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100&page=${page}")
+            mapfile -t page_ids < <(
+              printf '%s' "$response" | python -c '
+          import json, sys
+          payload = json.load(sys.stdin)
+          for item in payload.get("artifacts", []):
+              if (
+                  isinstance(item, dict)
+                  and item.get("expired") is False
+                  and str(item.get("name", "")).startswith("challenger-shadow-settlement-")
+              ):
+                  print(int(item["id"]))
+          '
+            )
+            ids+=("${page_ids[@]}")
+            count=$(printf '%s' "$response" | python -c '
+          import json, sys
+          print(len(json.load(sys.stdin).get("artifacts", [])))
+          ')
+            if [ "$count" -lt 100 ]; then
+              break
+            fi
+            page=$((page + 1))
+          done
+          printf '%s\n' "${ids[@]}" > forward-settlement-artifact-ids.txt
+          if [ "${#ids[@]}" -eq 0 ]; then
+            echo "No settled shadow artifacts exist yet."
+            exit 0
+          fi
+          for artifact_id in "${ids[@]}"; do
+            dir="forward-settlements/${artifact_id}"
+            mkdir -p "$dir"
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              > "${artifact_id}.zip"
+            unzip -q "${artifact_id}.zip" -d "$dir"
+          done
+
+      - name: Build cumulative forward validation reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! find forward-settlements -type f -path '*/validation-observations/*.json' \
+            -print -quit | grep -q .; then
+            mkdir -p forward-validation
+            python -S - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = {
+              "schema_version": "tennis-genome-forward-validation-aggregate-v1",
+              "status": "NO_SETTLED_FORWARD_OBSERVATIONS",
+              "population_match_count": 0,
+              "model_count": 0,
+          }
+          Path("forward-validation/manifest.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+            exit 0
+          fi
+          python scripts/aggregate_forward_validation.py \
+            --settlement-root forward-settlements \
+            --output-dir forward-validation \
+            | tee forward-validation-run-summary.json
+
+      - name: Upload cumulative forward validation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forward-validation-aggregate-${{ github.run_id }}
+          path: |
+            forward-validation/
+            forward-validation-run-summary.json
+            forward-settlement-artifact-ids.txt
+          if-no-files-found: warn
+          retention-days: 90
