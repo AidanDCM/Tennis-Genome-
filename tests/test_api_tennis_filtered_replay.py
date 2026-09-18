@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-
 from tennis_genome.research_workbench import api_tennis_filtered_replay
 
 
@@ -146,7 +145,7 @@ def test_replay_builds_daily_batches_and_carries_only_prior_day_history() -> Non
     )
     assert [batch.requested_date for batch in batches] == ["2026-09-10", "2026-09-11"]
 
-    replay = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    replay = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(\n        raw_atp=raw_atp,\n        raw_wta=raw_wta,\n    )
     scores = {row.event_key: row for row in replay.scores}
 
     assert replay.admitted_match_count == 3
@@ -236,8 +235,8 @@ def test_replay_metrics_are_deterministic() -> None:
     )
     raw_wta = _raw()
 
-    first = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
-    second = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
+    first = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(\n        raw_atp=raw_atp,\n        raw_wta=raw_wta,\n    )
+    second = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(\n        raw_atp=raw_atp,\n        raw_wta=raw_wta,\n    )
 
     assert first.semantic_sha256 == second.semantic_sha256
     assert first.all_brier >= 0.0
