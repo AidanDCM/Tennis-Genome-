@@ -119,6 +119,7 @@ def run_forward_004_slate(
     output_root.mkdir(parents=True, exist_ok=False)
     h = module.h
     original_http_json = h.http_json
+    original_target_state_from_provider = getattr(h, "target_state_from_provider", None)
     provider_cache = _CachedHttpJson(original_http_json)
     trusted_summaries = {
         resolution["event_id"]: summary for summary, resolution in slate
@@ -213,6 +214,8 @@ def run_forward_004_slate(
             )
     finally:
         h.http_json = original_http_json
+        if original_target_state_from_provider is not None:
+            h.target_state_from_provider = original_target_state_from_provider
 
     lifecycle_audit = lifecycle.verify()
     manifest = {
