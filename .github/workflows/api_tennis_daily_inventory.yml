@@ -71,7 +71,9 @@ jobs:
           python scripts/capture_api_tennis_daily_inventory.py \
             --schedule-date "$SCHEDULE_DATE" \
             --output-dir api-tennis-daily-inventory \
-            | tee api-tennis-daily-inventory/summary.json
+            | tee api-tennis-daily-inventory-summary.json
+          cp api-tennis-daily-inventory-summary.json \
+            api-tennis-daily-inventory/summary.json
 
       - name: Verify inventory contract
         shell: bash
