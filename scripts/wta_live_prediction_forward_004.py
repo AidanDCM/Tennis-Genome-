@@ -113,8 +113,7 @@ def run_forward_004_slate(
         raise ValueError("Forward-004 slate cannot be empty")
     if len(provider_batch_record_sha256) != 64:
         raise ValueError("provider batch record SHA-256 is invalid")
-    current_time = now or datetime.now(UTC)
-    if current_time.tzinfo is None or current_time.utcoffset() is None:
+    if now is not None and (now.tzinfo is None or now.utcoffset() is None):
         raise ValueError("slate execution clock must be timezone-aware")
 
     output_root.mkdir(parents=True, exist_ok=False)
@@ -180,7 +179,7 @@ def run_forward_004_slate(
             _assert_target_prestart(
                 target_summary,
                 scheduled_start=resolved["scheduled_start"],
-                now=current_time,
+                now=now or datetime.now(UTC),
             )
             _configure_target(
                 h,
