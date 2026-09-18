@@ -11,6 +11,21 @@ on:
         description: Retained filtered API-Tennis history artifact ID
         required: true
         type: string
+  workflow_call:
+    inputs:
+      full_slate_artifact_id:
+        required: true
+        type: string
+      history_artifact_id:
+        required: true
+        type: string
+    secrets:
+      API_TENNIS_API:
+        required: true
+    outputs:
+      shared_extension_artifact_id:
+        description: Uploaded shared API-Tennis slate extension artifact ID
+        value: ${{ jobs.capture.outputs.artifact_id }}
 
 permissions:
   actions: read
@@ -22,6 +37,8 @@ concurrency:
 
 jobs:
   capture:
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -43,7 +60,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "${GITHUB_EVENT_NAME}" = "workflow_dispatch"
+          case "${GITHUB_EVENT_NAME}" in
+            workflow_dispatch|workflow_call) ;;
+            *) echo "unsupported workflow event" >&2; exit 1 ;;
+          esac
           test "${GITHUB_REF_NAME}" = "main"
           test "${GITHUB_REPOSITORY}" = "AidanDCM/Tennis-Genome-"
           test -n "${API_TENNIS_API:-}"
@@ -238,6 +258,7 @@ jobs:
           PY
 
       - name: Upload shared API-Tennis slate extension
+        id: upload
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: api-tennis-slate-extension-${{ inputs.full_slate_artifact_id }}
