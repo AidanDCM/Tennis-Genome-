@@ -32,9 +32,8 @@ LEGITIMATE_TARGET_EXCLUSIONS = {
 }
 
 
-def main() -> None:
-    root = Path("prediction-work")
-    root.mkdir(exist_ok=True)
+def run_prediction(*, root: Path = Path("prediction-work")) -> dict[str, object]:
+    root.mkdir(parents=True, exist_ok=True)
     base_dir = Path("data/wta-live-base")
     history = load_canonical_parquet(
         pre_match_path=base_dir / "wta_pre_match.parquet",
@@ -358,27 +357,27 @@ def main() -> None:
         },
     }
     (root / "prediction-dossier.json").write_text(h.pretty(dossier), encoding="utf-8")
-    print(
-        h.pretty(
-            {
-                "prediction_id": prediction_id,
-                "prediction_record_sha256": prediction_record["record_sha256"],
-                "chain_head_sha256": pilot_report["chain_head_sha256"],
-                "p_player_a": calculation.prediction.p_player_a,
-                "p_player_b": calculation.prediction.p_player_b,
-                "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
-                "assessment_status": calculation.assessment_status,
-                "authenticated_2026_match_count": len(extension),
-                "crosswalk_size": len(sr_to_canonical),
-                "unresolved_event_count": len(unresolved_events),
-                "target_player_seen": dict(target_player_seen),
-                "target_player_accepted": dict(target_player_accepted),
-                "target_player_exclusions": {
-                    sr: dict(counts) for sr, counts in target_player_exclusions.items()
-                },
-            }
-        )
-    )
+    return {
+        "prediction_id": prediction_id,
+        "prediction_record_sha256": prediction_record["record_sha256"],
+        "chain_head_sha256": pilot_report["chain_head_sha256"],
+        "p_player_a": calculation.prediction.p_player_a,
+        "p_player_b": calculation.prediction.p_player_b,
+        "fair_decimal_odds": asdict(calculation.fair_decimal_odds),
+        "assessment_status": calculation.assessment_status,
+        "authenticated_2026_match_count": len(extension),
+        "crosswalk_size": len(sr_to_canonical),
+        "unresolved_event_count": len(unresolved_events),
+        "target_player_seen": dict(target_player_seen),
+        "target_player_accepted": dict(target_player_accepted),
+        "target_player_exclusions": {
+            sr: dict(counts) for sr, counts in target_player_exclusions.items()
+        },
+    }
+
+
+def main() -> None:
+    print(h.pretty(run_prediction()))
 
 
 if __name__ == "__main__":
