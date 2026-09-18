@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import json
@@ -558,11 +559,44 @@ def _generic_target_state(h, target_summary, target_info, by_id) -> PreMatchStat
     )
 
 
-def main() -> None:
-    module = _load_forward_module()
+def _write_slate_resolution_manifest(
+    *,
+    path: Path,
+    slate: tuple[tuple[dict[str, object], dict[str, str]], ...],
+    observed_at: datetime,
+    provider_batch_record_sha256: str,
+    provider_anchor_comment_id: int,
+) -> dict[str, object]:
+    targets: list[dict[str, str]] = []
+    for _, raw in slate:
+        target = dict(raw)
+        target["provider_batch_record_sha256"] = provider_batch_record_sha256
+        target["provider_anchor_comment_id"] = str(provider_anchor_comment_id)
+        targets.append(target)
+    manifest = {
+        "schema_version": "wta-forward-004-slate-resolution-v1",
+        "forward_protocol": FORWARD_PROTOCOL,
+        "selection_rule": (
+            "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
+        ),
+        "minimum_capture_lead_minutes": int(MIN_CAPTURE_LEAD.total_seconds() // 60),
+        "capture_observed_at": observed_at.isoformat(),
+        "eligible_target_count": len(targets),
+        "provider_batch_record_sha256": provider_batch_record_sha256,
+        "provider_anchor_comment_id": provider_anchor_comment_id,
+        "targets": targets,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def _trusted_slate_inputs(module):
     h = module.h
     by_name, _ = h.player_index(Path("data/wta_players.csv"))
-
     trusted_root = Path("trusted-provider-artifact")
     summaries = _load_provider_summaries(
         trusted_root / "trusted-provider-capture" / "pages"
@@ -576,10 +610,6 @@ def main() -> None:
         by_name=by_name,
         capture_observed_at=observed_at,
     )
-    target_summary, resolved = slate[0]
-    resolved = dict(resolved)
-    resolved["selection_rule"] = "earliest_confirmed_resolvable_wta_main_tour_singles"
-
     receipt = json.loads(
         (trusted_root / "provider_batch_anchor_receipt.json").read_text(
             encoding="utf-8"
@@ -591,34 +621,62 @@ def main() -> None:
         .strip()
     )
     provider_batch_record_sha256 = str(receipt["batch_record_sha256"])
-    provider_anchor_comment_id = str(anchor_comment_id)
-    resolved["provider_batch_record_sha256"] = provider_batch_record_sha256
-    resolved["provider_anchor_comment_id"] = provider_anchor_comment_id
+    if len(provider_batch_record_sha256) != 64:
+        raise RuntimeError("trusted provider batch record SHA-256 is invalid")
+    return (
+        slate,
+        observed_at,
+        provider_batch_record_sha256,
+        anchor_comment_id,
+    )
 
-    slate_targets: list[dict[str, str]] = []
-    for _, item in slate:
-        target = dict(item)
-        target["provider_batch_record_sha256"] = provider_batch_record_sha256
-        target["provider_anchor_comment_id"] = provider_anchor_comment_id
-        slate_targets.append(target)
-    slate_manifest = {
-        "schema_version": "wta-forward-004-slate-resolution-v1",
-        "forward_protocol": FORWARD_PROTOCOL,
-        "selection_rule": (
-            "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
-        ),
-        "minimum_capture_lead_minutes": int(
-            MIN_CAPTURE_LEAD.total_seconds() // 60
-        ),
-        "capture_observed_at": observed_at.isoformat(),
-        "eligible_target_count": len(slate_targets),
-        "provider_batch_record_sha256": provider_batch_record_sha256,
-        "provider_anchor_comment_id": anchor_comment_id,
-        "targets": slate_targets,
-    }
-    Path("forward-004-slate-resolution.json").write_text(
-        json.dumps(slate_manifest, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+
+def main_full_slate(*, output_root: Path) -> dict[str, object]:
+    module = _load_forward_module()
+    (
+        slate,
+        observed_at,
+        provider_batch_record_sha256,
+        anchor_comment_id,
+    ) = _trusted_slate_inputs(module)
+    _write_slate_resolution_manifest(
+        path=output_root / "forward-004-slate-resolution.json",
+        slate=slate,
+        observed_at=observed_at,
+        provider_batch_record_sha256=provider_batch_record_sha256,
+        provider_anchor_comment_id=anchor_comment_id,
+    )
+    return run_forward_004_slate(
+        module=module,
+        slate=slate,
+        provider_batch_record_sha256=provider_batch_record_sha256,
+        provider_anchor_comment_id=anchor_comment_id,
+        output_root=output_root / "execution",
+    )
+
+
+def main() -> None:
+    module = _load_forward_module()
+    h = module.h
+    (
+        slate,
+        observed_at,
+        provider_batch_record_sha256,
+        anchor_comment_id,
+    ) = _trusted_slate_inputs(module)
+    target_summary, resolved = slate[0]
+    resolved = dict(resolved)
+    resolved["selection_rule"] = "earliest_confirmed_resolvable_wta_main_tour_singles"
+
+    resolved["provider_batch_record_sha256"] = provider_batch_record_sha256
+    resolved["provider_anchor_comment_id"] = str(anchor_comment_id)
+
+    _write_slate_resolution_manifest(
+        path=Path("forward-004-slate-resolution.json"),
+        slate=slate,
+        observed_at=observed_at,
+        provider_batch_record_sha256=provider_batch_record_sha256,
+        provider_anchor_comment_id=anchor_comment_id,
     )
 
     h.TARGET_EVENT_ID = resolved["event_id"]
@@ -633,7 +691,7 @@ def main() -> None:
     h.STEARNS_CANONICAL = resolved["player_b_canonical_id"]
     h.PARRY_SR = resolved["player_a_sportradar_id"]
     h.STEARNS_SR = resolved["player_b_sportradar_id"]
-    h.PROVIDER_BATCH_SHA = str(receipt["batch_record_sha256"])
+    h.PROVIDER_BATCH_SHA = provider_batch_record_sha256
     h.PROVIDER_ANCHOR_COMMENT_ID = anchor_comment_id
 
     original_http_json = h.http_json
@@ -665,5 +723,25 @@ def main() -> None:
     module.main()
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run Forward-004 WTA prediction")
+    parser.add_argument(
+        "--full-slate",
+        action="store_true",
+        help="run every eligible target from the trusted capture instead of the legacy slate head",
+    )
+    parser.add_argument(
+        "--output-root",
+        type=Path,
+        default=Path("forward-004-slate-work"),
+        help="output root for --full-slate mode",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    args = _parse_args()
+    if args.full_slate:
+        print(json.dumps(main_full_slate(output_root=args.output_root), indent=2, sort_keys=True))
+    else:
+        main()
