@@ -54,3 +54,24 @@ def test_forward_004_selector_freezes_minimum_lead_contract() -> None:
         'competition.get("level", "")).lower() not in h.ALLOWED_LEVELS'
         in source
     )
+
+
+def test_full_slate_manual_workflow_fans_out_legacy_compatible_artifacts() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/wta_forward_004_full_slate_manual.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "package-targets:" in workflow
+    assert "fromJSON(needs.predict-slate.outputs.target_matrix)" in workflow
+    assert "forward-004-full-slate-bundle-${{ github.run_id }}" in workflow
+    assert "name: wta-forward-004-slate-${{ matrix.artifact_stem }}-" in workflow
+    assert "per-match-artifact/provider-run.json" in workflow
+    assert "per-match-artifact/forward-004-target-resolution.json" in workflow
+    assert "per-match-artifact/prediction-work/prediction-record-sha256.txt" in workflow
+    assert "per-match-artifact/prediction-work/chain-head-sha256.txt" in workflow
+    assert "slate-parent-receipt.json" in workflow
+
+    parent_name = "name: forward-004-full-slate-bundle-${{ github.run_id }}"
+    assert parent_name in workflow
+    assert "name: wta-forward-004-full-slate-manual-" not in workflow
+    assert "prospective_evidence_anchor.yml/dispatches" not in workflow

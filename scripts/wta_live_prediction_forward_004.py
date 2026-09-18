@@ -206,6 +206,7 @@ def run_forward_004_slate(
                 {
                     "slate_index": index,
                     "event_id": event_id,
+                    "artifact_stem": _safe_event_stem(event_id),
                     "scheduled_start": resolved["scheduled_start"],
                     "target_resolution_path": str(target_path.relative_to(output_root)),
                     "prediction_root": str(prediction_root.relative_to(output_root)),

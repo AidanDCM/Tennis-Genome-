@@ -229,7 +229,9 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
     assert h.http_json is original_http
     assert h.target_state_from_provider is original_target_state
     roots = [item["prediction_root"] for item in manifest["results"]]
+    stems = [item["artifact_stem"] for item in manifest["results"]]
     assert len(set(roots)) == 2
+    assert stems == ["sr-sport_event-10", "sr-sport_event-20"]
     for item in manifest["results"]:
         root = tmp_path / "slate" / item["prediction_root"]
         assert (root / "matchup-input.json").is_file()
