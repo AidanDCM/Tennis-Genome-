@@ -97,7 +97,7 @@ class ApiTennisDynamicShadowBatch(WorkbenchRecord):
         return self
 
 
-def _historical_match(
+def api_tennis_enrichment_to_historical_match(
     record: ApiTennisMatchEnrichment,
     *,
     source_order: int,
@@ -168,7 +168,7 @@ def build_api_tennis_dynamic_shadow_batch(
         key=lambda record: (record.event_date, record.event_key),
     )
     matches = [
-        _historical_match(record, source_order=index)
+        api_tennis_enrichment_to_historical_match(record, source_order=index)
         for index, record in enumerate(ordered_records)
     ]
     snapshots = walk_forward_dynamic_serve_return(matches)
