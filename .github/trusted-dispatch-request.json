@@ -1,10 +1,9 @@
 {
   "schema_version": "tennis-genome-trusted-dispatch-request-v1",
-  "request_id": "FULL-STACK-FORWARD-provider-capture-20260918",
-  "target_workflow": "prospective_provider_capture_anchor.yml",
+  "request_id": "API-TENNIS-DAILY-INVENTORY-20260918-001",
+  "target_workflow": "api_tennis_daily_inventory.yml",
   "ref": "main",
   "inputs": {
-    "schedule_date": "2026-09-18",
-    "sportradar_access_level": "trial"
+    "schedule_date": "2026-09-18"
   }
 }
