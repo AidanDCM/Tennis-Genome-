@@ -280,7 +280,7 @@ def _select_target_fixture(
             raise ValueError("matched API-Tennis target unexpectedly contains a winner")
         for field in ("statistics", "pointbypoint", "scores"):
             value = row.get(field)
-            if value not in {None, ""} and value != []:
+            if value is not None and value != "" and value != []:
                 raise ValueError(f"matched API-Tennis target unexpectedly contains {field}")
         candidates.append((row, orientation))
 
