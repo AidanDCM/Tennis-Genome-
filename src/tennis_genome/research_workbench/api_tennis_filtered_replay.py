@@ -104,8 +104,12 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
     conservative_wta_challenger_id: Literal[
         "TGE-CHALLENGER-WTA-DYNAMIC-SR-SHRUNK-V1"
     ] = api_tennis_conservative_wta_shadow.CHALLENGER_ID
-    conservative_wta_min_prior_points: int = api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER
-    conservative_wta_shrinkage_to_neutral: float = api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL
+    conservative_wta_min_prior_points: int = (
+        api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER
+    )
+    conservative_wta_shrinkage_to_neutral: float = (
+        api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL
+    )
     conservative_wta_count: int
     conservative_wta_accuracy: float | None
     conservative_wta_brier: float | None
@@ -147,9 +151,15 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
             set(self.conservative_wta_event_keys)
         ):
             raise ValueError("conservative WTA event keys must be unique")
-        if self.conservative_wta_min_prior_points != api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER:
+        if (
+            self.conservative_wta_min_prior_points
+            != api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER
+        ):
             raise ValueError("conservative WTA history threshold drifted")
-        if self.conservative_wta_shrinkage_to_neutral != api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL:
+        if (
+            self.conservative_wta_shrinkage_to_neutral
+            != api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL
+        ):
             raise ValueError("conservative WTA shrinkage drifted")
         return self
 
