@@ -1,11 +1,6 @@
 name: WTA Forward 004 Auto Shadow Chain
 
 on:
-  workflow_run:
-    workflows:
-      - Prospective Trusted Provider Capture Anchor
-    types:
-      - completed
   workflow_dispatch:
     inputs:
       provider_run_id:
