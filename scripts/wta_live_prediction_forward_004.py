@@ -193,7 +193,10 @@ def run_forward_004_slate(
             lifecycle.advance(
                 lifecycle_id=lifecycle_id,
                 state="CHAMPION_PREDICTED",
-                evidence_sha256=(prediction_sha, _sha256_file(prediction_root / "matchup-input.json")),
+                evidence_sha256=(
+                    prediction_sha,
+                    _sha256_file(prediction_root / "matchup-input.json"),
+                ),
                 details={
                     "prediction_root": str(prediction_root.relative_to(output_root)),
                     "prediction_id": str(prediction_summary["prediction_id"]),
