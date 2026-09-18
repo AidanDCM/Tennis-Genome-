@@ -116,6 +116,20 @@ jobs:
           set -euo pipefail
           python scripts/replay_api_tennis_filtered_shadow.py             --source-dir source-artifact/api-tennis-filtered-range             --output-dir api-tennis-filtered-replay             | tee replay-summary.json
 
+      - name: Build canonical validation lab from retained replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_api_tennis_validation_lab.py \
+            --replay api-tennis-filtered-replay/replay.json \
+            --output-dir api-tennis-validation-lab \
+            | tee api-tennis-validation-lab-summary.json
+          test -f api-tennis-validation-lab/manifest.json
+          test -f api-tennis-validation-lab/reports/raw_dynamic_all_wta.json
+          test -f api-tennis-validation-lab/reports/raw_dynamic_conservative_eligible.json
+          test -f api-tennis-validation-lab/reports/conservative_wta.json
+          test -f api-tennis-validation-lab/paired-conservative-vs-raw.json
+
       - name: Build replay provenance receipt
         env:
           REQUEST_ID: ${{ steps.request.outputs.request_id }}
@@ -152,6 +166,9 @@ jobs:
               'admitted_match_count': manifest['admitted_match_count'],
               'any_history_count': manifest['any_history_count'],
               'both_players_history_count': manifest['both_players_history_count'],
+              'validation_lab_manifest_sha256': hashlib.sha256(
+                  Path('api-tennis-validation-lab/manifest.json').read_bytes()
+              ).hexdigest(),
               'development_only': True,
               'created_at_utc': datetime.now(UTC).isoformat(),
           }
@@ -169,6 +186,8 @@ jobs:
             api-tennis-filtered-replay/
             replay-summary.json
             api-tennis-filtered-replay-github-receipt.json
+            api-tennis-validation-lab/
+            api-tennis-validation-lab-summary.json
             source-artifact-metadata.json
           if-no-files-found: error
           retention-days: 90
