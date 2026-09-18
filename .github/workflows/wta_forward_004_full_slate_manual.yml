@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  actions: read
+  actions: write
   contents: read
 
 concurrency:
@@ -200,6 +200,7 @@ jobs:
                           "prediction_record_sha256"
                       ],
                       "chain_head_sha256": item["chain_head_sha256"],
+                      "scheduled_start": item["scheduled_start"],
                   }
               )
           if len(include) != int(manifest["target_count"]):
@@ -222,10 +223,24 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  package-targets:
+  capture-api-tennis-slate:
     needs: predict-slate
+    uses: ./.github/workflows/api_tennis_slate_extension_capture.yml
+    with:
+      full_slate_artifact_id: ${{ needs.predict-slate.outputs.slate_artifact_id }}
+      history_artifact_id: "10531692054"
+    secrets: inherit
+
+  package-targets:
+    needs:
+      - predict-slate
+      - capture-api-tennis-slate
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      API_TENNIS_HISTORY_ARTIFACT_ID: "10531692054"
+      SHARED_EXTENSION_ARTIFACT_ID: ${{ needs.capture-api-tennis-slate.outputs.shared_extension_artifact_id }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.predict-slate.outputs.target_matrix) }}
@@ -236,12 +251,56 @@ jobs:
           name: forward-004-full-slate-bundle-${{ github.run_id }}
           path: full-slate
 
+      - name: Download shared API-Tennis capture
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ needs.capture-api-tennis-slate.outputs.shared_extension_artifact_id }}
+          path: shared-extension
+
+      - name: Confirm target is still publishable
+        id: eligibility
+        env:
+          EVENT_ID: ${{ matrix.event_id }}
+          SCHEDULED_START: ${{ matrix.scheduled_start }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("shared-extension/manifest.json").read_text(encoding="utf-8")
+          )
+          event_id = os.environ["EVENT_ID"]
+          scheduled = datetime.fromisoformat(os.environ["SCHEDULED_START"])
+          captured = datetime.fromisoformat(str(manifest["captured_at"]))
+          if scheduled.tzinfo is None or scheduled.utcoffset() is None:
+              raise SystemExit("scheduled start must be timezone-aware")
+          if captured.tzinfo is None or captured.utcoffset() is None:
+              raise SystemExit("shared capture time must be timezone-aware")
+          prestart_ids = set(manifest.get("prestart_target_event_ids", []))
+          publish = (
+              event_id in prestart_ids
+              and captured < scheduled
+              and datetime.now(UTC) < scheduled
+          )
+          with Path(os.environ["GITHUB_OUTPUT"]).open(
+              "a", encoding="utf-8"
+          ) as handle:
+              handle.write(f"publish={'true' if publish else 'false'}\n")
+          PY
+
       - name: Repackage one match into legacy prediction artifact contract
+        if: steps.eligibility.outputs.publish == 'true'
         env:
           ARTIFACT_STEM: ${{ matrix.artifact_stem }}
           EVENT_ID: ${{ matrix.event_id }}
           PREDICTION_SHA: ${{ matrix.prediction_record_sha256 }}
           CHAIN_HEAD_SHA: ${{ matrix.chain_head_sha256 }}
+          SCHEDULED_START: ${{ matrix.scheduled_start }}
           PARENT_SLATE_ARTIFACT_ID: ${{ needs.predict-slate.outputs.slate_artifact_id }}
         shell: bash
         run: |
@@ -286,6 +345,10 @@ jobs:
               "artifact_stem": os.environ["ARTIFACT_STEM"],
               "prediction_record_sha256": os.environ["PREDICTION_SHA"],
               "chain_head_sha256": os.environ["CHAIN_HEAD_SHA"],
+              "scheduled_start": os.environ["SCHEDULED_START"],
+              "shared_extension_artifact_id": int(
+                  os.environ["SHARED_EXTENSION_ARTIFACT_ID"]
+              ),
           }
           Path("per-match-artifact/slate-parent-receipt.json").write_text(
               json.dumps(receipt, indent=2, sort_keys=True) + "\n",
@@ -294,9 +357,85 @@ jobs:
           PY
 
       - name: Upload settlement-compatible per-match Champion artifact
+        if: steps.eligibility.outputs.publish == 'true'
+        id: upload_target
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: wta-forward-004-slate-${{ matrix.artifact_stem }}-${{ github.run_id }}
           path: per-match-artifact/
           if-no-files-found: error
           retention-days: 90
+
+      - name: Dispatch Champion anchor and shared API-Tennis evidence
+        if: steps.eligibility.outputs.publish == 'true'
+        env:
+          CHILD_ARTIFACT_ID: ${{ steps.upload_target.outputs.artifact-id }}
+          PREDICTION_SHA: ${{ matrix.prediction_record_sha256 }}
+          CHAIN_HEAD_SHA: ${{ matrix.chain_head_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in "${CHILD_ARTIFACT_ID}" "${SHARED_EXTENSION_ARTIFACT_ID}"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "required artifact ID is invalid" >&2; exit 1 ;;
+            esac
+          done
+
+          anchor_payload=$(python - <<'PY'
+          import json
+          import os
+
+          print(json.dumps({
+              "ref": "main",
+              "inputs": {
+                  "prediction_record_sha256": os.environ["PREDICTION_SHA"],
+                  "chain_head_sha256": os.environ["CHAIN_HEAD_SHA"],
+              },
+          }, separators=(",", ":")))
+          PY
+          )
+          code=$(curl --silent --show-error \
+            --output anchor-dispatch-response.txt \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/prospective_evidence_anchor.yml/dispatches" \
+            -d "$anchor_payload")
+          if [ "$code" != "204" ]; then
+            cat anchor-dispatch-response.txt
+            exit 1
+          fi
+
+          evidence_payload=$(python - <<'PY'
+          import json
+          import os
+
+          print(json.dumps({
+              "ref": "main",
+              "inputs": {
+                  "prediction_artifact_id": os.environ["CHILD_ARTIFACT_ID"],
+                  "history_artifact_id": os.environ[
+                      "API_TENNIS_HISTORY_ARTIFACT_ID"
+                  ],
+                  "shared_extension_artifact_id": os.environ[
+                      "SHARED_EXTENSION_ARTIFACT_ID"
+                  ],
+              },
+          }, separators=(",", ":")))
+          PY
+          )
+          code=$(curl --silent --show-error \
+            --output evidence-dispatch-response.txt \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/api_tennis_prospective_evidence_from_shared.yml/dispatches" \
+            -d "$evidence_payload")
+          if [ "$code" != "204" ]; then
+            cat evidence-dispatch-response.txt
+            exit 1
+          fi
