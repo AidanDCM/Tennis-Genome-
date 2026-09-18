@@ -40,6 +40,15 @@ def main() -> None:
                 "excluded_match_count": replay.excluded_match_count,
                 "any_history_count": replay.any_history_count,
                 "both_players_history_count": replay.both_players_history_count,
+                "conservative_wta_challenger_id": replay.conservative_wta_challenger_id,
+                "conservative_wta_min_prior_points": replay.conservative_wta_min_prior_points,
+                "conservative_wta_shrinkage_to_neutral": (
+                    replay.conservative_wta_shrinkage_to_neutral
+                ),
+                "conservative_wta_count": replay.conservative_wta_count,
+                "conservative_wta_accuracy": replay.conservative_wta_accuracy,
+                "conservative_wta_brier": replay.conservative_wta_brier,
+                "conservative_wta_log_loss": replay.conservative_wta_log_loss,
                 "development_only": True,
             },
             indent=2,
@@ -67,6 +76,15 @@ def main() -> None:
                 "both_players_history_accuracy": replay.both_players_history_accuracy,
                 "both_players_history_brier": replay.both_players_history_brier,
                 "both_players_history_log_loss": replay.both_players_history_log_loss,
+                "conservative_wta_challenger_id": replay.conservative_wta_challenger_id,
+                "conservative_wta_min_prior_points": replay.conservative_wta_min_prior_points,
+                "conservative_wta_shrinkage_to_neutral": (
+                    replay.conservative_wta_shrinkage_to_neutral
+                ),
+                "conservative_wta_count": replay.conservative_wta_count,
+                "conservative_wta_accuracy": replay.conservative_wta_accuracy,
+                "conservative_wta_brier": replay.conservative_wta_brier,
+                "conservative_wta_log_loss": replay.conservative_wta_log_loss,
                 "development_only": True,
             },
             indent=2,

@@ -114,8 +114,29 @@ jobs:
             | tee shadow-finalization-summary.json
           test -f shadow-finalized/manifest.json
           test -f shadow-finalized/finalization-bundle.json
-          test "$(find shadow-finalized/settlements -type f -name '*.json' | wc -l)" -eq 3
-          test "$(find shadow-finalized/failure-atlas -type f -name '*.json' | wc -l)" -eq 3
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          shadow_manifest = json.loads(
+              Path('shadow-artifact/shadow-work/manifest.json').read_text(encoding='utf-8')
+          )
+          final_manifest = json.loads(
+              Path('shadow-finalized/manifest.json').read_text(encoding='utf-8')
+          )
+          expected = int(shadow_manifest['prediction_count'])
+          settlement_count = len(list(Path('shadow-finalized/settlements').glob('*.json')))
+          atlas_count = len(list(Path('shadow-finalized/failure-atlas').glob('*.json')))
+          league_count = len(final_manifest['league_table'])
+          if expected not in {3, 4}:
+              raise SystemExit('trusted shadow manifest has unsupported prediction count')
+          if settlement_count != expected:
+              raise SystemExit('shadow settlement count differs from prediction count')
+          if atlas_count != expected:
+              raise SystemExit('Failure Atlas count differs from prediction count')
+          if league_count != expected:
+              raise SystemExit('league table count differs from prediction count')
+          PY
 
       - name: Build trusted shadow settlement commitment
         shell: bash

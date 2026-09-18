@@ -40,10 +40,29 @@ jobs:
               request = json.loads(raw)
           except (UnicodeDecodeError, json.JSONDecodeError) as exc:
               raise SystemExit('challenger shadow request must be UTF-8 JSON') from exc
-          expected = {'schema_version', 'request_id', 'prediction_artifact_id'}
-          if not isinstance(request, dict) or set(request) != expected:
-              raise SystemExit(f'challenger shadow request fields must equal {sorted(expected)}')
-          if request['schema_version'] != 'tennis-genome-challenger-shadow-request-v1':
+          if not isinstance(request, dict):
+              raise SystemExit('challenger shadow request must be one JSON object')
+          version = request.get('schema_version')
+          expected_v1 = {'schema_version', 'request_id', 'prediction_artifact_id'}
+          expected_v2 = {
+              'schema_version',
+              'request_id',
+              'prediction_artifact_id',
+              'api_tennis_evidence_artifact_id',
+          }
+          if version == 'tennis-genome-challenger-shadow-request-v1':
+              if set(request) != expected_v1:
+                  raise SystemExit('v1 challenger shadow request has unexpected fields')
+              api_tennis_artifact_id = ''
+          elif version == 'tennis-genome-challenger-shadow-request-v2':
+              if set(request) != expected_v2:
+                  raise SystemExit('v2 challenger shadow request has unexpected fields')
+              api_tennis_artifact_id = str(request['api_tennis_evidence_artifact_id'])
+              if re.fullmatch(r'[1-9][0-9]*', api_tennis_artifact_id) is None:
+                  raise SystemExit(
+                      'api_tennis_evidence_artifact_id must be a positive integer'
+                  )
+          else:
               raise SystemExit('unsupported challenger shadow request schema')
           request_id = str(request['request_id'])
           if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
@@ -61,6 +80,7 @@ jobs:
               handle.write(f'request_id={request_id}\n')
               handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
               handle.write(f'artifact_id={artifact_id}\n')
+              handle.write(f'api_tennis_artifact_id={api_tennis_artifact_id}\n')
           PY
 
       - name: Dispatch trusted shadow workflow
@@ -69,6 +89,7 @@ jobs:
           ARTIFACT_ID: ${{ steps.request.outputs.artifact_id }}
           REQUEST_ID: ${{ steps.request.outputs.request_id }}
           REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+          API_TENNIS_ARTIFACT_ID: ${{ steps.request.outputs.api_tennis_artifact_id }}
         shell: bash
         run: |
           set -euo pipefail
@@ -77,7 +98,12 @@ jobs:
           import os
           print(json.dumps({
               'ref': 'main',
-              'inputs': {'prediction_artifact_id': os.environ['ARTIFACT_ID']},
+              'inputs': {
+                  'prediction_artifact_id': os.environ['ARTIFACT_ID'],
+                  'api_tennis_evidence_artifact_id': os.environ[
+                      'API_TENNIS_ARTIFACT_ID'
+                  ],
+              },
           }, separators=(',', ':')))
           PY
           )
@@ -96,3 +122,6 @@ jobs:
           printf 'challenger_shadow_request_id=%s\n' "$REQUEST_ID"
           printf 'challenger_shadow_request_sha256=%s\n' "$REQUEST_SHA256"
           printf 'challenger_shadow_prediction_artifact_id=%s\n' "$ARTIFACT_ID"
+          if [ -n "$API_TENNIS_ARTIFACT_ID" ]; then
+            printf 'challenger_shadow_api_tennis_artifact_id=%s\n' "$API_TENNIS_ARTIFACT_ID"
+          fi
