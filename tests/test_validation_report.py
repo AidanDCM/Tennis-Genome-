@@ -91,6 +91,7 @@ def test_validation_report_contains_full_probability_quality_contract() -> None:
         "calibration_intercept",
         "calibration_slope",
         "mean_confidence",
+        "confidence_correctness_auc",
         "high_confidence_65_miss_rate",
         "high_confidence_75_miss_rate",
     ):
