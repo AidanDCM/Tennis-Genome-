@@ -1,0 +1,362 @@
+name: API-Tennis Prospective WTA Evidence From Shared Slate
+
+on:
+  workflow_dispatch:
+    inputs:
+      prediction_artifact_id:
+        description: Per-match Champion prediction artifact ID
+        required: true
+        type: string
+      history_artifact_id:
+        description: Retained filtered API-Tennis history artifact ID
+        required: true
+        type: string
+      shared_extension_artifact_id:
+        description: Shared API-Tennis slate extension artifact ID
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: api-tennis-shared-evidence-${{ inputs.prediction_artifact_id }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+      PREDICTION_ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
+      HISTORY_ARTIFACT_ID: ${{ inputs.history_artifact_id }}
+      SHARED_EXTENSION_ARTIFACT_ID: ${{ inputs.shared_extension_artifact_id }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate immutable inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_EVENT_NAME}" = "workflow_dispatch"
+          test "${GITHUB_REF_NAME}" = "main"
+          test "${GITHUB_REPOSITORY}" = "AidanDCM/Tennis-Genome-"
+          for value in \
+            "${PREDICTION_ARTIFACT_ID}" \
+            "${HISTORY_ARTIFACT_ID}" \
+            "${SHARED_EXTENSION_ARTIFACT_ID}"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "artifact IDs must be positive integers" >&2; exit 1 ;;
+            esac
+            test "$value" -gt 0
+          done
+
+      - name: Refuse duplicate completed evidence artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="api-tennis-prospective-evidence-${PREDICTION_ARTIFACT_ID}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::prospective API-Tennis evidence already exists for prediction"
+            exit 1
+          fi
+
+      - name: Download Champion, shared extension, and retained history
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            metadata_path="$4"
+            mkdir -p "$out_dir"
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}" \
+              > "$metadata_path"
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              > "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact \
+            "$PREDICTION_ARTIFACT_ID" \
+            champion.zip \
+            champion-artifact \
+            champion-artifact-metadata.json
+          download_artifact \
+            "$SHARED_EXTENSION_ARTIFACT_ID" \
+            shared-extension.zip \
+            shared-extension-artifact \
+            shared-extension-artifact-metadata.json
+          download_artifact \
+            "$HISTORY_ARTIFACT_ID" \
+            history.zip \
+            history-artifact \
+            history-artifact-metadata.json
+
+          test -f champion-artifact/prediction-work/prediction-dossier.json
+          mapfile -t targets < <(
+            find champion-artifact -maxdepth 1 -type f \
+              -name 'forward-*-target-resolution.json' | sort
+          )
+          test "${#targets[@]}" -eq 1
+          printf '%s\n' "${targets[0]}" > target-resolution-path.txt
+
+          test -f shared-extension-artifact/raw-wta-extension.json
+          test -f shared-extension-artifact/manifest.json
+          test -f shared-extension-artifact/capture-record.json
+          test -f history-artifact/api-tennis-filtered-range/raw-wta-fixtures.json
+          test -f history-artifact/api-tennis-filtered-range/manifest.json
+
+          sha256sum \
+            champion.zip \
+            shared-extension.zip \
+            history.zip \
+            > input-artifact-sha256.txt
+
+      - name: Verify shared source and target binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import datetime
+          from pathlib import Path
+
+          target_path = Path("target-resolution-path.txt").read_text(
+              encoding="utf-8"
+          ).strip()
+          target = json.loads(Path(target_path).read_text(encoding="utf-8"))
+          event_id = str(target.get("event_id", ""))
+          scheduled = datetime.fromisoformat(str(target.get("scheduled_start", "")))
+          if scheduled.tzinfo is None or scheduled.utcoffset() is None:
+              raise SystemExit("Champion target scheduled_start must be timezone-aware")
+
+          shared_root = Path("shared-extension-artifact")
+          shared = json.loads(
+              (shared_root / "manifest.json").read_text(encoding="utf-8")
+          )
+          if (
+              shared.get("schema_version")
+              != "tennis-genome-api-tennis-slate-extension-manifest-v1"
+          ):
+              raise SystemExit("unexpected shared extension schema")
+          if shared.get("provider_request_count") != 1:
+              raise SystemExit("shared extension was not captured with exactly one request")
+          if shared.get("market_blind") is not True:
+              raise SystemExit("shared extension is not market blind")
+          if event_id not in shared.get("prestart_target_event_ids", []):
+              raise SystemExit("Champion target was not pre-start at shared capture")
+          captured = datetime.fromisoformat(str(shared.get("captured_at", "")))
+          if captured.tzinfo is None or captured.utcoffset() is None:
+              raise SystemExit("shared capture timestamp must be timezone-aware")
+          if captured >= scheduled:
+              raise SystemExit("shared API-Tennis capture is not pre-start for target")
+          raw = (shared_root / "raw-wta-extension.json").read_bytes()
+          if hashlib.sha256(raw).hexdigest() != shared.get("extension_raw_sha256"):
+              raise SystemExit("shared extension raw hash mismatch")
+
+          history_root = Path("history-artifact/api-tennis-filtered-range")
+          history = json.loads(
+              (history_root / "manifest.json").read_text(encoding="utf-8")
+          )
+          history_raw = (history_root / "raw-wta-fixtures.json").read_bytes()
+          if hashlib.sha256(history_raw).hexdigest() != history.get("raw_wta_sha256"):
+              raise SystemExit("retained history raw hash mismatch")
+          if int(shared.get("history_artifact_id", 0)) != int(
+              os.environ["HISTORY_ARTIFACT_ID"]
+          ):
+              raise SystemExit("shared capture/history artifact binding mismatch")
+          PY
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Build target evidence offline from shared extension
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=$(cat target-resolution-path.txt)
+          python scripts/build_api_tennis_prospective_evidence_from_shared.py \
+            --prediction-dossier \
+              champion-artifact/prediction-work/prediction-dossier.json \
+            --target-resolution "$target" \
+            --history-wta \
+              history-artifact/api-tennis-filtered-range/raw-wta-fixtures.json \
+            --shared-extension \
+              shared-extension-artifact/raw-wta-extension.json \
+            --shared-capture-manifest \
+              shared-extension-artifact/manifest.json \
+            --champion-prediction-artifact-id "$PREDICTION_ARTIFACT_ID" \
+            --history-artifact-id "$HISTORY_ARTIFACT_ID" \
+            --shared-extension-artifact-id "$SHARED_EXTENSION_ARTIFACT_ID" \
+            --output-dir api-tennis-prospective-evidence \
+            | tee api-tennis-prospective-evidence/summary.json
+
+      - name: Verify offline evidence invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("api-tennis-prospective-evidence")
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          state = json.loads(
+              (root / "api-tennis-prospective-state.json").read_text(encoding="utf-8")
+          )
+          crosswalk = json.loads(
+              (root / "api-tennis-champion-crosswalk.json").read_text(encoding="utf-8")
+          )
+          if manifest.get("local_provider_request_count") != 0:
+              raise SystemExit("offline evidence unexpectedly spent a provider request")
+          if manifest.get("source_capture_provider_request_count") != 1:
+              raise SystemExit("shared source capture request count drifted")
+          if manifest.get("shared_capture_scope") != "SLATE":
+              raise SystemExit("offline evidence lost shared-slate provenance")
+          if manifest.get("market_blind") is not True:
+              raise SystemExit("offline evidence is not market blind")
+          if manifest.get("target_outcome_consumed") is not False:
+              raise SystemExit("target outcome leakage flag is not false")
+          if manifest.get("same_day_history_consumed") is not False:
+              raise SystemExit("same-day history leakage flag is not false")
+          if state.get("historical_actual_start_admissible") is not False:
+              raise SystemExit("prospective state chronology policy drifted")
+          if crosswalk.get("mapping_basis") != "EXACT_NORMALIZED_NAME_PREMATCH":
+              raise SystemExit("crosswalk mapping basis drifted")
+          PY
+
+      - name: Build GitHub provenance receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          root = Path("api-tennis-prospective-evidence")
+          manifest_bytes = (root / "manifest.json").read_bytes()
+          manifest = json.loads(manifest_bytes)
+          champion_meta = json.loads(
+              Path("champion-artifact-metadata.json").read_text(encoding="utf-8")
+          )
+          shared_meta = json.loads(
+              Path("shared-extension-artifact-metadata.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          history_meta = json.loads(
+              Path("history-artifact-metadata.json").read_text(encoding="utf-8")
+          )
+          receipt = {
+              "schema_version": (
+                  "tennis-genome-api-tennis-shared-prospective-evidence-"
+                  "github-receipt-v1"
+              ),
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "champion_prediction_artifact_id": int(
+                  os.environ["PREDICTION_ARTIFACT_ID"]
+              ),
+              "champion_prediction_artifact_digest": champion_meta.get("digest"),
+              "history_artifact_id": int(os.environ["HISTORY_ARTIFACT_ID"]),
+              "history_artifact_digest": history_meta.get("digest"),
+              "shared_extension_artifact_id": int(
+                  os.environ["SHARED_EXTENSION_ARTIFACT_ID"]
+              ),
+              "shared_extension_artifact_digest": shared_meta.get("digest"),
+              "local_provider_request_count": 0,
+              "source_capture_provider_request_count": 1,
+              "evidence_sha256": manifest["evidence_sha256"],
+              "crosswalk_sha256": manifest["crosswalk_sha256"],
+              "build_record_sha256": manifest["build_record_sha256"],
+              "manifest_file_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+              "created_at_utc": datetime.now(UTC).isoformat(),
+          }
+          (root / "github-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload complete per-match API-Tennis evidence
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-prospective-evidence-${{ inputs.prediction_artifact_id }}
+          path: |
+            api-tennis-prospective-evidence/api-tennis-prospective-state.json
+            api-tennis-prospective-evidence/api-tennis-champion-crosswalk.json
+            api-tennis-prospective-evidence/build-record.json
+            api-tennis-prospective-evidence/manifest.json
+            api-tennis-prospective-evidence/summary.json
+            api-tennis-prospective-evidence/github-receipt.json
+            input-artifact-sha256.txt
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Dispatch anchored challenger shadows
+        env:
+          EVIDENCE_ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${EVIDENCE_ARTIFACT_ID}" in
+            ''|*[!0-9]*) echo "missing evidence artifact id" >&2; exit 1 ;;
+          esac
+          payload=$(python - <<'PY'
+          import json
+          import os
+
+          print(json.dumps({
+              "ref": "main",
+              "inputs": {
+                  "prediction_artifact_id": os.environ["PREDICTION_ARTIFACT_ID"],
+                  "api_tennis_evidence_artifact_id": os.environ[
+                      "EVIDENCE_ARTIFACT_ID"
+                  ],
+              },
+          }, separators=(",", ":")))
+          PY
+          )
+          code=$(curl --silent --show-error \
+            --output shadow-dispatch-response.txt \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/challenger_shadow_from_prediction_artifact.yml/dispatches" \
+            -d "$payload")
+          if [ "$code" != "204" ]; then
+            cat shadow-dispatch-response.txt
+            exit 1
+          fi
