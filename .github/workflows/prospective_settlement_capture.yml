@@ -7,6 +7,18 @@ on:
         description: Frozen pilot prediction record SHA-256
         required: true
         type: string
+      prediction_artifact_id:
+        description: Immutable Champion prediction artifact ID
+        required: true
+        type: string
+      provider_artifact_id:
+        description: Trusted pre-match provider capture artifact ID
+        required: true
+        type: string
+      prediction_anchor_comment_id:
+        description: Canonical trusted pre-match prediction anchor comment ID
+        required: true
+        type: string
       identity_binding_sha256:
         description: Pre-match Sportradar identity-binding file SHA-256
         required: true
@@ -24,8 +36,13 @@ on:
           - production
 
 permissions:
+  actions: write
   contents: read
   issues: write
+
+concurrency:
+  group: prospective-settlement-capture-${{ inputs.prediction_record_sha256 }}
+  cancel-in-progress: false
 
 jobs:
   capture:
@@ -33,11 +50,40 @@ jobs:
     env:
       SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
       PREDICTION_RECORD_SHA256: ${{ inputs.prediction_record_sha256 }}
+      PREDICTION_ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
+      PROVIDER_ARTIFACT_ID: ${{ inputs.provider_artifact_id }}
+      PREDICTION_ANCHOR_COMMENT_ID: ${{ inputs.prediction_anchor_comment_id }}
       IDENTITY_BINDING_SHA256: ${{ inputs.identity_binding_sha256 }}
       SPORTRADAR_EVENT_ID: ${{ inputs.sportradar_event_id }}
       SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
     steps:
+      - name: Validate immutable settlement inputs and refuse duplicate capture
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in \
+            "$PREDICTION_ARTIFACT_ID" \
+            "$PROVIDER_ARTIFACT_ID" \
+            "$PREDICTION_ANCHOR_COMMENT_ID"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "artifact/comment IDs must be positive integers" >&2; exit 1 ;;
+            esac
+            test "$value" -gt 0
+          done
+          name="prospective-trusted-settlement-capture-${PREDICTION_RECORD_SHA256}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::trusted settlement capture already exists for prediction"
+            exit 1
+          fi
+
       - name: Fetch terminal timeline and publish machine commitment
+        id: capture
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -212,11 +258,59 @@ jobs:
           print(f"timeline_sha256={body_sha}")
           print(f"identity_binding_sha256={identity_sha}")
           PY
+          echo "settlement_comment_id=$(tr -d '\r\n' < trusted-settlement-capture/github_comment_id.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Upload trusted settlement evidence
+        id: settlement_upload
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: prospective-trusted-settlement-capture
+          name: prospective-trusted-settlement-capture-${{ inputs.prediction_record_sha256 }}
           path: trusted-settlement-capture/
           if-no-files-found: error
           retention-days: 90
+
+      - name: Dispatch verified Champion settlement finalizer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SETTLEMENT_ARTIFACT_ID: ${{ steps.settlement_upload.outputs.artifact-id }}
+          SETTLEMENT_COMMENT_ID: ${{ steps.capture.outputs.settlement_comment_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in "$SETTLEMENT_ARTIFACT_ID" "$SETTLEMENT_COMMENT_ID"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "settlement IDs must be positive integers" >&2; exit 1 ;;
+            esac
+          done
+          payload=$(python -S - <<'PY'
+          import json
+          import os
+
+          print(json.dumps({
+              "ref": "main",
+              "inputs": {
+                  "prediction_artifact_id": os.environ["PREDICTION_ARTIFACT_ID"],
+                  "provider_artifact_id": os.environ["PROVIDER_ARTIFACT_ID"],
+                  "settlement_artifact_id": os.environ["SETTLEMENT_ARTIFACT_ID"],
+                  "prediction_record_sha256": os.environ["PREDICTION_RECORD_SHA256"],
+                  "prediction_anchor_comment_id": os.environ[
+                      "PREDICTION_ANCHOR_COMMENT_ID"
+                  ],
+                  "settlement_comment_id": os.environ["SETTLEMENT_COMMENT_ID"],
+              },
+          }, separators=(",", ":")))
+          PY
+          )
+          code=$(curl --silent --show-error \
+            --output settlement-finalizer-dispatch-response.txt \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/prospective_settlement_finalize.yml/dispatches" \
+            -d "$payload")
+          if [ "$code" != "204" ]; then
+            cat settlement-finalizer-dispatch-response.txt
+            exit 1
+          fi
