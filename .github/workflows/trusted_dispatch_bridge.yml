@@ -75,6 +75,10 @@ jobs:
                   'prediction_record_sha256',
                   'chain_head_sha256',
               },
+              'api_tennis_prospective_evidence.yml': {
+                  'prediction_artifact_id',
+                  'history_artifact_id',
+              },
               'prospective_settlement_capture.yml': {
                   'prediction_record_sha256',
                   'identity_binding_sha256',
@@ -123,6 +127,7 @@ jobs:
                   raise SystemExit('schedule_date must use canonical YYYY-MM-DD form')
           for key in (
               'prediction_artifact_id',
+              'history_artifact_id',
               'provider_artifact_id',
               'settlement_artifact_id',
               'prediction_anchor_comment_id',
