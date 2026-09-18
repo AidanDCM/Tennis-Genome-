@@ -18,6 +18,9 @@ concurrency:
 
 jobs:
   predict-slate:
+    outputs:
+      target_matrix: ${{ steps.matrix.outputs.target_matrix }}
+      slate_artifact_id: ${{ steps.upload_slate.outputs.artifact-id }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
@@ -172,14 +175,128 @@ jobs:
               raise SystemExit("manual slate lifecycle advanced beyond Champion prediction")
           PY
 
+      - name: Build deterministic per-match packaging matrix
+        id: matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path(
+                  "forward-004-slate-work/execution/slate-execution-manifest.json"
+              ).read_text(encoding="utf-8")
+          )
+          include = []
+          for item in manifest["results"]:
+              include.append(
+                  {
+                      "artifact_stem": item["artifact_stem"],
+                      "event_id": item["event_id"],
+                      "prediction_record_sha256": item[
+                          "prediction_record_sha256"
+                      ],
+                      "chain_head_sha256": item["chain_head_sha256"],
+                  }
+              )
+          if len(include) != int(manifest["target_count"]):
+              raise SystemExit("packaging matrix differs from executed slate")
+          payload = json.dumps({"include": include}, separators=(",", ":"))
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"target_matrix={payload}\n")
+          PY
+
       - name: Upload experimental full-slate evidence
+        id: upload_slate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: wta-forward-004-full-slate-manual-${{ github.run_id }}
+          name: forward-004-full-slate-bundle-${{ github.run_id }}
           path: |
             provider-run.json
             trusted-provider-input-sha256.txt
             forward-004-slate-summary.json
             forward-004-slate-work/
+          if-no-files-found: error
+          retention-days: 90
+
+  package-targets:
+    needs: predict-slate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.predict-slate.outputs.target_matrix) }}
+    steps:
+      - name: Download parent slate bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: forward-004-full-slate-bundle-${{ github.run_id }}
+          path: full-slate
+
+      - name: Repackage one match into legacy prediction artifact contract
+        env:
+          ARTIFACT_STEM: ${{ matrix.artifact_stem }}
+          EVENT_ID: ${{ matrix.event_id }}
+          PREDICTION_SHA: ${{ matrix.prediction_record_sha256 }}
+          CHAIN_HEAD_SHA: ${{ matrix.chain_head_sha256 }}
+          PARENT_SLATE_ARTIFACT_ID: ${{ needs.predict-slate.outputs.slate_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_root="full-slate/forward-004-slate-work/execution/matches/${ARTIFACT_STEM}"
+          test -f "${source_root}/forward-004-target-resolution.json"
+          test -d "${source_root}/prediction-work"
+          mkdir -p per-match-artifact
+          cp full-slate/provider-run.json per-match-artifact/provider-run.json
+          cp full-slate/trusted-provider-input-sha256.txt             per-match-artifact/trusted-provider-input-sha256.txt
+          cp "${source_root}/forward-004-target-resolution.json"             per-match-artifact/forward-004-target-resolution.json
+          cp -a "${source_root}/prediction-work" per-match-artifact/prediction-work
+
+          printf '%s\n' "${PREDICTION_SHA}"             > per-match-artifact/prediction-work/prediction-record-sha256.txt
+          printf '%s\n' "${CHAIN_HEAD_SHA}"             > per-match-artifact/prediction-work/chain-head-sha256.txt
+          sha256sum             per-match-artifact/prediction-work/sportradar-identity-binding.json             | awk '{print $1}'             > per-match-artifact/prediction-work/identity-binding-sha256.txt
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          target = json.loads(
+              Path(
+                  "per-match-artifact/forward-004-target-resolution.json"
+              ).read_text(encoding="utf-8")
+          )
+          if target.get("event_id") != os.environ["EVENT_ID"]:
+              raise SystemExit("per-match package event identity mismatch")
+          prediction_sha = Path(
+              "per-match-artifact/prediction-work/prediction-record-sha256.txt"
+          ).read_text(encoding="utf-8").strip()
+          if prediction_sha != os.environ["PREDICTION_SHA"]:
+              raise SystemExit("per-match prediction SHA mismatch")
+          receipt = {
+              "schema_version": "wta-forward-004-slate-child-artifact-v1",
+              "parent_workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "parent_slate_artifact_id": int(
+                  os.environ["PARENT_SLATE_ARTIFACT_ID"]
+              ),
+              "event_id": os.environ["EVENT_ID"],
+              "artifact_stem": os.environ["ARTIFACT_STEM"],
+              "prediction_record_sha256": os.environ["PREDICTION_SHA"],
+              "chain_head_sha256": os.environ["CHAIN_HEAD_SHA"],
+          }
+          Path("per-match-artifact/slate-parent-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload settlement-compatible per-match Champion artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wta-forward-004-slate-${{ matrix.artifact_stem }}-${{ github.run_id }}
+          path: per-match-artifact/
           if-no-files-found: error
           retention-days: 90
