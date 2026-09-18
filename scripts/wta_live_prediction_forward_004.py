@@ -51,7 +51,7 @@ def _eligible_target(
     *,
     by_name,
     earliest_start: datetime,
-) -> tuple[datetime, str, str, str, str] | None:
+) -> tuple[datetime, str, str, str, str, str] | None:
     event = summary.get("sport_event")
     status = summary.get("sport_event_status")
     if not isinstance(event, dict) or not isinstance(status, dict):
