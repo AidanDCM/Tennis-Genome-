@@ -164,6 +164,25 @@ jobs:
           set -euo pipefail
           python scripts/wta_live_prediction_forward_004.py | tee prediction-summary.json
           test -f forward-004-target-resolution.json
+          test -f forward-004-slate-resolution.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          slate = json.loads(
+              Path("forward-004-slate-resolution.json").read_text(encoding="utf-8")
+          )
+          targets = slate.get("targets")
+          if not isinstance(targets, list) or not targets:
+              raise SystemExit("Forward-004 slate must contain at least one eligible target")
+          if int(slate.get("eligible_target_count", -1)) != len(targets):
+              raise SystemExit("Forward-004 slate target count does not reproduce")
+          selected = json.loads(
+              Path("forward-004-target-resolution.json").read_text(encoding="utf-8")
+          )
+          if str(selected.get("event_id", "")) != str(targets[0].get("event_id", "")):
+              raise SystemExit("legacy Forward-004 target is not the deterministic slate head")
+          PY
           record=$(find prediction-work/prospective-pilot-store/records \
             -type f -name '*.json' | sort | tail -1)
           prediction_sha=$(python -c \
@@ -235,6 +254,7 @@ jobs:
             trusted-provider-input-sha256.txt
             provider-run.json
             forward-004-target-resolution.json
+            forward-004-slate-resolution.json
             prediction-work/
             prediction-summary.json
             prediction-anchor-dispatch-response.txt

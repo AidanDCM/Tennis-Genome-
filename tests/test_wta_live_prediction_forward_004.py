@@ -91,6 +91,57 @@ def _summary(
     }
 
 
+
+def test_slate_selector_returns_all_eligible_targets_in_deterministic_order() -> None:
+    h = _helper()
+    observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
+    by_name = {"Alpha": "100", "Beta": "200"}
+    summaries = [
+        _summary(event_id="sr:sport_event:30", start="2026-09-18T16:00:00+00:00"),
+        _summary(event_id="sr:sport_event:20", start="2026-09-18T15:00:00+00:00"),
+        _summary(event_id="sr:sport_event:10", start="2026-09-18T15:00:00+00:00"),
+        _summary(
+            event_id="sr:sport_event:too-soon",
+            start="2026-09-18T13:00:00+00:00",
+        ),
+    ]
+
+    slate = fwd.select_forward_004_targets(
+        h,
+        summaries=summaries,
+        by_name=by_name,
+        capture_observed_at=observed,
+    )
+
+    assert [resolution["event_id"] for _, resolution in slate] == [
+        "sr:sport_event:10",
+        "sr:sport_event:20",
+        "sr:sport_event:30",
+    ]
+    assert all(
+        resolution["selection_rule"]
+        == "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
+        for _, resolution in slate
+    )
+
+
+def test_slate_selector_fails_closed_on_duplicate_eligible_event_ids() -> None:
+    h = _helper()
+    observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
+    duplicate = _summary(
+        event_id="sr:sport_event:10",
+        start="2026-09-18T15:00:00+00:00",
+    )
+
+    with pytest.raises(RuntimeError, match="duplicate eligible WTA event IDs"):
+        fwd.select_forward_004_targets(
+            h,
+            summaries=[duplicate, duplicate],
+            by_name={"Alpha": "100", "Beta": "200"},
+            capture_observed_at=observed,
+        )
+
+
 def test_selector_uses_earliest_confirmed_resolvable_target_after_fixed_lead() -> None:
     h = _helper()
     observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)

@@ -106,13 +106,57 @@ def _eligible_target(
     return scheduled, event_id, player_a_id, player_a_sr, player_b_id, player_b_sr
 
 
-def select_forward_004_target(
+def _target_resolution(
+    *,
+    summary: dict[str, object],
+    scheduled: datetime,
+    event_id: str,
+    player_a_id: str,
+    player_a_sr: str,
+    player_b_id: str,
+    player_b_sr: str,
+    capture_observed_at: datetime,
+    selection_rule: str,
+) -> dict[str, str]:
+    event = summary["sport_event"]
+    if not isinstance(event, dict):
+        raise RuntimeError("eligible target sport_event is malformed")
+    context = event["sport_event_context"]
+    if not isinstance(context, dict):
+        raise RuntimeError("eligible target context is malformed")
+    season = context["season"]
+    competition = context["competition"]
+    if not isinstance(season, dict) or not isinstance(competition, dict):
+        raise RuntimeError("eligible target season/competition is malformed")
+    return {
+        "schema_version": "wta-forward-004-target-resolution-v1",
+        "forward_protocol": FORWARD_PROTOCOL,
+        "selection_rule": selection_rule,
+        "minimum_capture_lead_minutes": str(
+            int(MIN_CAPTURE_LEAD.total_seconds() // 60)
+        ),
+        "capture_observed_at": capture_observed_at.isoformat(),
+        "event_id": event_id,
+        "season_id": str(season["id"]),
+        "competition_id": str(competition["id"]),
+        "tournament_start_date": str(season["start_date"]),
+        "scheduled_start": scheduled.isoformat(),
+        "player_a_canonical_id": player_a_id,
+        "player_a_sportradar_id": player_a_sr,
+        "player_b_canonical_id": player_b_id,
+        "player_b_sportradar_id": player_b_sr,
+    }
+
+
+def select_forward_004_targets(
     h,
     *,
     summaries: list[dict[str, object]],
     by_name,
     capture_observed_at: datetime,
-) -> tuple[dict[str, object], dict[str, str]]:
+) -> tuple[tuple[dict[str, object], dict[str, str]], ...]:
+    """Return the complete deterministic eligible WTA slate from one trusted capture."""
+
     if capture_observed_at.tzinfo is None or capture_observed_at.utcoffset() is None:
         raise ValueError("capture_observed_at must be timezone-aware")
     earliest_start = capture_observed_at + MIN_CAPTURE_LEAD
@@ -153,32 +197,59 @@ def select_forward_004_target(
             f"with at least {int(MIN_CAPTURE_LEAD.total_seconds() // 60)} minutes lead"
         )
 
-    selected = min(candidates, key=lambda item: (item[0], item[1]))
-    scheduled, event_id, summary, player_a_id, player_a_sr, player_b_id, player_b_sr = (
-        selected
+    candidates.sort(key=lambda item: (item[0], item[1]))
+    event_ids = [item[1] for item in candidates]
+    if len(event_ids) != len(set(event_ids)):
+        raise RuntimeError("trusted capture produced duplicate eligible WTA event IDs")
+
+    selection_rule = (
+        "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
     )
-    event = summary["sport_event"]
-    context = event["sport_event_context"]
-    season = context["season"]
-    competition = context["competition"]
-    resolution = {
-        "schema_version": "wta-forward-004-target-resolution-v1",
-        "forward_protocol": FORWARD_PROTOCOL,
-        "selection_rule": "earliest_confirmed_resolvable_wta_main_tour_singles",
-        "minimum_capture_lead_minutes": str(
-            int(MIN_CAPTURE_LEAD.total_seconds() // 60)
-        ),
-        "capture_observed_at": capture_observed_at.isoformat(),
-        "event_id": event_id,
-        "season_id": str(season["id"]),
-        "competition_id": str(competition["id"]),
-        "tournament_start_date": str(season["start_date"]),
-        "scheduled_start": scheduled.isoformat(),
-        "player_a_canonical_id": player_a_id,
-        "player_a_sportradar_id": player_a_sr,
-        "player_b_canonical_id": player_b_id,
-        "player_b_sportradar_id": player_b_sr,
-    }
+    return tuple(
+        (
+            summary,
+            _target_resolution(
+                summary=summary,
+                scheduled=scheduled,
+                event_id=event_id,
+                player_a_id=player_a_id,
+                player_a_sr=player_a_sr,
+                player_b_id=player_b_id,
+                player_b_sr=player_b_sr,
+                capture_observed_at=capture_observed_at,
+                selection_rule=selection_rule,
+            ),
+        )
+        for (
+            scheduled,
+            event_id,
+            summary,
+            player_a_id,
+            player_a_sr,
+            player_b_id,
+            player_b_sr,
+        ) in candidates
+    )
+
+
+def select_forward_004_target(
+    h,
+    *,
+    summaries: list[dict[str, object]],
+    by_name,
+    capture_observed_at: datetime,
+) -> tuple[dict[str, object], dict[str, str]]:
+    """Compatibility selector retaining the original earliest-target Forward-004 rule."""
+
+    selected = select_forward_004_targets(
+        h,
+        summaries=summaries,
+        by_name=by_name,
+        capture_observed_at=capture_observed_at,
+    )[0]
+    summary, resolution = selected
+    resolution = dict(resolution)
+    resolution["selection_rule"] = "earliest_confirmed_resolvable_wta_main_tour_singles"
     return summary, resolution
 
 
@@ -271,12 +342,15 @@ def main() -> None:
     observed_at = _capture_observed_at(
         trusted_root / "provider_batch_anchor_receipt.json"
     )
-    target_summary, resolved = select_forward_004_target(
+    slate = select_forward_004_targets(
         h,
         summaries=summaries,
         by_name=by_name,
         capture_observed_at=observed_at,
     )
+    target_summary, resolved = slate[0]
+    resolved = dict(resolved)
+    resolved["selection_rule"] = "earliest_confirmed_resolvable_wta_main_tour_singles"
 
     receipt = json.loads(
         (trusted_root / "provider_batch_anchor_receipt.json").read_text(
@@ -288,8 +362,36 @@ def main() -> None:
         .read_text(encoding="utf-8")
         .strip()
     )
-    resolved["provider_batch_record_sha256"] = str(receipt["batch_record_sha256"])
-    resolved["provider_anchor_comment_id"] = str(anchor_comment_id)
+    provider_batch_record_sha256 = str(receipt["batch_record_sha256"])
+    provider_anchor_comment_id = str(anchor_comment_id)
+    resolved["provider_batch_record_sha256"] = provider_batch_record_sha256
+    resolved["provider_anchor_comment_id"] = provider_anchor_comment_id
+
+    slate_targets: list[dict[str, str]] = []
+    for _, item in slate:
+        target = dict(item)
+        target["provider_batch_record_sha256"] = provider_batch_record_sha256
+        target["provider_anchor_comment_id"] = provider_anchor_comment_id
+        slate_targets.append(target)
+    slate_manifest = {
+        "schema_version": "wta-forward-004-slate-resolution-v1",
+        "forward_protocol": FORWARD_PROTOCOL,
+        "selection_rule": (
+            "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
+        ),
+        "minimum_capture_lead_minutes": int(
+            MIN_CAPTURE_LEAD.total_seconds() // 60
+        ),
+        "capture_observed_at": observed_at.isoformat(),
+        "eligible_target_count": len(slate_targets),
+        "provider_batch_record_sha256": provider_batch_record_sha256,
+        "provider_anchor_comment_id": anchor_comment_id,
+        "targets": slate_targets,
+    }
+    Path("forward-004-slate-resolution.json").write_text(
+        json.dumps(slate_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
     h.TARGET_EVENT_ID = resolved["event_id"]
     h.TARGET_MATCH_ID = resolved["event_id"]
