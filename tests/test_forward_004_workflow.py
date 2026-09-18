@@ -1,7 +1,6 @@
-from pathlib import Path
+import pathlib
 
-
-_ROOT = Path(__file__).resolve().parents[1]
+_ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def test_forward_004_workflow_is_chained_only_from_trusted_capture() -> None:
