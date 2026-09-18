@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from scripts import build_api_tennis_prospective_evidence_from_shared as shared_builder
 from tennis_genome.research_workbench.api_tennis_dynamic_shadow import (
     api_tennis_enrichment_to_historical_match,
 )
@@ -441,3 +443,108 @@ def test_slate_capture_rejects_duplicate_event_ids_before_provider_call() -> Non
         )
 
     assert called is False
+
+
+def test_shared_offline_builder_reuses_retained_extension_without_provider_call(
+    tmp_path,
+) -> None:
+    history_path = tmp_path / "history.json"
+    extension_path = tmp_path / "extension.json"
+    dossier_path = tmp_path / "dossier.json"
+    resolution_path = tmp_path / "resolution.json"
+    shared_manifest_path = tmp_path / "shared-manifest.json"
+    output_dir = tmp_path / "output"
+
+    history_raw = _base_raw()
+    extension_raw = _extension_raw()
+    history_path.write_bytes(history_raw)
+    extension_path.write_bytes(extension_raw)
+    dossier_path.write_text(json.dumps(_dossier()), encoding="utf-8")
+    resolution_path.write_text(json.dumps(_resolution()), encoding="utf-8")
+    shared_manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": (
+                    "tennis-genome-api-tennis-slate-extension-manifest-v1"
+                ),
+                "history_artifact_id": 10531692054,
+                "provider_request_count": 1,
+                "base_history_raw_sha256": hashlib.sha256(history_raw).hexdigest(),
+                "extension_raw_sha256": hashlib.sha256(extension_raw).hexdigest(),
+                "captured_at": CAPTURED.isoformat(),
+                "prestart_target_event_ids": [EVENT_ID],
+                "market_blind": True,
+                "target_outcome_consumed": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = shared_builder.build(
+        prediction_dossier_path=dossier_path,
+        target_resolution_path=resolution_path,
+        history_wta_path=history_path,
+        shared_extension_path=extension_path,
+        shared_capture_manifest_path=shared_manifest_path,
+        champion_prediction_artifact_id=777,
+        history_artifact_id=10531692054,
+        shared_extension_artifact_id=888,
+        output_dir=output_dir,
+    )
+
+    assert manifest["local_provider_request_count"] == 0
+    assert manifest["source_capture_provider_request_count"] == 1
+    assert manifest["shared_capture_scope"] == "SLATE"
+    assert manifest["shared_extension_artifact_id"] == 888
+    assert manifest["extension_raw_sha256"] == hashlib.sha256(extension_raw).hexdigest()
+    assert (output_dir / "api-tennis-prospective-state.json").is_file()
+    assert (output_dir / "api-tennis-champion-crosswalk.json").is_file()
+    assert not (output_dir / "raw-wta-extension.json").exists()
+
+
+def test_shared_offline_builder_rejects_target_not_prestart_in_shared_capture(
+    tmp_path,
+) -> None:
+    history_path = tmp_path / "history.json"
+    extension_path = tmp_path / "extension.json"
+    dossier_path = tmp_path / "dossier.json"
+    resolution_path = tmp_path / "resolution.json"
+    shared_manifest_path = tmp_path / "shared-manifest.json"
+
+    history_raw = _base_raw()
+    extension_raw = _extension_raw()
+    history_path.write_bytes(history_raw)
+    extension_path.write_bytes(extension_raw)
+    dossier_path.write_text(json.dumps(_dossier()), encoding="utf-8")
+    resolution_path.write_text(json.dumps(_resolution()), encoding="utf-8")
+    shared_manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": (
+                    "tennis-genome-api-tennis-slate-extension-manifest-v1"
+                ),
+                "history_artifact_id": 10531692054,
+                "provider_request_count": 1,
+                "base_history_raw_sha256": hashlib.sha256(history_raw).hexdigest(),
+                "extension_raw_sha256": hashlib.sha256(extension_raw).hexdigest(),
+                "captured_at": CAPTURED.isoformat(),
+                "prestart_target_event_ids": [],
+                "market_blind": True,
+                "target_outcome_consumed": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="not in shared capture pre-start"):
+        shared_builder.build(
+            prediction_dossier_path=dossier_path,
+            target_resolution_path=resolution_path,
+            history_wta_path=history_path,
+            shared_extension_path=extension_path,
+            shared_capture_manifest_path=shared_manifest_path,
+            champion_prediction_artifact_id=777,
+            history_artifact_id=10531692054,
+            shared_extension_artifact_id=888,
+            output_dir=tmp_path / "output",
+        )
