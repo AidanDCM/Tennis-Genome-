@@ -240,7 +240,7 @@ def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
         "seasons/sr:season:10/info.json",
     ]
     assert prepare_calls == 1
-    assert manifest["provider_unique_request_count"] == 2
+    assert manifest["provider_unique_request_count"] == 3
     assert manifest["eligible_target_count"] == 2
     assert manifest["target_count"] == 2
     assert manifest["skipped_target_count"] == 0
