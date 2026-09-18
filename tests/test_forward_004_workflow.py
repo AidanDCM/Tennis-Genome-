@@ -74,7 +74,23 @@ def test_full_slate_manual_workflow_fans_out_legacy_compatible_artifacts() -> No
     parent_name = "name: forward-004-full-slate-bundle-${{ github.run_id }}"
     assert parent_name in workflow
     assert "name: wta-forward-004-full-slate-manual-" not in workflow
-    assert "prospective_evidence_anchor.yml/dispatches" not in workflow
+
+
+def test_full_slate_manual_publication_is_explicitly_opt_in_and_time_gated() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/wta_forward_004_full_slate_manual.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "publish_prospective_evidence:" in workflow
+    assert "default: false" in workflow
+    assert workflow.count("if: inputs.publish_prospective_evidence == true") == 2
+    assert "capture-api-tennis-slate:" in workflow
+    assert "uses: ./.github/workflows/api_tennis_slate_extension_capture.yml" in workflow
+    assert "datetime.now(UTC) < scheduled" in workflow
+    assert "event_id in prestart_ids" in workflow
+    assert "captured < scheduled" in workflow
+    assert "prospective_evidence_anchor.yml/dispatches" in workflow
+    assert "api_tennis_prospective_evidence_from_shared.yml/dispatches" in workflow
 
 
 def test_api_tennis_full_slate_capture_is_one_request_and_nonpublishing() -> None:
@@ -82,6 +98,10 @@ def test_api_tennis_full_slate_capture_is_one_request_and_nonpublishing() -> Non
         _ROOT / ".github/workflows/api_tennis_slate_extension_capture.yml"
     ).read_text(encoding="utf-8")
 
+    assert "workflow_call:" in workflow
+    assert "shared_extension_artifact_id:" in workflow
+    assert "value: ${{ jobs.capture.outputs.artifact_id }}" in workflow
+    assert "artifact_id: ${{ steps.upload.outputs.artifact-id }}" in workflow
     assert "full_slate_artifact_id:" in workflow
     assert "history_artifact_id:" in workflow
     assert "capture_api_tennis_slate_extension.py" in workflow
