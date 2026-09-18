@@ -327,25 +327,28 @@ def capture_api_tennis_slate_extension(
             raise ValueError("slate scheduled_start must be timezone-aware")
         targets.append((scheduled.astimezone(UTC), event_id))
 
+    ordered = sorted(targets, key=lambda item: (item[0], item[1]))
+    prestart_rows = [
+        (scheduled, event_id)
+        for scheduled, event_id in ordered
+        if captured_at < scheduled
+    ]
+    late = tuple(
+        event_id for scheduled, event_id in ordered if captured_at >= scheduled
+    )
+    if not prestart_rows:
+        raise ValueError("API-Tennis slate capture has no remaining pre-start targets")
+
     base_history_end = _base_history_end(history_raw_wta)
     query_start = base_history_end + timedelta(days=1)
-    query_stop = max(scheduled.date() for scheduled, _ in targets)
+    query_stop = max(scheduled.date() for scheduled, _ in prestart_rows)
     extension_raw = fetch_api_tennis_wta_extension(
         date_start=query_start,
         date_stop=query_stop,
         api_key=api_key,
         provider_get=provider_get,
     )
-
-    ordered = sorted(targets, key=lambda item: (item[0], item[1]))
-    prestart = tuple(
-        event_id for scheduled, event_id in ordered if captured_at < scheduled
-    )
-    late = tuple(
-        event_id for scheduled, event_id in ordered if captured_at >= scheduled
-    )
-    if not prestart:
-        raise ValueError("API-Tennis slate capture has no remaining pre-start targets")
+    prestart = tuple(event_id for _, event_id in prestart_rows)
 
     capture = ApiTennisSlateExtensionCapture(
         history_artifact_id=history_artifact_id,
