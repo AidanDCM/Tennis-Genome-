@@ -250,6 +250,6 @@ def test_live_shadow_workflows_allow_three_four_or_five_predictions() -> None:
     ).read_text(encoding="utf-8")
 
     assert "prediction_count not in {3, 4, 5}" in anchor_workflow
-    assert "registration_count != 5" in anchor_workflow
+    assert "registration_count != (5 if deep_registered else 4)" in anchor_workflow
     assert "expected not in {3, 4, 5}" in anchor_workflow
     assert "expected not in {3, 4, 5}" in settlement_workflow
