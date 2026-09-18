@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import unicodedata
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import UTC, date, datetime, timedelta
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -81,6 +81,52 @@ class ApiTennisProspectiveEvidenceBuild(WorkbenchRecord):
     def _request_count(cls, value: int) -> int:
         if value != 1:
             raise ValueError("prospective evidence capture must spend exactly one request")
+        return value
+
+
+
+class ApiTennisSlateExtensionCapture(WorkbenchRecord):
+    schema_version: str = "tennis-genome-api-tennis-slate-extension-capture-v1"
+    history_artifact_id: int
+    provider_request_count: int = 1
+    query_date_start: date
+    query_date_stop: date
+    base_history_raw_sha256: str
+    extension_raw_sha256: str
+    captured_at: datetime
+    target_event_ids: tuple[str, ...]
+    prestart_target_event_ids: tuple[str, ...]
+    late_target_event_ids: tuple[str, ...]
+    market_blind: bool = True
+
+    @field_validator("history_artifact_id")
+    @classmethod
+    def _history_artifact_id(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("history artifact ID must be positive")
+        return value
+
+    @field_validator("provider_request_count")
+    @classmethod
+    def _slate_request_count(cls, value: int) -> int:
+        if value != 1:
+            raise ValueError("slate extension capture must spend exactly one request")
+        return value
+
+    @field_validator("base_history_raw_sha256", "extension_raw_sha256")
+    @classmethod
+    def _slate_hashes(cls, value: str) -> str:
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("hashes must be lowercase SHA-256")
+        return value
+
+    @field_validator("target_event_ids", "prestart_target_event_ids", "late_target_event_ids")
+    @classmethod
+    def _event_ids(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(set(value)) != len(value):
+            raise ValueError("slate target event IDs must be unique")
+        if any(not item.startswith("sr:sport_event:") for item in value):
+            raise ValueError("slate target event IDs must be Sportradar sport-event IDs")
         return value
 
 
@@ -243,6 +289,76 @@ def fetch_api_tennis_wta_extension(
         if event_date < date_start or event_date > date_stop:
             raise ValueError("provider returned fixture outside requested range")
     return raw
+
+
+
+def capture_api_tennis_slate_extension(
+    *,
+    history_raw_wta: bytes,
+    history_artifact_id: int,
+    target_resolutions: Sequence[dict[str, object]],
+    api_key: str,
+    captured_at: datetime,
+    provider_get: ProviderGet = _default_provider_get,
+) -> tuple[bytes, ApiTennisSlateExtensionCapture]:
+    """Spend one bounded WTA request for the complete prospective slate."""
+
+    if captured_at.tzinfo is None or captured_at.utcoffset() is None:
+        raise ValueError("captured_at must be timezone-aware")
+    if history_artifact_id <= 0:
+        raise ValueError("history_artifact_id must be positive")
+    if not target_resolutions:
+        raise ValueError("API-Tennis slate capture requires at least one target")
+
+    targets: list[tuple[datetime, str]] = []
+    seen: set[str] = set()
+    for resolution in target_resolutions:
+        event_id = str(resolution.get("event_id", "")).strip()
+        if not event_id.startswith("sr:sport_event:"):
+            raise ValueError("slate target event_id must be a Sportradar sport-event ID")
+        if event_id in seen:
+            raise ValueError("slate target event IDs must be unique")
+        seen.add(event_id)
+        try:
+            scheduled = datetime.fromisoformat(str(resolution.get("scheduled_start", "")))
+        except ValueError as exc:
+            raise ValueError("slate scheduled_start must be ISO-8601") from exc
+        if scheduled.tzinfo is None or scheduled.utcoffset() is None:
+            raise ValueError("slate scheduled_start must be timezone-aware")
+        targets.append((scheduled.astimezone(UTC), event_id))
+
+    base_history_end = _base_history_end(history_raw_wta)
+    query_start = base_history_end + timedelta(days=1)
+    query_stop = max(scheduled.date() for scheduled, _ in targets)
+    extension_raw = fetch_api_tennis_wta_extension(
+        date_start=query_start,
+        date_stop=query_stop,
+        api_key=api_key,
+        provider_get=provider_get,
+    )
+
+    ordered = sorted(targets, key=lambda item: (item[0], item[1]))
+    prestart = tuple(
+        event_id for scheduled, event_id in ordered if captured_at < scheduled
+    )
+    late = tuple(
+        event_id for scheduled, event_id in ordered if captured_at >= scheduled
+    )
+    if not prestart:
+        raise ValueError("API-Tennis slate capture has no remaining pre-start targets")
+
+    capture = ApiTennisSlateExtensionCapture(
+        history_artifact_id=history_artifact_id,
+        query_date_start=query_start,
+        query_date_stop=query_stop,
+        base_history_raw_sha256=hashlib.sha256(history_raw_wta).hexdigest(),
+        extension_raw_sha256=hashlib.sha256(extension_raw).hexdigest(),
+        captured_at=captured_at,
+        target_event_ids=tuple(event_id for _, event_id in ordered),
+        prestart_target_event_ids=prestart,
+        late_target_event_ids=late,
+    )
+    return extension_raw, capture
 
 
 def _select_target_fixture(
