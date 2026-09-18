@@ -7,6 +7,11 @@ on:
         description: Trusted champion prediction artifact ID
         required: true
         type: string
+      api_tennis_evidence_artifact_id:
+        description: Optional pre-match API-Tennis state + crosswalk artifact ID
+        required: false
+        default: ""
+        type: string
 
 permissions:
   actions: read
@@ -42,11 +47,19 @@ jobs:
             ''|*[!0-9]*) echo "invalid prediction_artifact_id" >&2; exit 1 ;;
           esac
           test "${{ inputs.prediction_artifact_id }}" -gt 0
+          supplemental="${{ inputs.api_tennis_evidence_artifact_id }}"
+          if [ -n "$supplemental" ]; then
+            case "$supplemental" in
+              *[!0-9]*) echo "invalid api_tennis_evidence_artifact_id" >&2; exit 1 ;;
+            esac
+            test "$supplemental" -gt 0
+          fi
 
-      - name: Download trusted champion prediction artifact
+      - name: Download trusted champion and optional API-Tennis artifacts
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
+          API_TENNIS_ARTIFACT_ID: ${{ inputs.api_tennis_evidence_artifact_id }}
         shell: bash
         run: |
           set -euo pipefail
@@ -63,7 +76,21 @@ jobs:
           mapfile -t targets < <(find champion-artifact -maxdepth 1 -type f -name 'forward-*-target-resolution.json' | sort)
           test "${#targets[@]}" -eq 1
           printf '%s\n' "${targets[0]}" > target-resolution-path.txt
-          sha256sum champion-artifact.zip > champion-artifact.zip.sha256
+          sha256sum champion-artifact.zip > input-artifact-sha256.txt
+
+          if [ -n "${API_TENNIS_ARTIFACT_ID}" ]; then
+            mkdir -p api-tennis-artifact
+            curl --fail --location --silent --show-error \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${API_TENNIS_ARTIFACT_ID}/zip" \
+              --output api-tennis-artifact.zip
+            unzip -q api-tennis-artifact.zip -d api-tennis-artifact
+            test -f api-tennis-artifact/api-tennis-prospective-state.json
+            test -f api-tennis-artifact/api-tennis-champion-crosswalk.json
+            sha256sum api-tennis-artifact.zip >> input-artifact-sha256.txt
+          fi
 
       - name: Install pinned shadow runtime
         shell: bash
@@ -77,14 +104,44 @@ jobs:
         run: |
           set -euo pipefail
           target=$(cat target-resolution-path.txt)
+          extra_args=()
+          if [ -f api-tennis-artifact/api-tennis-prospective-state.json ]; then
+            extra_args+=(
+              --api-tennis-evidence api-tennis-artifact/api-tennis-prospective-state.json
+              --api-tennis-crosswalk api-tennis-artifact/api-tennis-champion-crosswalk.json
+            )
+          fi
           python scripts/build_live_component_shadows.py \
             --prediction-dossier champion-artifact/prediction-work/prediction-dossier.json \
             --matchup-input champion-artifact/prediction-work/matchup-input.json \
             --target-resolution "$target" \
             --output-dir shadow-work \
+            "${extra_args[@]}" \
             | tee shadow-build-summary.json
           test -f shadow-work/manifest.json
-          test "$(find shadow-work/predictions -type f -name '*.json' | wc -l)" -eq 3
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('shadow-work/manifest.json').read_text(encoding='utf-8'))
+          prediction_count = int(manifest['prediction_count'])
+          registration_count = int(manifest['registration_count'])
+          file_count = len(list(Path('shadow-work/predictions').glob('*.json')))
+          if prediction_count not in {3, 4}:
+              raise SystemExit('live shadow prediction count must be 3 or 4')
+          if file_count != prediction_count:
+              raise SystemExit('live shadow file count differs from manifest prediction count')
+          supplemental = manifest.get('supplemental_api_tennis')
+          if supplemental is None:
+              if registration_count != 3 or prediction_count != 3:
+                  raise SystemExit('base component shadow cardinality drifted')
+          else:
+              if registration_count != 4:
+                  raise SystemExit('API-Tennis run must retain four registrations')
+              expected = 3 if supplemental.get('abstained') else 4
+              if prediction_count != expected:
+                  raise SystemExit('API-Tennis abstention/prediction cardinality mismatch')
+          PY
 
       - name: Publish and verify trusted shadow anchors
         env:
@@ -100,8 +157,11 @@ jobs:
 
           manifest = json.loads(Path('shadow-work/manifest.json').read_text(encoding='utf-8'))
           requests = manifest['anchor_requests']
-          if not isinstance(requests, list) or len(requests) != 3:
-              raise SystemExit('expected exactly three anchor requests')
+          if not isinstance(requests, list):
+              raise SystemExit('anchor_requests must be a list')
+          expected = int(manifest['prediction_count'])
+          if len(requests) != expected or expected not in {3, 4}:
+              raise SystemExit('anchor request count differs from prediction manifest')
           for index, request in enumerate(requests, start=1):
               Path(f'shadow-work/anchors/request-{index:02d}.json').write_text(
                   json.dumps(request, sort_keys=True, separators=(',', ':'), ensure_ascii=False),
@@ -215,8 +275,9 @@ jobs:
         with:
           name: challenger-shadow-${{ inputs.prediction_artifact_id }}
           path: |
-            champion-artifact.zip.sha256
+            input-artifact-sha256.txt
             target-resolution-path.txt
+            api-tennis-artifact/
             shadow-build-summary.json
             shadow-work/
           if-no-files-found: error
