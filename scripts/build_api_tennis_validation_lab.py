@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import date
 from pathlib import Path
@@ -96,6 +97,7 @@ def _conservative_observation(row: dict[str, Any]) -> ValidationObservation:
 
 
 def build(*, replay_path: Path, output_dir: Path) -> dict[str, object]:
+    replay_bytes = replay_path.read_bytes()
     replay = _load_replay(replay_path)
     wta_rows = [
         dict(row)
@@ -155,7 +157,7 @@ def build(*, replay_path: Path, output_dir: Path) -> dict[str, object]:
     manifest: dict[str, object] = {
         "schema_version": "tennis-genome-api-tennis-validation-lab-v1",
         "source_replay_id": replay.get("replay_id"),
-        "source_replay_semantic_sha256": replay.get("semantic_sha256"),
+        "source_replay_file_sha256": hashlib.sha256(replay_bytes).hexdigest(),
         "wta_population_count": population_size,
         "conservative_eligible_count": len(eligible_rows),
         "conservative_coverage": len(eligible_rows) / population_size,
