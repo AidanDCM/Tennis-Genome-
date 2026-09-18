@@ -19,7 +19,7 @@ def test_settlement_capture_workflow_is_restricted_and_header_authenticated() ->
     assert "provider_status:" not in dispatch
     assert "timeline_sha256:" not in dispatch
     assert "workflow_source_sha:" not in dispatch
-    assert "comment_id:" not in dispatch
+    assert "settlement_comment_id:" not in dispatch
 
     assert "SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}" in text
     assert '"x-api-key": key' in text
@@ -50,7 +50,7 @@ def test_settlement_capture_artifact_action_is_pinned() -> None:
         in text
     )
     assert "prospective_settlement_finalize.yml/dispatches" in text
-    assert "Refuse duplicate" in text
+    assert "refuse duplicate capture" in text
     assert "sportradar_timeline.json" in text
     assert "sportradar_response_headers.json" in text
     assert "trusted_settlement_receipt.json" in text
