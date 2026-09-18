@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-import tennis_genome.research_workbench.api_tennis_filtered_replay as api_tennis_filtered_replay
+from tennis_genome.research_workbench import api_tennis_filtered_replay
 
 
 _REQUIRED = (
