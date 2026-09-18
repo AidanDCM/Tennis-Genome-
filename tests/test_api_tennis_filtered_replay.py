@@ -4,7 +4,6 @@ import json
 
 from tennis_genome.research_workbench import api_tennis_filtered_replay
 
-
 _REQUIRED = (
     "Aces",
     "Double Faults",
