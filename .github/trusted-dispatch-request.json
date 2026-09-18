@@ -1,6 +1,6 @@
 {
   "schema_version": "tennis-genome-trusted-dispatch-request-v1",
-  "request_id": "API-TENNIS-DAILY-INVENTORY-20260918-001",
+  "request_id": "API-TENNIS-DAILY-INVENTORY-20260918-RECOVERY-002",
   "target_workflow": "api_tennis_daily_inventory.yml",
   "ref": "main",
   "inputs": {
