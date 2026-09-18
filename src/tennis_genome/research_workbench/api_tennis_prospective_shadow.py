@@ -10,6 +10,8 @@ from pydantic import field_validator, model_validator
 from .api_tennis_conservative_wta_shadow import (
     CHALLENGER_ID,
     build_conservative_wta_shadow_output,
+    combined_prior_points,
+    shrink_probability_to_neutral,
 )
 from .api_tennis_dynamic_shadow import ApiTennisDynamicShadowRecord
 from .challenger import (
@@ -28,6 +30,14 @@ DEVELOPMENT_POPULATION_SHA256 = (
     "afb24b2547503049e8f155cba86e60144c99657b85eb206f32c4b7a31f598d3c"
 )
 DEVELOPMENT_EXPOSURE_ID = "API-TENNIS-FILTERED-SHADOW-REPLAY-001"
+DEEP_HISTORY_CHALLENGER_ID = "TGE-CHALLENGER-WTA-DYNAMIC-SR-SHRUNK-DEEP500-V1"
+DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER = 500
+DEEP_HISTORY_DEVELOPMENT_EXPOSURE_ID = (
+    "API-TENNIS-VALIDATION-LAB-35367503428-DEEP500-V1"
+)
+DEEP_HISTORY_BUNDLE_SCHEMA_VERSION = (
+    "tennis-genome-api-tennis-deep-history-prospective-shadow-bundle-v1"
+)
 
 
 def _canonical_sha256(value: object) -> str:
@@ -465,6 +475,242 @@ def build_api_tennis_prospective_shadow_bundle(
         )
 
     return ApiTennisProspectiveShadowBundle(
+        snapshot_sha256=snapshot.semantic_sha256,
+        evidence=evidence,
+        crosswalk=crosswalk,
+        registration=registration,
+        prediction=prediction,
+    )
+
+
+
+class ApiTennisDeepHistoryProspectiveShadowBundle(WorkbenchRecord):
+    """Prospective deep-history development challenger bound to the same evidence."""
+
+    schema_version: Literal[
+        "tennis-genome-api-tennis-deep-history-prospective-shadow-bundle-v1"
+    ] = DEEP_HISTORY_BUNDLE_SCHEMA_VERSION
+    snapshot_sha256: str
+    evidence: ApiTennisProspectiveStateEvidence
+    crosswalk: ApiTennisChampionCrosswalk
+    registration: ChallengerRegistration
+    prediction: ShadowPredictionRecord | None
+
+    @field_validator("snapshot_sha256")
+    @classmethod
+    def _deep_snapshot_hash(cls, value: str) -> str:
+        return _require_sha256(value, field_name="snapshot_sha256")
+
+    @model_validator(mode="after")
+    def _bind_deep_challenger(self) -> Self:
+        if self.registration.challenger_id != DEEP_HISTORY_CHALLENGER_ID:
+            raise ValueError("deep-history bundle registration has wrong challenger ID")
+        if (
+            self.prediction is not None
+            and self.prediction.output.challenger_id != DEEP_HISTORY_CHALLENGER_ID
+        ):
+            raise ValueError("deep-history bundle prediction has wrong challenger ID")
+        return self
+
+
+def _deep_history_feature_schema_sha256(
+    snapshot: CommonPreMatchSnapshot,
+) -> str:
+    return _canonical_sha256(
+        {
+            "common_snapshot_feature_schema_sha256": snapshot.feature_schema_sha256,
+            "supplemental_state_schema_version": STATE_SCHEMA_VERSION,
+            "crosswalk_schema_version": CROSSWALK_SCHEMA_VERSION,
+            "orientation_policy": "explicit_direct_or_reversed",
+            "eligibility": {
+                "tour": "WTA",
+                "min_combined_prior_points_per_player": (
+                    DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER
+                ),
+                "shrinkage_to_neutral": 0.80,
+            },
+            "development_hypothesis": DEEP_HISTORY_DEVELOPMENT_EXPOSURE_ID,
+        }
+    )
+
+
+def _deep_history_registration(
+    *,
+    snapshot: CommonPreMatchSnapshot,
+    implementation_sha256: str,
+    registered_at: datetime,
+) -> ChallengerRegistration:
+    _require_sha256(implementation_sha256, field_name="implementation_sha256")
+    procedure = ForecastingProcedureSpec(
+        procedure_id=DEEP_HISTORY_CHALLENGER_ID,
+        name="Deep-history WTA dynamic serve-return shadow",
+        version="1",
+        input_contract=(
+            "common-pre-match-snapshot-v1+"
+            "api-tennis-prospective-state-v1+explicit-crosswalk-v1"
+        ),
+        feature_set=(
+            "api_tennis_dynamic_match_probability",
+            "api_tennis_prior_serve_points",
+            "api_tennis_prior_return_points",
+            "explicit_provider_crosswalk",
+        ),
+        training_method="frozen_development_slice_hypothesis_no_refit",
+        hyperparameters_json=json.dumps(
+            {
+                "min_combined_prior_points_per_player": (
+                    DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER
+                ),
+                "shrinkage_to_neutral": 0.80,
+                "tour": "WTA",
+            },
+            sort_keys=True,
+        ),
+        calibration="linear_shrinkage_80_percent_to_neutral",
+        prediction_method="deep_history_gate_then_shrink_dynamic_match_probability",
+        required_data=(
+            "strictly_prior_date_api_tennis_state",
+            "pre_match_target_fixture_identity",
+            "explicit_champion_api_tennis_crosswalk",
+        ),
+        development_exposure_ids=(
+            DEVELOPMENT_EXPOSURE_ID,
+            DEEP_HISTORY_DEVELOPMENT_EXPOSURE_ID,
+        ),
+        parent_procedure_ids=(CHALLENGER_ID,),
+        source_code_sha=implementation_sha256,
+        runtime_id="python-3.11-pinned",
+        random_seed=None,
+    )
+    return ChallengerRegistration(
+        challenger_id=DEEP_HISTORY_CHALLENGER_ID,
+        challenger_version="1.0.0",
+        procedure=procedure,
+        parent_champion_model_version="TGE-Independent-v1",
+        feature_schema_sha256=_deep_history_feature_schema_sha256(snapshot),
+        code_sha256=implementation_sha256,
+        training_population_sha256=DEVELOPMENT_POPULATION_SHA256,
+        training_window=(
+            "API-Tennis filtered 2026-08-17 through 2026-09-16 development replay"
+        ),
+        eligibility_contract=(
+            "WTA only; explicit crosswalk; both players >=500 combined strictly-prior "
+            "serve+return points; otherwise abstain"
+        ),
+        promotion_contract=(
+            "development-derived diagnostic shadow only; must survive untouched "
+            "prospective confirmation before any promotion consideration"
+        ),
+        registered_at=registered_at,
+    )
+
+
+def _deep_history_output(
+    record: ApiTennisDynamicShadowRecord,
+) -> ShadowModelOutput | None:
+    history_a, history_b = combined_prior_points(record)
+    if (
+        record.tour != "WTA"
+        or history_a < DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER
+        or history_b < DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER
+    ):
+        return None
+    probability_a = shrink_probability_to_neutral(record.probability_a_match)
+    return ShadowModelOutput(
+        challenger_id=DEEP_HISTORY_CHALLENGER_ID,
+        p_player_a=probability_a,
+        p_player_b=1.0 - probability_a,
+        component_probabilities={
+            "dynamic_serve_return_raw": record.probability_a_match,
+            "neutral_reference": 0.5,
+        },
+        diagnostics={
+            "history_points_a": history_a,
+            "history_points_b": history_b,
+            "history_threshold": DEEP_HISTORY_MIN_PRIOR_POINTS_PER_PLAYER,
+            "shrinkage_to_neutral": 0.80,
+            "retained_raw_weight": 0.20,
+            "development_derived_rule": True,
+            "development_hypothesis_deep500": True,
+        },
+    )
+
+
+def build_api_tennis_deep_history_prospective_shadow_bundle(
+    *,
+    snapshot: CommonPreMatchSnapshot,
+    evidence: ApiTennisProspectiveStateEvidence,
+    crosswalk: ApiTennisChampionCrosswalk,
+    created_at: datetime,
+    implementation_sha256: str,
+    registered_at: datetime,
+) -> ApiTennisDeepHistoryProspectiveShadowBundle:
+    """Bind the preregistered 500-point development hypothesis prospectively."""
+
+    _validate_binding(
+        snapshot=snapshot,
+        evidence=evidence,
+        crosswalk=crosswalk,
+        created_at=created_at,
+        registered_at=registered_at,
+    )
+    registration = _deep_history_registration(
+        snapshot=snapshot,
+        implementation_sha256=implementation_sha256,
+        registered_at=registered_at,
+    )
+    oriented = _oriented_dynamic_record(evidence=evidence, crosswalk=crosswalk)
+    base_output = _deep_history_output(oriented)
+    if base_output is None:
+        prediction = None
+    else:
+        output = ShadowModelOutput(
+            challenger_id=base_output.challenger_id,
+            p_player_a=base_output.p_player_a,
+            p_player_b=base_output.p_player_b,
+            component_probabilities=base_output.component_probabilities,
+            diagnostics={
+                **base_output.diagnostics,
+                "supplemental_evidence_bound": True,
+                "orientation_reversed": crosswalk.orientation == "REVERSED",
+            },
+        )
+        cutoff = max(
+            snapshot.prediction_cutoff_at,
+            evidence.captured_at,
+            crosswalk.created_at,
+        )
+        source_hashes = tuple(
+            dict.fromkeys(
+                (
+                    *snapshot.source_manifest_hashes,
+                    evidence.state_source_sha256,
+                    evidence.target_fixture_sha256,
+                    evidence.semantic_sha256,
+                    crosswalk.semantic_sha256,
+                )
+            )
+        )
+        prediction = ShadowPredictionRecord(
+            shadow_prediction_id=(
+                f"{DEEP_HISTORY_CHALLENGER_ID}-{snapshot.snapshot_id}"
+            ),
+            registration_sha256=registration.semantic_sha256,
+            snapshot_sha256=snapshot.semantic_sha256,
+            snapshot_id=snapshot.snapshot_id,
+            match_id=snapshot.match_id,
+            provider_event_id=snapshot.provider_event_id,
+            tour=snapshot.tour,
+            player_a_id=snapshot.player_a_id,
+            player_b_id=snapshot.player_b_id,
+            prediction_cutoff_at=cutoff,
+            scheduled_start=snapshot.scheduled_start,
+            created_at=created_at,
+            output=output,
+            source_manifest_hashes=source_hashes,
+        )
+
+    return ApiTennisDeepHistoryProspectiveShadowBundle(
         snapshot_sha256=snapshot.semantic_sha256,
         evidence=evidence,
         crosswalk=crosswalk,

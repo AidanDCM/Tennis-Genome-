@@ -134,7 +134,7 @@ jobs:
               list(Path('shadow-finalized/validation-reports').glob('*.json'))
           )
           league_count = len(final_manifest['league_table'])
-          if expected not in {3, 4}:
+          if expected not in {3, 4, 5}:
               raise SystemExit('trusted shadow manifest has unsupported prediction count')
           if settlement_count != expected:
               raise SystemExit('shadow settlement count differs from prediction count')

@@ -9,8 +9,10 @@ from tennis_genome.research_workbench.api_tennis_conservative_wta_shadow import 
     CHALLENGER_ID,
 )
 from tennis_genome.research_workbench.api_tennis_prospective_shadow import (
+    DEEP_HISTORY_CHALLENGER_ID,
     ApiTennisChampionCrosswalk,
     ApiTennisProspectiveStateEvidence,
+    build_api_tennis_deep_history_prospective_shadow_bundle,
     build_api_tennis_prospective_shadow_bundle,
 )
 from tennis_genome.research_workbench.challenger import validate_shadow_prediction_set
@@ -225,3 +227,69 @@ def test_prediction_cutoff_tracks_latest_bound_pre_match_input() -> None:
 
     assert supplemental.prediction is not None
     assert supplemental.prediction.prediction_cutoff_at == crosswalk_time
+
+
+
+def test_deep_history_candidate_abstains_at_200_point_gate_but_registers() -> None:
+    component = _component_bundle()
+    supplemental = build_api_tennis_deep_history_prospective_shadow_bundle(
+        snapshot=component.snapshot,
+        evidence=_evidence(),
+        crosswalk=_crosswalk(),
+        created_at=NOW + timedelta(minutes=20),
+        implementation_sha256=CODE_SHA,
+        registered_at=NOW - timedelta(hours=1),
+    )
+
+    assert supplemental.registration.challenger_id == DEEP_HISTORY_CHALLENGER_ID
+    assert supplemental.prediction is None
+    assert ">=500 combined strictly-prior" in supplemental.registration.eligibility_contract
+
+
+def test_deep_history_candidate_predicts_when_both_players_exceed_500_points() -> None:
+    component = _component_bundle()
+    evidence = _evidence(
+        prior_serve_points_a=300,
+        prior_return_points_a=300,
+        prior_serve_points_b=310,
+        prior_return_points_b=290,
+    )
+    supplemental = build_api_tennis_deep_history_prospective_shadow_bundle(
+        snapshot=component.snapshot,
+        evidence=evidence,
+        crosswalk=_crosswalk(),
+        created_at=NOW + timedelta(minutes=20),
+        implementation_sha256=CODE_SHA,
+        registered_at=NOW - timedelta(hours=1),
+    )
+
+    assert supplemental.prediction is not None
+    assert supplemental.prediction.output.challenger_id == DEEP_HISTORY_CHALLENGER_ID
+    assert supplemental.prediction.output.p_player_a == pytest.approx(0.56)
+    assert supplemental.prediction.output.diagnostics["history_threshold"] == 500
+    assert (
+        supplemental.prediction.output.diagnostics["development_hypothesis_deep500"]
+        is True
+    )
+
+
+def test_deep_history_candidate_reverses_to_champion_orientation() -> None:
+    component = _component_bundle()
+    evidence = _evidence(
+        prior_serve_points_a=300,
+        prior_return_points_a=300,
+        prior_serve_points_b=300,
+        prior_return_points_b=300,
+    )
+    supplemental = build_api_tennis_deep_history_prospective_shadow_bundle(
+        snapshot=component.snapshot,
+        evidence=evidence,
+        crosswalk=_crosswalk(orientation="REVERSED"),
+        created_at=NOW + timedelta(minutes=20),
+        implementation_sha256=CODE_SHA,
+        registered_at=NOW - timedelta(hours=1),
+    )
+
+    assert supplemental.prediction is not None
+    assert supplemental.prediction.output.p_player_a == pytest.approx(0.44)
+    assert supplemental.prediction.output.diagnostics["orientation_reversed"] is True

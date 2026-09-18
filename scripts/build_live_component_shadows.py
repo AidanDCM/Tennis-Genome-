@@ -12,6 +12,7 @@ from tennis_genome.research_workbench import ImmutableResearchRegistry
 from tennis_genome.research_workbench.api_tennis_prospective_shadow import (
     ApiTennisChampionCrosswalk,
     ApiTennisProspectiveStateEvidence,
+    build_api_tennis_deep_history_prospective_shadow_bundle,
     build_api_tennis_prospective_shadow_bundle,
 )
 from tennis_genome.research_workbench.challenger import validate_shadow_prediction_set
@@ -22,6 +23,7 @@ from tennis_genome.research_workbench.component_challengers import (
 
 _REGISTRATION_EPOCH = datetime(2026, 9, 16, 18, 13, 15, tzinfo=UTC)
 _API_TENNIS_REGISTRATION_EPOCH = datetime(2026, 9, 18, 12, 22, 5, tzinfo=UTC)
+_API_TENNIS_DEEP500_REGISTRATION_EPOCH = datetime(2026, 9, 18, 16, 17, 30, tzinfo=UTC)
 
 
 def _load_object(path: Path) -> dict[str, object]:
@@ -71,6 +73,7 @@ def build(
     registrations = list(component_bundle.registrations)
     predictions = list(component_bundle.predictions)
     supplemental_bundle = None
+    deep_history_bundle = None
     api_tennis_implementation_sha: str | None = None
     if api_tennis_evidence_path is not None and api_tennis_crosswalk_path is not None:
         api_tennis_implementation_sha = _module_sha256(api_tennis_module.__file__)
@@ -92,6 +95,19 @@ def build(
         if supplemental_bundle.prediction is not None:
             predictions.append(supplemental_bundle.prediction)
 
+        if created_at >= _API_TENNIS_DEEP500_REGISTRATION_EPOCH:
+            deep_history_bundle = build_api_tennis_deep_history_prospective_shadow_bundle(
+                snapshot=component_bundle.snapshot,
+                evidence=evidence,
+                crosswalk=crosswalk,
+                created_at=created_at,
+                implementation_sha256=api_tennis_implementation_sha,
+                registered_at=_API_TENNIS_DEEP500_REGISTRATION_EPOCH,
+            )
+            registrations.append(deep_history_bundle.registration)
+            if deep_history_bundle.prediction is not None:
+                predictions.append(deep_history_bundle.prediction)
+
     prediction_tuple = tuple(predictions)
     validate_shadow_prediction_set(prediction_tuple)
 
@@ -106,6 +122,11 @@ def build(
         registry.register(
             "api-tennis-prospective-shadow-bundles",
             supplemental_bundle,
+        )
+    if deep_history_bundle is not None:
+        registry.register(
+            "api-tennis-deep-history-shadow-bundles",
+            deep_history_bundle,
         )
 
     _write_exact(
@@ -149,6 +170,11 @@ def build(
             supplemental_dir / "bundle.json",
             canonical_record_json(supplemental_bundle),
         )
+        if deep_history_bundle is not None:
+            _write_exact(
+                supplemental_dir / "deep-history-bundle.json",
+                canonical_record_json(deep_history_bundle),
+            )
         supplemental_payload = {
             "bundle_sha256": supplemental_bundle.semantic_sha256,
             "evidence_sha256": supplemental_bundle.evidence.semantic_sha256,
@@ -160,6 +186,30 @@ def build(
                 else None
             ),
             "abstained": supplemental_bundle.prediction is None,
+            "deep_history_registered": deep_history_bundle is not None,
+            "deep_history_bundle_sha256": (
+                deep_history_bundle.semantic_sha256
+                if deep_history_bundle is not None
+                else None
+            ),
+            "deep_history_registration_sha256": (
+                deep_history_bundle.registration.semantic_sha256
+                if deep_history_bundle is not None
+                else None
+            ),
+            "deep_history_prediction_sha256": (
+                deep_history_bundle.prediction.semantic_sha256
+                if (
+                    deep_history_bundle is not None
+                    and deep_history_bundle.prediction is not None
+                )
+                else None
+            ),
+            "deep_history_abstained": (
+                deep_history_bundle.prediction is None
+                if deep_history_bundle is not None
+                else None
+            ),
         }
 
     manifest = {
