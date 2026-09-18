@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
@@ -140,6 +142,143 @@ def test_slate_selector_fails_closed_on_duplicate_eligible_event_ids() -> None:
             by_name={"Alpha": "100", "Beta": "200"},
             capture_observed_at=observed,
         )
+
+
+
+def test_slate_executor_reuses_provider_responses_and_isolates_match_roots(
+    tmp_path,
+) -> None:
+    provider_calls: list[str] = []
+
+    def provider_get(path: str) -> dict[str, object]:
+        provider_calls.append(path)
+        return {"path": path}
+
+    h = SimpleNamespace(
+        http_json=provider_get,
+        target_state_from_provider=lambda *args: None,
+    )
+
+    def run_prediction(*, root):
+        root.mkdir(parents=True, exist_ok=True)
+        common = h.http_json("competitions.json")
+        common_again = h.http_json("competitions.json")
+        season = h.http_json("seasons/sr:season:10/info.json")
+        target = h.http_json(f"sport_events/{h.TARGET_EVENT_ID}/summary.json")
+        assert common == common_again == {"path": "competitions.json"}
+        assert season == {"path": "seasons/sr:season:10/info.json"}
+        assert target["sport_event"]["id"] == h.TARGET_EVENT_ID
+        (root / "matchup-input.json").write_text(
+            json.dumps({"match_id": h.TARGET_EVENT_ID}),
+            encoding="utf-8",
+        )
+        digest = hashlib.sha256(h.TARGET_EVENT_ID.encode("utf-8")).hexdigest()
+        return {
+            "prediction_id": f"prediction-{h.TARGET_EVENT_ID}",
+            "prediction_record_sha256": digest,
+            "chain_head_sha256": digest,
+            "p_player_a": 0.6,
+            "p_player_b": 0.4,
+        }
+
+    module = SimpleNamespace(h=h, run_prediction=run_prediction)
+    observed = datetime(2026, 9, 18, 12, 0, tzinfo=UTC)
+    slate = []
+    for event_id, start in (
+        ("sr:sport_event:10", "2026-09-18T15:00:00+00:00"),
+        ("sr:sport_event:20", "2026-09-18T16:00:00+00:00"),
+    ):
+        summary = _summary(event_id=event_id, start=start)
+        resolution = {
+            "schema_version": "wta-forward-004-target-resolution-v1",
+            "forward_protocol": fwd.FORWARD_PROTOCOL,
+            "selection_rule": (
+                "all_confirmed_resolvable_wta_main_tour_singles_sorted_by_start_then_event_id"
+            ),
+            "minimum_capture_lead_minutes": "90",
+            "capture_observed_at": observed.isoformat(),
+            "event_id": event_id,
+            "season_id": "sr:season:10",
+            "competition_id": "sr:competition:10",
+            "tournament_start_date": "2026-09-18",
+            "scheduled_start": start,
+            "player_a_canonical_id": "100",
+            "player_a_sportradar_id": "sr:competitor:1",
+            "player_b_canonical_id": "200",
+            "player_b_sportradar_id": "sr:competitor:2",
+        }
+        slate.append((summary, resolution))
+
+    original_http = h.http_json
+    original_target_state = h.target_state_from_provider
+    manifest = fwd.run_forward_004_slate(
+        module=module,
+        slate=tuple(slate),
+        provider_batch_record_sha256="a" * 64,
+        provider_anchor_comment_id=12345,
+        output_root=tmp_path / "slate",
+        now=datetime(2026, 9, 18, 13, 0, tzinfo=UTC),
+    )
+
+    assert provider_calls == [
+        "competitions.json",
+        "seasons/sr:season:10/info.json",
+    ]
+    assert manifest["provider_unique_request_count"] == 2
+    assert manifest["target_count"] == 2
+    assert h.http_json is original_http
+    assert h.target_state_from_provider is original_target_state
+    roots = [item["prediction_root"] for item in manifest["results"]]
+    assert len(set(roots)) == 2
+    for item in manifest["results"]:
+        root = tmp_path / "slate" / item["prediction_root"]
+        assert (root / "matchup-input.json").is_file()
+
+    lifecycle = fwd.MatchLifecycleLedger(tmp_path / "slate" / "match-lifecycle-ledger")
+    audit = lifecycle.verify()
+    assert audit.lifecycle_count == 2
+    assert set(audit.lifecycle_states.values()) == {"CHAMPION_PREDICTED"}
+
+
+def test_slate_executor_rejects_post_start_member_before_prediction(tmp_path) -> None:
+    calls = 0
+
+    def run_prediction(*, root):
+        nonlocal calls
+        calls += 1
+        raise AssertionError("post-start target must not reach predictor")
+
+    h = SimpleNamespace(
+        http_json=lambda path: {"path": path},
+        target_state_from_provider=lambda *args: None,
+    )
+    module = SimpleNamespace(h=h, run_prediction=run_prediction)
+    summary = _summary(
+        event_id="sr:sport_event:10",
+        start="2026-09-18T15:00:00+00:00",
+    )
+    resolution = {
+        "event_id": "sr:sport_event:10",
+        "season_id": "sr:season:10",
+        "competition_id": "sr:competition:10",
+        "tournament_start_date": "2026-09-18",
+        "scheduled_start": "2026-09-18T15:00:00+00:00",
+        "player_a_canonical_id": "100",
+        "player_a_sportradar_id": "sr:competitor:1",
+        "player_b_canonical_id": "200",
+        "player_b_sportradar_id": "sr:competitor:2",
+    }
+
+    with pytest.raises(RuntimeError, match="no longer pre-start"):
+        fwd.run_forward_004_slate(
+            module=module,
+            slate=((summary, resolution),),
+            provider_batch_record_sha256="a" * 64,
+            provider_anchor_comment_id=12345,
+            output_root=tmp_path / "slate",
+            now=datetime(2026, 9, 18, 15, 0, tzinfo=UTC),
+        )
+    assert calls == 0
 
 
 def test_selector_uses_earliest_confirmed_resolvable_target_after_fixed_lead() -> None:

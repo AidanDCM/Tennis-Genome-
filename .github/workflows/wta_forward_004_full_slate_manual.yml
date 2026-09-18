@@ -1,0 +1,185 @@
+name: WTA Forward 004 Full Slate Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider_run_id:
+        description: Successful trusted Sportradar provider capture run ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: wta-forward-004-full-slate-manual-${{ inputs.provider_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  predict-slate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      SPORTRADAR_ACCESS_LEVEL: trial
+      PINNED_ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      PINNED_ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      PROVIDER_RUN_ID: ${{ inputs.provider_run_id }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate trusted provider run
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${PROVIDER_RUN_ID}" in
+            ''|*[!0-9]*) echo "provider run id must be a positive integer" >&2; exit 1 ;;
+          esac
+          test "${PROVIDER_RUN_ID}" -gt 0
+          gh api             -H "Accept: application/vnd.github+json"             "/repos/${GITHUB_REPOSITORY}/actions/runs/${PROVIDER_RUN_ID}"             > provider-run.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run = json.loads(Path("provider-run.json").read_text(encoding="utf-8"))
+          expected = int(os.environ["PROVIDER_RUN_ID"])
+          if int(run.get("id", 0)) != expected:
+              raise SystemExit("provider run id mismatch")
+          if run.get("path") != ".github/workflows/prospective_provider_capture_anchor.yml":
+              raise SystemExit("source run is not trusted provider capture")
+          if run.get("conclusion") != "success":
+              raise SystemExit("trusted provider capture did not succeed")
+          if run.get("head_branch") != "main":
+              raise SystemExit("trusted provider capture did not run on main")
+          if run.get("event") != "workflow_dispatch":
+              raise SystemExit("trusted provider capture was not explicitly dispatched")
+          PY
+
+      - name: Require provider credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SPORTRADAR_API_KEY:-}"
+
+      - name: Download immutable trusted provider capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p trusted-provider-artifact
+          gh run download "${PROVIDER_RUN_ID}"             --repo "${GITHUB_REPOSITORY}"             --name "trusted-provider-capture-${PROVIDER_RUN_ID}"             --dir trusted-provider-artifact
+          test -f trusted-provider-artifact/provider_batch_anchor_receipt.json
+          test -f trusted-provider-artifact/provider_batch_anchor_comment_id.txt
+          test -d trusted-provider-artifact/trusted-provider-capture/provider-batch-store
+          test -d trusted-provider-artifact/trusted-provider-capture/pages
+          sha256sum             trusted-provider-artifact/provider_batch_anchor_receipt.json             trusted-provider-artifact/provider_batch_anchor_comment.json             > trusted-provider-input-sha256.txt
+
+      - name: Install pinned prediction runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Download frozen 2000-2025 WTA source and player registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/wta-live-raw data/wta-live-base
+          for year in $(seq 2000 2025); do
+            curl --fail --location --silent --show-error --retry 4 --retry-all-errors               "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_${year}.csv"               --output "data/wta-live-raw/wta_matches_${year}.csv"
+          done
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_players.csv"             --output data/wta_players.csv
+          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 26
+
+      - name: Rebuild canonical frozen WTA history once
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for year in $(seq 2000 2025); do
+            args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-2000-2025"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
+
+      - name: Run cached full-slate Champion executor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/wta_live_prediction_forward_004.py             --full-slate             --output-root forward-004-slate-work             | tee forward-004-slate-summary.json
+
+      - name: Verify complete slate execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from tennis_genome.prospective.match_lifecycle import MatchLifecycleLedger
+
+          root = Path("forward-004-slate-work")
+          resolution = json.loads(
+              (root / "forward-004-slate-resolution.json").read_text(encoding="utf-8")
+          )
+          execution = json.loads(
+              (root / "execution" / "slate-execution-manifest.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          target_count = int(execution.get("target_count", -1))
+          if target_count <= 0:
+              raise SystemExit("full-slate execution produced no Champion predictions")
+          if target_count != int(resolution.get("eligible_target_count", -2)):
+              raise SystemExit("executed target count differs from deterministic slate")
+          results = execution.get("results")
+          if not isinstance(results, list) or len(results) != target_count:
+              raise SystemExit("slate execution results do not reproduce target count")
+          if int(execution.get("provider_cached_path_count", -1)) != int(
+              execution.get("provider_unique_request_count", -2)
+          ):
+              raise SystemExit("provider cache accounting mismatch")
+
+          event_ids = [str(item.get("event_id", "")) for item in results]
+          if len(event_ids) != len(set(event_ids)):
+              raise SystemExit("duplicate event ID in executed slate")
+
+          for item in results:
+              prediction_root = root / "execution" / str(item["prediction_root"])
+              for name in (
+                  "prediction-dossier.json",
+                  "matchup-input.json",
+                  "calculation.json",
+                  "sportradar-identity-binding.json",
+              ):
+                  if not (prediction_root / name).is_file():
+                      raise SystemExit(f"missing per-match prediction evidence: {name}")
+
+          ledger = MatchLifecycleLedger(root / "execution" / "match-lifecycle-ledger")
+          audit = ledger.verify()
+          if audit.lifecycle_count != target_count:
+              raise SystemExit("lifecycle count differs from executed target count")
+          if set(audit.lifecycle_states.values()) != {"CHAMPION_PREDICTED"}:
+              raise SystemExit("manual slate lifecycle advanced beyond Champion prediction")
+          PY
+
+      - name: Upload experimental full-slate evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wta-forward-004-full-slate-manual-${{ github.run_id }}
+          path: |
+            provider-run.json
+            trusted-provider-input-sha256.txt
+            forward-004-slate-summary.json
+            forward-004-slate-work/
+          if-no-files-found: error
+          retention-days: 90
