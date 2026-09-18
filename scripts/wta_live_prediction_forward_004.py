@@ -291,7 +291,6 @@ def main() -> None:
     resolved["provider_batch_record_sha256"] = str(receipt["batch_record_sha256"])
     resolved["provider_anchor_comment_id"] = str(anchor_comment_id)
 
-    event = target_summary["sport_event"]
     h.TARGET_EVENT_ID = resolved["event_id"]
     h.TARGET_MATCH_ID = resolved["event_id"]
     h.TARGET_SEASON_ID = resolved["season_id"]
