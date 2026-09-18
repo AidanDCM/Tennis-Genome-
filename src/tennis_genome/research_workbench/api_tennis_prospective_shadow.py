@@ -152,7 +152,11 @@ class ApiTennisChampionCrosswalk(WorkbenchRecord):
     api_tennis_player_a_key: int
     api_tennis_player_b_key: int
     orientation: Literal["DIRECT", "REVERSED"]
-    mapping_basis: Literal["EXPLICIT_PROVIDER_ID", "DOCUMENTED_MANUAL_PREMATCH"]
+    mapping_basis: Literal[
+        "EXPLICIT_PROVIDER_ID",
+        "DOCUMENTED_MANUAL_PREMATCH",
+        "EXACT_NORMALIZED_NAME_PREMATCH",
+    ]
     mapping_evidence_sha256: str
     created_at: datetime
 
