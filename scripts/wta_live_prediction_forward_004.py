@@ -79,23 +79,39 @@ def _configure_target(
     h.PROVIDER_ANCHOR_COMMENT_ID = provider_anchor_comment_id
 
 
+def _target_skip_reason(
+    target_summary: dict[str, object],
+    *,
+    scheduled_start: str,
+    now: datetime,
+) -> str | None:
+    status = target_summary.get("sport_event_status")
+    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {
+        "not_started",
+        "scheduled",
+    }:
+        return "TARGET_STATUS_NOT_PREMATCH"
+    scheduled = datetime.fromisoformat(scheduled_start)
+    if scheduled.tzinfo is None or scheduled.utcoffset() is None:
+        raise RuntimeError("selected Forward-004 scheduled start must be timezone-aware")
+    if now >= scheduled:
+        return "SCHEDULED_START_REACHED"
+    return None
+
+
 def _assert_target_prestart(
     target_summary: dict[str, object],
     *,
     scheduled_start: str,
     now: datetime,
 ) -> None:
-    status = target_summary.get("sport_event_status")
-    if not isinstance(status, dict) or str(status.get("status", "")).lower() not in {
-        "not_started",
-        "scheduled",
-    }:
-        raise RuntimeError("selected Forward-004 target ceased to be pre-match")
-    scheduled = datetime.fromisoformat(scheduled_start)
-    if scheduled.tzinfo is None or scheduled.utcoffset() is None:
-        raise RuntimeError("selected Forward-004 scheduled start must be timezone-aware")
-    if now >= scheduled:
-        raise RuntimeError("selected Forward-004 target is no longer pre-start")
+    reason = _target_skip_reason(
+        target_summary,
+        scheduled_start=scheduled_start,
+        now=now,
+    )
+    if reason is not None:
+        raise RuntimeError(f"selected Forward-004 target is not publishable: {reason}")
 
 
 def run_forward_004_slate(
@@ -143,6 +159,7 @@ def run_forward_004_slate(
     )
     lifecycle = MatchLifecycleLedger(output_root / "match-lifecycle-ledger")
     results: list[dict[str, object]] = []
+    skipped_targets: list[dict[str, object]] = []
 
     try:
         for index, (target_summary, raw_resolution) in enumerate(slate, start=1):
@@ -150,6 +167,25 @@ def run_forward_004_slate(
             resolved["provider_batch_record_sha256"] = provider_batch_record_sha256
             resolved["provider_anchor_comment_id"] = str(provider_anchor_comment_id)
             event_id = resolved["event_id"]
+            check_time = now or datetime.now(UTC)
+            skip_reason = _target_skip_reason(
+                target_summary,
+                scheduled_start=resolved["scheduled_start"],
+                now=check_time,
+            )
+            if skip_reason is not None:
+                skipped_targets.append(
+                    {
+                        "slate_index": index,
+                        "event_id": event_id,
+                        "artifact_stem": _safe_event_stem(event_id),
+                        "scheduled_start": resolved["scheduled_start"],
+                        "skip_reason": skip_reason,
+                        "checked_at": check_time.astimezone(UTC).isoformat(),
+                    }
+                )
+                continue
+
             lifecycle_id = f"{FORWARD_PROTOCOL}-{event_id}"
             match_root = output_root / "matches" / _safe_event_stem(event_id)
             match_root.mkdir(parents=True, exist_ok=False)
@@ -176,11 +212,6 @@ def run_forward_004_slate(
                 details={"target_resolution_path": str(target_path.relative_to(output_root))},
             )
 
-            _assert_target_prestart(
-                target_summary,
-                scheduled_start=resolved["scheduled_start"],
-                now=now or datetime.now(UTC),
-            )
             _configure_target(
                 h,
                 resolved=resolved,
@@ -221,11 +252,16 @@ def run_forward_004_slate(
         if original_target_state_from_provider is not None:
             h.target_state_from_provider = original_target_state_from_provider
 
+    if not results:
+        raise RuntimeError("Forward-004 slate had no targets remaining pre-start at execution")
+
     lifecycle_audit = lifecycle.verify()
     manifest = {
         "schema_version": "wta-forward-004-slate-execution-v1",
         "forward_protocol": FORWARD_PROTOCOL,
+        "eligible_target_count": len(slate),
         "target_count": len(results),
+        "skipped_target_count": len(skipped_targets),
         "provider_batch_record_sha256": provider_batch_record_sha256,
         "provider_anchor_comment_id": provider_anchor_comment_id,
         "provider_unique_request_count": provider_cache.provider_request_count,
@@ -235,6 +271,7 @@ def run_forward_004_slate(
         "lifecycle_event_count": lifecycle_audit.event_count,
         "lifecycle_count": lifecycle_audit.lifecycle_count,
         "results": results,
+        "skipped_targets": skipped_targets,
     }
     (output_root / "slate-execution-manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
