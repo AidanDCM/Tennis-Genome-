@@ -253,3 +253,43 @@ def test_replay_metrics_are_deterministic() -> None:
     assert first.all_brier >= 0.0
     assert first.all_log_loss >= 0.0
     assert first.any_history_count == 1
+
+
+def test_replay_scores_frozen_conservative_wta_candidate() -> None:
+    raw_atp = _raw()
+    raw_wta = _raw(
+        _fixture(
+            event_key=1,
+            event_date="2026-09-10",
+            tour="Wta Singles",
+            player_a=10,
+            player_b=20,
+        ),
+        _fixture(
+            event_key=2,
+            event_date="2026-09-11",
+            tour="Wta Singles",
+            player_a=10,
+            player_b=20,
+        ),
+        _fixture(
+            event_key=3,
+            event_date="2026-09-12",
+            tour="Wta Singles",
+            player_a=10,
+            player_b=20,
+        ),
+    )
+
+    replay = api_tennis_filtered_replay.replay_api_tennis_filtered_shadow(
+        raw_atp=raw_atp,
+        raw_wta=raw_wta,
+    )
+
+    assert replay.conservative_wta_count == 1
+    assert replay.conservative_wta_event_keys == (3,)
+    assert replay.conservative_wta_min_prior_points == 200
+    assert replay.conservative_wta_shrinkage_to_neutral == 0.80
+    assert replay.conservative_wta_accuracy is not None
+    assert replay.conservative_wta_brier is not None
+    assert replay.conservative_wta_log_loss is not None
