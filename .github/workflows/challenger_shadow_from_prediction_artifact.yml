@@ -136,18 +136,25 @@ jobs:
               if registration_count != 3 or prediction_count != 3:
                   raise SystemExit('base component shadow cardinality drifted')
           else:
-              if registration_count != 5:
-                  raise SystemExit('API-Tennis run must retain five registrations')
+              deep_registered = bool(supplemental.get('deep_history_registered'))
+              if registration_count != (5 if deep_registered else 4):
+                  raise SystemExit('API-Tennis registration cardinality drifted')
               conservative_abstained = bool(supplemental.get('abstained'))
-              deep_abstained = bool(supplemental.get('deep_history_abstained'))
-              if not conservative_abstained and not deep_abstained:
-                  expected = 5
-              elif not conservative_abstained and deep_abstained:
-                  expected = 4
-              elif conservative_abstained and deep_abstained:
-                  expected = 3
+              deep_abstained_raw = supplemental.get('deep_history_abstained')
+              if not deep_registered:
+                  if deep_abstained_raw is not None:
+                      raise SystemExit('unregistered deep-history challenger has abstention state')
+                  expected = 3 if conservative_abstained else 4
               else:
-                  raise SystemExit('deep-history prediction cannot exist without conservative')
+                  deep_abstained = bool(deep_abstained_raw)
+                  if not conservative_abstained and not deep_abstained:
+                      expected = 5
+                  elif not conservative_abstained and deep_abstained:
+                      expected = 4
+                  elif conservative_abstained and deep_abstained:
+                      expected = 3
+                  else:
+                      raise SystemExit('deep-history prediction cannot exist without conservative')
               if prediction_count != expected:
                   raise SystemExit('API-Tennis abstention/prediction cardinality mismatch')
           PY
