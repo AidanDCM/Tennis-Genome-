@@ -8,6 +8,12 @@ from typing import Literal, Self
 
 from pydantic import field_validator, model_validator
 
+from .api_tennis_conservative_wta_shadow import (
+    CHALLENGER_ID as CONSERVATIVE_WTA_CHALLENGER_ID,
+    MIN_PRIOR_POINTS_PER_PLAYER as CONSERVATIVE_WTA_MIN_PRIOR_POINTS,
+    SHRINKAGE_TO_NEUTRAL as CONSERVATIVE_WTA_SHRINKAGE,
+    build_conservative_wta_shadow_output,
+)
 from .api_tennis_dynamic_shadow import (
     SHADOW_MODEL_ID,
     ApiTennisDynamicShadowBatch,
@@ -100,6 +106,16 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
     both_players_history_accuracy: float | None
     both_players_history_brier: float | None
     both_players_history_log_loss: float | None
+    conservative_wta_challenger_id: Literal[
+        "TGE-CHALLENGER-WTA-DYNAMIC-SR-SHRUNK-V1"
+    ] = CONSERVATIVE_WTA_CHALLENGER_ID
+    conservative_wta_min_prior_points: int = CONSERVATIVE_WTA_MIN_PRIOR_POINTS
+    conservative_wta_shrinkage_to_neutral: float = CONSERVATIVE_WTA_SHRINKAGE
+    conservative_wta_count: int
+    conservative_wta_accuracy: float | None
+    conservative_wta_brier: float | None
+    conservative_wta_log_loss: float | None
+    conservative_wta_event_keys: tuple[int, ...]
     daily_batch_semantic_sha256: tuple[str, ...]
     shadow_batch_semantic_sha256: str
     scores: tuple[ApiTennisFilteredReplayScore, ...]
@@ -128,6 +144,18 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
             raise ValueError("any_history_count exceeds admitted count")
         if self.both_players_history_count > self.any_history_count:
             raise ValueError("both-player history cannot exceed any-history count")
+        if self.conservative_wta_count != len(self.conservative_wta_event_keys):
+            raise ValueError("conservative WTA count must equal event-key cardinality")
+        if self.conservative_wta_count > self.admitted_match_count:
+            raise ValueError("conservative WTA count exceeds admitted count")
+        if len(self.conservative_wta_event_keys) != len(
+            set(self.conservative_wta_event_keys)
+        ):
+            raise ValueError("conservative WTA event keys must be unique")
+        if self.conservative_wta_min_prior_points != CONSERVATIVE_WTA_MIN_PRIOR_POINTS:
+            raise ValueError("conservative WTA history threshold drifted")
+        if self.conservative_wta_shrinkage_to_neutral != CONSERVATIVE_WTA_SHRINKAGE:
+            raise ValueError("conservative WTA shrinkage drifted")
         return self
 
 
@@ -273,6 +301,41 @@ def replay_api_tennis_filtered_shadow(
     both_rows = [row for row in scores if row.both_players_history]
     both_count, both_accuracy, both_brier, both_log_loss = _metric_rows(both_rows)
 
+    conservative_rows: list[tuple[int, int, float, float]] = []
+    for record in shadow.records:
+        output = build_conservative_wta_shadow_output(record)
+        if output is None:
+            continue
+        winner_side = outcomes.get(record.event_key)
+        if winner_side is None:
+            raise ValueError("missing outcome for conservative WTA shadow record")
+        target = 1.0 if winner_side == "A" else 0.0
+        probability = output.p_player_a
+        correct = int((probability >= 0.5) == (target == 1.0))
+        clipped = min(max(probability, epsilon), 1.0 - epsilon)
+        brier = (probability - target) ** 2
+        log_loss = -(
+            target * math.log(clipped)
+            + (1.0 - target) * math.log(1.0 - clipped)
+        )
+        conservative_rows.append((record.event_key, correct, brier, log_loss))
+
+    conservative_count = len(conservative_rows)
+    if conservative_rows:
+        conservative_accuracy = (
+            sum(row[1] for row in conservative_rows) / conservative_count
+        )
+        conservative_brier = (
+            sum(row[2] for row in conservative_rows) / conservative_count
+        )
+        conservative_log_loss = (
+            sum(row[3] for row in conservative_rows) / conservative_count
+        )
+    else:
+        conservative_accuracy = None
+        conservative_brier = None
+        conservative_log_loss = None
+
     source_fixture_count = len(_parse_payload(raw_atp)) + len(_parse_payload(raw_wta))
     pair_hash = _sha256(
         _canonical_json_bytes(
@@ -301,6 +364,11 @@ def replay_api_tennis_filtered_shadow(
         both_players_history_accuracy=both_accuracy,
         both_players_history_brier=both_brier,
         both_players_history_log_loss=both_log_loss,
+        conservative_wta_count=conservative_count,
+        conservative_wta_accuracy=conservative_accuracy,
+        conservative_wta_brier=conservative_brier,
+        conservative_wta_log_loss=conservative_log_loss,
+        conservative_wta_event_keys=tuple(row[0] for row in conservative_rows),
         daily_batch_semantic_sha256=tuple(batch.semantic_sha256 for batch in batches),
         shadow_batch_semantic_sha256=shadow.semantic_sha256,
         scores=tuple(scores),
