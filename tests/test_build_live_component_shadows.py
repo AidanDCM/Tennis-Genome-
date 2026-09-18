@@ -170,9 +170,10 @@ def test_live_shadow_builder_adds_eligible_api_tennis_fourth_prediction(
     )
 
     assert manifest["prediction_count"] == 4
-    assert manifest["registration_count"] == 5
+    assert manifest["registration_count"] == 4
     assert manifest["supplemental_api_tennis"]["abstained"] is False
-    assert manifest["supplemental_api_tennis"]["deep_history_abstained"] is True
+    assert manifest["supplemental_api_tennis"]["deep_history_registered"] is False
+    assert manifest["supplemental_api_tennis"]["deep_history_abstained"] is None
     prediction_path = output / "predictions" / f"{CHALLENGER_ID}.json"
     payload = json.loads(prediction_path.read_text(encoding="utf-8"))
     assert payload["output"]["p_player_a"] == pytest.approx(0.56)
@@ -224,7 +225,7 @@ def test_live_shadow_builder_adds_deep_history_fifth_prediction(
         matchup_input_path=matchup,
         target_resolution_path=target,
         output_dir=output,
-        created_at=CREATED,
+        created_at=datetime(2026, 9, 18, 16, 18, tzinfo=UTC),
         api_tennis_evidence_path=evidence,
         api_tennis_crosswalk_path=crosswalk,
     )
@@ -232,6 +233,7 @@ def test_live_shadow_builder_adds_deep_history_fifth_prediction(
     assert manifest["prediction_count"] == 5
     assert manifest["registration_count"] == 5
     assert manifest["supplemental_api_tennis"]["abstained"] is False
+    assert manifest["supplemental_api_tennis"]["deep_history_registered"] is True
     assert manifest["supplemental_api_tennis"]["deep_history_abstained"] is False
     deep_path = output / "predictions" / f"{DEEP_HISTORY_CHALLENGER_ID}.json"
     deep = json.loads(deep_path.read_text(encoding="utf-8"))
