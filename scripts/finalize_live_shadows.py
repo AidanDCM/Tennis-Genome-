@@ -6,6 +6,10 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+from tennis_genome.evaluation.validation import (
+    ValidationObservation,
+    build_validation_report,
+)
 from tennis_genome.research_workbench import (
     CommonPreMatchSnapshot,
     ImmutableResearchRegistry,
@@ -179,6 +183,49 @@ def build(
         encoding="utf-8",
     )
 
+    validation_observation_dir = output_dir / "validation-observations"
+    validation_report_dir = output_dir / "validation-reports"
+    validation_observation_dir.mkdir(parents=True, exist_ok=True)
+    validation_report_dir.mkdir(parents=True, exist_ok=True)
+    validation_report_sha256: dict[str, str] = {}
+    for atlas in bundle.failure_atlas:
+        observation = ValidationObservation(
+            model_id=atlas.challenger_id,
+            match_id=atlas.match_id,
+            event_date=snapshot.scheduled_start.date(),
+            probability_a=atlas.p_player_a,
+            outcome_a_won=atlas.outcome_player_a_won,
+            component_probabilities=atlas.pre_match_component_probabilities,
+            pre_match_diagnostics=atlas.pre_match_diagnostics,
+            tags=atlas.deterministic_tags,
+        )
+        observation_payload = {
+            "model_id": observation.model_id,
+            "match_id": observation.match_id,
+            "event_date": (
+                None if observation.event_date is None else observation.event_date.isoformat()
+            ),
+            "probability_a": observation.probability_a,
+            "outcome_a_won": observation.outcome_a_won,
+            "component_probabilities": observation.component_probabilities,
+            "pre_match_diagnostics": observation.pre_match_diagnostics,
+            "tags": list(observation.tags),
+        }
+        observation_path = validation_observation_dir / f"{atlas.challenger_id}.json"
+        observation_path.write_text(
+            json.dumps(observation_payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        validation_report = build_validation_report([observation], population_size=1)
+        report_path = validation_report_dir / f"{atlas.challenger_id}.json"
+        report_path.write_text(
+            json.dumps(validation_report, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        validation_report_sha256[atlas.challenger_id] = _sha256_bytes(
+            report_path.read_bytes()
+        )
+
     manifest = {
         "schema_version": "tennis-genome-shadow-settlement-manifest-v1",
         "settled_at": settled_at.isoformat(),
@@ -199,6 +246,7 @@ def build(
             atlas.challenger_id: atlas.semantic_sha256 for atlas in bundle.failure_atlas
         },
         "league_table": [row.canonical_payload() for row in bundle.league_table],
+        "validation_report_sha256": validation_report_sha256,
     }
     (output_dir / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",

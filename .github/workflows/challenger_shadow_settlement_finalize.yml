@@ -127,6 +127,12 @@ jobs:
           expected = int(shadow_manifest['prediction_count'])
           settlement_count = len(list(Path('shadow-finalized/settlements').glob('*.json')))
           atlas_count = len(list(Path('shadow-finalized/failure-atlas').glob('*.json')))
+          validation_observation_count = len(
+              list(Path('shadow-finalized/validation-observations').glob('*.json'))
+          )
+          validation_report_count = len(
+              list(Path('shadow-finalized/validation-reports').glob('*.json'))
+          )
           league_count = len(final_manifest['league_table'])
           if expected not in {3, 4}:
               raise SystemExit('trusted shadow manifest has unsupported prediction count')
@@ -134,6 +140,12 @@ jobs:
               raise SystemExit('shadow settlement count differs from prediction count')
           if atlas_count != expected:
               raise SystemExit('Failure Atlas count differs from prediction count')
+          if validation_observation_count != expected:
+              raise SystemExit('validation observation count differs from prediction count')
+          if validation_report_count != expected:
+              raise SystemExit('validation report count differs from prediction count')
+          if len(final_manifest.get('validation_report_sha256', {})) != expected:
+              raise SystemExit('validation report hash count differs from prediction count')
           if league_count != expected:
               raise SystemExit('league table count differs from prediction count')
           PY
