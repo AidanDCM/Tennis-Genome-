@@ -2,13 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
 from scripts.finalize_live_shadows import build as build_live_finalization
+from tennis_genome.research_workbench.api_tennis_prospective_shadow import (
+    ApiTennisChampionCrosswalk,
+    ApiTennisProspectiveStateEvidence,
+    build_api_tennis_prospective_shadow_bundle,
+)
 from tennis_genome.research_workbench.component_challengers import (
     build_component_shadow_bundle,
     canonical_record_json,
@@ -100,6 +105,53 @@ def _component_bundle():
     )
 
 
+def _supplemental_prediction(component):
+    evidence = ApiTennisProspectiveStateEvidence(
+        source_artifact_id=10531692054,
+        state_source_sha256="a" * 64,
+        target_fixture_sha256="b" * 64,
+        captured_at=CUTOFF + timedelta(minutes=8),
+        history_through_date=date(2026, 9, 15),
+        event_key=88001,
+        event_date=date(2026, 9, 16),
+        tour="WTA",
+        player_a_key=101,
+        player_b_key=202,
+        player_a_name="API A",
+        player_b_name="API B",
+        probability_a_serve_point=0.65,
+        probability_b_serve_point=0.57,
+        probability_a_match=0.80,
+        prior_serve_points_a=120,
+        prior_serve_points_b=130,
+        prior_return_points_a=100,
+        prior_return_points_b=90,
+    )
+    crosswalk = ApiTennisChampionCrosswalk(
+        champion_match_id=component.snapshot.match_id,
+        champion_provider_event_id=component.snapshot.provider_event_id,
+        champion_player_a_id=component.snapshot.player_a_id,
+        champion_player_b_id=component.snapshot.player_b_id,
+        api_tennis_event_key=88001,
+        api_tennis_player_a_key=101,
+        api_tennis_player_b_key=202,
+        orientation="DIRECT",
+        mapping_basis="EXPLICIT_PROVIDER_ID",
+        mapping_evidence_sha256="c" * 64,
+        created_at=CUTOFF + timedelta(minutes=7),
+    )
+    supplemental = build_api_tennis_prospective_shadow_bundle(
+        snapshot=component.snapshot,
+        evidence=evidence,
+        crosswalk=crosswalk,
+        created_at=CUTOFF + timedelta(minutes=10),
+        implementation_sha256="6" * 64,
+        registered_at=CUTOFF - timedelta(hours=1),
+    )
+    assert supplemental.prediction is not None
+    return supplemental.prediction
+
+
 def _binding(**updates: object):
     dossier = _dossier()
     dossier.update(updates)
@@ -150,6 +202,28 @@ def test_finalize_shadow_match_scores_all_component_views_and_builds_atlas() -> 
         assert "HIGH_MODEL_DISAGREEMENT" in atlas.deterministic_tags
         assert "HIGH_MISSINGNESS" in atlas.deterministic_tags
         assert "LOW_POINT_HISTORY" in atlas.deterministic_tags
+
+
+def test_finalize_shadow_match_accepts_api_tennis_as_fourth_common_snapshot_challenger() -> None:
+    component = _component_bundle()
+    supplemental = _supplemental_prediction(component)
+    predictions = (*component.predictions, supplemental)
+
+    result = finalize_shadow_match(
+        predictions=predictions,
+        snapshot=component.snapshot,
+        binding=_binding(),
+        source_shadow_artifact_id=777,
+        settled_at=SETTLED,
+    )
+
+    assert len(result.settlements) == 4
+    assert len(result.failure_atlas) == 4
+    assert len(result.league_table) == 4
+    by_id = {row.challenger_id: row for row in result.league_table}
+    assert by_id["TGE-CHALLENGER-WTA-DYNAMIC-SR-SHRUNK-V1"].mean_brier == pytest.approx(
+        0.56**2
+    )
 
 
 def test_finalize_requires_exact_champion_identity_probability_and_time() -> None:
