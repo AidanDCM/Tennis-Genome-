@@ -8,12 +8,7 @@ from typing import Literal, Self
 
 from pydantic import field_validator, model_validator
 
-from .api_tennis_conservative_wta_shadow import (
-    CHALLENGER_ID as CONSERVATIVE_WTA_CHALLENGER_ID,
-    MIN_PRIOR_POINTS_PER_PLAYER as CONSERVATIVE_WTA_MIN_PRIOR_POINTS,
-    SHRINKAGE_TO_NEUTRAL as CONSERVATIVE_WTA_SHRINKAGE,
-    build_conservative_wta_shadow_output,
-)
+from . import api_tennis_conservative_wta_shadow
 from .api_tennis_dynamic_shadow import (
     SHADOW_MODEL_ID,
     ApiTennisDynamicShadowBatch,
@@ -108,9 +103,9 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
     both_players_history_log_loss: float | None
     conservative_wta_challenger_id: Literal[
         "TGE-CHALLENGER-WTA-DYNAMIC-SR-SHRUNK-V1"
-    ] = CONSERVATIVE_WTA_CHALLENGER_ID
-    conservative_wta_min_prior_points: int = CONSERVATIVE_WTA_MIN_PRIOR_POINTS
-    conservative_wta_shrinkage_to_neutral: float = CONSERVATIVE_WTA_SHRINKAGE
+    ] = api_tennis_conservative_wta_shadow.CHALLENGER_ID
+    conservative_wta_min_prior_points: int = api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER
+    conservative_wta_shrinkage_to_neutral: float = api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL
     conservative_wta_count: int
     conservative_wta_accuracy: float | None
     conservative_wta_brier: float | None
@@ -152,9 +147,9 @@ class ApiTennisFilteredReplaySummary(WorkbenchRecord):
             set(self.conservative_wta_event_keys)
         ):
             raise ValueError("conservative WTA event keys must be unique")
-        if self.conservative_wta_min_prior_points != CONSERVATIVE_WTA_MIN_PRIOR_POINTS:
+        if self.conservative_wta_min_prior_points != api_tennis_conservative_wta_shadow.MIN_PRIOR_POINTS_PER_PLAYER:
             raise ValueError("conservative WTA history threshold drifted")
-        if self.conservative_wta_shrinkage_to_neutral != CONSERVATIVE_WTA_SHRINKAGE:
+        if self.conservative_wta_shrinkage_to_neutral != api_tennis_conservative_wta_shadow.SHRINKAGE_TO_NEUTRAL:
             raise ValueError("conservative WTA shrinkage drifted")
         return self
 
@@ -303,7 +298,7 @@ def replay_api_tennis_filtered_shadow(
 
     conservative_rows: list[tuple[int, int, float, float]] = []
     for record in shadow.records:
-        output = build_conservative_wta_shadow_output(record)
+        output = api_tennis_conservative_wta_shadow.build_conservative_wta_shadow_output(record)
         if output is None:
             continue
         winner_side = outcomes.get(record.event_key)
