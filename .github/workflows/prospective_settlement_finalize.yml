@@ -84,6 +84,22 @@ jobs:
               raise SystemExit("PREDICTION_RECORD_SHA256 must be lowercase SHA-256")
           PY
 
+      - name: Refuse duplicate verified settlement artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="full-stack-forward-verified-settlement-${PREDICTION_ARTIFACT_ID}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::verified settlement already exists for prediction artifact"
+            exit 1
+          fi
+
       - name: Download retained immutable artifacts
         env:
           GH_TOKEN: ${{ github.token }}
@@ -297,7 +313,7 @@ jobs:
         id: verified_upload
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: full-stack-forward-verified-settlement
+          name: full-stack-forward-verified-settlement-${{ inputs.prediction_artifact_id }}
           path: |
             finalized/
             prediction-artifact/prediction-work/prospective-pilot-store/
