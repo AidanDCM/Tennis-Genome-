@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from tennis_genome.research_workbench import api_tennis_filtered_replay as replay_module
+import tennis_genome.research_workbench.api_tennis_filtered_replay as replay_module
 
 
 _REQUIRED = (
@@ -141,7 +141,10 @@ def test_replay_builds_daily_batches_and_carries_only_prior_day_history() -> Non
         )
     )
 
-    batches = replay_module.build_filtered_daily_enrichment_batches(raw_atp=raw_atp, raw_wta=raw_wta)
+    batches = replay_module.build_filtered_daily_enrichment_batches(
+        raw_atp=raw_atp,
+        raw_wta=raw_wta,
+    )
     assert [batch.requested_date for batch in batches] == ["2026-09-10", "2026-09-11"]
 
     replay = replay_module.replay_api_tennis_filtered_shadow(raw_atp=raw_atp, raw_wta=raw_wta)
