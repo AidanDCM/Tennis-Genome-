@@ -1,0 +1,177 @@
+name: WTA Forward Automation Orchestrator
+
+on:
+  workflow_run:
+    workflows:
+      - Prospective Trusted Provider Capture Anchor
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: wta-forward-orchestrator-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  route:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PROVIDER_RUN_ID: ${{ github.event.workflow_run.id }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Validate successful trusted provider source run
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${PROVIDER_RUN_ID}" in
+            ''|*[!0-9]*) echo "provider run id must be a positive integer" >&2; exit 1 ;;
+          esac
+          test "${PROVIDER_RUN_ID}" -gt 0
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${PROVIDER_RUN_ID}" \
+            > provider-run.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run = json.loads(Path("provider-run.json").read_text(encoding="utf-8"))
+          expected = int(os.environ["PROVIDER_RUN_ID"])
+          if int(run.get("id", 0)) != expected:
+              raise SystemExit("provider run id mismatch")
+          if run.get("path") != ".github/workflows/prospective_provider_capture_anchor.yml":
+              raise SystemExit("source run is not trusted provider capture")
+          if run.get("conclusion") != "success":
+              raise SystemExit("trusted provider capture did not succeed")
+          if run.get("head_branch") != "main":
+              raise SystemExit("trusted provider capture did not run on main")
+          if run.get("event") != "workflow_dispatch":
+              raise SystemExit("trusted provider capture was not explicitly dispatched")
+          PY
+
+      - name: Resolve versioned automation mode
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          config = json.loads(
+              Path("config/forward_automation.json").read_text(encoding="utf-8")
+          )
+          if (
+              config.get("schema_version")
+              != "tennis-genome-forward-automation-mode-v1"
+          ):
+              raise SystemExit("unexpected forward automation config schema")
+          mode = str(config.get("mode", ""))
+          allowed = {"LEGACY_SINGLE_TARGET", "FULL_SLATE_V1"}
+          if mode not in allowed:
+              raise SystemExit(f"unsupported forward automation mode: {mode}")
+          legacy = str(config.get("legacy_workflow", ""))
+          full_slate = str(config.get("full_slate_workflow", ""))
+          if legacy != "wta_forward_004_auto_shadow_chain.yml":
+              raise SystemExit("legacy forward workflow binding drifted")
+          if full_slate != "wta_forward_004_full_slate_manual.yml":
+              raise SystemExit("full-slate forward workflow binding drifted")
+          with Path(os.environ["GITHUB_OUTPUT"]).open(
+              "a", encoding="utf-8"
+          ) as handle:
+              handle.write(f"mode={mode}\n")
+              handle.write(f"legacy_workflow={legacy}\n")
+              handle.write(f"full_slate_workflow={full_slate}\n")
+          PY
+
+      - name: Dispatch configured forward path
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+          LEGACY_WORKFLOW: ${{ steps.mode.outputs.legacy_workflow }}
+          FULL_SLATE_WORKFLOW: ${{ steps.mode.outputs.full_slate_workflow }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload=$(python - <<'PY'
+          import json
+          import os
+
+          mode = os.environ["MODE"]
+          inputs = {"provider_run_id": os.environ["PROVIDER_RUN_ID"]}
+          if mode == "FULL_SLATE_V1":
+              inputs["publish_prospective_evidence"] = True
+          print(json.dumps(
+              {"ref": "main", "inputs": inputs},
+              separators=(",", ":"),
+          ))
+          PY
+          )
+
+          if [ "${MODE}" = "LEGACY_SINGLE_TARGET" ]; then
+            workflow="${LEGACY_WORKFLOW}"
+          elif [ "${MODE}" = "FULL_SLATE_V1" ]; then
+            workflow="${FULL_SLATE_WORKFLOW}"
+          else
+            echo "unsupported resolved automation mode: ${MODE}" >&2
+            exit 1
+          fi
+
+          code=$(curl --silent --show-error \
+            --output dispatch-response.txt \
+            --write-out '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow}/dispatches" \
+            -d "${payload}")
+          if [ "${code}" != "204" ]; then
+            cat dispatch-response.txt
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          receipt = {
+              "schema_version": "tennis-genome-forward-automation-route-v1",
+              "provider_run_id": int(os.environ["PROVIDER_RUN_ID"]),
+              "mode": os.environ["MODE"],
+              "workflow": (
+                  os.environ["LEGACY_WORKFLOW"]
+                  if os.environ["MODE"] == "LEGACY_SINGLE_TARGET"
+                  else os.environ["FULL_SLATE_WORKFLOW"]
+              ),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "orchestrator_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "routed_at_utc": datetime.now(UTC).isoformat(),
+          }
+          Path("forward-route-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload routing receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forward-route-${{ github.event.workflow_run.id }}
+          path: |
+            provider-run.json
+            forward-route-receipt.json
+            dispatch-response.txt
+          if-no-files-found: error
+          retention-days: 90
