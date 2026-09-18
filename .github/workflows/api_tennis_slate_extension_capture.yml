@@ -1,0 +1,252 @@
+name: API-Tennis Full-Slate WTA Extension Capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      full_slate_artifact_id:
+        description: Parent Forward-004 full-slate bundle artifact ID
+        required: true
+        type: string
+      history_artifact_id:
+        description: Retained filtered API-Tennis history artifact ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: api-tennis-slate-extension-${{ inputs.full_slate_artifact_id }}
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+      API_TENNIS_API: ${{ secrets.API_TENNIS_API }}
+      FULL_SLATE_ARTIFACT_ID: ${{ inputs.full_slate_artifact_id }}
+      HISTORY_ARTIFACT_ID: ${{ inputs.history_artifact_id }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate immutable inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_EVENT_NAME}" = "workflow_dispatch"
+          test "${GITHUB_REF_NAME}" = "main"
+          test "${GITHUB_REPOSITORY}" = "AidanDCM/Tennis-Genome-"
+          test -n "${API_TENNIS_API:-}"
+          for value in "${FULL_SLATE_ARTIFACT_ID}" "${HISTORY_ARTIFACT_ID}"; do
+            case "$value" in
+              ''|*[!0-9]*) echo "artifact IDs must be positive integers" >&2; exit 1 ;;
+            esac
+            test "$value" -gt 0
+          done
+
+      - name: Refuse duplicate shared slate capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="api-tennis-slate-extension-${FULL_SLATE_ARTIFACT_ID}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::shared API-Tennis slate extension already exists"
+            exit 1
+          fi
+
+      - name: Download parent slate and retained API-Tennis history
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_artifact() {
+            artifact_id="$1"
+            zip_path="$2"
+            out_dir="$3"
+            metadata_path="$4"
+            mkdir -p "$out_dir"
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}" \
+              > "$metadata_path"
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              > "$zip_path"
+            unzip -q "$zip_path" -d "$out_dir"
+          }
+          download_artifact \
+            "$FULL_SLATE_ARTIFACT_ID" \
+            full-slate.zip \
+            full-slate-artifact \
+            full-slate-artifact-metadata.json
+          download_artifact \
+            "$HISTORY_ARTIFACT_ID" \
+            history.zip \
+            history-artifact \
+            history-artifact-metadata.json
+
+          test -f \
+            full-slate-artifact/forward-004-slate-work/forward-004-slate-resolution.json
+          test -f \
+            history-artifact/api-tennis-filtered-range/raw-wta-fixtures.json
+          test -f history-artifact/api-tennis-filtered-range/manifest.json
+          sha256sum full-slate.zip history.zip > input-artifact-sha256.txt
+
+      - name: Verify source contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          slate = json.loads(
+              Path(
+                  "full-slate-artifact/forward-004-slate-work/"
+                  "forward-004-slate-resolution.json"
+              ).read_text(encoding="utf-8")
+          )
+          if slate.get("schema_version") != "wta-forward-004-slate-resolution-v1":
+              raise SystemExit("unexpected full-slate resolution schema")
+          targets = slate.get("targets")
+          if not isinstance(targets, list) or not targets:
+              raise SystemExit("full-slate bundle contains no eligible targets")
+          if int(slate.get("eligible_target_count", -1)) != len(targets):
+              raise SystemExit("full-slate target count does not reproduce")
+
+          base = Path("history-artifact/api-tennis-filtered-range")
+          manifest = json.loads((base / "manifest.json").read_text(encoding="utf-8"))
+          raw = (base / "raw-wta-fixtures.json").read_bytes()
+          if hashlib.sha256(raw).hexdigest() != manifest.get("raw_wta_sha256"):
+              raise SystemExit("retained API-Tennis WTA raw hash mismatch")
+          if manifest.get("historical_actual_start_admissible") is not False:
+              raise SystemExit("retained API-Tennis chronology contract drifted")
+          PY
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Spend one WTA request for complete remaining slate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_api_tennis_slate_extension.py \
+            --history-wta \
+              history-artifact/api-tennis-filtered-range/raw-wta-fixtures.json \
+            --slate-resolution \
+              full-slate-artifact/forward-004-slate-work/forward-004-slate-resolution.json \
+            --history-artifact-id "$HISTORY_ARTIFACT_ID" \
+            --output-dir api-tennis-slate-extension \
+            | tee api-tennis-slate-extension/summary.json
+
+      - name: Verify shared capture invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("api-tennis-slate-extension")
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          raw = (root / "raw-wta-extension.json").read_bytes()
+          if manifest.get("provider_request_count") != 1:
+              raise SystemExit("shared slate capture did not spend exactly one request")
+          if manifest.get("market_blind") is not True:
+              raise SystemExit("shared slate capture is not market blind")
+          if manifest.get("target_outcome_consumed") is not False:
+              raise SystemExit("shared slate capture consumed target outcome")
+          if manifest.get("shared_capture_scope") != "SLATE":
+              raise SystemExit("shared capture scope drifted")
+          if hashlib.sha256(raw).hexdigest() != manifest.get("extension_raw_sha256"):
+              raise SystemExit("shared API-Tennis extension hash mismatch")
+          prestart = manifest.get("prestart_target_event_ids")
+          if not isinstance(prestart, list) or not prestart:
+              raise SystemExit("shared slate capture retained no pre-start targets")
+          target_ids = set(manifest.get("target_event_ids", []))
+          late_ids = set(manifest.get("late_target_event_ids", []))
+          if set(prestart) | late_ids != target_ids:
+              raise SystemExit("pre-start/late target partition does not reproduce slate")
+          if set(prestart) & late_ids:
+              raise SystemExit("target cannot be both pre-start and late")
+          PY
+
+      - name: Build GitHub provenance receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          root = Path("api-tennis-slate-extension")
+          manifest_bytes = (root / "manifest.json").read_bytes()
+          manifest = json.loads(manifest_bytes)
+          full_slate_meta = json.loads(
+              Path("full-slate-artifact-metadata.json").read_text(encoding="utf-8")
+          )
+          history_meta = json.loads(
+              Path("history-artifact-metadata.json").read_text(encoding="utf-8")
+          )
+          receipt = {
+              "schema_version": (
+                  "tennis-genome-api-tennis-slate-extension-github-receipt-v1"
+              ),
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "full_slate_artifact_id": int(
+                  os.environ["FULL_SLATE_ARTIFACT_ID"]
+              ),
+              "full_slate_artifact_digest": full_slate_meta.get("digest"),
+              "history_artifact_id": int(os.environ["HISTORY_ARTIFACT_ID"]),
+              "history_artifact_digest": history_meta.get("digest"),
+              "provider_request_count": manifest["provider_request_count"],
+              "extension_raw_sha256": manifest["extension_raw_sha256"],
+              "capture_record_sha256": manifest["capture_record_sha256"],
+              "manifest_file_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+              "created_at_utc": datetime.now(UTC).isoformat(),
+          }
+          (root / "github-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload shared API-Tennis slate extension
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-slate-extension-${{ inputs.full_slate_artifact_id }}
+          path: |
+            api-tennis-slate-extension/raw-wta-extension.json
+            api-tennis-slate-extension/capture-record.json
+            api-tennis-slate-extension/manifest.json
+            api-tennis-slate-extension/summary.json
+            api-tennis-slate-extension/github-receipt.json
+            input-artifact-sha256.txt
+          if-no-files-found: error
+          retention-days: 90
