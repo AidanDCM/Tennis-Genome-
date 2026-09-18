@@ -1,0 +1,174 @@
+name: API-Tennis Filtered Dynamic Shadow Replay
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/api-tennis-filtered-replay-request.json"
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: api-tennis-filtered-replay
+  cancel-in-progress: false
+
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate replay request
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('.github/api-tennis-filtered-replay-request.json')
+          raw = path.read_bytes()
+          request = json.loads(raw)
+          expected = {'schema_version', 'request_id', 'source_artifact_id'}
+          if not isinstance(request, dict) or set(request) != expected:
+              raise SystemExit('replay request has unexpected fields')
+          if request['schema_version'] != 'tennis-genome-api-tennis-filtered-replay-request-v1':
+              raise SystemExit('unsupported replay request schema')
+          request_id = str(request['request_id'])
+          if re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', request_id) is None:
+              raise SystemExit('request_id has unsupported format')
+          artifact_id = request['source_artifact_id']
+          if isinstance(artifact_id, bool) or not isinstance(artifact_id, int) or artifact_id <= 0:
+              raise SystemExit('source_artifact_id must be a positive integer')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('replay must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
+              handle.write(f'request_id={request_id}\n')
+              handle.write(f'source_artifact_id={artifact_id}\n')
+              handle.write(f'request_sha256={hashlib.sha256(raw).hexdigest()}\n')
+          PY
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Download retained filtered source artifact
+        env:
+          SOURCE_ARTIFACT_ID: ${{ steps.request.outputs.source_artifact_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source-artifact
+          gh api             -H "Accept: application/vnd.github+json"             "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}"             > source-artifact-metadata.json
+          gh api             -H "Accept: application/vnd.github+json"             "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip"             > source-artifact.zip
+          unzip -q source-artifact.zip -d source-artifact
+          test -f source-artifact/api-tennis-filtered-range/raw-atp-fixtures.json
+          test -f source-artifact/api-tennis-filtered-range/raw-wta-fixtures.json
+          test -f source-artifact/api-tennis-filtered-range/manifest.json
+
+      - name: Verify source artifact hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          base = Path('source-artifact/api-tennis-filtered-range')
+          manifest = json.loads((base / 'manifest.json').read_text(encoding='utf-8'))
+          raw_atp = (base / 'raw-atp-fixtures.json').read_bytes()
+          raw_wta = (base / 'raw-wta-fixtures.json').read_bytes()
+          if hashlib.sha256(raw_atp).hexdigest() != manifest['raw_atp_sha256']:
+              raise SystemExit('retained ATP raw hash mismatch')
+          if hashlib.sha256(raw_wta).hexdigest() != manifest['raw_wta_sha256']:
+              raise SystemExit('retained WTA raw hash mismatch')
+          if manifest.get('historical_actual_start_admissible') is not False:
+              raise SystemExit('source chronology policy mismatch')
+          if manifest.get('provider_request_count') != 2:
+              raise SystemExit('source artifact is not the filtered two-request contract')
+          PY
+
+      - name: Replay dynamic serve-return shadow offline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/replay_api_tennis_filtered_shadow.py             --source-dir source-artifact/api-tennis-filtered-range             --output-dir api-tennis-filtered-replay             | tee replay-summary.json
+
+      - name: Build replay provenance receipt
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+          SOURCE_ARTIFACT_ID: ${{ steps.request.outputs.source_artifact_id }}
+          REQUEST_SHA256: ${{ steps.request.outputs.request_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          metadata = json.loads(Path('source-artifact-metadata.json').read_text(encoding='utf-8'))
+          manifest_bytes = Path('api-tennis-filtered-replay/manifest.json').read_bytes()
+          manifest = json.loads(manifest_bytes)
+          receipt = {
+              'schema_version': 'tennis-genome-api-tennis-filtered-replay-github-receipt-v1',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow_source_sha': os.environ['GITHUB_SHA'],
+              'request_id': os.environ['REQUEST_ID'],
+              'request_sha256': os.environ['REQUEST_SHA256'],
+              'source_artifact_id': int(os.environ['SOURCE_ARTIFACT_ID']),
+              'source_artifact_name': metadata.get('name'),
+              'source_artifact_digest': metadata.get('digest'),
+              'source_artifact_created_at': metadata.get('created_at'),
+              'replay_manifest_sha256': hashlib.sha256(manifest_bytes).hexdigest(),
+              'replay_semantic_sha256': manifest['replay_semantic_sha256'],
+              'shadow_batch_semantic_sha256': manifest['shadow_batch_semantic_sha256'],
+              'admitted_match_count': manifest['admitted_match_count'],
+              'any_history_count': manifest['any_history_count'],
+              'both_players_history_count': manifest['both_players_history_count'],
+              'development_only': True,
+              'created_at_utc': datetime.now(UTC).isoformat(),
+          }
+          Path('api-tennis-filtered-replay-github-receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Upload replay evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-filtered-replay-${{ github.run_id }}
+          path: |
+            api-tennis-filtered-replay/
+            replay-summary.json
+            api-tennis-filtered-replay-github-receipt.json
+            source-artifact-metadata.json
+          if-no-files-found: error
+          retention-days: 90
