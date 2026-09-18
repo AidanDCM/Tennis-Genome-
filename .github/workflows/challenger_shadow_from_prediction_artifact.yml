@@ -127,8 +127,8 @@ jobs:
           prediction_count = int(manifest['prediction_count'])
           registration_count = int(manifest['registration_count'])
           file_count = len(list(Path('shadow-work/predictions').glob('*.json')))
-          if prediction_count not in {3, 4}:
-              raise SystemExit('live shadow prediction count must be 3 or 4')
+          if prediction_count not in {3, 4, 5}:
+              raise SystemExit('live shadow prediction count must be 3, 4, or 5')
           if file_count != prediction_count:
               raise SystemExit('live shadow file count differs from manifest prediction count')
           supplemental = manifest.get('supplemental_api_tennis')
@@ -136,9 +136,18 @@ jobs:
               if registration_count != 3 or prediction_count != 3:
                   raise SystemExit('base component shadow cardinality drifted')
           else:
-              if registration_count != 4:
-                  raise SystemExit('API-Tennis run must retain four registrations')
-              expected = 3 if supplemental.get('abstained') else 4
+              if registration_count != 5:
+                  raise SystemExit('API-Tennis run must retain five registrations')
+              conservative_abstained = bool(supplemental.get('abstained'))
+              deep_abstained = bool(supplemental.get('deep_history_abstained'))
+              if not conservative_abstained and not deep_abstained:
+                  expected = 5
+              elif not conservative_abstained and deep_abstained:
+                  expected = 4
+              elif conservative_abstained and deep_abstained:
+                  expected = 3
+              else:
+                  raise SystemExit('deep-history prediction cannot exist without conservative')
               if prediction_count != expected:
                   raise SystemExit('API-Tennis abstention/prediction cardinality mismatch')
           PY
@@ -160,7 +169,7 @@ jobs:
           if not isinstance(requests, list):
               raise SystemExit('anchor_requests must be a list')
           expected = int(manifest['prediction_count'])
-          if len(requests) != expected or expected not in {3, 4}:
+          if len(requests) != expected or expected not in {3, 4, 5}:
               raise SystemExit('anchor request count differs from prediction manifest')
           for index, request in enumerate(requests, start=1):
               Path(f'shadow-work/anchors/request-{index:02d}.json').write_text(
