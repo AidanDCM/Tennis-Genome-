@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
 
 from tennis_genome.research_workbench import api_tennis_filtered_replay
 
