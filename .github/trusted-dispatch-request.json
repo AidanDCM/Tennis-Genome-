@@ -1,14 +1,10 @@
 {
   "schema_version": "tennis-genome-trusted-dispatch-request-v1",
-  "request_id": "FULL-STACK-FORWARD-001-settlement-finalize-20260916",
-  "target_workflow": "prospective_settlement_finalize.yml",
+  "request_id": "FULL-STACK-FORWARD-provider-capture-20260918",
+  "target_workflow": "prospective_provider_capture_anchor.yml",
   "ref": "main",
   "inputs": {
-    "prediction_artifact_id": "10415349125",
-    "provider_artifact_id": "10408107392",
-    "settlement_artifact_id": "10463575543",
-    "prediction_record_sha256": "0a7a6d04000d3def88f52df4304c2d520f3efd007a3614c36078840938cb6e23",
-    "prediction_anchor_comment_id": "5687209298",
-    "settlement_comment_id": "5702770128"
+    "schedule_date": "2026-09-18",
+    "sportradar_access_level": "trial"
   }
 }
