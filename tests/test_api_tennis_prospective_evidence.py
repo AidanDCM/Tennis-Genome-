@@ -16,6 +16,7 @@ from tennis_genome.research_workbench.api_tennis_prospective_evidence import (
     _target_snapshot_from_history,
     build_api_tennis_prospective_evidence,
     capture_api_tennis_prospective_evidence,
+    capture_api_tennis_slate_extension,
     fetch_api_tennis_wta_extension,
 )
 
@@ -347,4 +348,96 @@ def test_provider_range_rejects_more_than_31_days_without_calling_provider() -> 
             api_key="secret",
             provider_get=provider_get,
         )
+    assert called is False
+
+
+def test_slate_capture_spends_one_request_and_tracks_prestart_vs_late() -> None:
+    seen: list[str] = []
+
+    def provider_get(url: str) -> bytes:
+        seen.append(url)
+        return _extension_raw()
+
+    extension, capture = capture_api_tennis_slate_extension(
+        history_raw_wta=_base_raw(),
+        history_artifact_id=10531692054,
+        target_resolutions=[
+            {
+                "event_id": "sr:sport_event:late",
+                "scheduled_start": "2026-09-18T13:00:00+00:00",
+            },
+            {
+                "event_id": "sr:sport_event:future",
+                "scheduled_start": "2026-09-18T18:00:00+00:00",
+            },
+        ],
+        api_key="secret",
+        captured_at=CAPTURED,
+        provider_get=provider_get,
+    )
+
+    assert extension == _extension_raw()
+    assert len(seen) == 1
+    query = parse_qs(urlparse(seen[0]).query)
+    assert query["date_start"] == ["2026-09-17"]
+    assert query["date_stop"] == ["2026-09-18"]
+    assert query["event_type_key"] == ["266"]
+    assert capture.provider_request_count == 1
+    assert capture.prestart_target_event_ids == ("sr:sport_event:future",)
+    assert capture.late_target_event_ids == ("sr:sport_event:late",)
+    assert capture.target_event_ids == (
+        "sr:sport_event:late",
+        "sr:sport_event:future",
+    )
+    assert capture.market_blind is True
+
+
+def test_slate_capture_refuses_all_late_targets_without_provider_call() -> None:
+    called = False
+
+    def provider_get(_: str) -> bytes:
+        nonlocal called
+        called = True
+        return _extension_raw()
+
+    with pytest.raises(ValueError, match="no remaining pre-start targets"):
+        capture_api_tennis_slate_extension(
+            history_raw_wta=_base_raw(),
+            history_artifact_id=10531692054,
+            target_resolutions=[
+                {
+                    "event_id": "sr:sport_event:late",
+                    "scheduled_start": "2026-09-18T13:00:00+00:00",
+                }
+            ],
+            api_key="secret",
+            captured_at=CAPTURED,
+            provider_get=provider_get,
+        )
+
+    assert called is False
+
+
+def test_slate_capture_rejects_duplicate_event_ids_before_provider_call() -> None:
+    called = False
+
+    def provider_get(_: str) -> bytes:
+        nonlocal called
+        called = True
+        return _extension_raw()
+
+    duplicated = {
+        "event_id": "sr:sport_event:dup",
+        "scheduled_start": "2026-09-18T18:00:00+00:00",
+    }
+    with pytest.raises(ValueError, match="event IDs must be unique"):
+        capture_api_tennis_slate_extension(
+            history_raw_wta=_base_raw(),
+            history_artifact_id=10531692054,
+            target_resolutions=[duplicated, dict(duplicated)],
+            api_key="secret",
+            captured_at=CAPTURED,
+            provider_get=provider_get,
+        )
+
     assert called is False
