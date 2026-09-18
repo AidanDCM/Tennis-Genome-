@@ -75,3 +75,18 @@ def test_full_slate_manual_workflow_fans_out_legacy_compatible_artifacts() -> No
     assert parent_name in workflow
     assert "name: wta-forward-004-full-slate-manual-" not in workflow
     assert "prospective_evidence_anchor.yml/dispatches" not in workflow
+
+
+def test_api_tennis_full_slate_capture_is_one_request_and_nonpublishing() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/api_tennis_slate_extension_capture.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "full_slate_artifact_id:" in workflow
+    assert "history_artifact_id:" in workflow
+    assert "capture_api_tennis_slate_extension.py" in workflow
+    assert "provider_request_count" in workflow
+    assert "shared_capture_scope" in workflow
+    assert 'name: api-tennis-slate-extension-${{ inputs.full_slate_artifact_id }}' in workflow
+    assert "challenger_shadow_from_prediction_artifact.yml/dispatches" not in workflow
+    assert "prospective_evidence_anchor.yml/dispatches" not in workflow
