@@ -215,3 +215,16 @@ def test_forward_validation_workflow_is_scheduled_and_retains_reports() -> None:
     assert "challenger-shadow-settlement-" in text
     assert "forward-validation-aggregate-${{ github.run_id }}" in text
     assert "retention-days: 90" in text
+
+
+
+def test_shadow_settlement_workflow_requires_validation_artifacts() -> None:
+    text = Path(
+        ".github/workflows/challenger_shadow_settlement_finalize.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "validation-observations" in text
+    assert "validation-reports" in text
+    assert "validation observation count differs from prediction count" in text
+    assert "validation report count differs from prediction count" in text
+    assert "validation_report_sha256" in text
