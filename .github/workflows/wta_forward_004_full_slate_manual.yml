@@ -229,6 +229,7 @@ jobs:
           retention-days: 90
 
   capture-api-tennis-slate:
+    if: inputs.publish_prospective_evidence == true
     needs: predict-slate
     uses: ./.github/workflows/api_tennis_slate_extension_capture.yml
     with:
@@ -237,6 +238,7 @@ jobs:
     secrets: inherit
 
   package-targets:
+    if: inputs.publish_prospective_evidence == true
     needs:
       - predict-slate
       - capture-api-tennis-slate
