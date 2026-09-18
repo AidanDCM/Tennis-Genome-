@@ -90,3 +90,18 @@ def test_api_tennis_full_slate_capture_is_one_request_and_nonpublishing() -> Non
     assert 'name: api-tennis-slate-extension-${{ inputs.full_slate_artifact_id }}' in workflow
     assert "challenger_shadow_from_prediction_artifact.yml/dispatches" not in workflow
     assert "prospective_evidence_anchor.yml/dispatches" not in workflow
+
+
+def test_shared_api_tennis_per_match_workflow_is_offline_and_shadow_compatible() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/api_tennis_prospective_evidence_from_shared.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "shared_extension_artifact_id:" in workflow
+    assert "build_api_tennis_prospective_evidence_from_shared.py" in workflow
+    assert "local_provider_request_count" in workflow
+    assert "source_capture_provider_request_count" in workflow
+    assert 'name: api-tennis-prospective-evidence-${{ inputs.prediction_artifact_id }}' in workflow
+    assert "challenger_shadow_from_prediction_artifact.yml/dispatches" in workflow
+    assert "API_TENNIS_API" not in workflow
+    assert "api-tennis.com" not in workflow
