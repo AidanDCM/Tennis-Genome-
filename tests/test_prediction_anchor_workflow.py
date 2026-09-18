@@ -16,7 +16,14 @@ def test_prediction_anchor_workflow_is_self_contained_and_restricted() -> None:
     assert "GITHUB_REF_NAME" in text
     assert '!= "main"' in text
     assert "actions/checkout@" not in text
-    assert "actions/upload-artifact@" not in text
+    assert (
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        in text
+    )
+    assert "prospective-prediction-anchor-${{ inputs.prediction_record_sha256 }}" in text
+    assert "comment-id.txt" in text
+    assert "receipt.json" in text
+    assert "Refuse duplicate completed prediction anchor artifact" in text
     assert "pip install" not in text
 
 
