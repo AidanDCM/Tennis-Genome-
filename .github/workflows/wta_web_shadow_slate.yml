@@ -162,8 +162,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m scripts.run_web_shadow_slate             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             --history-mode "${WEB_SHADOW_HISTORY_MODE}"             --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}" \
-            --expected-spec config/web_shadow_history_cache.json             2>&1 | tee web-shadow-slate-summary.json
+          python -m scripts.run_web_shadow_slate             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             --history-mode "${WEB_SHADOW_HISTORY_MODE}"             --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"             2>&1 | tee web-shadow-slate-summary.json
 
       - name: Verify slate accounting and isolation
         shell: bash
