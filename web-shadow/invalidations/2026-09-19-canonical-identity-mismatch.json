@@ -1,0 +1,21 @@
+{
+  "schema_version": "tennis-genome-web-shadow-invalidation-v1",
+  "reason_code": "TARGET_IDENTITY_NAMESPACE_MISMATCH",
+  "reason": "Web Shadow target IDs used bare registry IDs while frozen historical records use canonical IDs prefixed with wta:id:. The walk-forward engine therefore treated target players as unseen and produced default-state predictions.",
+  "discovered_at": "2026-09-19T15:38:00+00:00",
+  "scorecard_eligible": false,
+  "invalidated_predictions": [
+    {
+      "workflow_run_id": 35449159492,
+      "workflow_artifact_id": 10585708816,
+      "match_id": "web:wta:singapore:2026:RS006",
+      "prediction_record_sha256": "b15cd2431ab70bc559e1fb7e6bba491fd31e57a7b88c232cf1881b63cc4fae0a"
+    },
+    {
+      "workflow_run_id": 35452345336,
+      "workflow_artifact_id": 10586927674,
+      "match_id": "web:wta:singapore:2026:RS005",
+      "prediction_record_sha256": "b842cfef39f223d3144b2aff3d4e44e221d25758fe3ba5b2f562cc0efb89d4c8"
+    }
+  ]
+}
