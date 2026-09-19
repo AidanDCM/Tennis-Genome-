@@ -1,10 +1,7 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/singapore-2026-rs007-friedsam-kulikova.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-ma-lee.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-shubladze-astakhova.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-yao-kuramochi.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-ibragimova-saito.json"
+    "web-shadow/fixtures/singapore-2026-rs005-hibino-ito.json",
+    "web-shadow/fixtures/singapore-2026-rs006-yamaguchi-okamura.json"
   ],
-  "rerun_reason": "collapse-216-exact-2026-qualifier-duplicates"
+  "rerun_reason": "official-slate-2-richer-history-through-2026-06-02"
 }
