@@ -73,3 +73,17 @@ def test_web_shadow_slate_uses_verified_history_cache() -> None:
     assert "scripts.manage_web_shadow_history_cache write" in text
     assert "scripts.manage_web_shadow_history_cache verify" in text
     assert "history-cache-receipt.json" in text
+
+
+def test_expected_cache_spec_is_only_used_by_cache_manager() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert text.count("--expected-spec config/web_shadow_history_cache.json") == 2
+    runner = text.split("python -m scripts.run_web_shadow_slate", 1)[1]
+    runner = runner.split("2>&1 | tee web-shadow-slate-summary.json", 1)[0]
+    assert "--expected-spec" not in runner
+
+
+def test_web_shadow_slate_enables_pip_cache() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert 'cache: "pip"' in text
+    assert "cache-dependency-path: requirements/ci.lock" in text
