@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T16:57:52.842680+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:qfnl:shubladze-astakhova",
+    "player_a": "Darya Astakhova",
+    "player_b": "Alexandra Shubladze",
+    "round": "QFNL",
+    "schedule_source_url": "https://tennistonic.com/tennis-news/1055888/h2h-prediction-of-alexandra-shubladze-vs-darya-astakhova-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "scheduled_start": "2026-09-20T11:00:00+09:00",
+    "source_observed_at": "2026-09-19T12:11:06-04:00",
+    "source_url": "https://tennistonic.com/tennis-news/1055888/h2h-prediction-of-alexandra-shubladze-vs-darya-astakhova-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "ea630772bc92c28bcb3d2868417b1b7e02044a184dbceb0cd6d27f56ccdec3db",
+  "model_source_sha": "a37dea75ed4ce5310c503acaf6954d9a34eb40db",
+  "p_player_a": 0.3067970924178031,
+  "p_player_b": 0.6932029075821968,
+  "player_a_id": "wta:id:221178",
+  "player_b_id": "wta:id:260168",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "cd38df4f39228eb28d8f42a87c64c1f567a7bd68c599243c15c749895bbd8cac",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alexandra Shubladze"
+}
