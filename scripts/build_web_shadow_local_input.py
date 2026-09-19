@@ -11,6 +11,7 @@ from typing import Any
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState
 from tennis_genome.data.parquet import load_canonical_parquet
+from tennis_genome.evaluation.walkforward import walk_forward_elo
 from tennis_genome.features.foundational import (
     FoundationalSnapshot,
     walk_forward_foundational_features,
@@ -213,17 +214,24 @@ def prepare_web_shadow_snapshots(
         target_ids = {target.match_id for target in date_targets}
         combined = [*prepared.base_history, *sentinels]
 
+        elo_predictions = walk_forward_elo(
+            combined,
+            exclude_retirements=False,
+        )
+        serve_snapshots = walk_forward_serve_return(
+            combined,
+            exclude_retirements=False,
+        )
         for snapshot in walk_forward_foundational_features(
             combined,
             exclude_retirements=False,
+            precomputed_elo=elo_predictions,
+            precomputed_serve_return=serve_snapshots,
         ):
             if snapshot.match_id in target_ids:
                 foundational_by_id[snapshot.match_id] = snapshot
 
-        for snapshot in walk_forward_serve_return(
-            combined,
-            exclude_retirements=False,
-        ):
+        for snapshot in serve_snapshots:
             if snapshot.match_id in target_ids:
                 serve_return_by_id[snapshot.match_id] = snapshot
 
