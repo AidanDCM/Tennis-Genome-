@@ -5,7 +5,6 @@ from pathlib import Path
 
 from scripts import reconcile_web_shadow_2026_history as reconcile
 
-
 COLUMNS = [
     "tourney_id",
     "tourney_name",
