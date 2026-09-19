@@ -5,5 +5,6 @@
     "web-shadow/fixtures/seoul-2026-qfnl-shubladze-astakhova.json",
     "web-shadow/fixtures/seoul-2026-qfnl-yao-kuramochi.json",
     "web-shadow/fixtures/seoul-2026-qfnl-ibragimova-saito.json"
-  ]
+  ],
+  "rerun_reason": "script-module-path-fix-v1"
 }
