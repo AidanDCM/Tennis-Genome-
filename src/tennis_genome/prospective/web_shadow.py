@@ -40,6 +40,7 @@ class WebShadowFixture:
     source_observed_at: str
     tournament_id: str = ""
     tournament_level: str = ""
+    schedule_source_url: str = ""
 
     def validate(self) -> None:
         required_fields = (
