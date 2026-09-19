@@ -9,7 +9,10 @@ def test_web_shadow_slate_workflow_is_provider_free() -> None:
     assert "API_TENNIS" not in text
     assert "python -m scripts.run_web_shadow_slate" in text
     assert "active-slate.json" in text
-    assert "FROZEN_LOCAL_HISTORY" not in text or "provider" in text.lower()
+    assert "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02" in text
+    assert "wta_matches_2026.csv" in text
+    assert "wta_matches_qual_itf_2026.csv" in text
+    assert "PINNED_HISTORY_MAX_DATE: 2026-06-02" in text
 
 
 def test_web_shadow_slate_rebuilds_history_once() -> None:

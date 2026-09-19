@@ -75,6 +75,8 @@ def build_local_web_shadow_matchup(
     base_dir: Path,
     output_path: Path,
     manifest_path: Path,
+    history_mode: str = "FROZEN_LOCAL_HISTORY_ONLY",
+    expected_history_max_date: date | None = None,
 ) -> dict[str, object]:
     fixture = _load_fixture(fixture_path)
     target = _load_target_state(target_state_path, fixture)
@@ -101,6 +103,15 @@ def build_local_web_shadow_matchup(
     max_history_date = max(match.pre_match.event_date for match in base_history)
     if max_history_date >= target.event_date:
         raise RuntimeError("local base history reaches target date and violates chronology")
+    if (
+        expected_history_max_date is not None
+        and max_history_date != expected_history_max_date
+    ):
+        raise RuntimeError(
+            "web-shadow history maximum date differs from pinned expectation: "
+            f"{max_history_date.isoformat()} != "
+            f"{expected_history_max_date.isoformat()}"
+        )
 
     target_history_counts = {
         target.player_a_id: sum(
@@ -199,7 +210,7 @@ def build_local_web_shadow_matchup(
 
     manifest: dict[str, object] = {
         "schema_version": "tennis-genome-web-shadow-local-input-v1",
-        "history_mode": "FROZEN_LOCAL_HISTORY_ONLY",
+        "history_mode": history_mode,
         "production_eligible": False,
         "fixture_match_id": target.match_id,
         "base_history_match_count": len(base_history),
@@ -209,8 +220,9 @@ def build_local_web_shadow_matchup(
         "target_event_date": target.event_date.isoformat(),
         "prediction_cutoff_at": cutoff.isoformat(),
         "known_limitation": (
-            "This temporary lane omits post-freeze 2026 provider-history extensions; "
-            "it is suitable for shadow experimentation, not production cutover evidence."
+            f"Pinned public history ends at {max_history_date.isoformat()}; "
+            "later results are omitted. This lane is suitable for shadow "
+            "experimentation, not production cutover evidence."
         ),
         "source_manifest_hashes": source_hashes,
         "matchup_input_sha256": _sha256_file(output_path),
@@ -236,6 +248,11 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument(
+        "--history-mode",
+        default="FROZEN_LOCAL_HISTORY_ONLY",
+    )
+    parser.add_argument("--expected-history-max-date")
     return parser.parse_args()
 
 
@@ -247,6 +264,12 @@ def main() -> None:
         base_dir=args.base_dir,
         output_path=args.output,
         manifest_path=args.manifest,
+        history_mode=args.history_mode,
+        expected_history_max_date=(
+            None
+            if args.expected_history_max_date is None
+            else date.fromisoformat(args.expected_history_max_date)
+        ),
     )
     print(json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False))
 

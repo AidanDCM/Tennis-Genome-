@@ -13,7 +13,7 @@ def test_web_shadow_workflow_is_provider_free_and_forward_only() -> None:
     assert "build_web_shadow_target_state.py" in text
     assert "build_web_shadow_local_input.py" in text
     assert "run_web_shadow_prediction.py" in text
-    assert "FROZEN_LOCAL_HISTORY_ONLY" in text
+    assert "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02" in text
 
 
 def test_web_shadow_workflow_rebuilds_pinned_local_history() -> None:
@@ -21,6 +21,11 @@ def test_web_shadow_workflow_rebuilds_pinned_local_history() -> None:
     assert "Aneeshers/tennis-sackmann-archive" in text
     assert "83733587353df8a41f2fd4f516147d5aa83f5a8d" in text
     assert "wta_matches_${year}.csv" in text
+    assert "wta_matches_2026.csv" in text
+    assert "wta_matches_qual_itf_2026.csv" in text
+    assert "4989661bc24d621417b344d22c5e5a2b8ef5119e" in text
+    assert "429fe4fc3a7736fda1d5c711ae587a6146490cf0" in text
+    assert "PINNED_HISTORY_MAX_DATE: 2026-06-02" in text
     assert "wta_players.csv" in text
     assert "tennis_genome.pipeline.build_dataset" in text
 

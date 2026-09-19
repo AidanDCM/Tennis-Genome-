@@ -27,6 +27,10 @@ jobs:
     env:
       PINNED_ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
       PINNED_ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      PINNED_2026_MATCHES_BLOB: 4989661bc24d621417b344d22c5e5a2b8ef5119e
+      PINNED_2026_QUAL_ITF_BLOB: 429fe4fc3a7736fda1d5c711ae587a6146490cf0
+      PINNED_HISTORY_MAX_DATE: 2026-06-02
+      WEB_SHADOW_HISTORY_MODE: PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02
 
     steps:
       - name: Check out repository
@@ -72,7 +76,7 @@ jobs:
           python -m pip install -r requirements/ci.lock
           python -m pip install -e . --no-deps
 
-      - name: Download frozen 2000-2025 WTA source and player registry
+      - name: Download pinned WTA history through June 2 2026
         shell: bash
         run: |
           set -euo pipefail
@@ -80,19 +84,24 @@ jobs:
           for year in $(seq 2000 2025); do
             curl --fail --location --silent --show-error --retry 4 --retry-all-errors               "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_${year}.csv"               --output "data/wta-live-raw/wta_matches_${year}.csv"
           done
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_2026.csv"             --output data/wta-live-raw/wta_matches_2026.csv
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_qual_itf_2026.csv"             --output data/wta-live-raw/wta_matches_qual_itf_2026.csv
           curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_players.csv"             --output data/wta_players.csv
-          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 26
+          test "$(git hash-object data/wta-live-raw/wta_matches_2026.csv)" = "${PINNED_2026_MATCHES_BLOB}"
+          test "$(git hash-object data/wta-live-raw/wta_matches_qual_itf_2026.csv)" = "${PINNED_2026_QUAL_ITF_BLOB}"
+          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 28
           test -s data/wta_players.csv
 
-      - name: Rebuild canonical frozen WTA history
+      - name: Rebuild canonical pinned WTA history
         shell: bash
         run: |
           set -euo pipefail
           args=()
-          for year in $(seq 2000 2025); do
+          for year in $(seq 2000 2026); do
             args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
           done
-          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-2000-2025"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
+          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026.csv)
+          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-through-20260602"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
 
       - name: Resolve canonical target identities
         shell: bash
@@ -105,7 +114,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/build_web_shadow_local_input.py             --fixture web-shadow-run/normalized-fixture.json             --target-state web-shadow-run/target-state.json             --output web-shadow-run/matchup-input.json             --manifest web-shadow-run/local-input-manifest.json
+          python scripts/build_web_shadow_local_input.py             --fixture web-shadow-run/normalized-fixture.json             --target-state web-shadow-run/target-state.json             --output web-shadow-run/matchup-input.json             --manifest web-shadow-run/local-input-manifest.json             --history-mode "${WEB_SHADOW_HISTORY_MODE}"             --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"
 
       - name: Freeze sealed Genome prediction
         shell: bash
@@ -134,7 +143,8 @@ jobs:
           )
           assert record["production_eligible"] is False
           assert manifest["production_eligible"] is False
-          assert manifest["history_mode"] == "FROZEN_LOCAL_HISTORY_ONLY"
+          assert manifest["history_mode"] == "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02"
+          assert manifest["base_history_max_event_date"] == "2026-06-02"
           PY
 
       - name: Upload Web Shadow artifact

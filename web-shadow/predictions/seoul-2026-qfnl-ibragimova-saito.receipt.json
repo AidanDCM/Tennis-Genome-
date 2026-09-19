@@ -1,0 +1,15 @@
+{
+  "schema_version": "tennis-genome-web-shadow-run-receipt-v1",
+  "workflow_run_id": 35454921274,
+  "workflow_artifact_id": 10588071262,
+  "workflow_source_sha": "190b869978fbc502419cf823208a45fd13c594c6",
+  "prediction_record_sha256": "a045df0c9a7d62aa8d5719d1b4a13de7e0c692fa95051c309edee629a24cccd8",
+  "prediction_path": "web-shadow/predictions/seoul-2026-qfnl-ibragimova-saito.json",
+  "target_history_match_counts": {
+    "wta:id:260170": 8,
+    "wta:id:260581": 5
+  },
+  "minimum_point_exposure": 323,
+  "scorecard_eligible": true,
+  "production_eligible": false
+}
