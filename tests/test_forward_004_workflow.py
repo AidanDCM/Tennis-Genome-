@@ -3,13 +3,14 @@ import pathlib
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
-def test_forward_004_workflow_is_chained_only_from_trusted_capture() -> None:
+def test_legacy_forward_004_workflow_is_dispatch_only_and_still_validates_source() -> None:
     workflow = (
         _ROOT / ".github/workflows/wta_forward_004_auto_shadow_chain.yml"
     ).read_text(encoding="utf-8")
 
-    assert "Prospective Trusted Provider Capture Anchor" in workflow
-    assert "github.event.workflow_run.conclusion == 'success'" in workflow
+    assert "workflow_run:" not in workflow
+    assert "provider_run_id:" in workflow
+    assert "PROVIDER_RUN_ID: ${{ inputs.provider_run_id }}" in workflow
     assert (
         'run.get("path") != ".github/workflows/prospective_provider_capture_anchor.yml"'
         in workflow
@@ -24,6 +25,54 @@ def test_forward_004_workflow_is_chained_only_from_trusted_capture() -> None:
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
         in workflow
     )
+
+
+def test_forward_orchestrator_is_sole_automatic_router_and_defaults_to_legacy() -> None:
+    orchestrator = (
+        _ROOT / ".github/workflows/wta_forward_automation_orchestrator.yml"
+    ).read_text(encoding="utf-8")
+    legacy = (
+        _ROOT / ".github/workflows/wta_forward_004_auto_shadow_chain.yml"
+    ).read_text(encoding="utf-8")
+    full_slate = (
+        _ROOT / ".github/workflows/wta_forward_004_full_slate_manual.yml"
+    ).read_text(encoding="utf-8")
+    config = __import__("json").loads(
+        (_ROOT / "config/forward_automation.json").read_text(encoding="utf-8")
+    )
+
+    assert "workflow_run:" in orchestrator
+    assert "Prospective Trusted Provider Capture Anchor" in orchestrator
+    assert "github.event.workflow_run.conclusion == 'success'" in orchestrator
+    assert (
+        'run.get("path") != ".github/workflows/prospective_provider_capture_anchor.yml"'
+        in orchestrator
+    )
+    assert 'run.get("head_branch") != "main"' in orchestrator
+    assert 'run.get("event") != "workflow_dispatch"' in orchestrator
+    assert "workflow_run:" not in legacy
+    assert "workflow_run:" not in full_slate
+
+    assert config == {
+        "schema_version": "tennis-genome-forward-automation-mode-v1",
+        "mode": "LEGACY_SINGLE_TARGET",
+        "legacy_workflow": "wta_forward_004_auto_shadow_chain.yml",
+        "full_slate_workflow": "wta_forward_004_full_slate_manual.yml",
+    }
+
+
+def test_forward_orchestrator_routes_only_two_versioned_modes() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/wta_forward_automation_orchestrator.yml"
+    ).read_text(encoding="utf-8")
+
+    assert 'allowed = {"LEGACY_SINGLE_TARGET", "FULL_SLATE_V1"}' in workflow
+    assert 'if mode == "FULL_SLATE_V1":' in workflow
+    assert 'inputs["publish_prospective_evidence"] = True' in workflow
+    assert 'if [ "${MODE}" = "LEGACY_SINGLE_TARGET" ]; then' in workflow
+    assert 'elif [ "${MODE}" = "FULL_SLATE_V1" ]; then' in workflow
+    assert "forward-route-receipt.json" in workflow
+    assert 'name: forward-route-${{ github.event.workflow_run.id }}' in workflow
 
 
 def test_api_tennis_evidence_workflow_chains_to_shadow_and_guards_duplicates() -> None:
