@@ -41,3 +41,21 @@ def test_web_shadow_slate_enforces_shared_preparation() -> None:
     assert "shared_feature_date_pass_count" in text
     assert "did not share one history load" in text
     assert "did not share one calculator load" in text
+
+
+def test_web_shadow_slate_reruns_on_engine_changes() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    for path in (
+        '"web-shadow/fixtures/**"',
+        '"scripts/run_web_shadow_slate.py"',
+        '"scripts/build_web_shadow_local_input.py"',
+        '"scripts/build_web_shadow_target_state.py"',
+        '"scripts/run_web_shadow_prediction.py"',
+        '"src/tennis_genome/features/**"',
+        '"src/tennis_genome/ratings/**"',
+        '"src/tennis_genome/evaluation/**"',
+        '"src/tennis_genome/calculator/**"',
+        '"src/tennis_genome/prospective/web_shadow.py"',
+        '"artifacts/tge_independent_v1_production/**"',
+    ):
+        assert path in text
