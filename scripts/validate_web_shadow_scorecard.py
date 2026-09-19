@@ -8,7 +8,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
 _ALLOWED_STATUSES = {"PENDING", "SETTLED"}
 
