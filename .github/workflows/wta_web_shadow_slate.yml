@@ -117,11 +117,12 @@ jobs:
           PY
 
       - name: Upload Web Shadow slate artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: web-shadow-slate-${{ github.run_id }}
           path: |
             web-shadow-slate-run/
             web-shadow-slate-summary.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
