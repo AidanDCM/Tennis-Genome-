@@ -87,3 +87,14 @@ def test_web_shadow_slate_enables_pip_cache() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     assert 'cache: "pip"' in text
     assert "cache-dependency-path: requirements/ci.lock" in text
+
+
+def test_history_cache_omits_timestamped_build_reports() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    cache_block = text.split("name: Restore pinned Web Shadow history cache", 1)[1]
+    cache_block = cache_block.split("- name: Download pinned WTA history", 1)[0]
+    assert "wta_manifest.json" not in cache_block
+    assert "build_output.json" not in cache_block
+    assert "wta_pre_match.parquet" in cache_block
+    assert "wta_outcomes.parquet" in cache_block
+    assert "wta_stats.parquet" in cache_block
