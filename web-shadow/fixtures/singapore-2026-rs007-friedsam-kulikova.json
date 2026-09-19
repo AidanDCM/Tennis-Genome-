@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:singapore:2026:RS007",
+  "tour": "WTA",
+  "tournament": "Singapore Tennis Open presented by BNP Paribas",
+  "round": "QFNL",
+  "surface": "Hard",
+  "scheduled_start": "2026-09-20T12:00:00+08:00",
+  "player_a": "Anna-Lena Friedsam",
+  "player_b": "Anastasia Kulikova",
+  "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/scores/RS007",
+  "source_observed_at": "2026-09-19T12:11:06-04:00",
+  "tournament_id": "web:wta:singapore:2026",
+  "tournament_level": "P",
+  "schedule_source_url": "https://tennistonic.com/tennis-news/1055915/h2h-prediction-of-anna-lena-friedsam-vs-anastasia-kulikova-in-singapore-with-odds-preview-pick-20th-september-2026/"
+}

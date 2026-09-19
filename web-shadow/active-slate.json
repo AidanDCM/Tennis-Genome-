@@ -1,0 +1,9 @@
+{
+  "fixture_paths": [
+    "web-shadow/fixtures/singapore-2026-rs007-friedsam-kulikova.json",
+    "web-shadow/fixtures/seoul-2026-qfnl-ma-lee.json",
+    "web-shadow/fixtures/seoul-2026-qfnl-shubladze-astakhova.json",
+    "web-shadow/fixtures/seoul-2026-qfnl-yao-kuramochi.json",
+    "web-shadow/fixtures/seoul-2026-qfnl-ibragimova-saito.json"
+  ]
+}

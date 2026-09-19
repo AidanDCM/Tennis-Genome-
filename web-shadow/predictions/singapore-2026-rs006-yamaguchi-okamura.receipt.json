@@ -1,9 +1,16 @@
 {
   "schema_version": "tennis-genome-web-shadow-run-receipt-v1",
-  "workflow_run_id": 35449159492,
-  "workflow_artifact_id": 10585708816,
-  "workflow_source_sha": "37c1291b10e8bf6e0c1ecf9f076f0cab3e395a3b",
-  "prediction_record_sha256": "b15cd2431ab70bc559e1fb7e6bba491fd31e57a7b88c232cf1881b63cc4fae0a",
+  "workflow_run_id": 35453148070,
+  "workflow_artifact_id": 10587850907,
+  "workflow_source_sha": "7c2e461d16efba81ebe310f1f9f9aeb82c8cfacf",
+  "prediction_record_sha256": "02c36c5802f45020b71930d38b0ae38e00d1b529a6210d9e8c19e07104e13b44",
   "prediction_path": "web-shadow/predictions/singapore-2026-rs006-yamaguchi-okamura.json",
-  "production_eligible": false
+  "target_history_match_counts": {
+    "wta:id:211846": 5,
+    "wta:id:215614": 3
+  },
+  "minimum_point_exposure": 239,
+  "scorecard_eligible": true,
+  "production_eligible": false,
+  "schedule_recheck_note": "Exact public start-time sources disagreed after commitment; prediction remained pre-start under all observed schedules. Frozen prediction record is not mutated."
 }
