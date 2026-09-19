@@ -1,0 +1,127 @@
+name: WTA Web Shadow Slate
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web-shadow/active-slate.json"
+  workflow_dispatch:
+    inputs:
+      slate_path:
+        description: "Repository path under web-shadow/"
+        required: true
+        default: "web-shadow/active-slate.json"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wta-web-shadow-slate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  predict-slate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      PINNED_ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
+      PINNED_ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve slate path
+        shell: bash
+        env:
+          DISPATCH_SLATE_PATH: ${{ inputs.slate_path }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            SLATE_PATH="web-shadow/active-slate.json"
+          else
+            SLATE_PATH="${DISPATCH_SLATE_PATH}"
+          fi
+          case "${SLATE_PATH}" in
+            web-shadow/*.json) ;;
+            *) echo "slate_path must be under web-shadow/" >&2; exit 1 ;;
+          esac
+          test -f "${SLATE_PATH}"
+          echo "SLATE_PATH=${SLATE_PATH}" >> "${GITHUB_ENV}"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Download frozen 2000-2025 WTA source and player registry once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data/wta-live-raw data/wta-live-base
+          for year in $(seq 2000 2025); do
+            curl --fail --location --silent --show-error --retry 4 --retry-all-errors               "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_${year}.csv"               --output "data/wta-live-raw/wta_matches_${year}.csv"
+          done
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_players.csv"             --output data/wta_players.csv
+          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 26
+          test -s data/wta_players.csv
+
+      - name: Rebuild canonical frozen WTA history once
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for year in $(seq 2000 2025); do
+            args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
+          done
+          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-2000-2025"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
+
+      - name: Run Web Shadow slate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_web_shadow_slate.py             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             | tee web-shadow-slate-summary.json
+
+      - name: Verify slate accounting and isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("web-shadow-slate-run/slate-manifest.json").read_text()
+          )
+          eligible = int(manifest["eligible_target_count"])
+          predicted = int(manifest["predicted_target_count"])
+          skipped = int(manifest["skipped_target_count"])
+          if eligible <= 0:
+              raise SystemExit("Web Shadow slate denominator is empty")
+          if predicted + skipped != eligible:
+              raise SystemExit("predicted + skipped differs from slate denominator")
+          if manifest.get("production_eligible") is not False:
+              raise SystemExit("Web Shadow slate must remain non-production")
+          for result in manifest["results"]:
+              record = json.loads(Path(result["prediction_path"]).read_text())
+              if record.get("production_eligible") is not False:
+                  raise SystemExit("Web Shadow prediction escaped isolation")
+          PY
+
+      - name: Upload Web Shadow slate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-shadow-slate-${{ github.run_id }}
+          path: |
+            web-shadow-slate-run/
+            web-shadow-slate-summary.json
+          if-no-files-found: error
+          retention-days: 90
