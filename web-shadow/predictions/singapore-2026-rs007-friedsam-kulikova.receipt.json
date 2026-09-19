@@ -1,0 +1,15 @@
+{
+  "schema_version": "tennis-genome-web-shadow-run-receipt-v1",
+  "workflow_run_id": 35454921274,
+  "workflow_artifact_id": 10588071262,
+  "workflow_source_sha": "190b869978fbc502419cf823208a45fd13c594c6",
+  "prediction_record_sha256": "60428a73095b8a31430db49000c3977c8a16ee175c157101370d452a19a578a4",
+  "prediction_path": "web-shadow/predictions/singapore-2026-rs007-friedsam-kulikova.json",
+  "target_history_match_counts": {
+    "wta:id:204431": 150,
+    "wta:id:214741": 7
+  },
+  "minimum_point_exposure": 508,
+  "scorecard_eligible": true,
+  "production_eligible": false
+}
