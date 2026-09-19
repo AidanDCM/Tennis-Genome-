@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T15:48:06+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:RS005",
+    "player_a": "Nao Hibino",
+    "player_b": "Aoi Ito",
+    "round": "QFNL",
+    "schedule_source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/scores/RS005",
+    "scheduled_start": "2026-09-20T12:00:00+08:00",
+    "source_observed_at": "2026-09-19T11:32:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/scores/RS005",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "05cad7f3d3487aa1f96f8463bdf94acb9f9df8e12631e977be93137d6437c1fb",
+  "model_source_sha": "81faa5f3c10268bae293d668eb92e9fe905ca8fa",
+  "p_player_a": 0.3548667355342161,
+  "p_player_b": 0.6451332644657839,
+  "player_a_id": "wta:id:211702",
+  "player_b_id": "wta:id:256684",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "2dd59c42a927a2770f229c7d6742016ffa5bcf0fe0a9325f6a7579847f258bd3",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Aoi Ito"
+}
