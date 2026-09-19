@@ -82,6 +82,16 @@ jobs:
           test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 28
           test -s data/wta_players.csv
 
+      - name: Reconcile overlapping pinned 2026 sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.reconcile_web_shadow_2026_history \
+            --primary data/wta-live-raw/wta_matches_2026.csv \
+            --secondary data/wta-live-raw/wta_matches_qual_itf_2026.csv \
+            --output data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv \
+            --receipt data/wta-live-base/2026-source-reconciliation.json
+
       - name: Rebuild canonical pinned WTA history once
         shell: bash
         run: |
@@ -90,7 +100,7 @@ jobs:
           for year in $(seq 2000 2026); do
             args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
           done
-          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026.csv)
+          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv)
           python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-through-20260602"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
 
       - name: Run Web Shadow slate
@@ -135,5 +145,6 @@ jobs:
           path: |
             web-shadow-slate-run/
             web-shadow-slate-summary.json
+            data/wta-live-base/2026-source-reconciliation.json
           if-no-files-found: warn
           retention-days: 90

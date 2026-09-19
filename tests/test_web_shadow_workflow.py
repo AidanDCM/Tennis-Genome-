@@ -28,6 +28,9 @@ def test_web_shadow_workflow_rebuilds_pinned_local_history() -> None:
     assert "PINNED_HISTORY_MAX_DATE: 2026-06-02" in text
     assert "wta_players.csv" in text
     assert "tennis_genome.pipeline.build_dataset" in text
+    assert "scripts.reconcile_web_shadow_2026_history" in text
+    assert "wta_matches_qual_itf_2026_reconciled.csv" in text
+    assert "2026-source-reconciliation.json" in text
 
 
 def test_web_shadow_workflow_has_auditable_active_candidate_trigger() -> None:
