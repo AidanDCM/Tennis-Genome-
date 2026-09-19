@@ -14,9 +14,9 @@ def test_repository_web_shadow_scorecard_is_valid() -> None:
         repo_root=Path("."),
     )
     assert summary == {
-        "official_slate_count": 1,
-        "official_match_count": 5,
-        "pending_match_count": 5,
+        "official_slate_count": 2,
+        "official_match_count": 7,
+        "pending_match_count": 7,
         "settled_match_count": 0,
     }
 
