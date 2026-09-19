@@ -59,3 +59,17 @@ def test_web_shadow_slate_reruns_on_engine_changes() -> None:
         '"artifacts/tge_independent_v1_production/**"',
     ):
         assert path in text
+
+
+def test_web_shadow_slate_uses_verified_history_cache() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "actions/cache@v4" in text
+    assert "id: history-cache" in text
+    assert "data/wta-live-base" in text
+    assert "data/wta_players.csv" in text
+    assert "scripts/manage_web_shadow_history_cache.py" in text
+    assert '".github/workflows/wta_web_shadow_slate.yml"' in text
+    assert text.count("steps.history-cache.outputs.cache-hit != 'true'") == 4
+    assert "scripts.manage_web_shadow_history_cache write" in text
+    assert "scripts.manage_web_shadow_history_cache verify" in text
+    assert "history-cache-receipt.json" in text
