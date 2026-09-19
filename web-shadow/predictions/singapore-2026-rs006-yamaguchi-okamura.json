@@ -1,6 +1,6 @@
 {
   "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
-  "committed_at": "2026-09-19T14:35:58+00:00",
+  "committed_at": "2026-09-19T15:53:36+00:00",
   "fixture": {
     "match_id": "web:wta:singapore:2026:RS006",
     "player_a": "Kyoka Okamura",
@@ -16,16 +16,16 @@
     "tournament_id": "web:wta:singapore:2026",
     "tournament_level": "P"
   },
-  "input_manifest_sha256": "b9c4d6e7686ee465209165fab10a2023ab78560154b256c90c2f359a1ed69e54",
-  "model_source_sha": "37c1291b10e8bf6e0c1ecf9f076f0cab3e395a3b",
-  "p_player_a": 0.6800306784853049,
-  "p_player_b": 0.31996932151469515,
-  "player_a_id": "211846",
-  "player_b_id": "215614",
+  "input_manifest_sha256": "162f5c62a091f2fb589c74a92a721c26d1955e766faf76e097eaa890fac95bf0",
+  "model_source_sha": "7c2e461d16efba81ebe310f1f9f9aeb82c8cfacf",
+  "p_player_a": 0.49355415336855374,
+  "p_player_b": 0.5064458466314463,
+  "player_a_id": "wta:id:211846",
+  "player_b_id": "wta:id:215614",
   "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
   "production_eligible": false,
-  "record_sha256": "b15cd2431ab70bc559e1fb7e6bba491fd31e57a7b88c232cf1881b63cc4fae0a",
+  "record_sha256": "02c36c5802f45020b71930d38b0ae38e00d1b529a6210d9e8c19e07104e13b44",
   "record_type": "WEB_SHADOW_PREDICTION",
   "schema_version": "tennis-genome-web-shadow-v1",
-  "selected_player": "Kyoka Okamura"
+  "selected_player": "Mei Yamaguchi"
 }
