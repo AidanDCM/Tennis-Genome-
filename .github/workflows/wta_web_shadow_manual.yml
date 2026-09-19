@@ -92,6 +92,16 @@ jobs:
           test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 28
           test -s data/wta_players.csv
 
+      - name: Reconcile overlapping pinned 2026 sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.reconcile_web_shadow_2026_history \
+            --primary data/wta-live-raw/wta_matches_2026.csv \
+            --secondary data/wta-live-raw/wta_matches_qual_itf_2026.csv \
+            --output data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv \
+            --receipt data/wta-live-base/2026-source-reconciliation.json
+
       - name: Rebuild canonical pinned WTA history
         shell: bash
         run: |
@@ -100,7 +110,7 @@ jobs:
           for year in $(seq 2000 2026); do
             args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
           done
-          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026.csv)
+          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv)
           python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-through-20260602"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
 
       - name: Resolve canonical target identities
@@ -125,11 +135,13 @@ jobs:
           COMMITTED_AT="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
           python scripts/run_web_shadow_prediction.py             --fixture web-shadow-run/normalized-fixture.json             --matchup-input web-shadow-run/matchup-input.json             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --player-a-id "${PLAYER_A_ID}"             --player-b-id "${PLAYER_B_ID}"             --model-source-sha "${GITHUB_SHA}"             --committed-at "${COMMITTED_AT}"             --output web-shadow-run/prediction.json
 
-      - name: Retain raw source fixture
+      - name: Retain raw source fixture and history reconciliation
         shell: bash
         run: |
           set -euo pipefail
           cp "${FIXTURE_PATH}" web-shadow-run/source-fixture.json
+          cp data/wta-live-base/2026-source-reconciliation.json \
+            web-shadow-run/2026-source-reconciliation.json
 
       - name: Verify non-production receipt
         run: |
