@@ -28,6 +28,10 @@ jobs:
     env:
       PINNED_ARCHIVE_REPO: Aneeshers/tennis-sackmann-archive
       PINNED_ARCHIVE_COMMIT: 83733587353df8a41f2fd4f516147d5aa83f5a8d
+      PINNED_2026_MATCHES_BLOB: 4989661bc24d621417b344d22c5e5a2b8ef5119e
+      PINNED_2026_QUAL_ITF_BLOB: 429fe4fc3a7736fda1d5c711ae587a6146490cf0
+      PINNED_HISTORY_MAX_DATE: 2026-06-02
+      WEB_SHADOW_HISTORY_MODE: PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02
 
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +66,7 @@ jobs:
           python -m pip install -r requirements/ci.lock
           python -m pip install -e . --no-deps
 
-      - name: Download frozen 2000-2025 WTA source and player registry once
+      - name: Download pinned WTA history through June 2 2026 once
         shell: bash
         run: |
           set -euo pipefail
@@ -70,25 +74,30 @@ jobs:
           for year in $(seq 2000 2025); do
             curl --fail --location --silent --show-error --retry 4 --retry-all-errors               "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_${year}.csv"               --output "data/wta-live-raw/wta_matches_${year}.csv"
           done
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_2026.csv"             --output data/wta-live-raw/wta_matches_2026.csv
+          curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_matches_qual_itf_2026.csv"             --output data/wta-live-raw/wta_matches_qual_itf_2026.csv
           curl --fail --location --silent --show-error --retry 4 --retry-all-errors             "https://raw.githubusercontent.com/${PINNED_ARCHIVE_REPO}/${PINNED_ARCHIVE_COMMIT}/wta/wta_players.csv"             --output data/wta_players.csv
-          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 26
+          test "$(git hash-object data/wta-live-raw/wta_matches_2026.csv)" = "${PINNED_2026_MATCHES_BLOB}"
+          test "$(git hash-object data/wta-live-raw/wta_matches_qual_itf_2026.csv)" = "${PINNED_2026_QUAL_ITF_BLOB}"
+          test "$(find data/wta-live-raw -type f -name 'wta_matches_*.csv' | wc -l)" -eq 28
           test -s data/wta_players.csv
 
-      - name: Rebuild canonical frozen WTA history once
+      - name: Rebuild canonical pinned WTA history once
         shell: bash
         run: |
           set -euo pipefail
           args=()
-          for year in $(seq 2000 2025); do
+          for year in $(seq 2000 2026); do
             args+=(--input "data/wta-live-raw/wta_matches_${year}.csv")
           done
-          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-2000-2025"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
+          args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026.csv)
+          python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-through-20260602"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
 
       - name: Run Web Shadow slate
         shell: bash
         run: |
           set -euo pipefail
-          python -m scripts.run_web_shadow_slate             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             2>&1 | tee web-shadow-slate-summary.json
+          python -m scripts.run_web_shadow_slate             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             --history-mode "${WEB_SHADOW_HISTORY_MODE}"             --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"             2>&1 | tee web-shadow-slate-summary.json
 
       - name: Verify slate accounting and isolation
         shell: bash
@@ -110,6 +119,8 @@ jobs:
               raise SystemExit("predicted + skipped differs from slate denominator")
           if manifest.get("production_eligible") is not False:
               raise SystemExit("Web Shadow slate must remain non-production")
+          if manifest.get("history_mode") != "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02":
+              raise SystemExit("unexpected Web Shadow history mode")
           for result in manifest["results"]:
               record = json.loads(Path(result["prediction_path"]).read_text())
               if record.get("production_eligible") is not False:
