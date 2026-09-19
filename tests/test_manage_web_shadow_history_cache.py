@@ -123,3 +123,12 @@ def test_history_cache_rejects_wrong_max_date(monkeypatch, tmp_path: Path) -> No
 
     with pytest.raises(RuntimeError, match="maximum date differs"):
         cache.write_history_cache_receipt(**changed)
+
+
+def test_cache_identity_excludes_timestamped_build_reports() -> None:
+    paths = {path.as_posix() for path in cache._HASHED_FILES}
+    assert "data/wta-live-base/wta_manifest.json" not in paths
+    assert "data/wta-live-base/build_output.json" not in paths
+    assert "data/wta-live-base/wta_pre_match.parquet" in paths
+    assert "data/wta-live-base/wta_outcomes.parquet" in paths
+    assert "data/wta-live-base/wta_stats.parquet" in paths
