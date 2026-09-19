@@ -13,6 +13,9 @@ def test_web_shadow_slate_workflow_is_provider_free() -> None:
     assert "wta_matches_2026.csv" in text
     assert "wta_matches_qual_itf_2026.csv" in text
     assert "PINNED_HISTORY_MAX_DATE: 2026-06-02" in text
+    assert "scripts.reconcile_web_shadow_2026_history" in text
+    assert "wta_matches_qual_itf_2026_reconciled.csv" in text
+    assert "2026-source-reconciliation.json" in text
 
 
 def test_web_shadow_slate_rebuilds_history_once() -> None:
