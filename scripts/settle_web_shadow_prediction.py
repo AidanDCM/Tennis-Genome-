@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -47,9 +48,14 @@ def settle_from_result_file(
 
     unsigned = dict(settlement)
     unsigned.pop("record_sha256")
-    from tennis_genome.prospective.web_shadow import _sha
-
-    settlement["record_sha256"] = _sha(unsigned)
+    canonical = json.dumps(
+        unsigned,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    settlement["record_sha256"] = hashlib.sha256(canonical).hexdigest()
     write_record(output_path, settlement)
     return settlement
 
