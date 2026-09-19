@@ -102,6 +102,29 @@ def build_local_web_shadow_matchup(
     if max_history_date >= target.event_date:
         raise RuntimeError("local base history reaches target date and violates chronology")
 
+    target_history_counts = {
+        target.player_a_id: sum(
+            target.player_a_id
+            in (match.pre_match.player_a_id, match.pre_match.player_b_id)
+            for match in base_history
+        ),
+        target.player_b_id: sum(
+            target.player_b_id
+            in (match.pre_match.player_a_id, match.pre_match.player_b_id)
+            for match in base_history
+        ),
+    }
+    missing_history = [
+        player_id
+        for player_id, count in target_history_counts.items()
+        if count <= 0
+    ]
+    if missing_history:
+        raise RuntimeError(
+            "web-shadow target identity has no frozen historical matches: "
+            + ", ".join(missing_history)
+        )
+
     sentinel = HistoricalMatch(
         pre_match=target,
         outcome=MatchOutcome(
@@ -130,6 +153,16 @@ def build_local_web_shadow_matchup(
         )
         if snapshot.match_id == target.match_id
     )
+    minimum_point_exposure = min(
+        serve_return.prior_serve_points_a,
+        serve_return.prior_serve_points_b,
+        serve_return.prior_return_points_a,
+        serve_return.prior_return_points_b,
+    )
+    if minimum_point_exposure <= 0:
+        raise RuntimeError(
+            "web-shadow target lacks nonzero frozen historical point exposure"
+        )
 
     cutoff = datetime.fromisoformat(fixture.source_observed_at)
     scheduled = datetime.fromisoformat(fixture.scheduled_start)
@@ -171,6 +204,8 @@ def build_local_web_shadow_matchup(
         "fixture_match_id": target.match_id,
         "base_history_match_count": len(base_history),
         "base_history_max_event_date": max_history_date.isoformat(),
+        "target_history_match_counts": target_history_counts,
+        "minimum_point_exposure": minimum_point_exposure,
         "target_event_date": target.event_date.isoformat(),
         "prediction_cutoff_at": cutoff.isoformat(),
         "known_limitation": (

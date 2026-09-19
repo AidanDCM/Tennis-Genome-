@@ -53,9 +53,9 @@ def test_target_builder_resolves_and_canonicalizes_player_order(tmp_path: Path) 
         normalized_fixture_path=normalized_path,
     )
 
-    assert target["player_a_id"] == "200"
+    assert target["player_a_id"] == "wta:id:200"
     assert target["player_a_name"] == "Kyoka Okamura"
-    assert target["player_b_id"] == "300"
+    assert target["player_b_id"] == "wta:id:300"
     assert target["player_b_name"] == "Mei Yamaguchi"
     assert target["round"] == "QFNL"
     assert target["tournament_level"] == "P"
