@@ -54,10 +54,10 @@ def _write_expected_spec(root: Path) -> Path:
     return path
 
 
-def _kwargs(root: Path) -> dict[str, object]:
+def _kwargs(root: Path, expected_spec_path: Path) -> dict[str, object]:
     return {
         "root": root,
-        "expected_spec_path": _write_expected_spec(root),
+        "expected_spec_path": expected_spec_path,
         "archive_repo": "Aneeshers/tennis-sackmann-archive",
         "archive_commit": "a" * 40,
         "matches_2026_blob": "b" * 40,
@@ -69,8 +69,9 @@ def _kwargs(root: Path) -> dict[str, object]:
 def test_history_cache_receipt_round_trips(monkeypatch, tmp_path: Path) -> None:
     _populate_files(tmp_path)
     monkeypatch.setattr(cache, "load_canonical_parquet", lambda **kwargs: _history())
+    expected_spec = _write_expected_spec(tmp_path)
 
-    receipt = cache.write_history_cache_receipt(**_kwargs(tmp_path))
+    receipt = cache.write_history_cache_receipt(**_kwargs(tmp_path, expected_spec))
     monkeypatch.setattr(
         cache,
         "load_canonical_parquet",
@@ -78,7 +79,7 @@ def test_history_cache_receipt_round_trips(monkeypatch, tmp_path: Path) -> None:
             AssertionError("warm verification must not reload canonical history")
         ),
     )
-    observed = cache.verify_history_cache_receipt(**_kwargs(tmp_path))
+    observed = cache.verify_history_cache_receipt(**_kwargs(tmp_path, expected_spec))
 
     assert observed == receipt
     assert receipt["history"] == {
@@ -91,21 +92,23 @@ def test_history_cache_receipt_round_trips(monkeypatch, tmp_path: Path) -> None:
 def test_history_cache_rejects_file_tampering(monkeypatch, tmp_path: Path) -> None:
     _populate_files(tmp_path)
     monkeypatch.setattr(cache, "load_canonical_parquet", lambda **kwargs: _history())
-    cache.write_history_cache_receipt(**_kwargs(tmp_path))
+    expected_spec = _write_expected_spec(tmp_path)
+    cache.write_history_cache_receipt(**_kwargs(tmp_path, expected_spec))
 
     tampered = tmp_path / "data/wta_players.csv"
     tampered.write_text("tampered", encoding="utf-8")
 
     with pytest.raises(RuntimeError, match="hash mismatch"):
-        cache.verify_history_cache_receipt(**_kwargs(tmp_path))
+        cache.verify_history_cache_receipt(**_kwargs(tmp_path, expected_spec))
 
 
 def test_history_cache_rejects_binding_drift(monkeypatch, tmp_path: Path) -> None:
     _populate_files(tmp_path)
     monkeypatch.setattr(cache, "load_canonical_parquet", lambda **kwargs: _history())
-    cache.write_history_cache_receipt(**_kwargs(tmp_path))
+    expected_spec = _write_expected_spec(tmp_path)
+    cache.write_history_cache_receipt(**_kwargs(tmp_path, expected_spec))
 
-    changed = _kwargs(tmp_path)
+    changed = _kwargs(tmp_path, expected_spec)
     changed["archive_commit"] = "d" * 40
     with pytest.raises(RuntimeError, match="binding differs"):
         cache.verify_history_cache_receipt(**changed)
@@ -114,7 +117,8 @@ def test_history_cache_rejects_binding_drift(monkeypatch, tmp_path: Path) -> Non
 def test_history_cache_rejects_wrong_max_date(monkeypatch, tmp_path: Path) -> None:
     _populate_files(tmp_path)
     monkeypatch.setattr(cache, "load_canonical_parquet", lambda **kwargs: _history())
-    changed = _kwargs(tmp_path)
+    expected_spec = _write_expected_spec(tmp_path)
+    changed = _kwargs(tmp_path, expected_spec)
     changed["expected_history_max_date"] = "2026-06-01"
 
     with pytest.raises(RuntimeError, match="maximum date differs"):
