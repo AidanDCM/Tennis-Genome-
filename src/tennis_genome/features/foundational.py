@@ -7,7 +7,7 @@ from itertools import groupby
 from math import exp, log, log1p
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchStats
-from tennis_genome.evaluation.walkforward import walk_forward_elo
+from tennis_genome.evaluation.walkforward import ModelPrediction, walk_forward_elo
 from tennis_genome.ratings.serve_return import (
     ServeReturnConfig,
     ServeReturnSnapshot,
@@ -256,6 +256,8 @@ def walk_forward_foundational_features(
     *,
     serve_return_config: ServeReturnConfig | None = None,
     exclude_retirements: bool = True,
+    precomputed_elo: list[ModelPrediction] | None = None,
+    precomputed_serve_return: list[ServeReturnSnapshot] | None = None,
 ) -> list[FoundationalSnapshot]:
     """Build all currently-supported foundational families with frozen-date updates.
 
@@ -270,21 +272,33 @@ def walk_forward_foundational_features(
         for match in matches
         if _eligible(match, exclude_retirements=exclude_retirements)
     ]
-    elo_map = {
-        prediction.match_id: prediction
-        for prediction in walk_forward_elo(
+    elo_predictions = (
+        precomputed_elo
+        if precomputed_elo is not None
+        else walk_forward_elo(
             eligible,
             exclude_retirements=False,
         )
-    }
-    serve_map = {
-        snapshot.match_id: snapshot
-        for snapshot in walk_forward_serve_return(
+    )
+    serve_snapshots = (
+        precomputed_serve_return
+        if precomputed_serve_return is not None
+        else walk_forward_serve_return(
             eligible,
             config=serve_return_config,
             exclude_retirements=False,
         )
-    }
+    )
+    elo_map = {prediction.match_id: prediction for prediction in elo_predictions}
+    serve_map = {snapshot.match_id: snapshot for snapshot in serve_snapshots}
+    expected_match_ids = {match.match_id for match in eligible}
+    missing_elo = expected_match_ids - elo_map.keys()
+    missing_serve = expected_match_ids - serve_map.keys()
+    if missing_elo or missing_serve:
+        raise ValueError(
+            "precomputed foundational components do not cover eligible matches: "
+            f"elo={sorted(missing_elo)} serve_return={sorted(missing_serve)}"
+        )
     ordered = sorted(
         eligible,
         key=lambda match: (match.pre_match.event_date, match.match_id),
