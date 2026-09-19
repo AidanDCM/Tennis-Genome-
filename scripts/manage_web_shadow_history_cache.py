@@ -9,7 +9,6 @@ from typing import Any
 
 from tennis_genome.data.parquet import load_canonical_parquet
 
-
 _SCHEMA = "tennis-genome-web-shadow-history-cache-v1"
 _RECEIPT = Path("data/wta-live-base/history-cache-receipt.json")
 _HASHED_FILES = (
