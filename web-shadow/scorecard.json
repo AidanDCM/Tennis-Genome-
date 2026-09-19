@@ -1,0 +1,63 @@
+{
+  "schema_version": "tennis-genome-web-shadow-scorecard-v1",
+  "production_eligible": false,
+  "official_slate_count": 1,
+  "pending_match_count": 5,
+  "settled_match_count": 0,
+  "slates": [
+    {
+      "slate_id": "2026-09-19-run-35456454045",
+      "receipt_path": "web-shadow/slates/2026-09-19-run-35456454045/slate-receipt.json",
+      "workflow_run_id": 35456454045,
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "status": "PENDING_SETTLEMENT",
+      "predictions": [
+        {
+          "match_id": "web:wta:singapore:2026:RS007",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/singapore-2026-rs007-friedsam-kulikova.json",
+          "prediction_record_sha256": "bb084f91b8bc8ab5eba778b0484fb88481959e1c93bd74a0b537c09fad57c522",
+          "selected_player": "Anastasia Kulikova",
+          "selected_probability": 0.5608402352288062,
+          "scheduled_start": "2026-09-20T12:00:00+08:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:seoul:2026:qfnl:ma-lee",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-ma-lee.json",
+          "prediction_record_sha256": "2532195f73760cbc8593c44fdfd7a4713ad282322fcf75646a1eb99b33bc0f3f",
+          "selected_player": "Ye Xin Ma",
+          "selected_probability": 0.5515373548078999,
+          "scheduled_start": "2026-09-20T11:00:00+09:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:seoul:2026:qfnl:shubladze-astakhova",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-shubladze-astakhova.json",
+          "prediction_record_sha256": "cd38df4f39228eb28d8f42a87c64c1f567a7bd68c599243c15c749895bbd8cac",
+          "selected_player": "Alexandra Shubladze",
+          "selected_probability": 0.6932029075821968,
+          "scheduled_start": "2026-09-20T11:00:00+09:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:seoul:2026:qfnl:yao-kuramochi",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-yao-kuramochi.json",
+          "prediction_record_sha256": "65951f1acd5e8e98e65ba7f53e1248132e98f2e11927c52919dbaf91e9a61771",
+          "selected_player": "Xinxin Yao",
+          "selected_probability": 0.6392680851507473,
+          "scheduled_start": "2026-09-20T13:00:00+09:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:seoul:2026:qfnl:ibragimova-saito",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-ibragimova-saito.json",
+          "prediction_record_sha256": "9f17dd4e00bcaae3be282be46523cafabedcdb4b415855b0bd11aa0f2e70bc56",
+          "selected_player": "Alevtina Ibragimova",
+          "selected_probability": 0.5860762665100968,
+          "scheduled_start": "2026-09-20T13:30:00+09:00",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ]
+}

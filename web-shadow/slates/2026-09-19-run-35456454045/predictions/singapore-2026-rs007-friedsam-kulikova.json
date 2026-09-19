@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T16:56:46.999120+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:RS007",
+    "player_a": "Anna Lena Friedsam",
+    "player_b": "Anastasia Kulikova",
+    "round": "QFNL",
+    "schedule_source_url": "https://tennistonic.com/tennis-news/1055915/h2h-prediction-of-anna-lena-friedsam-vs-anastasia-kulikova-in-singapore-with-odds-preview-pick-20th-september-2026/",
+    "scheduled_start": "2026-09-20T12:00:00+08:00",
+    "source_observed_at": "2026-09-19T12:11:06-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/scores/RS007",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "14af3724282c97cf01046a2b13ece632326cc86494c4b611a75a932c8b696aae",
+  "model_source_sha": "a37dea75ed4ce5310c503acaf6954d9a34eb40db",
+  "p_player_a": 0.4391597647711938,
+  "p_player_b": 0.5608402352288062,
+  "player_a_id": "wta:id:204431",
+  "player_b_id": "wta:id:214741",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "bb084f91b8bc8ab5eba778b0484fb88481959e1c93bd74a0b537c09fad57c522",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Anastasia Kulikova"
+}

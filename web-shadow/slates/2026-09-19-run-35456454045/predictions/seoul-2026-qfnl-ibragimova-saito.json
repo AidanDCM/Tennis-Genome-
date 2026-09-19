@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T16:58:59.119778+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:qfnl:ibragimova-saito",
+    "player_a": "Sara Saito",
+    "player_b": "Alevtina Ibragimova",
+    "round": "QFNL",
+    "schedule_source_url": "https://tennistonic.com/tennis-news/1055903/h2h-prediction-of-alevtina-ibragimova-vs-sara-saito-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "scheduled_start": "2026-09-20T13:30:00+09:00",
+    "source_observed_at": "2026-09-19T12:11:06-04:00",
+    "source_url": "https://tennistonic.com/tennis-news/1055903/h2h-prediction-of-alevtina-ibragimova-vs-sara-saito-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "187508b52ba6c2c761eef904341f75187df0fb2c9387afdf6cc5c60db98d6b1c",
+  "model_source_sha": "a37dea75ed4ce5310c503acaf6954d9a34eb40db",
+  "p_player_a": 0.4139237334899032,
+  "p_player_b": 0.5860762665100968,
+  "player_a_id": "wta:id:260170",
+  "player_b_id": "wta:id:260581",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "9f17dd4e00bcaae3be282be46523cafabedcdb4b415855b0bd11aa0f2e70bc56",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alevtina Ibragimova"
+}
