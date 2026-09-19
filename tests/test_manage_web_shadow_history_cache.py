@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
@@ -28,9 +29,35 @@ def _history():
     return [good, walkover]
 
 
+def _write_expected_spec(root: Path) -> Path:
+    path = root / "expected-history-cache.json"
+    payload = {
+        "schema_version": cache._SCHEMA,
+        "binding": {
+            "archive_repo": "Aneeshers/tennis-sackmann-archive",
+            "archive_commit": "a" * 40,
+            "matches_2026_blob": "b" * 40,
+            "qual_itf_2026_blob": "c" * 40,
+            "expected_history_max_date": "2026-06-02",
+        },
+        "history": {
+            "canonical_match_count": 2,
+            "eligible_match_count": 1,
+            "max_eligible_event_date": "2026-06-02",
+        },
+        "files_sha256": {
+            relative.as_posix(): cache._sha256_file(root / relative)
+            for relative in cache._HASHED_FILES
+        },
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
 def _kwargs(root: Path) -> dict[str, object]:
     return {
         "root": root,
+        "expected_spec_path": _write_expected_spec(root),
         "archive_repo": "Aneeshers/tennis-sackmann-archive",
         "archive_commit": "a" * 40,
         "matches_2026_blob": "b" * 40,
@@ -44,6 +71,13 @@ def test_history_cache_receipt_round_trips(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(cache, "load_canonical_parquet", lambda **kwargs: _history())
 
     receipt = cache.write_history_cache_receipt(**_kwargs(tmp_path))
+    monkeypatch.setattr(
+        cache,
+        "load_canonical_parquet",
+        lambda **kwargs: (_ for _ in ()).throw(
+            AssertionError("warm verification must not reload canonical history")
+        ),
+    )
     observed = cache.verify_history_cache_receipt(**_kwargs(tmp_path))
 
     assert observed == receipt
