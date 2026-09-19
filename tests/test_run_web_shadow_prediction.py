@@ -119,3 +119,27 @@ def test_runner_rejects_future_information_cutoff(monkeypatch, tmp_path: Path) -
             output_path=tmp_path / "prediction.json",
             committed_at=datetime(2026, 9, 20, 2, 0, tzinfo=UTC),
         )
+
+
+def test_runner_reuses_supplied_calculator(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "load_matchup_input", lambda path: _loaded_matchup())
+
+    def unexpected_load(path):
+        raise AssertionError("calculator should not be reloaded")
+
+    monkeypatch.setattr(runner, "load_validated_matchup_calculator", unexpected_load)
+    calculator = SimpleNamespace(calculate=lambda matchup: _calculation())
+
+    record = runner.run_web_shadow_prediction(
+        fixture_path=_fixture(tmp_path),
+        matchup_input_path=_matchup(tmp_path),
+        bundle_path=tmp_path / "bundle.json",
+        player_a_id="100",
+        player_b_id="200",
+        model_source_sha="b" * 40,
+        output_path=tmp_path / "prediction-shared.json",
+        committed_at=datetime(2026, 9, 20, 2, 0, tzinfo=UTC),
+        calculator=calculator,
+    )
+
+    assert record["p_player_a"] == pytest.approx(0.62)

@@ -2,12 +2,34 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from scripts.build_web_shadow_local_input import build_local_web_shadow_matchup
+from scripts.build_web_shadow_local_input import (
+    build_local_web_shadow_matchup,
+    load_web_shadow_fixture,
+    load_web_shadow_target_state,
+    prepare_web_shadow_history,
+    prepare_web_shadow_snapshots,
+    target_history_counts,
+)
 from scripts.build_web_shadow_target_state import build_web_shadow_target_state
 from scripts.run_web_shadow_prediction import run_web_shadow_prediction
+from tennis_genome.calculator.contract import load_validated_matchup_calculator
+from tennis_genome.data.canonical import PreMatchState
+
+
+@dataclass(frozen=True)
+class _ResolvedCandidate:
+    fixture_path: Path
+    stem: str
+    target: PreMatchState
+    target_state_path: Path
+    normalized_fixture_path: Path
+    matchup_input_path: Path
+    input_manifest_path: Path
+    prediction_path: Path
 
 
 def _load_slate(path: Path) -> list[Path]:
@@ -49,8 +71,16 @@ def run_web_shadow_slate(
     fixtures = _load_slate(slate_path)
     output_root.mkdir(parents=True, exist_ok=True)
 
+    prepared_history = prepare_web_shadow_history(
+        base_dir=base_dir,
+        history_mode=history_mode,
+        expected_history_max_date=expected_history_max_date,
+    )
+    calculator = load_validated_matchup_calculator(bundle_path)
+
     results: list[dict[str, object]] = []
     skipped: list[dict[str, object]] = []
+    resolved: list[_ResolvedCandidate] = []
     used_stems: set[str] = set()
 
     for fixture_path in fixtures:
@@ -66,31 +96,18 @@ def run_web_shadow_slate(
         prediction_path = match_root / "prediction.json"
 
         try:
-            target = build_web_shadow_target_state(
+            build_web_shadow_target_state(
                 fixture_path=fixture_path,
                 registry_path=registry_path,
                 target_state_path=target_state_path,
                 normalized_fixture_path=normalized_fixture_path,
             )
-            manifest = build_local_web_shadow_matchup(
-                fixture_path=normalized_fixture_path,
-                target_state_path=target_state_path,
-                base_dir=base_dir,
-                output_path=matchup_input_path,
-                manifest_path=input_manifest_path,
-                history_mode=history_mode,
-                expected_history_max_date=expected_history_max_date,
+            normalized_fixture = load_web_shadow_fixture(normalized_fixture_path)
+            target = load_web_shadow_target_state(
+                target_state_path,
+                normalized_fixture,
             )
-            prediction = run_web_shadow_prediction(
-                fixture_path=normalized_fixture_path,
-                matchup_input_path=matchup_input_path,
-                bundle_path=bundle_path,
-                player_a_id=str(target["player_a_id"]),
-                player_b_id=str(target["player_b_id"]),
-                model_source_sha=model_source_sha,
-                output_path=prediction_path,
-                committed_at=datetime.now(UTC),
-            )
+            target_history_counts(prepared_history, target)
         except (ValueError, RuntimeError, FileNotFoundError, StopIteration) as exc:
             skipped.append(
                 {
@@ -102,10 +119,66 @@ def run_web_shadow_slate(
             )
             continue
 
+        resolved.append(
+            _ResolvedCandidate(
+                fixture_path=fixture_path,
+                stem=stem,
+                target=target,
+                target_state_path=target_state_path,
+                normalized_fixture_path=normalized_fixture_path,
+                matchup_input_path=matchup_input_path,
+                input_manifest_path=input_manifest_path,
+                prediction_path=prediction_path,
+            )
+        )
+
+    foundational_by_id, serve_return_by_id, feature_date_pass_count = (
+        prepare_web_shadow_snapshots(
+            prepared=prepared_history,
+            targets=[candidate.target for candidate in resolved],
+        )
+    )
+
+    for candidate in resolved:
+        try:
+            manifest = build_local_web_shadow_matchup(
+                fixture_path=candidate.normalized_fixture_path,
+                target_state_path=candidate.target_state_path,
+                base_dir=base_dir,
+                output_path=candidate.matchup_input_path,
+                manifest_path=candidate.input_manifest_path,
+                history_mode=history_mode,
+                expected_history_max_date=expected_history_max_date,
+                prepared_history=prepared_history,
+                foundational_snapshot=foundational_by_id[candidate.target.match_id],
+                serve_return_snapshot=serve_return_by_id[candidate.target.match_id],
+            )
+            prediction = run_web_shadow_prediction(
+                fixture_path=candidate.normalized_fixture_path,
+                matchup_input_path=candidate.matchup_input_path,
+                bundle_path=bundle_path,
+                player_a_id=candidate.target.player_a_id,
+                player_b_id=candidate.target.player_b_id,
+                model_source_sha=model_source_sha,
+                output_path=candidate.prediction_path,
+                committed_at=datetime.now(UTC),
+                calculator=calculator,
+            )
+        except (ValueError, RuntimeError, FileNotFoundError, StopIteration) as exc:
+            skipped.append(
+                {
+                    "fixture_path": candidate.fixture_path.as_posix(),
+                    "artifact_stem": candidate.stem,
+                    "reason_type": type(exc).__name__,
+                    "reason": str(exc),
+                }
+            )
+            continue
+
         results.append(
             {
-                "fixture_path": fixture_path.as_posix(),
-                "artifact_stem": stem,
+                "fixture_path": candidate.fixture_path.as_posix(),
+                "artifact_stem": candidate.stem,
                 "match_id": prediction["fixture"]["match_id"],
                 "scheduled_start": prediction["fixture"]["scheduled_start"],
                 "selected_player": prediction["selected_player"],
@@ -116,17 +189,22 @@ def run_web_shadow_slate(
                     "target_history_match_counts"
                 ],
                 "minimum_point_exposure": manifest["minimum_point_exposure"],
-                "prediction_path": prediction_path.as_posix(),
+                "prediction_path": candidate.prediction_path.as_posix(),
             }
         )
 
     summary: dict[str, object] = {
-        "schema_version": "tennis-genome-web-shadow-slate-v1",
+        "schema_version": "tennis-genome-web-shadow-slate-v2",
         "production_eligible": False,
         "history_mode": history_mode,
         "eligible_target_count": len(fixtures),
         "predicted_target_count": len(results),
         "skipped_target_count": len(skipped),
+        "shared_history_load_count": 1,
+        "shared_history_match_count": len(prepared_history.base_history),
+        "shared_feature_target_count": len(resolved),
+        "shared_feature_date_pass_count": feature_date_pass_count,
+        "shared_calculator_load_count": 1,
         "results": results,
         "skipped_targets": skipped,
     }
@@ -142,7 +220,7 @@ def run_web_shadow_slate(
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run a provider-free Web Shadow slate against one frozen WTA history"
+        description="Run a provider-free Web Shadow slate against shared WTA history"
     )
     parser.add_argument("--slate", required=True, type=Path)
     parser.add_argument("--registry", required=True, type=Path)
