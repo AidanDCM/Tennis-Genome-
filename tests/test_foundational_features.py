@@ -12,7 +12,9 @@ from tennis_genome.data.canonical import (
     PreMatchState,
 )
 from tennis_genome.data.sackmann import load_sackmann_csv
+from tennis_genome.evaluation.walkforward import walk_forward_elo
 from tennis_genome.features.foundational import walk_forward_foundational_features
+from tennis_genome.ratings.serve_return import walk_forward_serve_return
 
 
 def _match(
@@ -264,3 +266,40 @@ def test_sackmann_demographics_and_duration_follow_canonical_orientation(
     assert state.ioc_b == "USA"
     assert match.stats is not None
     assert match.stats.duration_minutes == 105
+
+
+def test_precomputed_rating_components_preserve_foundational_output() -> None:
+    matches = [
+        _match(
+            match_id="m1",
+            event_date=date(2024, 1, 1),
+            player_a="a",
+            player_b="b",
+            a_won=True,
+        ),
+        _match(
+            match_id="m2",
+            event_date=date(2024, 1, 8),
+            player_a="a",
+            player_b="c",
+            a_won=False,
+        ),
+        _match(
+            match_id="m3",
+            event_date=date(2024, 1, 15),
+            player_a="b",
+            player_b="c",
+            a_won=True,
+        ),
+    ]
+
+    expected = walk_forward_foundational_features(matches)
+    elo = walk_forward_elo(matches)
+    serve_return = walk_forward_serve_return(matches)
+    observed = walk_forward_foundational_features(
+        matches,
+        precomputed_elo=elo,
+        precomputed_serve_return=serve_return,
+    )
+
+    assert observed == expected

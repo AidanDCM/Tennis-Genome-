@@ -122,10 +122,13 @@ def test_local_builder_marks_history_limitation_and_writes_input(
         (base / name).write_bytes(name.encode())
 
     monkeypatch.setattr(builder, "load_canonical_parquet", lambda **kwargs: _history())
+    monkeypatch.setattr(builder, "walk_forward_elo", lambda *args, **kwargs: [])
     monkeypatch.setattr(
         builder,
         "walk_forward_foundational_features",
-        lambda combined, exclude_retirements: [_found_snapshot("web:wta:test:1")],
+        lambda combined, exclude_retirements, **kwargs: [
+            _found_snapshot("web:wta:test:1")
+        ],
     )
     monkeypatch.setattr(
         builder,
@@ -220,7 +223,7 @@ def test_local_builder_rejects_unexpected_history_cutoff(
 
 
 def test_shared_snapshot_preparation_groups_same_date(monkeypatch) -> None:
-    calls = {"foundational": 0, "serve_return": 0}
+    calls = {"elo": 0, "foundational": 0, "serve_return": 0}
 
     prepared = builder.WebShadowHistoryPreparation(
         base_history=(),
@@ -249,8 +252,19 @@ def test_shared_snapshot_preparation_groups_same_date(monkeypatch) -> None:
         ),
     ]
 
-    def foundational(combined, exclude_retirements):
+    def elo(combined, exclude_retirements):
+        calls["elo"] += 1
+        return [SimpleNamespace(match_id=target.match_id) for target in targets]
+
+    def foundational(
+        combined,
+        exclude_retirements,
+        precomputed_elo,
+        precomputed_serve_return,
+    ):
         calls["foundational"] += 1
+        assert len(precomputed_elo) == 2
+        assert len(precomputed_serve_return) == 2
         return [
             _found_snapshot("web:wta:test:1"),
             _found_snapshot("web:wta:test:2"),
@@ -263,6 +277,7 @@ def test_shared_snapshot_preparation_groups_same_date(monkeypatch) -> None:
             _serve_snapshot("web:wta:test:2"),
         ]
 
+    monkeypatch.setattr(builder, "walk_forward_elo", elo)
     monkeypatch.setattr(builder, "walk_forward_foundational_features", foundational)
     monkeypatch.setattr(builder, "walk_forward_serve_return", serve_return)
 
@@ -274,11 +289,11 @@ def test_shared_snapshot_preparation_groups_same_date(monkeypatch) -> None:
     assert set(found) == {"web:wta:test:1", "web:wta:test:2"}
     assert set(serve) == {"web:wta:test:1", "web:wta:test:2"}
     assert date_passes == 1
-    assert calls == {"foundational": 1, "serve_return": 1}
+    assert calls == {"elo": 1, "foundational": 1, "serve_return": 1}
 
 
 def test_shared_snapshot_preparation_separates_target_dates(monkeypatch) -> None:
-    calls = {"foundational": 0, "serve_return": 0}
+    calls = {"elo": 0, "foundational": 0, "serve_return": 0}
 
     prepared = builder.WebShadowHistoryPreparation(
         base_history=(),
@@ -307,7 +322,21 @@ def test_shared_snapshot_preparation_separates_target_dates(monkeypatch) -> None
         ),
     ]
 
-    def foundational(combined, exclude_retirements):
+    def elo(combined, exclude_retirements):
+        calls["elo"] += 1
+        ids = {
+            match.pre_match.match_id
+            for match in combined
+            if getattr(match.pre_match, "match_id", "").startswith("web:wta:test:")
+        }
+        return [SimpleNamespace(match_id=match_id) for match_id in ids]
+
+    def foundational(
+        combined,
+        exclude_retirements,
+        precomputed_elo,
+        precomputed_serve_return,
+    ):
         calls["foundational"] += 1
         ids = {
             match.pre_match.match_id
@@ -325,6 +354,7 @@ def test_shared_snapshot_preparation_separates_target_dates(monkeypatch) -> None
         }
         return [_serve_snapshot(match_id) for match_id in ids]
 
+    monkeypatch.setattr(builder, "walk_forward_elo", elo)
     monkeypatch.setattr(builder, "walk_forward_foundational_features", foundational)
     monkeypatch.setattr(builder, "walk_forward_serve_return", serve_return)
 
@@ -334,4 +364,4 @@ def test_shared_snapshot_preparation_separates_target_dates(monkeypatch) -> None
     )
 
     assert date_passes == 2
-    assert calls == {"foundational": 2, "serve_return": 2}
+    assert calls == {"elo": 2, "foundational": 2, "serve_return": 2}
