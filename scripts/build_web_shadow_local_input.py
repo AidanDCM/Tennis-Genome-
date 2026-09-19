@@ -54,8 +54,10 @@ def _load_target_state(path: Path, fixture: WebShadowFixture) -> PreMatchState:
         raise ValueError("local web-shadow input builder currently supports WTA only")
     if target.match_id != fixture.match_id:
         raise ValueError("target-state match_id differs from frozen web fixture")
-    if target.player_a_name != fixture.player_a or target.player_b_name != fixture.player_b:
-        raise ValueError("target-state player names differ from frozen web fixture order")
+    target_names = {target.player_a_name, target.player_b_name}
+    fixture_names = {fixture.player_a, fixture.player_b}
+    if target_names != fixture_names:
+        raise ValueError("target-state player names differ from frozen web fixture")
     scheduled = datetime.fromisoformat(fixture.scheduled_start)
     if target.event_date != scheduled.date():
         raise ValueError("target-state event date differs from fixture scheduled date")
