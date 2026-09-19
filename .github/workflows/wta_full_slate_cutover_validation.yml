@@ -1,0 +1,181 @@
+name: WTA Full-Slate Cutover Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      full_slate_artifact_id:
+        description: Nonpublishing Forward-004 full-slate bundle artifact ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: full-slate-cutover-validation-${{ inputs.full_slate_artifact_id }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+      GH_TOKEN: ${{ github.token }}
+      FULL_SLATE_ARTIFACT_ID: ${{ inputs.full_slate_artifact_id }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate artifact ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${FULL_SLATE_ARTIFACT_ID}" in
+            ''|*[!0-9]*) echo "artifact ID must be a positive integer" >&2; exit 1 ;;
+          esac
+          test "${FULL_SLATE_ARTIFACT_ID}" -gt 0
+
+      - name: Download and authenticate dry-run artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dry-run-artifact
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FULL_SLATE_ARTIFACT_ID}" \
+            > dry-run-artifact-metadata.json
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FULL_SLATE_ARTIFACT_ID}/zip" \
+            > dry-run.zip
+          unzip -q dry-run.zip -d dry-run-artifact
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          metadata = json.loads(
+              Path("dry-run-artifact-metadata.json").read_text(encoding="utf-8")
+          )
+          expected = int(os.environ["FULL_SLATE_ARTIFACT_ID"])
+          if int(metadata.get("id", 0)) != expected:
+              raise SystemExit("artifact ID mismatch")
+          if metadata.get("expired") is True:
+              raise SystemExit("dry-run artifact is expired")
+          name = str(metadata.get("name", ""))
+          if not name.startswith("forward-004-full-slate-bundle-"):
+              raise SystemExit("artifact is not a Forward-004 full-slate parent bundle")
+          workflow_run = metadata.get("workflow_run")
+          if not isinstance(workflow_run, dict):
+              raise SystemExit("artifact lacks source workflow run metadata")
+          run_id = int(workflow_run.get("id", 0))
+          if run_id <= 0:
+              raise SystemExit("artifact source workflow run ID is invalid")
+          Path("source-run-id.txt").write_text(f"{run_id}\n", encoding="utf-8")
+          subprocess.run(
+              [
+                  "gh",
+                  "api",
+                  "-H",
+                  "Accept: application/vnd.github+json",
+                  f"/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}",
+              ],
+              check=True,
+              stdout=Path("source-run.json").open("wb"),
+          )
+          PY
+
+      - name: Verify source workflow provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          run = json.loads(Path("source-run.json").read_text(encoding="utf-8"))
+          run_id = int(Path("source-run-id.txt").read_text(encoding="utf-8"))
+          if int(run.get("id", 0)) != run_id:
+              raise SystemExit("source workflow run ID mismatch")
+          if run.get("path") != ".github/workflows/wta_forward_004_full_slate_manual.yml":
+              raise SystemExit("artifact source is not the full-slate workflow")
+          if run.get("conclusion") != "success":
+              raise SystemExit("full-slate dry run did not succeed")
+          if run.get("head_branch") != "main":
+              raise SystemExit("full-slate dry run did not execute from main")
+          if run.get("event") != "workflow_dispatch":
+              raise SystemExit("full-slate dry run was not explicitly dispatched")
+
+          receipt = json.loads(
+              Path(
+                  "dry-run-artifact/forward-004-full-slate-run-mode.json"
+              ).read_text(encoding="utf-8")
+          )
+          if int(receipt.get("workflow_run_id", 0)) != run_id:
+              raise SystemExit("run-mode receipt workflow run ID mismatch")
+          if receipt.get("workflow_source_sha") != run.get("head_sha"):
+              raise SystemExit("run-mode receipt source SHA mismatch")
+          if receipt.get("publish_prospective_evidence") is not False:
+              raise SystemExit("cutover candidate is not a nonpublishing dry run")
+          PY
+
+      - name: Install pinned validation runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Validate complete full-slate dry-run evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_full_slate_cutover_dry_run.py \
+            --artifact-root dry-run-artifact \
+            --expected-source-sha "${GITHUB_SHA}" \
+            --output full-slate-cutover-validation.json \
+            | tee full-slate-cutover-validation-summary.json
+
+      - name: Verify PASS receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          result = json.loads(
+              Path("full-slate-cutover-validation.json").read_text(encoding="utf-8")
+          )
+          if result.get("status") != "PASS":
+              raise SystemExit("full-slate cutover validation did not pass")
+          if result.get("schema_version") != (
+              "tennis-genome-full-slate-cutover-validation-v1"
+          ):
+              raise SystemExit("unexpected cutover validation schema")
+          if result.get("workflow_source_sha") != os.environ["GITHUB_SHA"]:
+              raise SystemExit("cutover PASS receipt is not bound to current source SHA")
+          if int(result.get("predicted_target_count", 0)) <= 0:
+              raise SystemExit("cutover PASS receipt has no predictions")
+          PY
+
+      - name: Upload cutover validation receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: full-slate-cutover-validation-${{ inputs.full_slate_artifact_id }}
+          path: |
+            dry-run-artifact-metadata.json
+            source-run.json
+            full-slate-cutover-validation.json
+            full-slate-cutover-validation-summary.json
+          if-no-files-found: error
+          retention-days: 90
