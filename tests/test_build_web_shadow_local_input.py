@@ -217,3 +217,121 @@ def test_local_builder_rejects_unexpected_history_cutoff(
             history_mode="PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
             expected_history_max_date=date(2026, 6, 2),
         )
+
+
+def test_shared_snapshot_preparation_groups_same_date(monkeypatch) -> None:
+    calls = {"foundational": 0, "serve_return": 0}
+
+    prepared = builder.WebShadowHistoryPreparation(
+        base_history=(),
+        max_history_date=date(2026, 6, 2),
+        player_match_counts={
+            "wta:id:100": 10,
+            "wta:id:200": 10,
+            "wta:id:300": 10,
+            "wta:id:400": 10,
+        },
+        history_source_hashes=(),
+        history_mode="PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+    )
+    targets = [
+        SimpleNamespace(
+            match_id="web:wta:test:1",
+            event_date=date(2026, 9, 20),
+            player_a_id="wta:id:100",
+            player_b_id="wta:id:200",
+        ),
+        SimpleNamespace(
+            match_id="web:wta:test:2",
+            event_date=date(2026, 9, 20),
+            player_a_id="wta:id:300",
+            player_b_id="wta:id:400",
+        ),
+    ]
+
+    def foundational(combined, exclude_retirements):
+        calls["foundational"] += 1
+        return [
+            _found_snapshot("web:wta:test:1"),
+            _found_snapshot("web:wta:test:2"),
+        ]
+
+    def serve_return(combined, exclude_retirements):
+        calls["serve_return"] += 1
+        return [
+            _serve_snapshot("web:wta:test:1"),
+            _serve_snapshot("web:wta:test:2"),
+        ]
+
+    monkeypatch.setattr(builder, "walk_forward_foundational_features", foundational)
+    monkeypatch.setattr(builder, "walk_forward_serve_return", serve_return)
+
+    found, serve, date_passes = builder.prepare_web_shadow_snapshots(
+        prepared=prepared,
+        targets=targets,
+    )
+
+    assert set(found) == {"web:wta:test:1", "web:wta:test:2"}
+    assert set(serve) == {"web:wta:test:1", "web:wta:test:2"}
+    assert date_passes == 1
+    assert calls == {"foundational": 1, "serve_return": 1}
+
+
+def test_shared_snapshot_preparation_separates_target_dates(monkeypatch) -> None:
+    calls = {"foundational": 0, "serve_return": 0}
+
+    prepared = builder.WebShadowHistoryPreparation(
+        base_history=(),
+        max_history_date=date(2026, 6, 2),
+        player_match_counts={
+            "wta:id:100": 10,
+            "wta:id:200": 10,
+            "wta:id:300": 10,
+            "wta:id:400": 10,
+        },
+        history_source_hashes=(),
+        history_mode="PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+    )
+    targets = [
+        SimpleNamespace(
+            match_id="web:wta:test:1",
+            event_date=date(2026, 9, 20),
+            player_a_id="wta:id:100",
+            player_b_id="wta:id:200",
+        ),
+        SimpleNamespace(
+            match_id="web:wta:test:2",
+            event_date=date(2026, 9, 21),
+            player_a_id="wta:id:300",
+            player_b_id="wta:id:400",
+        ),
+    ]
+
+    def foundational(combined, exclude_retirements):
+        calls["foundational"] += 1
+        ids = {
+            match.pre_match.match_id
+            for match in combined
+            if getattr(match.pre_match, "match_id", "").startswith("web:wta:test:")
+        }
+        return [_found_snapshot(match_id) for match_id in ids]
+
+    def serve_return(combined, exclude_retirements):
+        calls["serve_return"] += 1
+        ids = {
+            match.pre_match.match_id
+            for match in combined
+            if getattr(match.pre_match, "match_id", "").startswith("web:wta:test:")
+        }
+        return [_serve_snapshot(match_id) for match_id in ids]
+
+    monkeypatch.setattr(builder, "walk_forward_foundational_features", foundational)
+    monkeypatch.setattr(builder, "walk_forward_serve_return", serve_return)
+
+    _, _, date_passes = builder.prepare_web_shadow_snapshots(
+        prepared=prepared,
+        targets=targets,
+    )
+
+    assert date_passes == 2
+    assert calls == {"foundational": 2, "serve_return": 2}
