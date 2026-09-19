@@ -15,9 +15,7 @@ _HASHED_FILES = (
     Path("data/wta-live-base/wta_pre_match.parquet"),
     Path("data/wta-live-base/wta_outcomes.parquet"),
     Path("data/wta-live-base/wta_stats.parquet"),
-    Path("data/wta-live-base/wta_manifest.json"),
     Path("data/wta-live-base/2026-source-reconciliation.json"),
-    Path("data/wta-live-base/build_output.json"),
     Path("data/wta_players.csv"),
 )
 

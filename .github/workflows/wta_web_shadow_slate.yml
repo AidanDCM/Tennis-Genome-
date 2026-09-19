@@ -86,7 +86,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            data/wta-live-base
+            data/wta-live-base/wta_pre_match.parquet
+            data/wta-live-base/wta_outcomes.parquet
+            data/wta-live-base/wta_stats.parquet
+            data/wta-live-base/2026-source-reconciliation.json
+            data/wta-live-base/history-cache-receipt.json
             data/wta_players.csv
           key: >-
             web-shadow-wta-history-v1-${{ runner.os }}-${{ env.PINNED_ARCHIVE_COMMIT }}-${{ env.PINNED_2026_MATCHES_BLOB }}-${{ env.PINNED_2026_QUAL_ITF_BLOB }}-${{ hashFiles('src/tennis_genome/data/**', 'src/tennis_genome/pipeline/**', 'scripts/reconcile_web_shadow_2026_history.py', 'scripts/manage_web_shadow_history_cache.py', 'config/web_shadow_history_cache.json', 'requirements/ci.lock', 'pyproject.toml') }}
