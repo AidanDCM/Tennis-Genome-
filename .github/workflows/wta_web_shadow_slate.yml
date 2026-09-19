@@ -6,6 +6,17 @@ on:
       - main
     paths:
       - "web-shadow/active-slate.json"
+      - "web-shadow/fixtures/**"
+      - "scripts/run_web_shadow_slate.py"
+      - "scripts/build_web_shadow_local_input.py"
+      - "scripts/build_web_shadow_target_state.py"
+      - "scripts/run_web_shadow_prediction.py"
+      - "src/tennis_genome/features/**"
+      - "src/tennis_genome/ratings/**"
+      - "src/tennis_genome/evaluation/**"
+      - "src/tennis_genome/calculator/**"
+      - "src/tennis_genome/prospective/web_shadow.py"
+      - "artifacts/tge_independent_v1_production/**"
   workflow_dispatch:
     inputs:
       slate_path:
