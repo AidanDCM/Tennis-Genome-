@@ -226,6 +226,33 @@ jobs:
               handle.write(f"target_matrix={payload}\n")
           PY
 
+      - name: Write full-slate run-mode receipt
+        shell: bash
+        env:
+          REQUEST_PUBLISH: ${{ inputs.publish_prospective_evidence }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          receipt = {
+              "schema_version": "wta-forward-004-full-slate-run-mode-v1",
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "provider_run_id": int(os.environ["PROVIDER_RUN_ID"]),
+              "publish_prospective_evidence": (
+                  os.environ["REQUEST_PUBLISH"].strip().lower() == "true"
+              ),
+          }
+          Path("forward-004-full-slate-run-mode.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
       - name: Upload experimental full-slate evidence
         id: upload_slate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -235,6 +262,7 @@ jobs:
             provider-run.json
             trusted-provider-input-sha256.txt
             forward-004-slate-summary.json
+            forward-004-full-slate-run-mode.json
             forward-004-slate-work/
           if-no-files-found: error
           retention-days: 90

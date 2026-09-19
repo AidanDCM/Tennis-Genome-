@@ -174,3 +174,38 @@ def test_shared_api_tennis_per_match_workflow_is_offline_and_shadow_compatible()
     assert "challenger_shadow_from_prediction_artifact.yml/dispatches" in workflow
     assert "API_TENNIS_API" not in workflow
     assert "api-tennis.com" not in workflow
+
+
+def test_full_slate_parent_bundle_retains_nonpublishing_run_mode_receipt() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/wta_forward_004_full_slate_manual.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "Write full-slate run-mode receipt" in workflow
+    assert "wta-forward-004-full-slate-run-mode-v1" in workflow
+    assert "publish_prospective_evidence" in workflow
+    assert "workflow_source_sha" in workflow
+    assert "forward-004-full-slate-run-mode.json" in workflow
+
+
+def test_full_slate_cutover_validation_is_authenticated_and_provider_free() -> None:
+    workflow = (
+        _ROOT / ".github/workflows/wta_full_slate_cutover_validation.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "full_slate_artifact_id:" in workflow
+    assert "forward-004-full-slate-bundle-" in workflow
+    assert (
+        'run.get("path") != ".github/workflows/wta_forward_004_full_slate_manual.yml"'
+        in workflow
+    )
+    assert 'run.get("head_branch") != "main"' in workflow
+    assert 'run.get("event") != "workflow_dispatch"' in workflow
+    assert "publish_prospective_evidence" in workflow
+    assert "validate_full_slate_cutover_dry_run.py" in workflow
+    assert '--expected-source-sha "${GITHUB_SHA}"' in workflow
+    assert "tennis-genome-full-slate-cutover-validation-v1" in workflow
+    assert "API_TENNIS_API" not in workflow
+    assert "SPORTRADAR_API_KEY" not in workflow
+    assert "api.sportradar.com" not in workflow
+    assert "api-tennis.com" not in workflow
