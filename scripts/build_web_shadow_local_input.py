@@ -3,16 +3,32 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from dataclasses import asdict
+from collections import Counter, defaultdict
+from dataclasses import asdict, dataclass
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 from tennis_genome.data.canonical import HistoricalMatch, MatchOutcome, PreMatchState
 from tennis_genome.data.parquet import load_canonical_parquet
-from tennis_genome.features.foundational import walk_forward_foundational_features
+from tennis_genome.features.foundational import (
+    FoundationalSnapshot,
+    walk_forward_foundational_features,
+)
 from tennis_genome.prospective.web_shadow import WebShadowFixture
-from tennis_genome.ratings.serve_return import walk_forward_serve_return
+from tennis_genome.ratings.serve_return import (
+    ServeReturnSnapshot,
+    walk_forward_serve_return,
+)
+
+
+@dataclass(frozen=True)
+class WebShadowHistoryPreparation:
+    base_history: tuple[HistoricalMatch, ...]
+    max_history_date: date
+    player_match_counts: dict[str, int]
+    history_source_hashes: tuple[str, ...]
+    history_mode: str
 
 
 def _sha256_file(path: Path) -> str:
@@ -33,7 +49,7 @@ def _jsonable(value: Any) -> Any:
     return value
 
 
-def _load_fixture(path: Path) -> WebShadowFixture:
+def load_web_shadow_fixture(path: Path) -> WebShadowFixture:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError("fixture JSON must contain an object")
@@ -42,7 +58,14 @@ def _load_fixture(path: Path) -> WebShadowFixture:
     return fixture
 
 
-def _load_target_state(path: Path, fixture: WebShadowFixture) -> PreMatchState:
+def _load_fixture(path: Path) -> WebShadowFixture:
+    return load_web_shadow_fixture(path)
+
+
+def load_web_shadow_target_state(
+    path: Path,
+    fixture: WebShadowFixture,
+) -> PreMatchState:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError("target-state JSON must contain an object")
@@ -68,23 +91,21 @@ def _load_target_state(path: Path, fixture: WebShadowFixture) -> PreMatchState:
     return target
 
 
-def build_local_web_shadow_matchup(
+def _load_target_state(path: Path, fixture: WebShadowFixture) -> PreMatchState:
+    return load_web_shadow_target_state(path, fixture)
+
+
+def prepare_web_shadow_history(
     *,
-    fixture_path: Path,
-    target_state_path: Path,
     base_dir: Path,
-    output_path: Path,
-    manifest_path: Path,
     history_mode: str = "FROZEN_LOCAL_HISTORY_ONLY",
     expected_history_max_date: date | None = None,
-) -> dict[str, object]:
-    fixture = _load_fixture(fixture_path)
-    target = _load_target_state(target_state_path, fixture)
-
+) -> WebShadowHistoryPreparation:
     pre_match_path = base_dir / "wta_pre_match.parquet"
     outcome_path = base_dir / "wta_outcomes.parquet"
     stats_path = base_dir / "wta_stats.parquet"
-    for path in (pre_match_path, outcome_path, stats_path):
+    history_paths = (pre_match_path, outcome_path, stats_path)
+    for path in history_paths:
         if not path.is_file():
             raise FileNotFoundError(f"required frozen WTA history is missing: {path}")
 
@@ -100,9 +121,8 @@ def build_local_web_shadow_matchup(
     )
     if not base_history:
         raise RuntimeError("frozen WTA base history is empty")
+
     max_history_date = max(match.pre_match.event_date for match in base_history)
-    if max_history_date >= target.event_date:
-        raise RuntimeError("local base history reaches target date and violates chronology")
     if (
         expected_history_max_date is not None
         and max_history_date != expected_history_max_date
@@ -113,21 +133,33 @@ def build_local_web_shadow_matchup(
             f"{expected_history_max_date.isoformat()}"
         )
 
-    target_history_counts = {
-        target.player_a_id: sum(
-            target.player_a_id
-            in (match.pre_match.player_a_id, match.pre_match.player_b_id)
-            for match in base_history
-        ),
-        target.player_b_id: sum(
-            target.player_b_id
-            in (match.pre_match.player_a_id, match.pre_match.player_b_id)
-            for match in base_history
-        ),
+    player_match_counts: Counter[str] = Counter()
+    for match in base_history:
+        player_match_counts[match.pre_match.player_a_id] += 1
+        player_match_counts[match.pre_match.player_b_id] += 1
+
+    return WebShadowHistoryPreparation(
+        base_history=base_history,
+        max_history_date=max_history_date,
+        player_match_counts=dict(player_match_counts),
+        history_source_hashes=tuple(_sha256_file(path) for path in history_paths),
+        history_mode=history_mode,
+    )
+
+
+def target_history_counts(
+    prepared: WebShadowHistoryPreparation,
+    target: PreMatchState,
+) -> dict[str, int]:
+    if prepared.max_history_date >= target.event_date:
+        raise RuntimeError("local base history reaches target date and violates chronology")
+    counts = {
+        target.player_a_id: prepared.player_match_counts.get(target.player_a_id, 0),
+        target.player_b_id: prepared.player_match_counts.get(target.player_b_id, 0),
     }
     missing_history = [
         player_id
-        for player_id, count in target_history_counts.items()
+        for player_id, count in counts.items()
         if count <= 0
     ]
     if missing_history:
@@ -135,35 +167,128 @@ def build_local_web_shadow_matchup(
             "web-shadow target identity has no frozen historical matches: "
             + ", ".join(missing_history)
         )
+    return counts
 
-    sentinel = HistoricalMatch(
-        pre_match=target,
-        outcome=MatchOutcome(
-            match_id=target.match_id,
-            a_won=False,
-            score=None,
-            retirement=False,
-            walkover=False,
-        ),
-        stats=None,
-    )
-    combined = [*base_history, sentinel]
-    foundational = next(
-        snapshot
+
+def prepare_web_shadow_snapshots(
+    *,
+    prepared: WebShadowHistoryPreparation,
+    targets: list[PreMatchState],
+) -> tuple[
+    dict[str, FoundationalSnapshot],
+    dict[str, ServeReturnSnapshot],
+    int,
+]:
+    if not targets:
+        return {}, {}, 0
+
+    by_date: defaultdict[date, list[PreMatchState]] = defaultdict(list)
+    seen_match_ids: set[str] = set()
+    for target in targets:
+        if target.match_id in seen_match_ids:
+            raise ValueError(f"duplicate Web Shadow target match_id: {target.match_id}")
+        seen_match_ids.add(target.match_id)
+        target_history_counts(prepared, target)
+        by_date[target.event_date].append(target)
+
+    foundational_by_id: dict[str, FoundationalSnapshot] = {}
+    serve_return_by_id: dict[str, ServeReturnSnapshot] = {}
+
+    for event_date in sorted(by_date):
+        date_targets = by_date[event_date]
+        sentinels = [
+            HistoricalMatch(
+                pre_match=target,
+                outcome=MatchOutcome(
+                    match_id=target.match_id,
+                    a_won=False,
+                    score=None,
+                    retirement=False,
+                    walkover=False,
+                ),
+                stats=None,
+            )
+            for target in date_targets
+        ]
+        target_ids = {target.match_id for target in date_targets}
+        combined = [*prepared.base_history, *sentinels]
+
         for snapshot in walk_forward_foundational_features(
             combined,
             exclude_retirements=False,
-        )
-        if snapshot.match_id == target.match_id
-    )
-    serve_return = next(
-        snapshot
+        ):
+            if snapshot.match_id in target_ids:
+                foundational_by_id[snapshot.match_id] = snapshot
+
         for snapshot in walk_forward_serve_return(
             combined,
             exclude_retirements=False,
-        )
-        if snapshot.match_id == target.match_id
+        ):
+            if snapshot.match_id in target_ids:
+                serve_return_by_id[snapshot.match_id] = snapshot
+
+        missing_foundational = target_ids - foundational_by_id.keys()
+        missing_serve_return = target_ids - serve_return_by_id.keys()
+        if missing_foundational or missing_serve_return:
+            raise RuntimeError(
+                "shared Web Shadow feature preparation missed target snapshots: "
+                f"foundational={sorted(missing_foundational)} "
+                f"serve_return={sorted(missing_serve_return)}"
+            )
+
+    return foundational_by_id, serve_return_by_id, len(by_date)
+
+
+def build_local_web_shadow_matchup(
+    *,
+    fixture_path: Path,
+    target_state_path: Path,
+    base_dir: Path,
+    output_path: Path,
+    manifest_path: Path,
+    history_mode: str = "FROZEN_LOCAL_HISTORY_ONLY",
+    expected_history_max_date: date | None = None,
+    prepared_history: WebShadowHistoryPreparation | None = None,
+    foundational_snapshot: FoundationalSnapshot | None = None,
+    serve_return_snapshot: ServeReturnSnapshot | None = None,
+) -> dict[str, object]:
+    fixture = load_web_shadow_fixture(fixture_path)
+    target = load_web_shadow_target_state(target_state_path, fixture)
+
+    prepared = prepared_history or prepare_web_shadow_history(
+        base_dir=base_dir,
+        history_mode=history_mode,
+        expected_history_max_date=expected_history_max_date,
     )
+    if prepared.history_mode != history_mode:
+        raise ValueError("prepared Web Shadow history mode differs from requested mode")
+    if (
+        expected_history_max_date is not None
+        and prepared.max_history_date != expected_history_max_date
+    ):
+        raise RuntimeError(
+            "prepared Web Shadow history maximum date differs from pinned expectation"
+        )
+
+    history_counts = target_history_counts(prepared, target)
+
+    if (foundational_snapshot is None) != (serve_return_snapshot is None):
+        raise ValueError("shared Web Shadow feature snapshots must be supplied together")
+    if foundational_snapshot is None or serve_return_snapshot is None:
+        foundational_by_id, serve_return_by_id, _ = prepare_web_shadow_snapshots(
+            prepared=prepared,
+            targets=[target],
+        )
+        foundational = foundational_by_id[target.match_id]
+        serve_return = serve_return_by_id[target.match_id]
+    else:
+        foundational = foundational_snapshot
+        serve_return = serve_return_snapshot
+        if foundational.match_id != target.match_id:
+            raise ValueError("shared foundational snapshot match_id differs from target")
+        if serve_return.match_id != target.match_id:
+            raise ValueError("shared serve/return snapshot match_id differs from target")
+
     minimum_point_exposure = min(
         serve_return.prior_serve_points_a,
         serve_return.prior_serve_points_b,
@@ -181,9 +306,7 @@ def build_local_web_shadow_matchup(
         raise ValueError("fixture source observation must precede scheduled start")
 
     source_hashes = [
-        _sha256_file(pre_match_path),
-        _sha256_file(outcome_path),
-        _sha256_file(stats_path),
+        *prepared.history_source_hashes,
         _sha256_file(fixture_path),
         _sha256_file(target_state_path),
     ]
@@ -213,14 +336,14 @@ def build_local_web_shadow_matchup(
         "history_mode": history_mode,
         "production_eligible": False,
         "fixture_match_id": target.match_id,
-        "base_history_match_count": len(base_history),
-        "base_history_max_event_date": max_history_date.isoformat(),
-        "target_history_match_counts": target_history_counts,
+        "base_history_match_count": len(prepared.base_history),
+        "base_history_max_event_date": prepared.max_history_date.isoformat(),
+        "target_history_match_counts": history_counts,
         "minimum_point_exposure": minimum_point_exposure,
         "target_event_date": target.event_date.isoformat(),
         "prediction_cutoff_at": cutoff.isoformat(),
         "known_limitation": (
-            f"Pinned public history ends at {max_history_date.isoformat()}; "
+            f"Pinned public history ends at {prepared.max_history_date.isoformat()}; "
             "later results are omitted. This lane is suitable for shadow "
             "experimentation, not production cutover evidence."
         ),
