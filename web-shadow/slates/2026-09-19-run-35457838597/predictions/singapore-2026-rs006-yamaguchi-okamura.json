@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T17:22:47.129489+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:RS006",
+    "player_a": "Kyoka Okamura",
+    "player_b": "Mei Yamaguchi",
+    "round": "QFNL",
+    "schedule_source_url": "https://polymarket.com/sports/wta/wta-yamaguc-okamura-2026-09-20",
+    "scheduled_start": "2026-09-20T13:30:00+08:00",
+    "source_observed_at": "2026-09-19T10:17:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/scores/RS006",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "f4245de7ff97c36896a713b1c7532f346cedf463280a8705e18da992ffef6558",
+  "model_source_sha": "5e8401731f4a85622cf86a3b418ccb81d43795ef",
+  "p_player_a": 0.5645740374720367,
+  "p_player_b": 0.4354259625279633,
+  "player_a_id": "wta:id:211846",
+  "player_b_id": "wta:id:215614",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "90d8246d6e03cb2db9778b9b0bbb7c686e193f77247b4ebb5bfa7ee0cfcb1f2e",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Kyoka Okamura"
+}
