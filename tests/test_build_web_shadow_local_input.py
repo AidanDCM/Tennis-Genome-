@@ -195,3 +195,25 @@ def test_local_builder_rejects_missing_target_history(monkeypatch, tmp_path: Pat
             output_path=tmp_path / "matchup.json",
             manifest_path=tmp_path / "manifest.json",
         )
+
+
+def test_local_builder_rejects_unexpected_history_cutoff(
+    monkeypatch, tmp_path: Path
+) -> None:
+    base = tmp_path / "base-cutoff"
+    base.mkdir()
+    for name in ("wta_pre_match.parquet", "wta_outcomes.parquet", "wta_stats.parquet"):
+        (base / name).write_bytes(name.encode())
+
+    monkeypatch.setattr(builder, "load_canonical_parquet", lambda **kwargs: _history())
+
+    with pytest.raises(RuntimeError, match="maximum date differs"):
+        builder.build_local_web_shadow_matchup(
+            fixture_path=_fixture(tmp_path),
+            target_state_path=_target(tmp_path),
+            base_dir=base,
+            output_path=tmp_path / "matchup.json",
+            manifest_path=tmp_path / "manifest.json",
+            history_mode="PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+            expected_history_max_date=date(2026, 6, 2),
+        )
