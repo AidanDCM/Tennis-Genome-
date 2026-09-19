@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from scripts.build_web_shadow_local_input import build_local_web_shadow_matchup
@@ -43,6 +43,8 @@ def run_web_shadow_slate(
     bundle_path: Path,
     model_source_sha: str,
     output_root: Path,
+    history_mode: str = "FROZEN_LOCAL_HISTORY_ONLY",
+    expected_history_max_date: date | None = None,
 ) -> dict[str, object]:
     fixtures = _load_slate(slate_path)
     output_root.mkdir(parents=True, exist_ok=True)
@@ -76,6 +78,8 @@ def run_web_shadow_slate(
                 base_dir=base_dir,
                 output_path=matchup_input_path,
                 manifest_path=input_manifest_path,
+                history_mode=history_mode,
+                expected_history_max_date=expected_history_max_date,
             )
             prediction = run_web_shadow_prediction(
                 fixture_path=normalized_fixture_path,
@@ -119,7 +123,7 @@ def run_web_shadow_slate(
     summary: dict[str, object] = {
         "schema_version": "tennis-genome-web-shadow-slate-v1",
         "production_eligible": False,
-        "history_mode": "FROZEN_LOCAL_HISTORY_ONLY",
+        "history_mode": history_mode,
         "eligible_target_count": len(fixtures),
         "predicted_target_count": len(results),
         "skipped_target_count": len(skipped),
@@ -146,6 +150,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--bundle", required=True, type=Path)
     parser.add_argument("--model-source-sha", required=True)
     parser.add_argument("--output-root", required=True, type=Path)
+    parser.add_argument(
+        "--history-mode",
+        default="FROZEN_LOCAL_HISTORY_ONLY",
+    )
+    parser.add_argument("--expected-history-max-date")
     return parser.parse_args()
 
 
@@ -158,6 +167,12 @@ def main() -> None:
         bundle_path=args.bundle,
         model_source_sha=args.model_source_sha,
         output_root=args.output_root,
+        history_mode=args.history_mode,
+        expected_history_max_date=(
+            None
+            if args.expected_history_max_date is None
+            else date.fromisoformat(args.expected_history_max_date)
+        ),
     )
     print(json.dumps(summary, indent=2, sort_keys=True, allow_nan=False))
 
