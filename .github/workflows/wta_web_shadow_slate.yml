@@ -133,6 +133,18 @@ jobs:
               raise SystemExit("Web Shadow slate must remain non-production")
           if manifest.get("history_mode") != "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02":
               raise SystemExit("unexpected Web Shadow history mode")
+          if int(manifest.get("shared_history_load_count", -1)) != 1:
+              raise SystemExit("Web Shadow slate did not share one history load")
+          if int(manifest.get("shared_calculator_load_count", -1)) != 1:
+              raise SystemExit("Web Shadow slate did not share one calculator load")
+          feature_targets = int(manifest.get("shared_feature_target_count", -1))
+          feature_date_passes = int(manifest.get("shared_feature_date_pass_count", -1))
+          if feature_targets < predicted or feature_targets > eligible:
+              raise SystemExit("shared feature target accounting is invalid")
+          if feature_date_passes < 0 or feature_date_passes > feature_targets:
+              raise SystemExit("shared feature date-pass accounting is invalid")
+          if predicted > 0 and feature_date_passes <= 0:
+              raise SystemExit("predicted slate has no shared feature pass")
           for result in manifest["results"]:
               record = json.loads(Path(result["prediction_path"]).read_text())
               if record.get("production_eligible") is not False:
