@@ -3,5 +3,5 @@
     "web-shadow/fixtures/singapore-2026-rs005-hibino-ito.json",
     "web-shadow/fixtures/singapore-2026-rs006-yamaguchi-okamura.json"
   ],
-  "rerun_reason": "shared-preparation-equivalence-check-v1"
+  "rerun_reason": "precomputed-rating-components-benchmark-v1"
 }
