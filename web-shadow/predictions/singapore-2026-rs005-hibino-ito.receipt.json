@@ -1,0 +1,15 @@
+{
+  "schema_version": "tennis-genome-web-shadow-run-receipt-v1",
+  "workflow_run_id": 35452881965,
+  "workflow_artifact_id": 10586778661,
+  "workflow_source_sha": "81faa5f3c10268bae293d668eb92e9fe905ca8fa",
+  "prediction_record_sha256": "2dd59c42a927a2770f229c7d6742016ffa5bcf0fe0a9325f6a7579847f258bd3",
+  "prediction_path": "web-shadow/predictions/singapore-2026-rs005-hibino-ito.json",
+  "target_history_match_counts": {
+    "wta:id:211702": 209,
+    "wta:id:256684": 16
+  },
+  "minimum_point_exposure": 1182,
+  "scorecard_eligible": true,
+  "production_eligible": false
+}
