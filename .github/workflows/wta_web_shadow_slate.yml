@@ -11,6 +11,8 @@ on:
       - "scripts/build_web_shadow_local_input.py"
       - "scripts/build_web_shadow_target_state.py"
       - "scripts/run_web_shadow_prediction.py"
+      - "scripts/manage_web_shadow_history_cache.py"
+      - ".github/workflows/wta_web_shadow_slate.yml"
       - "src/tennis_genome/features/**"
       - "src/tennis_genome/ratings/**"
       - "src/tennis_genome/evaluation/**"
