@@ -1,0 +1,105 @@
+name: WTA Web Shadow Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      fixture_path:
+        description: "Repository path under web-shadow/fixtures/"
+        required: true
+        type: string
+      target_state_path:
+        description: "Repository path under web-shadow/targets/"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate repository paths
+        shell: bash
+        env:
+          FIXTURE_PATH: ${{ inputs.fixture_path }}
+          TARGET_STATE_PATH: ${{ inputs.target_state_path }}
+        run: |
+          set -euo pipefail
+          case "$FIXTURE_PATH" in
+            web-shadow/fixtures/*.json) ;;
+            *) echo "fixture_path must be under web-shadow/fixtures/" >&2; exit 1 ;;
+          esac
+          case "$TARGET_STATE_PATH" in
+            web-shadow/targets/*.json) ;;
+            *) echo "target_state_path must be under web-shadow/targets/" >&2; exit 1 ;;
+          esac
+          test -f "$FIXTURE_PATH"
+          test -f "$TARGET_STATE_PATH"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Build provider-free matchup input
+        shell: bash
+        env:
+          FIXTURE_PATH: ${{ inputs.fixture_path }}
+          TARGET_STATE_PATH: ${{ inputs.target_state_path }}
+        run: |
+          set -euo pipefail
+          mkdir -p web-shadow-run
+          python scripts/build_web_shadow_local_input.py             --fixture "$FIXTURE_PATH"             --target-state "$TARGET_STATE_PATH"             --output web-shadow-run/matchup-input.json             --manifest web-shadow-run/local-input-manifest.json
+
+      - name: Freeze sealed Genome prediction
+        shell: bash
+        env:
+          FIXTURE_PATH: ${{ inputs.fixture_path }}
+          TARGET_STATE_PATH: ${{ inputs.target_state_path }}
+        run: |
+          set -euo pipefail
+          PLAYER_A_ID="$(python -c 'import json,os; print(json.load(open(os.environ["TARGET_STATE_PATH"]))["player_a_id"])')"
+          PLAYER_B_ID="$(python -c 'import json,os; print(json.load(open(os.environ["TARGET_STATE_PATH"]))["player_b_id"])')"
+          COMMITTED_AT="$(date -u +%Y-%m-%dT%H:%M:%S+00:00)"
+          python scripts/run_web_shadow_prediction.py             --fixture "$FIXTURE_PATH"             --matchup-input web-shadow-run/matchup-input.json             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --player-a-id "$PLAYER_A_ID"             --player-b-id "$PLAYER_B_ID"             --model-source-sha "$GITHUB_SHA"             --committed-at "$COMMITTED_AT"             --output web-shadow-run/prediction.json
+
+      - name: Retain fixture and target evidence
+        shell: bash
+        env:
+          FIXTURE_PATH: ${{ inputs.fixture_path }}
+          TARGET_STATE_PATH: ${{ inputs.target_state_path }}
+        run: |
+          set -euo pipefail
+          cp "$FIXTURE_PATH" web-shadow-run/fixture.json
+          cp "$TARGET_STATE_PATH" web-shadow-run/target-state.json
+
+      - name: Verify non-production receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          record = json.loads(Path("web-shadow-run/prediction.json").read_text())
+          manifest = json.loads(Path("web-shadow-run/local-input-manifest.json").read_text())
+          assert record["production_eligible"] is False
+          assert manifest["production_eligible"] is False
+          assert manifest["history_mode"] == "FROZEN_LOCAL_HISTORY_ONLY"
+          PY
+
+      - name: Upload Web Shadow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-shadow-${{ github.run_id }}
+          path: web-shadow-run/
+          if-no-files-found: error
+          retention-days: 90
