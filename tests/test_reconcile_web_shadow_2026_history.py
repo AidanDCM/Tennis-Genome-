@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
-import pandas as pd
 from scripts import reconcile_web_shadow_2026_history as reconcile
 
 
@@ -25,8 +25,10 @@ COLUMNS = [
 
 
 def _write_csv(path: Path, rows: list[dict[str, object]]) -> None:
-    frame = pd.DataFrame(rows, columns=COLUMNS)
-    frame.to_csv(path, index=False)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def _row(
@@ -92,8 +94,9 @@ def test_reconcile_removes_cross_source_duplicate_ids(tmp_path: Path) -> None:
     assert len(result["removed_overlap_ids"]) == 1
     assert receipt.is_file()
 
-    filtered = pd.read_csv(output)
-    assert filtered["match_num"].tolist() == [11]
+    with output.open(encoding="utf-8", newline="") as handle:
+        filtered = list(csv.DictReader(handle))
+    assert [int(row["match_num"]) for row in filtered] == [11]
 
 
 def test_reconcile_requires_real_overlap(tmp_path: Path) -> None:
