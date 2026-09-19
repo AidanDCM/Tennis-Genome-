@@ -42,6 +42,7 @@ def run_web_shadow_prediction(
     model_source_sha: str,
     output_path: Path,
     committed_at: datetime | None = None,
+    calculator: object | None = None,
 ) -> dict[str, object]:
     fixture = _load_fixture(fixture_path)
     matchup = load_matchup_input(matchup_input_path)
@@ -67,7 +68,7 @@ def run_web_shadow_prediction(
     if matchup.created_at > commit_time:
         raise ValueError("matchup creation occurs after web-shadow commitment")
 
-    calculator = load_validated_matchup_calculator(bundle_path)
+    calculator = calculator or load_validated_matchup_calculator(bundle_path)
     calculation = calculator.calculate(matchup)
 
     if calculation.player_a_id != player_a_id or calculation.player_b_id != player_b_id:
