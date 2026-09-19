@@ -88,7 +88,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/run_web_shadow_slate.py             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             | tee web-shadow-slate-summary.json
+          python -m scripts.run_web_shadow_slate             --slate "${SLATE_PATH}"             --registry data/wta_players.csv             --base-dir data/wta-live-base             --bundle artifacts/tge_independent_v1_production/tge_independent_v1_production.json             --model-source-sha "${GITHUB_SHA}"             --output-root web-shadow-slate-run             2>&1 | tee web-shadow-slate-summary.json
 
       - name: Verify slate accounting and isolation
         shell: bash
@@ -117,11 +117,12 @@ jobs:
           PY
 
       - name: Upload Web Shadow slate artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: web-shadow-slate-${{ github.run_id }}
           path: |
             web-shadow-slate-run/
             web-shadow-slate-summary.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
