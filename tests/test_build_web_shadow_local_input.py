@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
@@ -64,8 +65,15 @@ def _history():
     return [SimpleNamespace(pre_match=pre, outcome=outcome)]
 
 
-def _snapshot(match_id: str):
-    return SimpleNamespace(match_id=match_id, event_date=date(2026, 9, 21), value=1.0)
+@dataclass(frozen=True)
+class _Snapshot:
+    match_id: str
+    event_date: date
+    value: float
+
+
+def _snapshot(match_id: str) -> _Snapshot:
+    return _Snapshot(match_id=match_id, event_date=date(2026, 9, 21), value=1.0)
 
 
 def test_local_builder_marks_history_limitation_and_writes_input(
