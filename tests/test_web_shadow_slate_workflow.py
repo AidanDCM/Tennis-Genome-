@@ -31,3 +31,13 @@ def test_web_shadow_slate_retains_failure_diagnostics() -> None:
     assert "2>&1 | tee web-shadow-slate-summary.json" in text
     assert "if: always()" in text
     assert "if-no-files-found: warn" in text
+
+
+def test_web_shadow_slate_enforces_shared_preparation() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "shared_history_load_count" in text
+    assert "shared_calculator_load_count" in text
+    assert "shared_feature_target_count" in text
+    assert "shared_feature_date_pass_count" in text
+    assert "did not share one history load" in text
+    assert "did not share one calculator load" in text
