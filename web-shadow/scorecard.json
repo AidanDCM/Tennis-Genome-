@@ -1,8 +1,8 @@
 {
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "production_eligible": false,
-  "official_slate_count": 1,
-  "pending_match_count": 5,
+  "official_slate_count": 2,
+  "pending_match_count": 7,
   "settled_match_count": 0,
   "slates": [
     {
@@ -55,6 +55,33 @@
           "selected_player": "Alevtina Ibragimova",
           "selected_probability": 0.5860762665100968,
           "scheduled_start": "2026-09-20T13:30:00+09:00",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "slate_id": "2026-09-19-run-35457838597",
+      "receipt_path": "web-shadow/slates/2026-09-19-run-35457838597/slate-receipt.json",
+      "workflow_run_id": 35457838597,
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "status": "PENDING_SETTLEMENT",
+      "predictions": [
+        {
+          "match_id": "web:wta:singapore:2026:RS005",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35457838597/predictions/singapore-2026-rs005-hibino-ito.json",
+          "prediction_record_sha256": "56756be3bae1eda565dca76401fdb3105e2f5af5b852c97f5443da81609af16a",
+          "selected_player": "Nao Hibino",
+          "selected_probability": 0.5559476201281999,
+          "scheduled_start": "2026-09-20T12:00:00+08:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:singapore:2026:RS006",
+          "prediction_path": "web-shadow/slates/2026-09-19-run-35457838597/predictions/singapore-2026-rs006-yamaguchi-okamura.json",
+          "prediction_record_sha256": "90d8246d6e03cb2db9778b9b0bbb7c686e193f77247b4ebb5bfa7ee0cfcb1f2e",
+          "selected_player": "Kyoka Okamura",
+          "selected_probability": 0.5645740374720367,
+          "scheduled_start": "2026-09-20T13:30:00+08:00",
           "status": "PENDING"
         }
       ]
