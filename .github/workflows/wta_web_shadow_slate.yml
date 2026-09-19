@@ -71,6 +71,8 @@ jobs:
         with:
           python-version: "3.11.16"
           check-latest: false
+          cache: "pip"
+          cache-dependency-path: requirements/ci.lock
 
       - name: Install pinned runtime
         shell: bash
@@ -87,7 +89,7 @@ jobs:
             data/wta-live-base
             data/wta_players.csv
           key: >-
-            web-shadow-wta-history-v1-${{ runner.os }}-${{ env.PINNED_ARCHIVE_COMMIT }}-${{ env.PINNED_2026_MATCHES_BLOB }}-${{ env.PINNED_2026_QUAL_ITF_BLOB }}-${{ hashFiles('src/tennis_genome/data/**', 'src/tennis_genome/pipeline/**', 'scripts/reconcile_web_shadow_2026_history.py', 'scripts/manage_web_shadow_history_cache.py', 'requirements/ci.lock', 'pyproject.toml') }}
+            web-shadow-wta-history-v1-${{ runner.os }}-${{ env.PINNED_ARCHIVE_COMMIT }}-${{ env.PINNED_2026_MATCHES_BLOB }}-${{ env.PINNED_2026_QUAL_ITF_BLOB }}-${{ hashFiles('src/tennis_genome/data/**', 'src/tennis_genome/pipeline/**', 'scripts/reconcile_web_shadow_2026_history.py', 'scripts/manage_web_shadow_history_cache.py', 'config/web_shadow_history_cache.json', 'requirements/ci.lock', 'pyproject.toml') }}
 
       - name: Download pinned WTA history through June 2 2026 once
         if: steps.history-cache.outputs.cache-hit != 'true'
@@ -141,7 +143,8 @@ jobs:
             --archive-commit "${PINNED_ARCHIVE_COMMIT}" \
             --matches-2026-blob "${PINNED_2026_MATCHES_BLOB}" \
             --qual-itf-2026-blob "${PINNED_2026_QUAL_ITF_BLOB}" \
-            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"
+            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}" \
+            --expected-spec config/web_shadow_history_cache.json
 
       - name: Verify pinned Web Shadow history cache receipt
         shell: bash
@@ -152,7 +155,8 @@ jobs:
             --archive-commit "${PINNED_ARCHIVE_COMMIT}" \
             --matches-2026-blob "${PINNED_2026_MATCHES_BLOB}" \
             --qual-itf-2026-blob "${PINNED_2026_QUAL_ITF_BLOB}" \
-            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"
+            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}" \
+            --expected-spec config/web_shadow_history_cache.json
 
       - name: Run Web Shadow slate
         shell: bash

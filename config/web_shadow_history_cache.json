@@ -1,0 +1,24 @@
+{
+  "schema_version": "tennis-genome-web-shadow-history-cache-v1",
+  "binding": {
+    "archive_repo": "Aneeshers/tennis-sackmann-archive",
+    "archive_commit": "83733587353df8a41f2fd4f516147d5aa83f5a8d",
+    "matches_2026_blob": "4989661bc24d621417b344d22c5e5a2b8ef5119e",
+    "qual_itf_2026_blob": "429fe4fc3a7736fda1d5c711ae587a6146490cf0",
+    "expected_history_max_date": "2026-06-02"
+  },
+  "history": {
+    "canonical_match_count": 81473,
+    "eligible_match_count": 78974,
+    "max_eligible_event_date": "2026-06-02"
+  },
+  "files_sha256": {
+    "data/wta-live-base/2026-source-reconciliation.json": "3bd8140f8e81461bb8e9cf9950cba5675285ff2c250ab813cd6a77b04ae00616",
+    "data/wta-live-base/build_output.json": "d6e57ab270a5be17dd224364faf0e71e1c3f7250c6dfd3d2f7e5245cbce36ee3",
+    "data/wta-live-base/wta_manifest.json": "d6e57ab270a5be17dd224364faf0e71e1c3f7250c6dfd3d2f7e5245cbce36ee3",
+    "data/wta-live-base/wta_outcomes.parquet": "fd888e0c888d2c6e9277e5b4190b5b9dedc6d97107bd8d735e8c818f773a0563",
+    "data/wta-live-base/wta_pre_match.parquet": "70f5a06496f3938c44c5a33ea482e479b07d567fe75396e17b60cac80c23ad87",
+    "data/wta-live-base/wta_stats.parquet": "fe39f992345be4efe8f50579822de7a0c183da172685eb1fd0448a151b264efb",
+    "data/wta_players.csv": "601a747a3e6e291d5ae8778b0e75f30db5536dbf9cd3d654a95d991311ad8870"
+  }
+}

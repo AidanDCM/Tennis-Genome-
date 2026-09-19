@@ -78,9 +78,19 @@ def _binding(
     return values
 
 
+def _load_expected_spec(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("history cache expected spec must contain an object")
+    if payload.get("schema_version") != _SCHEMA:
+        raise ValueError("unsupported history cache expected spec schema")
+    return payload
+
+
 def write_history_cache_receipt(
     *,
     root: Path,
+    expected_spec_path: Path,
     archive_repo: str,
     archive_commit: str,
     matches_2026_blob: str,
@@ -113,6 +123,10 @@ def write_history_cache_receipt(
         "history": history,
         "files_sha256": hashes,
     }
+    expected_spec = _load_expected_spec(expected_spec_path)
+    if receipt != expected_spec:
+        raise RuntimeError("derived history cache differs from pinned expected spec")
+
     path = root / _RECEIPT
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -125,6 +139,7 @@ def write_history_cache_receipt(
 def verify_history_cache_receipt(
     *,
     root: Path,
+    expected_spec_path: Path,
     archive_repo: str,
     archive_commit: str,
     matches_2026_blob: str,
@@ -146,10 +161,13 @@ def verify_history_cache_receipt(
         raise ValueError("history cache receipt must contain an object")
     if receipt.get("schema_version") != _SCHEMA:
         raise ValueError("unsupported history cache receipt schema")
-    if receipt.get("binding") != expected_binding:
-        raise RuntimeError("history cache binding differs from pinned source")
+    expected_spec = _load_expected_spec(expected_spec_path)
+    if expected_spec.get("binding") != expected_binding:
+        raise RuntimeError("expected cache spec binding differs from pinned source")
+    if receipt != expected_spec:
+        raise RuntimeError("restored history cache receipt differs from pinned spec")
 
-    hashes = receipt.get("files_sha256")
+    hashes = expected_spec.get("files_sha256")
     if not isinstance(hashes, dict):
         raise ValueError("history cache receipt lacks file hashes")
     expected_paths = {path.as_posix() for path in _HASHED_FILES}
@@ -163,11 +181,11 @@ def verify_history_cache_receipt(
         if observed != hashes[relative.as_posix()]:
             raise RuntimeError(f"restored history cache hash mismatch: {relative}")
 
-    observed_history = _history_summary(root)
-    if observed_history != receipt.get("history"):
-        raise RuntimeError("restored history cache summary differs from receipt")
-    if observed_history["max_eligible_event_date"] != expected_history_max_date:
-        raise RuntimeError("restored history cache maximum date differs from pinned source")
+    expected_history = expected_spec.get("history")
+    if not isinstance(expected_history, dict):
+        raise ValueError("history cache expected spec lacks history summary")
+    if expected_history.get("max_eligible_event_date") != expected_history_max_date:
+        raise RuntimeError("expected cache spec maximum date differs from pinned source")
     return receipt
 
 
@@ -177,6 +195,7 @@ def _add_binding_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--matches-2026-blob", required=True)
     parser.add_argument("--qual-itf-2026-blob", required=True)
     parser.add_argument("--expected-history-max-date", required=True)
+    parser.add_argument("--expected-spec", required=True, type=Path)
     parser.add_argument("--root", type=Path, default=Path("."))
 
 
@@ -196,6 +215,7 @@ def main() -> None:
     args = _parse_args()
     kwargs = {
         "root": args.root,
+        "expected_spec_path": args.expected_spec,
         "archive_repo": args.archive_repo,
         "archive_commit": args.archive_commit,
         "matches_2026_blob": args.matches_2026_blob,
