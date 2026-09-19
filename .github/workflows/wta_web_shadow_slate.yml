@@ -90,7 +90,9 @@ jobs:
             --primary data/wta-live-raw/wta_matches_2026.csv \
             --secondary data/wta-live-raw/wta_matches_qual_itf_2026.csv \
             --output data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv \
-            --receipt data/wta-live-base/2026-source-reconciliation.json
+            --receipt data/wta-live-base/2026-source-reconciliation.json \
+            --expected-exact-duplicate-rows 216 \
+            --expected-cross-source-overlap-rows 0
 
       - name: Rebuild canonical pinned WTA history once
         shell: bash
