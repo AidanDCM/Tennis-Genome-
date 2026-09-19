@@ -14,8 +14,6 @@
   },
   "files_sha256": {
     "data/wta-live-base/2026-source-reconciliation.json": "3bd8140f8e81461bb8e9cf9950cba5675285ff2c250ab813cd6a77b04ae00616",
-    "data/wta-live-base/build_output.json": "d6e57ab270a5be17dd224364faf0e71e1c3f7250c6dfd3d2f7e5245cbce36ee3",
-    "data/wta-live-base/wta_manifest.json": "d6e57ab270a5be17dd224364faf0e71e1c3f7250c6dfd3d2f7e5245cbce36ee3",
     "data/wta-live-base/wta_outcomes.parquet": "fd888e0c888d2c6e9277e5b4190b5b9dedc6d97107bd8d735e8c818f773a0563",
     "data/wta-live-base/wta_pre_match.parquet": "70f5a06496f3938c44c5a33ea482e479b07d567fe75396e17b60cac80c23ad87",
     "data/wta-live-base/wta_stats.parquet": "fe39f992345be4efe8f50579822de7a0c183da172685eb1fd0448a151b264efb",
