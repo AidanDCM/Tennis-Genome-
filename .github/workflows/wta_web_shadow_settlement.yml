@@ -1,0 +1,94 @@
+name: WTA Web Shadow Settlement
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web-shadow/active-result.json"
+  workflow_dispatch:
+    inputs:
+      result_path:
+        description: "Repository path under web-shadow/results/"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  settle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve result path
+        shell: bash
+        env:
+          DISPATCH_RESULT_PATH: ${{ inputs.result_path }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            RESULT_PATH="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(
+              Path("web-shadow/active-result.json").read_text(encoding="utf-8")
+          )
+          print(payload["result_path"])
+          PY
+            )"
+          else
+            RESULT_PATH="${DISPATCH_RESULT_PATH}"
+          fi
+          case "${RESULT_PATH}" in
+            web-shadow/results/*.json) ;;
+            *) echo "result_path must be under web-shadow/results/" >&2; exit 1 ;;
+          esac
+          test -f "${RESULT_PATH}"
+          echo "RESULT_PATH=${RESULT_PATH}" >> "${GITHUB_ENV}"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Settle frozen prediction
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p web-shadow-settlement
+          python scripts/settle_web_shadow_prediction.py             --result "${RESULT_PATH}"             --output web-shadow-settlement/settlement.json             | tee web-shadow-settlement/settlement-summary.json
+
+      - name: Verify non-production settlement
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          settlement = json.loads(
+              Path("web-shadow-settlement/settlement.json").read_text(encoding="utf-8")
+          )
+          if settlement.get("production_eligible") is not False:
+              raise SystemExit("web-shadow settlement must remain non-production")
+          if settlement.get("record_type") != "WEB_SHADOW_SETTLEMENT":
+              raise SystemExit("unexpected web-shadow settlement record type")
+          PY
+
+      - name: Retain result evidence
+        shell: bash
+        run: |
+          cp "${RESULT_PATH}" web-shadow-settlement/result.json
+
+      - name: Upload Web Shadow settlement
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-shadow-settlement-${{ github.run_id }}
+          path: web-shadow-settlement/
+          if-no-files-found: error
+          retention-days: 90
