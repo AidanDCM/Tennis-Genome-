@@ -40,7 +40,17 @@ class WebShadowFixture:
     source_observed_at: str
 
     def validate(self) -> None:
-        for name in ("match_id", "tour", "tournament", "round", "surface", "player_a", "player_b", "source_url"):
+        required_fields = (
+            "match_id",
+            "tour",
+            "tournament",
+            "round",
+            "surface",
+            "player_a",
+            "player_b",
+            "source_url",
+        )
+        for name in required_fields:
             if not str(getattr(self, name)).strip():
                 raise ValueError(f"{name} must be non-empty")
         if self.player_a == self.player_b:
@@ -72,6 +82,11 @@ class WebShadowPrediction:
             raise ValueError("probabilities must be strictly inside (0,1)")
         if abs(self.p_player_a + self.p_player_b - 1.0) > 1e-9:
             raise ValueError("probabilities must sum to one")
+        selected_player = (
+            self.fixture.player_a
+            if self.p_player_a >= self.p_player_b
+            else self.fixture.player_b
+        )
         payload: dict[str, object] = {
             "schema_version": WEB_SHADOW_SCHEMA,
             "record_type": "WEB_SHADOW_PREDICTION",
@@ -79,7 +94,7 @@ class WebShadowPrediction:
             "committed_at": self.committed_at,
             "p_player_a": self.p_player_a,
             "p_player_b": self.p_player_b,
-            "selected_player": self.fixture.player_a if self.p_player_a >= self.p_player_b else self.fixture.player_b,
+            "selected_player": selected_player,
             "model_source_sha": self.model_source_sha,
             "input_manifest_sha256": self.input_manifest_sha256,
             "production_eligible": False,
