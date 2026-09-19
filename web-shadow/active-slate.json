@@ -8,5 +8,5 @@
     "web-shadow/fixtures/singapore-2026-rs005-hibino-ito.json",
     "web-shadow/fixtures/singapore-2026-rs006-yamaguchi-okamura.json"
   ],
-  "rerun_reason": "seven-match-shared-preparation-scaling-benchmark-v1"
+  "rerun_reason": "verified-history-cache-cold-run-v1"
 }

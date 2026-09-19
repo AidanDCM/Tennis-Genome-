@@ -11,6 +11,8 @@ on:
       - "scripts/build_web_shadow_local_input.py"
       - "scripts/build_web_shadow_target_state.py"
       - "scripts/run_web_shadow_prediction.py"
+      - "scripts/manage_web_shadow_history_cache.py"
+      - ".github/workflows/wta_web_shadow_slate.yml"
       - "src/tennis_genome/features/**"
       - "src/tennis_genome/ratings/**"
       - "src/tennis_genome/evaluation/**"
@@ -77,7 +79,18 @@ jobs:
           python -m pip install -r requirements/ci.lock
           python -m pip install -e . --no-deps
 
+      - name: Restore pinned Web Shadow history cache
+        id: history-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/wta-live-base
+            data/wta_players.csv
+          key: >-
+            web-shadow-wta-history-v1-${{ runner.os }}-${{ env.PINNED_ARCHIVE_COMMIT }}-${{ env.PINNED_2026_MATCHES_BLOB }}-${{ env.PINNED_2026_QUAL_ITF_BLOB }}-${{ hashFiles('src/tennis_genome/data/**', 'src/tennis_genome/pipeline/**', 'scripts/reconcile_web_shadow_2026_history.py', 'scripts/manage_web_shadow_history_cache.py', 'requirements/ci.lock', 'pyproject.toml') }}
+
       - name: Download pinned WTA history through June 2 2026 once
+        if: steps.history-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -94,6 +107,7 @@ jobs:
           test -s data/wta_players.csv
 
       - name: Reconcile overlapping pinned 2026 sources
+        if: steps.history-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -106,6 +120,7 @@ jobs:
             --expected-cross-source-overlap-rows 0
 
       - name: Rebuild canonical pinned WTA history once
+        if: steps.history-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -115,6 +130,29 @@ jobs:
           done
           args+=(--input data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv)
           python -m tennis_genome.pipeline.build_dataset             "${args[@]}"             --tour WTA             --output-dir data/wta-live-base             --source-id "sackmann-archive-${PINNED_ARCHIVE_COMMIT}-wta-through-20260602"             --provider "Jeff Sackmann / Tennis Abstract via Aneeshers archival mirror"             --source-version "${PINNED_ARCHIVE_COMMIT}"             --license-name "CC BY-NC-SA 4.0"             --license-url "https://creativecommons.org/licenses/by-nc-sa/4.0/"             --allowed-use-status research_allowed             > data/wta-live-base/build_output.json
+
+      - name: Write pinned Web Shadow history cache receipt
+        if: steps.history-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.manage_web_shadow_history_cache write \
+            --archive-repo "${PINNED_ARCHIVE_REPO}" \
+            --archive-commit "${PINNED_ARCHIVE_COMMIT}" \
+            --matches-2026-blob "${PINNED_2026_MATCHES_BLOB}" \
+            --qual-itf-2026-blob "${PINNED_2026_QUAL_ITF_BLOB}" \
+            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"
+
+      - name: Verify pinned Web Shadow history cache receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.manage_web_shadow_history_cache verify \
+            --archive-repo "${PINNED_ARCHIVE_REPO}" \
+            --archive-commit "${PINNED_ARCHIVE_COMMIT}" \
+            --matches-2026-blob "${PINNED_2026_MATCHES_BLOB}" \
+            --qual-itf-2026-blob "${PINNED_2026_QUAL_ITF_BLOB}" \
+            --expected-history-max-date "${PINNED_HISTORY_MAX_DATE}"
 
       - name: Run Web Shadow slate
         shell: bash
@@ -171,5 +209,6 @@ jobs:
             web-shadow-slate-run/
             web-shadow-slate-summary.json
             data/wta-live-base/2026-source-reconciliation.json
+            data/wta-live-base/history-cache-receipt.json
           if-no-files-found: warn
           retention-days: 90
