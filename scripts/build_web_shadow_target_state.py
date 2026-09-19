@@ -9,6 +9,7 @@ from dataclasses import asdict, replace
 from datetime import date, datetime
 from pathlib import Path
 
+from tennis_genome.data.identity import canonical_player_id
 from tennis_genome.prospective.web_shadow import WebShadowFixture
 
 
@@ -109,9 +110,22 @@ def build_web_shadow_target_state(
         _resolve_player(fixture.player_a, registry=registry),
         _resolve_player(fixture.player_b, registry=registry),
     ]
-    if source_players[0]["id"] == source_players[1]["id"]:
+    players = []
+    for item in source_players:
+        name = f"{item['first']} {item['last']}".strip()
+        players.append(
+            {
+                **item,
+                "canonical_id": canonical_player_id(
+                    tour="WTA",
+                    source_id=item["id"],
+                    name=name,
+                ),
+            }
+        )
+    if players[0]["canonical_id"] == players[1]["canonical_id"]:
         raise ValueError("web fixture resolves both sides to the same canonical player")
-    players = sorted(source_players, key=lambda item: item["id"])
+    players.sort(key=lambda item: item["canonical_id"])
 
     scheduled = datetime.fromisoformat(fixture.scheduled_start)
     event_date = scheduled.date()
@@ -134,8 +148,8 @@ def build_web_shadow_target_state(
         "surface": fixture.surface,
         "round": fixture.round,
         "best_of": 3,
-        "player_a_id": players[0]["id"],
-        "player_b_id": players[1]["id"],
+        "player_a_id": players[0]["canonical_id"],
+        "player_b_id": players[1]["canonical_id"],
         "player_a_name": names[0],
         "player_b_name": names[1],
         "rank_a": None,
