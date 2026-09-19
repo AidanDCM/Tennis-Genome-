@@ -1,0 +1,9 @@
+{
+  "schema_version": "tennis-genome-web-shadow-run-receipt-v1",
+  "workflow_run_id": 35449159492,
+  "workflow_artifact_id": 10585708816,
+  "workflow_source_sha": "37c1291b10e8bf6e0c1ecf9f076f0cab3e395a3b",
+  "prediction_record_sha256": "b15cd2431ab70bc559e1fb7e6bba491fd31e57a7b88c232cf1881b63cc4fae0a",
+  "prediction_path": "web-shadow/predictions/singapore-2026-rs006-yamaguchi-okamura.json",
+  "production_eligible": false
+}
