@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-19T16:58:26.078818+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:qfnl:yao-kuramochi",
+    "player_a": "Miho Kuramochi",
+    "player_b": "Xinxin Yao",
+    "round": "QFNL",
+    "schedule_source_url": "https://tennistonic.com/tennis-news/1055900/h2h-prediction-of-xinxin-yao-vs-miho-kuramochi-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "scheduled_start": "2026-09-20T13:00:00+09:00",
+    "source_observed_at": "2026-09-19T12:11:06-04:00",
+    "source_url": "https://tennistonic.com/tennis-news/1055900/h2h-prediction-of-xinxin-yao-vs-miho-kuramochi-in-seoul-with-odds-preview-pick-20th-september-2026/",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "7fb61a2de0436b78394081189d3dbc67e644166c18de0cdb14a6c6529626e931",
+  "model_source_sha": "a37dea75ed4ce5310c503acaf6954d9a34eb40db",
+  "p_player_a": 0.36073191484925277,
+  "p_player_b": 0.6392680851507473,
+  "player_a_id": "wta:id:246478",
+  "player_b_id": "wta:id:252587",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "65951f1acd5e8e98e65ba7f53e1248132e98f2e11927c52919dbaf91e9a61771",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Xinxin Yao"
+}
