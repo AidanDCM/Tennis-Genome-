@@ -1,0 +1,64 @@
+{
+  "schema_version": "tennis-genome-web-shadow-history-sensitivity-v1",
+  "analysis_date": "2026-09-19",
+  "comparison": {
+    "baseline_history_mode": "FROZEN_LOCAL_HISTORY_ONLY",
+    "richer_history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02"
+  },
+  "matches": [
+    {
+      "match_id": "web:wta:singapore:2026:RS005",
+      "baseline": {
+        "workflow_run_id": 35452881965,
+        "record_sha256": "2dd59c42a927a2770f229c7d6742016ffa5bcf0fe0a9325f6a7579847f258bd3",
+        "selected_player": "Aoi Ito",
+        "selected_probability": 0.6451332644657839,
+        "target_history_match_counts": {
+          "wta:id:211702": 209,
+          "wta:id:256684": 16
+        },
+        "minimum_point_exposure": 1182
+      },
+      "richer": {
+        "workflow_run_id": 35457838597,
+        "record_sha256": "56756be3bae1eda565dca76401fdb3105e2f5af5b852c97f5443da81609af16a",
+        "selected_player": "Nao Hibino",
+        "selected_probability": 0.5559476201281999,
+        "target_history_match_counts": {
+          "wta:id:211702": 236,
+          "wta:id:256684": 33
+        },
+        "minimum_point_exposure": 2368
+      },
+      "selection_flipped": true
+    },
+    {
+      "match_id": "web:wta:singapore:2026:RS006",
+      "baseline": {
+        "workflow_run_id": 35453148070,
+        "record_sha256": "02c36c5802f45020b71930d38b0ae38e00d1b529a6210d9e8c19e07104e13b44",
+        "selected_player": "Mei Yamaguchi",
+        "selected_probability": 0.5064458466314463,
+        "target_history_match_counts": {
+          "wta:id:211846": 5,
+          "wta:id:215614": 3
+        },
+        "minimum_point_exposure": 239
+      },
+      "richer": {
+        "workflow_run_id": 35457838597,
+        "record_sha256": "90d8246d6e03cb2db9778b9b0bbb7c686e193f77247b4ebb5bfa7ee0cfcb1f2e",
+        "selected_player": "Kyoka Okamura",
+        "selected_probability": 0.5645740374720367,
+        "target_history_match_counts": {
+          "wta:id:211846": 29,
+          "wta:id:215614": 29
+        },
+        "minimum_point_exposure": 1790
+      },
+      "selection_flipped": true
+    }
+  ],
+  "interpretation": "Both repeated pre-start fixtures changed selected side after extending the pinned public history through 2026-06-02. These richer-history predictions are the official scorecard entries; earlier thinner-history records remain preserved as sensitivity evidence.",
+  "production_eligible": false
+}
