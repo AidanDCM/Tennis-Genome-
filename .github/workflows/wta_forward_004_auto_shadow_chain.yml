@@ -13,14 +13,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: wta-forward-004-auto-${{ github.event.workflow_run.id || inputs.provider_run_id }}
+  group: wta-forward-004-auto-${{ inputs.provider_run_id }}
   cancel-in-progress: false
 
 jobs:
   predict-chain:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 32
     env:
@@ -42,17 +39,11 @@ jobs:
         id: provider
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
-          MANUAL_RUN_ID: ${{ inputs.provider_run_id }}
+          PROVIDER_RUN_ID: ${{ inputs.provider_run_id }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${EVENT_NAME}" = "workflow_run" ]; then
-            run_id="${WORKFLOW_RUN_ID}"
-          else
-            run_id="${MANUAL_RUN_ID}"
-          fi
+          run_id="${PROVIDER_RUN_ID}"
           case "$run_id" in
             ''|*[!0-9]*) echo "provider run id must be a positive integer" >&2; exit 1 ;;
           esac
