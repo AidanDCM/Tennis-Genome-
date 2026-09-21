@@ -18,9 +18,9 @@ def test_repository_web_shadow_scorecard_is_valid() -> None:
         repo_root=Path("."),
     )
     assert summary == {
-        "official_slate_count": 4,
-        "official_match_count": 18,
-        "pending_match_count": 11,
+        "official_slate_count": 5,
+        "official_match_count": 20,
+        "pending_match_count": 13,
         "settled_match_count": 7,
     }
 
@@ -118,8 +118,8 @@ def test_scorecard_retains_settled_metrics_with_pending_slate() -> None:
     scorecard = json.loads(
         Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
     )
-    assert scorecard["official_slate_count"] == 4
-    assert scorecard["pending_match_count"] == 11
+    assert scorecard["official_slate_count"] == 5
+    assert scorecard["pending_match_count"] == 13
     assert scorecard["settled_match_count"] == 7
     assert scorecard["slates"][-1]["status"] == "PENDING_SETTLEMENT"
     assert len(scorecard["slates"][-1]["predictions"]) == 2
@@ -136,8 +136,8 @@ def test_pending_scorecard_has_prospective_elo_baselines() -> None:
         for entry in slate["predictions"]
         if "baseline_path" in entry
     ]
-    assert scorecard["baseline_match_count"] == 11
-    assert len(baseline_entries) == 11
+    assert scorecard["baseline_match_count"] == 13
+    assert len(baseline_entries) == 13
     assert all(entry["status"] == "PENDING" for entry in baseline_entries)
     assert "baseline_comparison" not in scorecard
 
