@@ -47,5 +47,9 @@ jobs:
           jq 'keys' draw.json
           echo "=== draw structural summary ==="
           jq 'walk(if type == "object" then with_entries(select(.key | test("round|Round|event|Event|match|Match|description|Description|type|Type"))) else . end) | .[0:3]?' draw.json || true
+          echo "=== drawInfo type and keys ==="
+          jq '.drawInfo | type, (if type == "array" then (.[0] | keys) else keys end)' draw.json
+          echo "=== draw round-bearing nodes ==="
+          jq '[.. | objects | select(any(keys[]?; test("Round|round"))) | with_entries(select(.key | test("Round|round|Match|match|Description|description|Name|name|ID|Id|id")))] | .[:30]' draw.json
           echo "=== draw strings containing round labels ==="
           grep -Eo '"[^"]*(Round of|Quarter|Semi|Final|R32|R16)[^"]*"' draw.json | head -80 || true
