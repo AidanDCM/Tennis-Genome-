@@ -14,6 +14,12 @@ _BASELINE_SCHEMA = "tennis-genome-web-shadow-baseline-v1"
 _BASELINE_COMPARISON_SCHEMA = "tennis-genome-web-shadow-baseline-comparison-v1"
 _BASELINE_NAME = "overall_elo_v1"
 _ALLOWED_STATUSES = {"PENDING", "SETTLED"}
+_TERMINAL_SETTLEMENT_STATUSES = {
+    "COMPLETED",
+    "RETIREMENT",
+    "WALKOVER",
+    "DEFAULTED",
+}
 
 
 def _canonical_sha256(payload: dict[str, Any]) -> str:
@@ -64,7 +70,10 @@ def _assert_record_digest(record: dict[str, Any], *, label: str) -> str:
 
 
 def _settlement_is_evaluation_eligible(settlement: dict[str, Any]) -> bool:
-    return str(settlement.get("status", "")).strip().upper() == "COMPLETED"
+    status = settlement.get("status")
+    if not isinstance(status, str) or status not in _TERMINAL_SETTLEMENT_STATUSES:
+        raise ValueError(f"unsupported settlement status: {status}")
+    return status == "COMPLETED"
 
 
 def _compute_metrics(rows: list[dict[str, float | bool]]) -> dict[str, Any]:
@@ -475,8 +484,11 @@ def validate_web_shadow_scorecard(
             for key, value in expected_result_values.items():
                 if result.get(key) != value:
                     raise ValueError(f"result evidence mismatch for {key}: {match_id}")
-            if not str(result.get("score", "")).strip():
-                raise ValueError(f"result evidence lacks score: {match_id}")
+            score = result.get("score")
+            if not isinstance(score, str) or not score.strip():
+                raise ValueError(
+                    f"result evidence score must be a non-empty string: {match_id}"
+                )
 
             settled += 1
             slate_settled += 1
