@@ -357,3 +357,9 @@ def test_scorecard_metrics_only_use_completed_settlements(
     eligible: bool,
 ) -> None:
     assert _settlement_is_evaluation_eligible({"status": status}) is eligible
+
+
+@pytest.mark.parametrize("status", ["COMPLETE", "", None, 123])
+def test_scorecard_rejects_unknown_settlement_status(status: object) -> None:
+    with pytest.raises(ValueError, match="unsupported settlement status"):
+        _settlement_is_evaluation_eligible({"status": status})
