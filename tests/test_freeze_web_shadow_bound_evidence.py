@@ -63,7 +63,7 @@ def _build_bound_artifact(tmp_path: Path, *, tamper_baseline: bool = False) -> t
     baseline = _record(
         {
             "schema_version": "tennis-genome-web-shadow-baseline-v1",
-            "record_type": "WEB_SHADOW_ELO_BASELINE",
+            "record_type": "WEB_SHADOW_BASELINE",
             "baseline_name": "overall_elo_v1",
             "slate_id": "2026-09-21-run-123",
             "match_id": match_id,
