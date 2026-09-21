@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:40.594723+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:sakatsume-preston",
+    "player_a": "Himeno Sakatsume",
+    "player_b": "Taylah Preston",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T12:00:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "14e6e62f28b5d19a97accc1f00f3f41fc31cb74f81a2a2dcd19e90b9cab30202",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.38401401834962373,
+  "p_player_b": 0.6159859816503763,
+  "player_a_id": "wta:id:221124",
+  "player_b_id": "wta:id:223194",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "e864581ef939dd8d8ce3a8d45ec52cbcdae3b5277a875572615eea40ac556903",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Taylah Preston"
+}
