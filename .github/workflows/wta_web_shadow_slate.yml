@@ -12,6 +12,7 @@ on:
       - "scripts/build_web_shadow_target_state.py"
       - "scripts/run_web_shadow_prediction.py"
       - "scripts/derive_web_shadow_elo_baseline.py"
+      - "scripts/finalize_web_shadow_slate_evidence.py"
       - "scripts/manage_web_shadow_history_cache.py"
       - ".github/workflows/wta_web_shadow_slate.yml"
       - "src/tennis_genome/features/**"
