@@ -2,15 +2,15 @@
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "production_eligible": false,
   "official_slate_count": 2,
-  "pending_match_count": 7,
-  "settled_match_count": 0,
+  "pending_match_count": 0,
+  "settled_match_count": 7,
   "slates": [
     {
       "slate_id": "2026-09-19-run-35456454045",
       "receipt_path": "web-shadow/slates/2026-09-19-run-35456454045/slate-receipt.json",
       "workflow_run_id": 35456454045,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "predictions": [
         {
           "match_id": "web:wta:singapore:2026:RS007",
@@ -19,7 +19,8 @@
           "selected_player": "Anastasia Kulikova",
           "selected_probability": 0.5608402352288062,
           "scheduled_start": "2026-09-20T12:00:00+08:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/singapore-2026-rs007-friedsam-kulikova.json"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:ma-lee",
@@ -28,7 +29,8 @@
           "selected_player": "Ye Xin Ma",
           "selected_probability": 0.5515373548078999,
           "scheduled_start": "2026-09-20T11:00:00+09:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-ma-lee.json"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:shubladze-astakhova",
@@ -37,7 +39,8 @@
           "selected_player": "Alexandra Shubladze",
           "selected_probability": 0.6932029075821968,
           "scheduled_start": "2026-09-20T11:00:00+09:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-shubladze-astakhova.json"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:yao-kuramochi",
@@ -46,7 +49,8 @@
           "selected_player": "Xinxin Yao",
           "selected_probability": 0.6392680851507473,
           "scheduled_start": "2026-09-20T13:00:00+09:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-yao-kuramochi.json"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:ibragimova-saito",
@@ -55,7 +59,8 @@
           "selected_player": "Alevtina Ibragimova",
           "selected_probability": 0.5860762665100968,
           "scheduled_start": "2026-09-20T13:30:00+09:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-ibragimova-saito.json"
         }
       ]
     },
@@ -64,7 +69,7 @@
       "receipt_path": "web-shadow/slates/2026-09-19-run-35457838597/slate-receipt.json",
       "workflow_run_id": 35457838597,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "predictions": [
         {
           "match_id": "web:wta:singapore:2026:RS005",
@@ -73,7 +78,8 @@
           "selected_player": "Nao Hibino",
           "selected_probability": 0.5559476201281999,
           "scheduled_start": "2026-09-20T12:00:00+08:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35457838597/settlements/singapore-2026-rs005-hibino-ito.json"
         },
         {
           "match_id": "web:wta:singapore:2026:RS006",
@@ -82,9 +88,40 @@
           "selected_player": "Kyoka Okamura",
           "selected_probability": 0.5645740374720367,
           "scheduled_start": "2026-09-20T13:30:00+08:00",
-          "status": "PENDING"
+          "status": "SETTLED",
+          "settlement_path": "web-shadow/slates/2026-09-19-run-35457838597/settlements/singapore-2026-rs006-yamaguchi-okamura.json"
         }
       ]
     }
-  ]
+  ],
+  "metrics": {
+    "schema_version": "tennis-genome-web-shadow-metrics-v1",
+    "settled_match_count": 7,
+    "correct_prediction_count": 5,
+    "accuracy": 0.7142857142857143,
+    "brier_score": 0.24063277730212165,
+    "log_loss": 0.6771440099091525,
+    "mean_selected_probability": 0.5930637866971404,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.12122192758857386,
+    "confidence_buckets": [
+      {
+        "label": "0.50-0.60",
+        "lower_bound": 0.5,
+        "upper_bound": 0.6,
+        "match_count": 5,
+        "correct_prediction_count": 4,
+        "accuracy": 0.8,
+        "mean_selected_probability": 0.5637951028294079
+      },
+      {
+        "label": "0.60-0.70",
+        "lower_bound": 0.6,
+        "upper_bound": 0.7,
+        "match_count": 2,
+        "correct_prediction_count": 1,
+        "accuracy": 0.5,
+        "mean_selected_probability": 0.6662354963664721
+      }
+    ]
+  }
 }
