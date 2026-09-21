@@ -27,6 +27,14 @@ def _canonical_sha256(payload: dict[str, Any]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -377,9 +385,14 @@ def validate_web_shadow_scorecard(
                 baseline_count += 1
 
             if status == "PENDING":
-                if "settlement_path" in entry:
+                forbidden_settlement_fields = {
+                    "settlement_path",
+                    "settlement_record_sha256",
+                    "result_record_sha256",
+                }.intersection(entry)
+                if forbidden_settlement_fields:
                     raise ValueError(
-                        f"pending scorecard entry already has a settlement: {match_id}"
+                        f"pending scorecard entry already has settlement evidence: {match_id}"
                     )
                 pending += 1
                 continue
@@ -405,7 +418,12 @@ def validate_web_shadow_scorecard(
                 raise ValueError(f"unexpected settlement type: {match_id}")
             if settlement.get("production_eligible") is not False:
                 raise ValueError(f"settlement escaped non-production isolation: {match_id}")
-            _assert_record_digest(settlement, label=f"settlement {match_id}")
+            settlement_sha = _assert_record_digest(
+                settlement,
+                label=f"settlement {match_id}",
+            )
+            if settlement_sha != str(entry.get("settlement_record_sha256", "")):
+                raise ValueError(f"scorecard settlement SHA mismatch: {match_id}")
             if settlement.get("prediction_record_sha256") != observed_sha:
                 raise ValueError(f"settlement prediction SHA mismatch: {match_id}")
             if settlement.get("match_id") != match_id:
@@ -436,6 +454,9 @@ def validate_web_shadow_scorecard(
                 "results",
             ):
                 raise ValueError(f"settlement result path is outside results: {match_id}")
+            result_sha = _sha256_file(result_path)
+            if result_sha != str(entry.get("result_record_sha256", "")):
+                raise ValueError(f"scorecard result SHA mismatch: {match_id}")
             result = _load_json(result_path)
             if result.get("production_eligible") is not False:
                 raise ValueError(f"result escaped non-production isolation: {match_id}")
@@ -452,6 +473,13 @@ def validate_web_shadow_scorecard(
                     raise ValueError(f"result evidence mismatch for {key}: {match_id}")
             if not str(result.get("score", "")).strip():
                 raise ValueError(f"result evidence lacks score: {match_id}")
+
+            settled += 1
+            slate_settled += 1
+
+            settlement_status = str(settlement.get("status", "")).strip().upper()
+            if settlement_status != "COMPLETED":
+                continue
 
             genome_metric_row = {
                 "p_player_a": float(prediction["p_player_a"]),
@@ -475,8 +503,6 @@ def validate_web_shadow_scorecard(
                         "prediction_correct": winner == baseline_selected_player,
                     }
                 )
-            settled += 1
-            slate_settled += 1
 
         expected_slate_status = (
             "SETTLED"
@@ -493,7 +519,7 @@ def validate_web_shadow_scorecard(
     if int(scorecard.get("settled_match_count", -1)) != settled:
         raise ValueError("settled match count does not match scorecard contents")
 
-    if settled:
+    if metric_rows:
         expected_metrics = _compute_metrics(metric_rows)
         observed_metrics = scorecard.get("metrics")
         _assert_metric_payload(
@@ -502,7 +528,9 @@ def validate_web_shadow_scorecard(
             path="metrics",
         )
     elif "metrics" in scorecard:
-        raise ValueError("unsettled scorecard must not publish metrics")
+        raise ValueError(
+            "scorecard cannot publish metrics without completed settlements"
+        )
 
     if baseline_metric_rows:
         expected_comparison = _compute_baseline_comparison(
