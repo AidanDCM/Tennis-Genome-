@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "9f17dd4e00bcaae3be282be46523cafabedcdb4b415855b0bd11aa0f2e70bc56",
+  "match_id": "web:wta:seoul:2026:qfnl:ibragimova-saito",
+  "winner": "Alevtina Ibragimova",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": true,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-seoul-2026-qfnl-ibragimova-saito.json",
+  "record_sha256": "dc0ae7782180879d2a66e5b25889be828eb4c0165b5e60b8c552248f931fcebe"
+}
