@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,14 @@ from scripts.settle_web_shadow_prediction import settle_from_result_file
 
 _BATCH_SCHEMA = "tennis-genome-web-shadow-result-batch-v1"
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -93,6 +102,7 @@ def settle_web_shadow_result_batch(
     seen_prediction_paths: set[str] = set()
     seen_match_ids: set[str] = set()
     correct = 0
+    evaluation_eligible = 0
 
     for result_path in result_paths:
         result = _load_json(result_path)
@@ -153,19 +163,24 @@ def settle_web_shadow_result_batch(
             raise RuntimeError("batch settlement escaped non-production isolation")
 
         prediction_correct = bool(settlement.get("prediction_correct"))
-        if prediction_correct:
-            correct += 1
+        evaluation_eligible_result = settlement.get("status") == "COMPLETED"
+        if evaluation_eligible_result:
+            evaluation_eligible += 1
+            if prediction_correct:
+                correct += 1
         results.append(
             {
                 "slate_id": scorecard_entry["slate_id"],
                 "match_id": match_id,
                 "result_path": result_path.as_posix(),
+                "result_record_sha256": _sha256_file(result_path),
                 "prediction_path": prediction_path,
                 "prediction_record_sha256": expected_sha,
                 "settlement_output_path": settlement_path.as_posix(),
                 "settlement_record_sha256": settlement["record_sha256"],
                 "winner": settlement["winner"],
                 "prediction_correct": prediction_correct,
+                "evaluation_eligible": evaluation_eligible_result,
             }
         )
 
@@ -174,8 +189,12 @@ def settle_web_shadow_result_batch(
         "production_eligible": False,
         "requested_result_count": len(result_paths),
         "settlement_count": len(results),
+        "evaluation_eligible_count": evaluation_eligible,
+        "excluded_noncompleted_count": len(results) - evaluation_eligible,
         "correct_prediction_count": correct,
-        "accuracy": correct / len(results),
+        "accuracy": (
+            correct / evaluation_eligible if evaluation_eligible else None
+        ),
         "slate_count": len({row["slate_id"] for row in results}),
         "results": results,
     }
