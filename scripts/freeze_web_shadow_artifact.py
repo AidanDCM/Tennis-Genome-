@@ -143,6 +143,12 @@ def freeze_web_shadow_artifact(
     artifact_sha256: str,
     workflow_source_sha: str,
 ) -> dict[str, Any]:
+    repo_root = repo_root.resolve()
+    artifact_zip = artifact_zip.resolve()
+    if not scorecard_path.is_absolute():
+        scorecard_path = repo_root / scorecard_path
+    scorecard_path = scorecard_path.resolve()
+
     if workflow_run_id <= 0:
         raise ValueError("workflow_run_id must be positive")
     if artifact_id <= 0:
