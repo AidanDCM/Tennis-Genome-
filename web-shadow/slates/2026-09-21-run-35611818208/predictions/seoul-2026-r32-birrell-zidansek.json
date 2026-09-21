@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:45.463499+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
+    "player_a": "Kimberly Birrell",
+    "player_b": "Tamara Zidansek",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T15:00:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "f2287d10236bce5ba7e6bf10b3091a726601a11c969e19a0b21534f747f6fdbf",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.5181652846948649,
+  "p_player_b": 0.4818347153051351,
+  "player_a_id": "wta:id:214040",
+  "player_b_id": "wta:id:214461",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "6af4a995c4bcb958f032963a6ccded421fe9df38ab0e878e3955042525df363f",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Kimberly Birrell"
+}

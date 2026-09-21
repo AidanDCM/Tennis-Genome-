@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:41.981330+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:montgomery-park",
+    "player_a": "Sohyun Park",
+    "player_b": "Robin Montgomery",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T12:00:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "ab98190f5195492b7b05ae1f8136617336ef258b566aabdeb9db3ec0b7505989",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.5254181373214782,
+  "p_player_b": 0.47458186267852176,
+  "player_a_id": "wta:id:216213",
+  "player_b_id": "wta:id:221905",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "50eea9b45802dd687a77a82d56b662614eea52e91eecb76e46ed31178b8fb4e7",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Sohyun Park"
+}

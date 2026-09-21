@@ -1,0 +1,160 @@
+{
+  "eligible_target_count": 9,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 9,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "seoul-2026-r32-sakatsume-preston",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-sakatsume-preston.json",
+      "match_id": "web:wta:seoul:2026:r32:sakatsume-preston",
+      "minimum_point_exposure": 2567,
+      "p_player_a": 0.38401401834962373,
+      "p_player_b": 0.6159859816503763,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-sakatsume-preston/prediction.json",
+      "prediction_record_sha256": "e864581ef939dd8d8ce3a8d45ec52cbcdae3b5277a875572615eea40ac556903",
+      "scheduled_start": "2026-09-22T12:00:00+09:00",
+      "selected_player": "Taylah Preston",
+      "target_history_match_counts": {
+        "wta:id:221124": 42,
+        "wta:id:223194": 48
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-ruse-lys",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-ruse-lys.json",
+      "match_id": "web:wta:seoul:2026:r32:ruse-lys",
+      "minimum_point_exposure": 5584,
+      "p_player_a": 0.5263663766965141,
+      "p_player_b": 0.4736336233034859,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-ruse-lys/prediction.json",
+      "prediction_record_sha256": "e119aa4589c8a237636cef4dd2f4139dd82705fa0c1ceff0675b1df909849d89",
+      "scheduled_start": "2026-09-22T12:00:00+09:00",
+      "selected_player": "Elena Gabriela Ruse",
+      "target_history_match_counts": {
+        "wta:id:211817": 141,
+        "wta:id:220332": 85
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-montgomery-park",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-montgomery-park.json",
+      "match_id": "web:wta:seoul:2026:r32:montgomery-park",
+      "minimum_point_exposure": 2104,
+      "p_player_a": 0.5254181373214782,
+      "p_player_b": 0.47458186267852176,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-montgomery-park/prediction.json",
+      "prediction_record_sha256": "50eea9b45802dd687a77a82d56b662614eea52e91eecb76e46ed31178b8fb4e7",
+      "scheduled_start": "2026-09-22T12:00:00+09:00",
+      "selected_player": "Sohyun Park",
+      "target_history_match_counts": {
+        "wta:id:216213": 30,
+        "wta:id:221905": 46
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-zarazua-bondar",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-zarazua-bondar.json",
+      "match_id": "web:wta:seoul:2026:r32:zarazua-bondar",
+      "minimum_point_exposure": 8020,
+      "p_player_a": 0.36432628303738335,
+      "p_player_b": 0.6356737169626167,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-zarazua-bondar/prediction.json",
+      "prediction_record_sha256": "9a30e7602c41658393d08b38e1eb82a72b8ba17662303bf854b2432dee668d29",
+      "scheduled_start": "2026-09-22T13:30:00+09:00",
+      "selected_player": "Anna Bondar",
+      "target_history_match_counts": {
+        "wta:id:213887": 119,
+        "wta:id:214388": 150
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-ma-jones",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-ma-jones.json",
+      "match_id": "web:wta:seoul:2026:r32:ma-jones",
+      "minimum_point_exposure": 1943,
+      "p_player_a": 0.36513295932913625,
+      "p_player_b": 0.6348670406708637,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-ma-jones/prediction.json",
+      "prediction_record_sha256": "ce2e66650149c9842cae467302b2c206c849cb892a4cac91df5ad9a8d54f148f",
+      "scheduled_start": "2026-09-22T13:30:00+09:00",
+      "selected_player": "Emerson Jones",
+      "target_history_match_counts": {
+        "wta:id:215946": 33,
+        "wta:id:263644": 30
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-ku-ibragimova",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-ku-ibragimova.json",
+      "match_id": "web:wta:seoul:2026:r32:ku-ibragimova",
+      "minimum_point_exposure": 1263,
+      "p_player_a": 0.4942558666583955,
+      "p_player_b": 0.5057441333416045,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-ku-ibragimova/prediction.json",
+      "prediction_record_sha256": "3703ceb7705b79106ca8fc26c94e0ee2ceaeeb35fc44fcb3258fd8022637512e",
+      "scheduled_start": "2026-09-22T14:00:00+09:00",
+      "selected_player": "Alevtina Ibragimova",
+      "target_history_match_counts": {
+        "wta:id:220454": 24,
+        "wta:id:260581": 27
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-birrell-zidansek",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-birrell-zidansek.json",
+      "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
+      "minimum_point_exposure": 7853,
+      "p_player_a": 0.5181652846948649,
+      "p_player_b": 0.4818347153051351,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-birrell-zidansek/prediction.json",
+      "prediction_record_sha256": "6af4a995c4bcb958f032963a6ccded421fe9df38ab0e878e3955042525df363f",
+      "scheduled_start": "2026-09-22T15:00:00+09:00",
+      "selected_player": "Kimberly Birrell",
+      "target_history_match_counts": {
+        "wta:id:214040": 117,
+        "wta:id:214461": 203
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-zakharova-ostapenko",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-zakharova-ostapenko.json",
+      "match_id": "web:wta:seoul:2026:r32:zakharova-ostapenko",
+      "minimum_point_exposure": 4821,
+      "p_player_a": 0.6431591839359134,
+      "p_player_b": 0.3568408160640866,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-zakharova-ostapenko/prediction.json",
+      "prediction_record_sha256": "fe6f4042d2e3314dcd7b6ee84eb115e3d7902d2efcf8482f8e102f9f1348f0b0",
+      "scheduled_start": "2026-09-22T15:30:00+09:00",
+      "selected_player": "Jelena Ostapenko",
+      "target_history_match_counts": {
+        "wta:id:211533": 513,
+        "wta:id:220435": 69
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r32-kenin-charaeva",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r32-kenin-charaeva.json",
+      "match_id": "web:wta:seoul:2026:r32:kenin-charaeva",
+      "minimum_point_exposure": 2407,
+      "p_player_a": 0.37673426005304,
+      "p_player_b": 0.62326573994696,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r32-kenin-charaeva/prediction.json",
+      "prediction_record_sha256": "eaee3a6600daebe8aeba5eb246aea421fd6c0fe9732d2b9ab4b4b33a721ff498",
+      "scheduled_start": "2026-09-22T17:00:00+09:00",
+      "selected_player": "Alina Charaeva",
+      "target_history_match_counts": {
+        "wta:id:213550": 324,
+        "wta:id:221406": 34
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 9,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

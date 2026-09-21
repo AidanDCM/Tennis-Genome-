@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:46.126101+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:zakharova-ostapenko",
+    "player_a": "Jelena Ostapenko",
+    "player_b": "Anastasia Zakharova",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T15:30:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "58c01e29c9d557f63f5f5428a9dbbedb5d9039bbddd89b5e19204ee38b9869d4",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.6431591839359134,
+  "p_player_b": 0.3568408160640866,
+  "player_a_id": "wta:id:211533",
+  "player_b_id": "wta:id:220435",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "fe6f4042d2e3314dcd7b6ee84eb115e3d7902d2efcf8482f8e102f9f1348f0b0",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Jelena Ostapenko"
+}
