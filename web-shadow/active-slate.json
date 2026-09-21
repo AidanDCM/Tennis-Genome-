@@ -1,12 +1,14 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/singapore-2026-rs007-friedsam-kulikova.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-ma-lee.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-shubladze-astakhova.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-yao-kuramochi.json",
-    "web-shadow/fixtures/seoul-2026-qfnl-ibragimova-saito.json",
-    "web-shadow/fixtures/singapore-2026-rs005-hibino-ito.json",
-    "web-shadow/fixtures/singapore-2026-rs006-yamaguchi-okamura.json"
+    "web-shadow/fixtures/seoul-2026-r32-sakatsume-preston.json",
+    "web-shadow/fixtures/seoul-2026-r32-ruse-lys.json",
+    "web-shadow/fixtures/seoul-2026-r32-montgomery-park.json",
+    "web-shadow/fixtures/seoul-2026-r32-zarazua-bondar.json",
+    "web-shadow/fixtures/seoul-2026-r32-ma-jones.json",
+    "web-shadow/fixtures/seoul-2026-r32-ku-ibragimova.json",
+    "web-shadow/fixtures/seoul-2026-r32-birrell-zidansek.json",
+    "web-shadow/fixtures/seoul-2026-r32-zakharova-ostapenko.json",
+    "web-shadow/fixtures/seoul-2026-r32-kenin-charaeva.json"
   ],
-  "rerun_reason": "verified-history-cache-cold-run-v1"
+  "rerun_reason": "official-slate-3-seoul-september-22-r32"
 }
