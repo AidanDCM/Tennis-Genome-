@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T15:46:50.096403+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:r32:oliynykova-wolff",
+    "player_a": "Vivian Wolff",
+    "player_b": "Oleksandra Oliynykova",
+    "round": "R32",
+    "schedule_source_url": "https://signalodds.com/events/vivian-wolff-tennis-vs-oleksandra-oliynykova-20260922/odds",
+    "scheduled_start": "2026-09-22T11:00:00+08:00",
+    "source_observed_at": "2026-09-21T11:38:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "2a885fdfa1e4155461945a07eb5b50b9855cf711da7678b827ddf4a68da45fc2",
+  "model_source_sha": "9ee4308fd2f238517cc23e54a2d608155488e94c",
+  "p_player_a": 0.45458389881551725,
+  "p_player_b": 0.5454161011844827,
+  "player_a_id": "wta:id:215386",
+  "player_b_id": "wta:id:220716",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "f9d10003f5963780c1c7fe6652e9eb264500b28201adffedb069b9368434ec6e",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Oleksandra Oliynykova"
+}
