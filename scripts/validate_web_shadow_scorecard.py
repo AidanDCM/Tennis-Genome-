@@ -164,6 +164,7 @@ def validate_web_shadow_scorecard(
     pending = 0
     settled = 0
     metric_rows: list[dict[str, float | bool]] = []
+    baseline_genome_metric_rows: list[dict[str, float | bool]] = []
     baseline_metric_rows: list[dict[str, float | bool]] = []
     baseline_count = 0
 
@@ -423,16 +424,16 @@ def validate_web_shadow_scorecard(
             if not str(result.get("score", "")).strip():
                 raise ValueError(f"result evidence lacks score: {match_id}")
 
-            metric_rows.append(
-                {
-                    "p_player_a": float(prediction["p_player_a"]),
-                    "p_player_b": float(prediction["p_player_b"]),
-                    "selected_probability": selected_probability,
-                    "actual_player_a_won": winner == player_a,
-                    "prediction_correct": expected_correct,
-                }
-            )
+            genome_metric_row = {
+                "p_player_a": float(prediction["p_player_a"]),
+                "p_player_b": float(prediction["p_player_b"]),
+                "selected_probability": selected_probability,
+                "actual_player_a_won": winner == player_a,
+                "prediction_correct": expected_correct,
+            }
+            metric_rows.append(genome_metric_row)
             if baseline is not None:
+                baseline_genome_metric_rows.append(genome_metric_row)
                 baseline_p_a = float(baseline["p_player_a"])
                 baseline_p_b = float(baseline["p_player_b"])
                 baseline_selected_player = str(baseline["selected_player"])
@@ -475,39 +476,7 @@ def validate_web_shadow_scorecard(
         raise ValueError("unsettled scorecard must not publish metrics")
 
     if baseline_metric_rows:
-        genome_rows = [
-            row
-            for row, slate in zip(metric_rows, [
-                slate
-                for slate in scorecard.get("slates", [])
-                for _ in slate.get("predictions", [])
-                if _.get("status") == "SETTLED"
-            ])
-        ]
-        del genome_rows
-        benchmark_genome_rows: list[dict[str, float | bool]] = []
-        for slate in slates:
-            for entry in slate.get("predictions", []):
-                if entry.get("status") != "SETTLED" or not entry.get("baseline_path"):
-                    continue
-                prediction = _load_json(repo_root / Path(entry["prediction_path"]))
-                settlement = _load_json(repo_root / Path(entry["settlement_path"]))
-                fixture = prediction["fixture"]
-                winner = str(settlement["winner"])
-                selected_player = str(prediction["selected_player"])
-                benchmark_genome_rows.append(
-                    {
-                        "p_player_a": float(prediction["p_player_a"]),
-                        "p_player_b": float(prediction["p_player_b"]),
-                        "selected_probability": max(
-                            float(prediction["p_player_a"]),
-                            float(prediction["p_player_b"]),
-                        ),
-                        "actual_player_a_won": winner == str(fixture["player_a"]),
-                        "prediction_correct": winner == selected_player,
-                    }
-                )
-        genome_benchmark = _compute_metrics(benchmark_genome_rows)
+        genome_benchmark = _compute_metrics(baseline_genome_metric_rows)
         baseline_benchmark = _compute_metrics(baseline_metric_rows)
         expected_comparison = {
             "schema_version": _BASELINE_COMPARISON_SCHEMA,
