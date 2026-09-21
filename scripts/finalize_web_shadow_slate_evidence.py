@@ -10,7 +10,6 @@ from typing import Any
 
 from scripts.derive_web_shadow_elo_baseline import finalize_elo_baseline_candidate
 
-
 _SCHEMA = "tennis-genome-web-shadow-bound-evidence-v1"
 _RECEIPT_SCHEMA = "tennis-genome-web-shadow-slate-receipt-v1"
 
