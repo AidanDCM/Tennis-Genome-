@@ -138,6 +138,9 @@ def finalize_web_shadow_slate_evidence(
             raise ValueError(f"unexpected prediction record type: {stem}")
         if prediction.get("production_eligible") is not False:
             raise ValueError(f"prediction escaped non-production isolation: {stem}")
+        prediction_source_sha = str(prediction.get("model_source_sha", "")).strip().lower()
+        if prediction_source_sha != source_sha:
+            raise ValueError(f"prediction model source SHA mismatch: {stem}")
 
         prediction_sha = str(prediction.get("record_sha256", "")).strip()
         unsigned_prediction = dict(prediction)
@@ -176,9 +179,9 @@ def finalize_web_shadow_slate_evidence(
             {
                 "artifact_stem": stem,
                 "match_id": str(result.get("match_id", "")),
-                "prediction_path": prediction_output.as_posix(),
+                "prediction_path": prediction_output.relative_to(output_root).as_posix(),
                 "prediction_record_sha256": prediction_sha,
-                "baseline_candidate_path": candidate_output.as_posix(),
+                "baseline_candidate_path": candidate_output.relative_to(output_root).as_posix(),
                 "baseline_candidate_record_sha256": candidate["record_sha256"],
             }
         )
@@ -192,13 +195,13 @@ def finalize_web_shadow_slate_evidence(
         stem = str(row["artifact_stem"])
         baseline_output = baselines_root / f"{stem}.json"
         baseline = finalize_elo_baseline_candidate(
-            candidate_path=Path(str(row["baseline_candidate_path"])),
+            candidate_path=output_root / str(row["baseline_candidate_path"]),
             slate_id=slate_id,
             artifact_id=workflow_artifact_id,
             artifact_sha256=artifact_sha,
             output_path=baseline_output,
         )
-        row["baseline_path"] = baseline_output.as_posix()
+        row["baseline_path"] = baseline_output.relative_to(output_root).as_posix()
         row["baseline_record_sha256"] = baseline["record_sha256"]
 
     output_root.mkdir(parents=True, exist_ok=True)
