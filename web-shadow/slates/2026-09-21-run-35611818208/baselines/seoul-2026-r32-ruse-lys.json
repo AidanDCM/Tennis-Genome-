@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35611818208",
+  "match_id": "web:wta:seoul:2026:r32:ruse-lys",
+  "prediction_record_sha256": "e119aa4589c8a237636cef4dd2f4139dd82705fa0c1ceff0675b1df909849d89",
+  "artifact_id": 10644062797,
+  "artifact_sha256": "701cbda7ac28207fdcaf939e57651c01ec454e000bb2b241558c5abca06242b5",
+  "matchup_input_sha256": "d9b62187057fb717bcb247d2f891c303e51bf6a7da365f15b442d4ed67f86fa5",
+  "elo_logit": 0.01821190028172617,
+  "p_player_a": 0.5045528492329119,
+  "p_player_b": 0.4954471507670881,
+  "selected_player": "Elena Gabriela Ruse",
+  "production_eligible": false,
+  "record_sha256": "29720db85b1f24cebba9117ae6a63e1e0050098a7e0630ab689f583e8dcb97c7"
+}
