@@ -22,7 +22,7 @@ jobs:
       - name: Ruff
         id: ruff
         continue-on-error: true
-        run: ruff check . --fix --diff > ruff.txt 2>&1
+        run: ruff check . --output-format=concise > ruff.txt 2>&1
       - name: Pytest
         id: pytest
         continue-on-error: true
