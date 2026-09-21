@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35640968895",
+  "match_id": "web:wta:singapore:2026:r16:anisimova-gibson",
+  "prediction_record_sha256": "58e8da571331cc3cd48ee0300352c2018987aaf832b663bf48a7c09795a8c26c",
+  "artifact_id": 10658151704,
+  "artifact_sha256": "3b5afafdf59872305400c72016b2afd36b8e648d40572d4f0a2d2a188f70cdcc",
+  "matchup_input_sha256": "7467d1828c3f91c6a1ba7a140cbc76e15d3b80892b9255bd88bc15e5c7e2f49b",
+  "elo_logit": 1.6634262433416256,
+  "p_player_a": 0.8406973994716643,
+  "p_player_b": 0.15930260052833567,
+  "selected_player": "Amanda Anisimova",
+  "production_eligible": false,
+  "record_sha256": "8288f9bf216d23a31c6df67963d3ac29dc1f8e00cd672907b4930f4d426d2048"
+}
