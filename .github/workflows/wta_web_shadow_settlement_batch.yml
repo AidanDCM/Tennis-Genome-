@@ -70,10 +70,33 @@ jobs:
           )
           requested = int(summary["requested_result_count"])
           settled = int(summary["settlement_count"])
+          eligible = int(summary["evaluation_eligible_count"])
+          excluded = int(summary["excluded_noncompleted_count"])
+          correct = int(summary["correct_prediction_count"])
           if requested <= 0:
               raise SystemExit("Web Shadow result batch denominator is empty")
           if requested != settled:
               raise SystemExit("Web Shadow result batch denominator drift")
+          if eligible + excluded != settled:
+              raise SystemExit("Web Shadow evaluation denominator drift")
+          if correct < 0 or correct > eligible:
+              raise SystemExit("Web Shadow correct-count denominator drift")
+          accuracy = summary.get("accuracy")
+          if eligible == 0 and accuracy is not None:
+              raise SystemExit("Web Shadow empty evaluation cohort published accuracy")
+          if eligible > 0 and accuracy is None:
+              raise SystemExit("Web Shadow evaluation cohort omitted accuracy")
+          for row in summary["results"]:
+              for field in ("result_record_sha256", "settlement_record_sha256"):
+                  value = str(row.get(field, "")).strip().lower()
+                  if len(value) != 64:
+                      raise SystemExit(f"Web Shadow batch row has invalid {field}")
+                  try:
+                      int(value, 16)
+                  except ValueError as exc:
+                      raise SystemExit(
+                          f"Web Shadow batch row has non-hex {field}"
+                      ) from exc
           if summary.get("production_eligible") is not False:
               raise SystemExit("Web Shadow batch settlement must remain non-production")
           PY
