@@ -159,7 +159,6 @@ def _refresh_scorecard_derived_fields(
                 raise ValueError("settled prediction fixture is missing")
             winner = str(settlement.get("winner", ""))
             player_a = str(fixture.get("player_a", ""))
-            player_b = str(fixture.get("player_b", ""))
             selected_player = str(prediction.get("selected_player", ""))
             selected_probability = (
                 float(prediction["p_player_a"])
