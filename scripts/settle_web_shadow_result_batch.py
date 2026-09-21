@@ -7,7 +7,6 @@ from typing import Any
 
 from scripts.settle_web_shadow_prediction import settle_from_result_file
 
-
 _BATCH_SCHEMA = "tennis-genome-web-shadow-result-batch-v1"
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
 
