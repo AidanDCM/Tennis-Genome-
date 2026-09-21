@@ -23,8 +23,22 @@ def settle_from_result_file(
     prediction_path = Path(prediction_path_raw)
     if prediction_path.is_absolute() or ".." in prediction_path.parts:
         raise ValueError("prediction_path must be a repository-relative path")
-    if prediction_path.parts[:2] != ("web-shadow", "predictions"):
-        raise ValueError("prediction_path must be under web-shadow/predictions/")
+    parts = prediction_path.parts
+    legacy_prediction = (
+        len(parts) == 3
+        and parts[:2] == ("web-shadow", "predictions")
+    )
+    official_slate_prediction = (
+        len(parts) == 5
+        and parts[0] == "web-shadow"
+        and parts[1] == "slates"
+        and parts[3] == "predictions"
+    )
+    if not (legacy_prediction or official_slate_prediction):
+        raise ValueError(
+            "prediction_path must be a legacy web-shadow prediction or an "
+            "official run-scoped slate prediction"
+        )
     if not prediction_path.is_file():
         raise FileNotFoundError(f"prediction record is missing: {prediction_path}")
 
