@@ -188,7 +188,7 @@ def derive_elo_baseline(
     output_path: Path,
 ) -> dict[str, Any]:
     candidate_path = output_path.with_suffix(".candidate.json")
-    candidate = derive_elo_baseline_candidate(
+    derive_elo_baseline_candidate(
         matchup_input_path=matchup_input_path,
         local_input_manifest_path=local_input_manifest_path,
         prediction_path=prediction_path,
