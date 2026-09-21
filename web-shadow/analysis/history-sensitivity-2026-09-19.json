@@ -30,7 +30,13 @@
         },
         "minimum_point_exposure": 2368
       },
-      "selection_flipped": true
+      "selection_flipped": true,
+      "settlement": {
+        "winner": "Nao Hibino",
+        "score": "6-2 2-6 7-6(2)",
+        "baseline_prediction_correct": false,
+        "richer_prediction_correct": true
+      }
     },
     {
       "match_id": "web:wta:singapore:2026:RS006",
@@ -56,9 +62,22 @@
         },
         "minimum_point_exposure": 1790
       },
-      "selection_flipped": true
+      "selection_flipped": true,
+      "settlement": {
+        "winner": "Kyoka Okamura",
+        "score": "6-1 6-1",
+        "baseline_prediction_correct": false,
+        "richer_prediction_correct": true
+      }
     }
   ],
-  "interpretation": "Both repeated pre-start fixtures changed selected side after extending the pinned public history through 2026-06-02. These richer-history predictions are the official scorecard entries; earlier thinner-history records remain preserved as sensitivity evidence.",
-  "production_eligible": false
+  "interpretation": "Both repeated pre-start fixtures changed selected side after extending the pinned public history through 2026-06-02. After settlement, both richer-history selections were correct while both thinner-history selections were wrong. This is useful directional evidence for history freshness, but the comparison contains only two matches and is not sufficient for a general performance claim.",
+  "production_eligible": false,
+  "settled_comparison": {
+    "settled_match_count": 2,
+    "baseline_correct_prediction_count": 0,
+    "richer_correct_prediction_count": 2,
+    "baseline_accuracy": 0,
+    "richer_accuracy": 1
+  }
 }
