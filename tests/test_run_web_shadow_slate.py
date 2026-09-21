@@ -288,3 +288,72 @@ def test_same_day_targets_share_one_feature_preparation(
         for result in summary["results"]
     )
     assert calls == {"history": 1, "snapshots": 1, "calculator": 1, "baseline_candidate": 2}
+
+
+def test_baseline_candidate_failure_aborts_slate(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    fixture = _write_fixture(tmp_path, "first")
+    slate = tmp_path / "web-shadow" / "active-slate.json"
+    slate.write_text(
+        json.dumps(
+            {
+                "fixture_paths": [
+                    fixture.relative_to(tmp_path).as_posix(),
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    _patch_shared_runtime(monkeypatch)
+
+    def build_target(*, target_state_path, normalized_fixture_path, **kwargs):
+        target_state_path.parent.mkdir(parents=True, exist_ok=True)
+        target_state_path.write_text("{}", encoding="utf-8")
+        normalized_fixture_path.write_text("{}", encoding="utf-8")
+        return {}
+
+    def build_input(*, output_path, manifest_path, **kwargs):
+        output_path.write_text("{}", encoding="utf-8")
+        manifest_path.write_text("{}", encoding="utf-8")
+        return {
+            "target_history_match_counts": {"a": 1, "b": 1},
+            "minimum_point_exposure": 100,
+        }
+
+    def predict(*, output_path, calculator, **kwargs):
+        record = {
+            "fixture": {
+                "match_id": "web:wta:test:1",
+                "scheduled_start": "2026-09-20T12:00:00+08:00",
+            },
+            "selected_player": "Alpha",
+            "p_player_a": 0.55,
+            "p_player_b": 0.45,
+            "record_sha256": "a" * 64,
+            "production_eligible": False,
+        }
+        output_path.write_text(json.dumps(record), encoding="utf-8")
+        return record
+
+    def fail_candidate(**kwargs):
+        raise ValueError("candidate derivation failed")
+
+    monkeypatch.setattr(runner, "build_web_shadow_target_state", build_target)
+    monkeypatch.setattr(runner, "build_local_web_shadow_matchup", build_input)
+    monkeypatch.setattr(runner, "run_web_shadow_prediction", predict)
+    monkeypatch.setattr(runner, "derive_elo_baseline_candidate", fail_candidate)
+
+    import pytest
+
+    with pytest.raises(ValueError, match="candidate derivation failed"):
+        runner.run_web_shadow_slate(
+            slate_path=Path("web-shadow/active-slate.json"),
+            registry_path=tmp_path / "players.csv",
+            base_dir=tmp_path / "base",
+            bundle_path=tmp_path / "bundle.json",
+            model_source_sha="b" * 40,
+            output_root=tmp_path / "output",
+        )
