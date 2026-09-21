@@ -132,6 +132,11 @@ def finalize_web_shadow_slate_evidence(
         prediction = _load_json(prediction_path)
         candidate = _load_json(candidate_path)
 
+        if prediction.get("record_type") != "WEB_SHADOW_PREDICTION":
+            raise ValueError(f"unexpected prediction record type: {stem}")
+        if prediction.get("production_eligible") is not False:
+            raise ValueError(f"prediction escaped non-production isolation: {stem}")
+
         prediction_sha = str(prediction.get("record_sha256", "")).strip()
         unsigned_prediction = dict(prediction)
         unsigned_prediction.pop("record_sha256", None)
