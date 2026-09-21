@@ -16,6 +16,7 @@ def _write_prediction(path: Path, *, committed_at: str, match_id: str) -> dict[s
         "record_type": "WEB_SHADOW_PREDICTION",
         "schema_version": "tennis-genome-web-shadow-v1",
         "production_eligible": False,
+        "model_source_sha": "c" * 40,
         "committed_at": committed_at,
         "player_a_id": "wta:id:100",
         "player_b_id": "wta:id:200",
@@ -134,6 +135,12 @@ def test_finalize_bound_evidence_packages_predictions_and_baselines(
     assert summary["slate_id"] == "2026-09-21-run-12345"
     assert summary["baseline_count"] == 1
     assert summary["workflow_artifact_sha256"] == "b" * 64
+    assert summary["results"][0]["prediction_path"] == "predictions/match-1.json"
+    assert (
+        summary["results"][0]["baseline_candidate_path"]
+        == "baseline-candidates/match-1.json"
+    )
+    assert summary["results"][0]["baseline_path"] == "baselines/match-1.json"
     assert (output / "predictions/match-1.json").is_file()
     assert (output / "baseline-candidates/match-1.json").is_file()
     assert (output / "baselines/match-1.json").is_file()
@@ -216,6 +223,46 @@ def test_finalize_bound_evidence_rejects_mixed_commitment_dates(
     )
 
     with pytest.raises(ValueError, match="share one UTC commitment date"):
+        finalize_web_shadow_slate_evidence(
+            slate_root=slate_root,
+            source_reconciliation_path=reconciliation,
+            history_cache_receipt_path=cache,
+            workflow_run_id=12345,
+            workflow_artifact_id=67890,
+            workflow_artifact_sha256="b" * 64,
+            workflow_source_sha="c" * 40,
+            output_root=tmp_path / "bound",
+        )
+
+
+def test_finalize_bound_evidence_rejects_prediction_source_sha_mismatch(
+    tmp_path: Path,
+) -> None:
+    slate_root, reconciliation, cache = _artifact(tmp_path)
+    prediction_path = slate_root / "matches/match-1/prediction.json"
+    prediction = json.loads(prediction_path.read_text(encoding="utf-8"))
+    prediction["model_source_sha"] = "e" * 40
+    unsigned = dict(prediction)
+    unsigned.pop("record_sha256", None)
+    prediction["record_sha256"] = _canonical_sha256(unsigned)
+    prediction_path.write_text(json.dumps(prediction), encoding="utf-8")
+
+    manifest_path = slate_root / "slate-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["results"][0]["prediction_record_sha256"] = prediction["record_sha256"]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    candidate_path = slate_root / "matches/match-1/baseline-candidate.json"
+    candidate = json.loads(candidate_path.read_text(encoding="utf-8"))
+    candidate["prediction_record_sha256"] = prediction["record_sha256"]
+    unsigned_candidate = dict(candidate)
+    unsigned_candidate.pop("record_sha256", None)
+    candidate["record_sha256"] = _canonical_sha256(unsigned_candidate)
+    candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
+    manifest["results"][0]["baseline_candidate_record_sha256"] = candidate["record_sha256"]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="prediction model source SHA mismatch"):
         finalize_web_shadow_slate_evidence(
             slate_root=slate_root,
             source_reconciliation_path=reconciliation,
