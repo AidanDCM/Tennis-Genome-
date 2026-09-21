@@ -52,9 +52,14 @@ def _artifact_path(root: Path, value: str, *, expected_root: Path) -> Path:
     path = Path(value)
     if path.is_absolute() or ".." in path.parts:
         raise ValueError(f"artifact path must be relative: {value}")
-    if path.parts[: len(expected_root.parts)] != expected_root.parts:
+    if not path.parts or path.parts[0] != expected_root.name:
         raise ValueError(f"artifact path escaped expected root: {value}")
-    resolved = root.parent / path
+    resolved = (root.parent / path).resolve()
+    expected = expected_root.resolve()
+    try:
+        resolved.relative_to(expected)
+    except ValueError as exc:
+        raise ValueError(f"artifact path escaped expected root: {value}") from exc
     if not resolved.is_file():
         raise FileNotFoundError(f"artifact file is missing: {value}")
     return resolved
