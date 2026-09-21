@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 from datetime import UTC, datetime
@@ -21,6 +22,17 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"JSON must contain an object: {path}")
     return payload
+
+
+def _canonical_sha256(payload: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _normalized_artifact_digest(value: str) -> str:
@@ -121,8 +133,20 @@ def finalize_web_shadow_slate_evidence(
         candidate = _load_json(candidate_path)
 
         prediction_sha = str(prediction.get("record_sha256", "")).strip()
+        unsigned_prediction = dict(prediction)
+        unsigned_prediction.pop("record_sha256", None)
+        if _canonical_sha256(unsigned_prediction) != prediction_sha:
+            raise ValueError(f"prediction record digest mismatch: {stem}")
         if prediction_sha != str(result.get("prediction_record_sha256", "")).strip():
             raise ValueError(f"prediction SHA differs from slate manifest: {stem}")
+        fixture = prediction.get("fixture")
+        if not isinstance(fixture, dict):
+            raise ValueError(f"prediction fixture is missing: {stem}")
+        match_id = str(result.get("match_id", "")).strip()
+        if not match_id or fixture.get("match_id") != match_id:
+            raise ValueError(f"prediction match identity differs from slate manifest: {stem}")
+        if candidate.get("match_id") != match_id:
+            raise ValueError(f"baseline candidate match identity mismatch: {stem}")
         if (
             candidate.get("record_sha256")
             != result.get("baseline_candidate_record_sha256")
