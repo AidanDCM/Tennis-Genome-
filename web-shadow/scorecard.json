@@ -1,8 +1,8 @@
 {
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "production_eligible": false,
-  "official_slate_count": 4,
-  "pending_match_count": 11,
+  "official_slate_count": 5,
+  "pending_match_count": 13,
   "settled_match_count": 7,
   "slates": [
     {
@@ -220,6 +220,35 @@
           "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-parks-yamaguchi.json"
         }
       ]
+    },
+    {
+      "slate_id": "2026-09-21-run-35640968895",
+      "receipt_path": "web-shadow/slates/2026-09-21-run-35640968895/slate-receipt.json",
+      "workflow_run_id": 35640968895,
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "status": "PENDING_SETTLEMENT",
+      "predictions": [
+        {
+          "match_id": "web:wta:singapore:2026:r16:sasnovich-andreeva",
+          "prediction_path": "web-shadow/slates/2026-09-21-run-35640968895/predictions/singapore-2026-r16-sasnovich-andreeva.json",
+          "prediction_record_sha256": "d22949fad5e47c8acc86d94bd44bf11380cadd42d8d84a7e77fb8544ef97141f",
+          "selected_player": "Mirra Andreeva",
+          "selected_probability": 0.7966701734492774,
+          "scheduled_start": "2026-09-23T12:00:00+08:00",
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-sasnovich-andreeva.json"
+        },
+        {
+          "match_id": "web:wta:singapore:2026:r16:anisimova-gibson",
+          "prediction_path": "web-shadow/slates/2026-09-21-run-35640968895/predictions/singapore-2026-r16-anisimova-gibson.json",
+          "prediction_record_sha256": "58e8da571331cc3cd48ee0300352c2018987aaf832b663bf48a7c09795a8c26c",
+          "selected_player": "Amanda Anisimova",
+          "selected_probability": 0.7379442578486107,
+          "scheduled_start": "2026-09-23T12:00:00+08:00",
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-anisimova-gibson.json"
+        }
+      ]
     }
   ],
   "metrics": {
@@ -252,5 +281,5 @@
       }
     ]
   },
-  "baseline_match_count": 11
+  "baseline_match_count": 13
 }
