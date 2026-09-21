@@ -51,6 +51,7 @@ def test_web_shadow_slate_reruns_on_engine_changes() -> None:
         '"scripts/build_web_shadow_local_input.py"',
         '"scripts/build_web_shadow_target_state.py"',
         '"scripts/run_web_shadow_prediction.py"',
+        '"scripts/derive_web_shadow_elo_baseline.py"',
         '"src/tennis_genome/features/**"',
         '"src/tennis_genome/ratings/**"',
         '"src/tennis_genome/evaluation/**"',
@@ -98,3 +99,12 @@ def test_history_cache_omits_timestamped_build_reports() -> None:
     assert "wta_pre_match.parquet" in cache_block
     assert "wta_outcomes.parquet" in cache_block
     assert "wta_stats.parquet" in cache_block
+
+
+def test_web_shadow_slate_requires_baseline_candidates() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "baseline_candidate_path" in text
+    assert "WEB_SHADOW_BASELINE_CANDIDATE" in text
+    assert "baseline candidate prediction SHA mismatch" in text
+    assert "baseline candidate record SHA mismatch" in text
+    assert "baseline candidate probabilities do not sum to one" in text
