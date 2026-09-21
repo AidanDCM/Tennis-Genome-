@@ -107,7 +107,8 @@
           "selected_player": "Taylah Preston",
           "selected_probability": 0.6159859816503763,
           "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-sakatsume-preston.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:ruse-lys",
@@ -116,7 +117,8 @@
           "selected_player": "Elena Gabriela Ruse",
           "selected_probability": 0.5263663766965141,
           "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ruse-lys.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:montgomery-park",
@@ -125,7 +127,8 @@
           "selected_player": "Sohyun Park",
           "selected_probability": 0.5254181373214782,
           "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-montgomery-park.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:zarazua-bondar",
@@ -134,7 +137,8 @@
           "selected_player": "Anna Bondar",
           "selected_probability": 0.6356737169626167,
           "scheduled_start": "2026-09-22T13:30:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zarazua-bondar.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:ma-jones",
@@ -143,7 +147,8 @@
           "selected_player": "Emerson Jones",
           "selected_probability": 0.6348670406708637,
           "scheduled_start": "2026-09-22T13:30:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ma-jones.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:ku-ibragimova",
@@ -152,7 +157,8 @@
           "selected_player": "Alevtina Ibragimova",
           "selected_probability": 0.5057441333416045,
           "scheduled_start": "2026-09-22T14:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ku-ibragimova.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
@@ -161,7 +167,8 @@
           "selected_player": "Kimberly Birrell",
           "selected_probability": 0.5181652846948649,
           "scheduled_start": "2026-09-22T15:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-birrell-zidansek.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:zakharova-ostapenko",
@@ -170,7 +177,8 @@
           "selected_player": "Jelena Ostapenko",
           "selected_probability": 0.6431591839359134,
           "scheduled_start": "2026-09-22T15:30:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zakharova-ostapenko.json"
         },
         {
           "match_id": "web:wta:seoul:2026:r32:kenin-charaeva",
@@ -179,7 +187,8 @@
           "selected_player": "Alina Charaeva",
           "selected_probability": 0.62326573994696,
           "scheduled_start": "2026-09-22T17:00:00+09:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-kenin-charaeva.json"
         }
       ]
     },
@@ -197,7 +206,8 @@
           "selected_player": "Oleksandra Oliynykova",
           "selected_probability": 0.5454161011844827,
           "scheduled_start": "2026-09-22T11:00:00+08:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-oliynykova-wolff.json"
         },
         {
           "match_id": "web:wta:singapore:2026:r32:parks-yamaguchi",
@@ -206,7 +216,8 @@
           "selected_player": "Alycia Parks",
           "selected_probability": 0.6224215717621162,
           "scheduled_start": "2026-09-22T12:30:00+08:00",
-          "status": "PENDING"
+          "status": "PENDING",
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-parks-yamaguchi.json"
         }
       ]
     }
@@ -240,5 +251,6 @@
         "mean_selected_probability": 0.6662354963664721
       }
     ]
-  }
+  },
+  "baseline_match_count": 11
 }
