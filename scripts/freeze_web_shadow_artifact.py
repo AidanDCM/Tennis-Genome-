@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.derive_web_shadow_elo_baseline import derive_elo_baseline
+from scripts.validate_web_shadow_scorecard import validate_web_shadow_scorecard
 
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
 _SLATE_SCHEMA = "tennis-genome-web-shadow-slate-v2"
@@ -148,6 +149,10 @@ def freeze_web_shadow_artifact(
     if not scorecard_path.is_absolute():
         scorecard_path = repo_root / scorecard_path
     scorecard_path = scorecard_path.resolve()
+    try:
+        scorecard_path.relative_to(repo_root)
+    except ValueError as exc:
+        raise ValueError("scorecard_path must remain inside repo_root") from exc
 
     if workflow_run_id <= 0:
         raise ValueError("workflow_run_id must be positive")
@@ -170,6 +175,7 @@ def freeze_web_shadow_artifact(
     if not slate_name or "/" in slate_name or ".." in slate_name:
         raise ValueError("slate_id must be a single safe path segment")
 
+    original_scorecard_bytes = scorecard_path.read_bytes()
     scorecard = _load_json(scorecard_path)
     if scorecard.get("schema_version") != _SCORECARD_SCHEMA:
         raise ValueError("unsupported Web Shadow scorecard schema")
@@ -379,6 +385,15 @@ def freeze_web_shadow_artifact(
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(staged_slate, destination)
         _write_json(scorecard_path, updated)
+        try:
+            validate_web_shadow_scorecard(
+                scorecard_path=scorecard_path,
+                repo_root=repo_root,
+            )
+        except Exception:
+            shutil.rmtree(destination, ignore_errors=True)
+            scorecard_path.write_bytes(original_scorecard_bytes)
+            raise
 
     return {
         "schema_version": "tennis-genome-web-shadow-freeze-summary-v1",
