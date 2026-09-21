@@ -33,6 +33,7 @@ def _build_bound_artifact(tmp_path: Path, *, tamper_baseline: bool = False) -> t
             "schema_version": "tennis-genome-web-shadow-v1",
             "production_eligible": False,
             "model_source_sha": source_sha,
+            "committed_at": "2026-09-21T10:00:00+00:00",
             "p_player_a": 0.6,
             "p_player_b": 0.4,
             "selected_player": "Alpha",
