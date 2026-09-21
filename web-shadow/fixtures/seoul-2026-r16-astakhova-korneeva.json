@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:seoul:2026:r16:astakhova-korneeva",
+  "tour": "WTA",
+  "tournament": "Korea Open",
+  "round": "R16",
+  "surface": "Hard",
+  "scheduled_start": "2026-09-23T13:00:00+09:00",
+  "player_a": "Darya Astakhova",
+  "player_b": "Alina Korneeva",
+  "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "source_observed_at": "2026-09-21T15:05:00-04:00",
+  "tournament_id": "web:wta:seoul:2026",
+  "tournament_level": "I",
+  "schedule_source_url": "https://surprisesports.com/scores/tennis/korea-open-2026-811/astakhova-vs-korneeva-184047/"
+}
