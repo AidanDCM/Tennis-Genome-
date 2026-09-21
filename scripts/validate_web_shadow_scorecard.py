@@ -63,6 +63,10 @@ def _assert_record_digest(record: dict[str, Any], *, label: str) -> str:
     return observed
 
 
+def _settlement_is_evaluation_eligible(settlement: dict[str, Any]) -> bool:
+    return str(settlement.get("status", "")).strip().upper() == "COMPLETED"
+
+
 def _compute_metrics(rows: list[dict[str, float | bool]]) -> dict[str, Any]:
     if not rows:
         raise ValueError("cannot compute Web Shadow metrics without settlements")
@@ -477,8 +481,7 @@ def validate_web_shadow_scorecard(
             settled += 1
             slate_settled += 1
 
-            settlement_status = str(settlement.get("status", "")).strip().upper()
-            if settlement_status != "COMPLETED":
+            if not _settlement_is_evaluation_eligible(settlement):
                 continue
 
             genome_metric_row = {
