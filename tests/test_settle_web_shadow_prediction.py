@@ -46,6 +46,7 @@ def test_settlement_runner_scores_frozen_prediction(monkeypatch, tmp_path: Path)
                 "expected_prediction_record_sha256": prediction["record_sha256"],
                 "winner": "Alpha",
                 "status": "COMPLETED",
+                "score": "6-3 6-4",
                 "result_source_url": "https://example.com/result",
                 "result_observed_at": "2026-09-20T15:00:00+00:00",
             }
@@ -80,6 +81,7 @@ def test_settlement_runner_rejects_prediction_sha_drift(
                 "expected_prediction_record_sha256": "0" * 64,
                 "winner": "Alpha",
                 "status": "COMPLETED",
+                "score": "6-3 6-4",
                 "result_source_url": "https://example.com/result",
                 "result_observed_at": "2026-09-20T15:00:00+00:00",
             }
@@ -116,6 +118,7 @@ def test_settlement_runner_accepts_official_run_scoped_prediction(
                 "expected_prediction_record_sha256": prediction["record_sha256"],
                 "winner": "Alpha",
                 "status": "COMPLETED",
+                "score": "6-3 6-4",
                 "result_source_url": "https://example.com/result",
                 "result_observed_at": "2026-09-20T15:00:00+00:00",
             }
@@ -131,3 +134,29 @@ def test_settlement_runner_accepts_official_run_scoped_prediction(
 
     assert settlement["prediction_correct"] is True
     assert settlement["prediction_record_sha256"] == prediction["record_sha256"]
+
+
+def test_settlement_runner_rejects_missing_score(monkeypatch, tmp_path: Path) -> None:
+    prediction_path, prediction = _prediction(tmp_path)
+    result_path = tmp_path / "web-shadow/results/test.json"
+    result_path.parent.mkdir(parents=True)
+    result_path.write_text(
+        json.dumps(
+            {
+                "prediction_path": prediction_path.relative_to(tmp_path).as_posix(),
+                "expected_prediction_record_sha256": prediction["record_sha256"],
+                "winner": "Alpha",
+                "status": "COMPLETED",
+                "result_source_url": "https://example.com/result",
+                "result_observed_at": "2026-09-20T15:00:00+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="result score must be non-empty"):
+        runner.settle_from_result_file(
+            result_path=Path("web-shadow/results/test.json"),
+            output_path=tmp_path / "settlement.json",
+        )
