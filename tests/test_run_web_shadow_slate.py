@@ -30,6 +30,7 @@ def _patch_shared_runtime(monkeypatch) -> dict[str, int]:
         "history": 0,
         "snapshots": 0,
         "calculator": 0,
+        "baseline_candidate": 0,
     }
 
     prepared = SimpleNamespace(
@@ -79,6 +80,23 @@ def _patch_shared_runtime(monkeypatch) -> dict[str, int]:
     monkeypatch.setattr(runner, "load_web_shadow_target_state", load_target)
     monkeypatch.setattr(runner, "target_history_counts", target_counts)
     monkeypatch.setattr(runner, "prepare_web_shadow_snapshots", snapshots)
+
+    def baseline_candidate(*, output_path, prediction_path, **kwargs):
+        calls["baseline_candidate"] += 1
+        prediction = json.loads(prediction_path.read_text(encoding="utf-8"))
+        record = {
+            "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+            "record_sha256": "c" * 64,
+            "prediction_record_sha256": prediction["record_sha256"],
+            "selected_player": prediction["selected_player"],
+            "p_player_a": prediction["p_player_a"],
+            "p_player_b": prediction["p_player_b"],
+            "production_eligible": False,
+        }
+        output_path.write_text(json.dumps(record), encoding="utf-8")
+        return record
+
+    monkeypatch.setattr(runner, "derive_elo_baseline_candidate", baseline_candidate)
     return calls
 
 
@@ -180,7 +198,11 @@ def test_slate_runner_preserves_predicted_plus_skipped_denominator(
     assert summary["shared_history_load_count"] == 1
     assert summary["shared_feature_date_pass_count"] == 1
     assert summary["shared_calculator_load_count"] == 1
-    assert calls == {"history": 1, "snapshots": 1, "calculator": 1}
+    assert summary["results"][0]["baseline_candidate_path"].endswith(
+        "baseline-candidate.json"
+    )
+    assert summary["results"][0]["baseline_candidate_record_sha256"] == "c" * 64
+    assert calls == {"history": 1, "snapshots": 1, "calculator": 1, "baseline_candidate": 1}
 
 
 def test_same_day_targets_share_one_feature_preparation(
@@ -261,4 +283,8 @@ def test_same_day_targets_share_one_feature_preparation(
     assert summary["skipped_target_count"] == 0
     assert summary["shared_feature_target_count"] == 2
     assert summary["shared_feature_date_pass_count"] == 1
-    assert calls == {"history": 1, "snapshots": 1, "calculator": 1}
+    assert all(
+        result["baseline_candidate_path"].endswith("baseline-candidate.json")
+        for result in summary["results"]
+    )
+    assert calls == {"history": 1, "snapshots": 1, "calculator": 1, "baseline_candidate": 2}
