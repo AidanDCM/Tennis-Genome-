@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35621137740",
+  "match_id": "web:wta:singapore:2026:r32:oliynykova-wolff",
+  "prediction_record_sha256": "f9d10003f5963780c1c7fe6652e9eb264500b28201adffedb069b9368434ec6e",
+  "artifact_id": 10649201867,
+  "artifact_sha256": "9b881267a85ceabaadf8121f0e9298284eb0fa5d820a3bfc7b2063127d1052ab",
+  "matchup_input_sha256": "2a885fdfa1e4155461945a07eb5b50b9855cf711da7678b827ddf4a68da45fc2",
+  "elo_logit": -0.44873482608243404,
+  "p_player_a": 0.38966161455752946,
+  "p_player_b": 0.6103383854424705,
+  "selected_player": "Oleksandra Oliynykova",
+  "production_eligible": false,
+  "record_sha256": "4c621875e68fd1e9b9eaec08736013c1b57ab22d3bf46b8cf6e1b060b98c9a1e"
+}
