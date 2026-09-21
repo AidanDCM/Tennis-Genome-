@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:46.777285+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:kenin-charaeva",
+    "player_a": "Sofia Kenin",
+    "player_b": "Alina Charaeva",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T17:00:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "3e1d1ea2cb77a79302f9e3ae5d3c8ee443a38a1effd8f46ea8e1e657c17e2c47",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.37673426005304,
+  "p_player_b": 0.62326573994696,
+  "player_a_id": "wta:id:213550",
+  "player_b_id": "wta:id:221406",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "eaee3a6600daebe8aeba5eb246aea421fd6c0fe9732d2b9ab4b4b33a721ff498",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alina Charaeva"
+}
