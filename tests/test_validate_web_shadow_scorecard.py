@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pytest
 
-from scripts.validate_web_shadow_scorecard import validate_web_shadow_scorecard
+from scripts.validate_web_shadow_scorecard import (
+    _compute_baseline_comparison,
+    validate_web_shadow_scorecard,
+)
 
 
 def test_repository_web_shadow_scorecard_is_valid() -> None:
@@ -211,4 +215,84 @@ def test_scorecard_rejects_baseline_probability_drift(tmp_path: Path) -> None:
         validate_web_shadow_scorecard(
             scorecard_path=fake_scorecard,
             repo_root=fake_root,
+        )
+
+
+def test_baseline_comparison_computes_paired_probability_metrics() -> None:
+    genome_rows = [
+        {
+            "p_player_a": 0.8,
+            "p_player_b": 0.2,
+            "selected_probability": 0.8,
+            "actual_player_a_won": True,
+            "prediction_correct": True,
+        },
+        {
+            "p_player_a": 0.4,
+            "p_player_b": 0.6,
+            "selected_probability": 0.6,
+            "actual_player_a_won": False,
+            "prediction_correct": True,
+        },
+    ]
+    baseline_rows = [
+        {
+            "p_player_a": 0.6,
+            "p_player_b": 0.4,
+            "selected_probability": 0.6,
+            "actual_player_a_won": True,
+            "prediction_correct": True,
+        },
+        {
+            "p_player_a": 0.55,
+            "p_player_b": 0.45,
+            "selected_probability": 0.55,
+            "actual_player_a_won": False,
+            "prediction_correct": False,
+        },
+    ]
+
+    comparison = _compute_baseline_comparison(
+        genome_rows=genome_rows,
+        baseline_rows=baseline_rows,
+    )
+
+    assert comparison["settled_match_count"] == 2
+    assert comparison["genome"]["accuracy"] == pytest.approx(1.0)
+    assert comparison["baseline"]["accuracy"] == pytest.approx(0.5)
+    assert comparison["genome"]["brier_score"] == pytest.approx(0.10)
+    assert comparison["baseline"]["brier_score"] == pytest.approx(0.23125)
+    assert comparison["brier_improvement_baseline_minus_genome"] == pytest.approx(
+        0.13125
+    )
+    assert comparison["genome"]["log_loss"] == pytest.approx(
+        -0.5 * (math.log(0.8) + math.log(0.6))
+    )
+    assert comparison["baseline"]["log_loss"] == pytest.approx(
+        -0.5 * (math.log(0.6) + math.log(0.45))
+    )
+    assert comparison["log_loss_improvement_baseline_minus_genome"] > 0.0
+
+
+def test_baseline_comparison_rejects_denominator_drift() -> None:
+    row = {
+        "p_player_a": 0.6,
+        "p_player_b": 0.4,
+        "selected_probability": 0.6,
+        "actual_player_a_won": True,
+        "prediction_correct": True,
+    }
+
+    with pytest.raises(ValueError, match="comparison denominators differ"):
+        _compute_baseline_comparison(
+            genome_rows=[row],
+            baseline_rows=[row, row],
+        )
+
+
+def test_baseline_comparison_rejects_empty_cohort() -> None:
+    with pytest.raises(ValueError, match="requires at least one settled match"):
+        _compute_baseline_comparison(
+            genome_rows=[],
+            baseline_rows=[],
         )
