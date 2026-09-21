@@ -114,24 +114,33 @@ def derive_elo_baseline_candidate(
     return candidate
 
 
-def derive_elo_baseline(
+def finalize_elo_baseline_candidate(
     *,
-    matchup_input_path: Path,
-    local_input_manifest_path: Path,
-    prediction_path: Path,
+    candidate_path: Path,
     slate_id: str,
     artifact_id: int,
     artifact_sha256: str,
     output_path: Path,
 ) -> dict[str, Any]:
-    candidate_path = output_path.with_suffix(".candidate.json")
-    candidate = derive_elo_baseline_candidate(
-        matchup_input_path=matchup_input_path,
-        local_input_manifest_path=local_input_manifest_path,
-        prediction_path=prediction_path,
-        output_path=candidate_path,
-    )
+    candidate = _load_json(candidate_path)
+    if candidate.get("schema_version") != _CANDIDATE_SCHEMA:
+        raise ValueError("unsupported Elo baseline candidate schema")
+    if candidate.get("record_type") != _CANDIDATE_RECORD_TYPE:
+        raise ValueError("unexpected Elo baseline candidate record type")
+    if candidate.get("baseline_name") != _BASELINE_NAME:
+        raise ValueError("unexpected Elo baseline candidate name")
+    if candidate.get("production_eligible") is not False:
+        raise ValueError("Elo baseline candidate must remain non-production")
+
+    observed_candidate_sha = str(candidate.get("record_sha256", "")).strip()
+    unsigned_candidate = dict(candidate)
+    unsigned_candidate.pop("record_sha256", None)
+    if _canonical_sha256(unsigned_candidate) != observed_candidate_sha:
+        raise ValueError("Elo baseline candidate record digest mismatch")
+
     artifact_digest = artifact_sha256.strip().lower()
+    if artifact_digest.startswith("sha256:"):
+        artifact_digest = artifact_digest.removeprefix("sha256:")
     if len(artifact_digest) != 64:
         raise ValueError("artifact SHA-256 must contain 64 hex characters")
     try:
@@ -160,13 +169,38 @@ def derive_elo_baseline(
         "production_eligible": False,
     }
     record["record_sha256"] = _canonical_sha256(record)
-
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(record, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
     return record
+
+
+def derive_elo_baseline(
+    *,
+    matchup_input_path: Path,
+    local_input_manifest_path: Path,
+    prediction_path: Path,
+    slate_id: str,
+    artifact_id: int,
+    artifact_sha256: str,
+    output_path: Path,
+) -> dict[str, Any]:
+    candidate_path = output_path.with_suffix(".candidate.json")
+    derive_elo_baseline_candidate(
+        matchup_input_path=matchup_input_path,
+        local_input_manifest_path=local_input_manifest_path,
+        prediction_path=prediction_path,
+        output_path=candidate_path,
+    )
+    return finalize_elo_baseline_candidate(
+        candidate_path=candidate_path,
+        slate_id=slate_id,
+        artifact_id=artifact_id,
+        artifact_sha256=artifact_sha256,
+        output_path=output_path,
+    )
 
 
 def _parse_args() -> argparse.Namespace:

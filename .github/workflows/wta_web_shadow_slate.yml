@@ -12,6 +12,7 @@ on:
       - "scripts/build_web_shadow_target_state.py"
       - "scripts/run_web_shadow_prediction.py"
       - "scripts/derive_web_shadow_elo_baseline.py"
+      - "scripts/finalize_web_shadow_slate_evidence.py"
       - "scripts/manage_web_shadow_history_cache.py"
       - ".github/workflows/wta_web_shadow_slate.yml"
       - "src/tennis_genome/features/**"
@@ -232,6 +233,7 @@ jobs:
           PY
 
       - name: Upload Web Shadow slate artifact
+        id: raw_slate_artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -242,4 +244,61 @@ jobs:
             data/wta-live-base/2026-source-reconciliation.json
             data/wta-live-base/history-cache-receipt.json
           if-no-files-found: warn
+          retention-days: 90
+
+      - name: Finalize artifact-bound Web Shadow evidence
+        if: success()
+        shell: bash
+        env:
+          RAW_ARTIFACT_ID: ${{ steps.raw_slate_artifact.outputs['artifact-id'] }}
+          RAW_ARTIFACT_DIGEST: ${{ steps.raw_slate_artifact.outputs['artifact-digest'] }}
+        run: |
+          set -euo pipefail
+          python -m scripts.finalize_web_shadow_slate_evidence \
+            --slate-root web-shadow-slate-run \
+            --source-reconciliation data/wta-live-base/2026-source-reconciliation.json \
+            --history-cache-receipt data/wta-live-base/history-cache-receipt.json \
+            --workflow-run-id "${GITHUB_RUN_ID}" \
+            --workflow-artifact-id "${RAW_ARTIFACT_ID}" \
+            --workflow-artifact-sha256 "${RAW_ARTIFACT_DIGEST}" \
+            --workflow-source-sha "${GITHUB_SHA}" \
+            --output-root web-shadow-bound-evidence
+
+      - name: Verify bound Web Shadow evidence
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("web-shadow-bound-evidence/bound-evidence-manifest.json")
+              .read_text(encoding="utf-8")
+          )
+          receipt = json.loads(
+              Path("web-shadow-bound-evidence/slate-receipt.json")
+              .read_text(encoding="utf-8")
+          )
+          predicted = int(summary["predicted_target_count"])
+          if predicted <= 0:
+              raise SystemExit("bound Web Shadow evidence has no predictions")
+          if int(summary["baseline_count"]) != predicted:
+              raise SystemExit("bound baseline count differs from predicted count")
+          if summary.get("production_eligible") is not False:
+              raise SystemExit("bound Web Shadow evidence escaped isolation")
+          if receipt.get("scorecard_eligible") is not True:
+              raise SystemExit("bound Web Shadow slate receipt is not scorecard eligible")
+          if int(receipt["predicted_target_count"]) != predicted:
+              raise SystemExit("bound slate receipt prediction count mismatch")
+          PY
+
+      - name: Upload bound Web Shadow evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-shadow-bound-evidence-${{ github.run_id }}
+          path: web-shadow-bound-evidence/
+          if-no-files-found: error
           retention-days: 90
