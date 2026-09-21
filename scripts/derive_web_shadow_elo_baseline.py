@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import Any
 
 _SCHEMA = "tennis-genome-web-shadow-baseline-v1"
+_CANDIDATE_SCHEMA = "tennis-genome-web-shadow-baseline-candidate-v1"
 _RECORD_TYPE = "WEB_SHADOW_BASELINE"
+_CANDIDATE_RECORD_TYPE = "WEB_SHADOW_BASELINE_CANDIDATE"
 _BASELINE_NAME = "overall_elo_v1"
 
 
@@ -38,14 +40,11 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def derive_elo_baseline(
+def derive_elo_baseline_candidate(
     *,
     matchup_input_path: Path,
     local_input_manifest_path: Path,
     prediction_path: Path,
-    slate_id: str,
-    artifact_id: int,
-    artifact_sha256: str,
     output_path: Path,
 ) -> dict[str, Any]:
     matchup = _load_json(matchup_input_path)
@@ -93,6 +92,45 @@ def derive_elo_baseline(
         raise ValueError("baseline fixture player names are invalid")
 
     selected_player = player_a if p_player_a >= 0.5 else player_b
+    candidate: dict[str, Any] = {
+        "schema_version": _CANDIDATE_SCHEMA,
+        "record_type": _CANDIDATE_RECORD_TYPE,
+        "baseline_name": _BASELINE_NAME,
+        "match_id": match_id,
+        "prediction_record_sha256": str(prediction.get("record_sha256", "")),
+        "matchup_input_sha256": observed_input_sha,
+        "elo_logit": elo_logit,
+        "p_player_a": p_player_a,
+        "p_player_b": p_player_b,
+        "selected_player": selected_player,
+        "production_eligible": False,
+    }
+    candidate["record_sha256"] = _canonical_sha256(candidate)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(candidate, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+    return candidate
+
+
+def derive_elo_baseline(
+    *,
+    matchup_input_path: Path,
+    local_input_manifest_path: Path,
+    prediction_path: Path,
+    slate_id: str,
+    artifact_id: int,
+    artifact_sha256: str,
+    output_path: Path,
+) -> dict[str, Any]:
+    candidate_path = output_path.with_suffix(".candidate.json")
+    candidate = derive_elo_baseline_candidate(
+        matchup_input_path=matchup_input_path,
+        local_input_manifest_path=local_input_manifest_path,
+        prediction_path=prediction_path,
+        output_path=candidate_path,
+    )
     artifact_digest = artifact_sha256.strip().lower()
     if len(artifact_digest) != 64:
         raise ValueError("artifact SHA-256 must contain 64 hex characters")
@@ -110,15 +148,15 @@ def derive_elo_baseline(
         "record_type": _RECORD_TYPE,
         "baseline_name": _BASELINE_NAME,
         "slate_id": slate_id,
-        "match_id": match_id,
-        "prediction_record_sha256": str(prediction.get("record_sha256", "")),
+        "match_id": candidate["match_id"],
+        "prediction_record_sha256": candidate["prediction_record_sha256"],
         "artifact_id": artifact_id,
         "artifact_sha256": artifact_digest,
-        "matchup_input_sha256": observed_input_sha,
-        "elo_logit": elo_logit,
-        "p_player_a": p_player_a,
-        "p_player_b": p_player_b,
-        "selected_player": selected_player,
+        "matchup_input_sha256": candidate["matchup_input_sha256"],
+        "elo_logit": candidate["elo_logit"],
+        "p_player_a": candidate["p_player_a"],
+        "p_player_b": candidate["p_player_b"],
+        "selected_player": candidate["selected_player"],
         "production_eligible": False,
     }
     record["record_sha256"] = _canonical_sha256(record)
