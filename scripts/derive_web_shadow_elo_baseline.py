@@ -7,7 +7,6 @@ import math
 from pathlib import Path
 from typing import Any
 
-
 _SCHEMA = "tennis-genome-web-shadow-baseline-v1"
 _RECORD_TYPE = "WEB_SHADOW_BASELINE"
 _BASELINE_NAME = "overall_elo_v1"
