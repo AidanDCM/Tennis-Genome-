@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T18:51:17.573228+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:r16:anisimova-gibson",
+    "player_a": "Amanda Anisimova",
+    "player_b": "Talia Gibson",
+    "round": "R16",
+    "schedule_source_url": "https://surprisesports.com/scores/tennis/singapore-tennis-open-2026-1009/anisimova-vs-gibson-184099/",
+    "scheduled_start": "2026-09-23T12:00:00+08:00",
+    "source_observed_at": "2026-09-21T14:43:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "7467d1828c3f91c6a1ba7a140cbc76e15d3b80892b9255bd88bc15e5c7e2f49b",
+  "model_source_sha": "4c01859149e8ca01b48641352070f135b60a5498",
+  "p_player_a": 0.7379442578486107,
+  "p_player_b": 0.26205574215138927,
+  "player_a_id": "wta:id:216153",
+  "player_b_id": "wta:id:221883",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "58e8da571331cc3cd48ee0300352c2018987aaf832b663bf48a7c09795a8c26c",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Amanda Anisimova"
+}

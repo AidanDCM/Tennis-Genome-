@@ -1,0 +1,48 @@
+{
+  "eligible_target_count": 2,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "singapore-2026-r16-sasnovich-andreeva",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-sasnovich-andreeva.json",
+      "match_id": "web:wta:singapore:2026:r16:sasnovich-andreeva",
+      "minimum_point_exposure": 11320,
+      "p_player_a": 0.20332982655072263,
+      "p_player_b": 0.7966701734492774,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r16-sasnovich-andreeva/prediction.json",
+      "prediction_record_sha256": "d22949fad5e47c8acc86d94bd44bf11380cadd42d8d84a7e77fb8544ef97141f",
+      "scheduled_start": "2026-09-23T12:00:00+08:00",
+      "selected_player": "Mirra Andreeva",
+      "target_history_match_counts": {
+        "wta:id:205925": 370,
+        "wta:id:259799": 169
+      }
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-anisimova-gibson",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-anisimova-gibson.json",
+      "match_id": "web:wta:singapore:2026:r16:anisimova-gibson",
+      "minimum_point_exposure": 3229,
+      "p_player_a": 0.7379442578486107,
+      "p_player_b": 0.26205574215138927,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r16-anisimova-gibson/prediction.json",
+      "prediction_record_sha256": "58e8da571331cc3cd48ee0300352c2018987aaf832b663bf48a7c09795a8c26c",
+      "scheduled_start": "2026-09-23T12:00:00+08:00",
+      "selected_player": "Amanda Anisimova",
+      "target_history_match_counts": {
+        "wta:id:216153": 258,
+        "wta:id:221883": 50
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 2,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
