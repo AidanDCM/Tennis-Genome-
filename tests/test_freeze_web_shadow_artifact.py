@@ -241,3 +241,33 @@ def test_freeze_artifact_rejects_unsafe_zip_paths(tmp_path: Path) -> None:
             artifact_sha256=digest,
             workflow_source_sha="a" * 40,
         )
+
+
+def test_freeze_artifact_rolls_back_when_final_scorecard_validation_fails(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    scorecard = _write_scorecard(repo_root)
+    payload = json.loads(scorecard.read_text(encoding="utf-8"))
+    payload["metrics"] = {}
+    _write_json(scorecard, payload)
+    original_scorecard = scorecard.read_bytes()
+    archive, digest = _build_artifact(tmp_path)
+
+    with pytest.raises(
+        ValueError,
+        match="unsettled scorecard must not publish metrics",
+    ):
+        freeze.freeze_web_shadow_artifact(
+            artifact_zip=archive,
+            repo_root=repo_root,
+            scorecard_path=Path("web-shadow/scorecard.json"),
+            slate_id="test-run",
+            workflow_run_id=123,
+            artifact_id=456,
+            artifact_sha256=digest,
+            workflow_source_sha="a" * 40,
+        )
+
+    assert scorecard.read_bytes() == original_scorecard
+    assert not (repo_root / "web-shadow/slates/test-run").exists()
