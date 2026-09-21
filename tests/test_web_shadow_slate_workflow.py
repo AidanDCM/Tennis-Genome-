@@ -52,6 +52,7 @@ def test_web_shadow_slate_reruns_on_engine_changes() -> None:
         '"scripts/build_web_shadow_target_state.py"',
         '"scripts/run_web_shadow_prediction.py"',
         '"scripts/derive_web_shadow_elo_baseline.py"',
+        '"scripts/finalize_web_shadow_slate_evidence.py"',
         '"src/tennis_genome/features/**"',
         '"src/tennis_genome/ratings/**"',
         '"src/tennis_genome/evaluation/**"',
@@ -108,3 +109,26 @@ def test_web_shadow_slate_requires_baseline_candidates() -> None:
     assert "baseline candidate prediction SHA mismatch" in text
     assert "baseline candidate record SHA mismatch" in text
     assert "baseline candidate probabilities do not sum to one" in text
+
+
+def test_web_shadow_slate_uploads_bound_evidence() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "id: raw_slate_artifact" in text
+    assert "steps.raw_slate_artifact.outputs['artifact-id']" in text
+    assert "steps.raw_slate_artifact.outputs['artifact-digest']" in text
+    assert "scripts.finalize_web_shadow_slate_evidence" in text
+    assert "--workflow-run-id" in text
+    assert "--workflow-artifact-id" in text
+    assert "--workflow-artifact-sha256" in text
+    assert "--workflow-source-sha" in text
+    assert "bound-evidence-manifest.json" in text
+    assert "slate-receipt.json" in text
+    assert "web-shadow-bound-evidence-${{ github.run_id }}" in text
+
+
+def test_bound_evidence_is_scorecard_ready_and_nonproduction() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "bound baseline count differs from predicted count" in text
+    assert "bound Web Shadow evidence escaped isolation" in text
+    assert "bound Web Shadow slate receipt is not scorecard eligible" in text
+    assert "bound slate receipt prediction count mismatch" in text
