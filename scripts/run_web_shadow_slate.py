@@ -15,6 +15,7 @@ from scripts.build_web_shadow_local_input import (
     target_history_counts,
 )
 from scripts.build_web_shadow_target_state import build_web_shadow_target_state
+from scripts.derive_web_shadow_elo_baseline import derive_elo_baseline_candidate
 from scripts.run_web_shadow_prediction import run_web_shadow_prediction
 from tennis_genome.calculator.contract import load_validated_matchup_calculator
 from tennis_genome.data.canonical import PreMatchState
@@ -30,6 +31,7 @@ class _ResolvedCandidate:
     matchup_input_path: Path
     input_manifest_path: Path
     prediction_path: Path
+    baseline_candidate_path: Path
 
 
 def _load_slate(path: Path) -> list[Path]:
@@ -94,6 +96,7 @@ def run_web_shadow_slate(
         matchup_input_path = match_root / "matchup-input.json"
         input_manifest_path = match_root / "local-input-manifest.json"
         prediction_path = match_root / "prediction.json"
+        baseline_candidate_path = match_root / "baseline-candidate.json"
 
         try:
             build_web_shadow_target_state(
@@ -129,6 +132,7 @@ def run_web_shadow_slate(
                 matchup_input_path=matchup_input_path,
                 input_manifest_path=input_manifest_path,
                 prediction_path=prediction_path,
+                baseline_candidate_path=baseline_candidate_path,
             )
         )
 
@@ -175,6 +179,13 @@ def run_web_shadow_slate(
             )
             continue
 
+        baseline_candidate = derive_elo_baseline_candidate(
+            matchup_input_path=candidate.matchup_input_path,
+            local_input_manifest_path=candidate.input_manifest_path,
+            prediction_path=candidate.prediction_path,
+            output_path=candidate.baseline_candidate_path,
+        )
+
         results.append(
             {
                 "fixture_path": candidate.fixture_path.as_posix(),
@@ -190,6 +201,11 @@ def run_web_shadow_slate(
                 ],
                 "minimum_point_exposure": manifest["minimum_point_exposure"],
                 "prediction_path": candidate.prediction_path.as_posix(),
+                "baseline_candidate_path": candidate.baseline_candidate_path.as_posix(),
+                "baseline_candidate_record_sha256": baseline_candidate["record_sha256"],
+                "baseline_selected_player": baseline_candidate["selected_player"],
+                "baseline_p_player_a": baseline_candidate["p_player_a"],
+                "baseline_p_player_b": baseline_candidate["p_player_b"],
             }
         )
 
