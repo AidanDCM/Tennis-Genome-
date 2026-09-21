@@ -38,3 +38,14 @@ jobs:
           jq '[.matches[] | select((.MatchState // .matchState // "") | tostring | test("UP|SCHED|NOT|LIVE"; "i"))][0:8]' matches.json
           echo "=== last 12 match samples ==="
           jq '.matches[-12:]' matches.json
+
+          curl --fail --location --silent --show-error --retry 3 \
+            "${headers[@]}" \
+            "https://api.wtatennis.com/tennis/tournaments/1152/2026/draw" \
+            -o draw.json
+          echo "=== draw root keys ==="
+          jq 'keys' draw.json
+          echo "=== draw structural summary ==="
+          jq 'walk(if type == "object" then with_entries(select(.key | test("round|Round|event|Event|match|Match|description|Description|type|Type"))) else . end) | .[0:3]?' draw.json || true
+          echo "=== draw strings containing round labels ==="
+          grep -Eo '"[^"]*(Round of|Quarter|Semi|Final|R32|R16)[^"]*"' draw.json | head -80 || true
