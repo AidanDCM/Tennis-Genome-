@@ -1,0 +1,93 @@
+name: WTA Web Shadow Settlement Batch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web-shadow/active-results.json"
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: "Repository path to a Web Shadow result batch manifest"
+        required: true
+        default: "web-shadow/active-results.json"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  settle-batch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve result batch manifest
+        shell: bash
+        env:
+          DISPATCH_MANIFEST_PATH: ${{ inputs.manifest_path }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            MANIFEST_PATH="web-shadow/active-results.json"
+          else
+            MANIFEST_PATH="${DISPATCH_MANIFEST_PATH}"
+          fi
+          case "${MANIFEST_PATH}" in
+            web-shadow/*.json) ;;
+            *) echo "manifest_path must be under web-shadow/" >&2; exit 1 ;;
+          esac
+          test -f "${MANIFEST_PATH}"
+          echo "MANIFEST_PATH=${MANIFEST_PATH}" >> "${GITHUB_ENV}"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Settle pending official predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/settle_web_shadow_result_batch.py             --manifest "${MANIFEST_PATH}"             --scorecard web-shadow/scorecard.json             --output-root web-shadow-settlement-batch             | tee web-shadow-settlement-batch-summary.json
+
+      - name: Verify batch accounting and isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("web-shadow-settlement-batch/settlement-batch-summary.json")
+              .read_text(encoding="utf-8")
+          )
+          requested = int(summary["requested_result_count"])
+          settled = int(summary["settlement_count"])
+          if requested <= 0:
+              raise SystemExit("Web Shadow result batch denominator is empty")
+          if requested != settled:
+              raise SystemExit("Web Shadow result batch denominator drift")
+          if summary.get("production_eligible") is not False:
+              raise SystemExit("Web Shadow batch settlement must remain non-production")
+          PY
+
+      - name: Retain result batch manifest
+        shell: bash
+        run: cp "${MANIFEST_PATH}" web-shadow-settlement-batch/result-batch-manifest.json
+
+      - name: Upload Web Shadow settlement batch
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-shadow-settlement-batch-${{ github.run_id }}
+          path: |
+            web-shadow-settlement-batch/
+            web-shadow-settlement-batch-summary.json
+          if-no-files-found: error
+          retention-days: 90
