@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "cd38df4f39228eb28d8f42a87c64c1f567a7bd68c599243c15c749895bbd8cac",
+  "match_id": "web:wta:seoul:2026:qfnl:shubladze-astakhova",
+  "winner": "Darya Astakhova",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": false,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-seoul-2026-qfnl-shubladze-astakhova.json",
+  "record_sha256": "3ee1c6729cab7e7fa4ce159af1bdadeb3cf839e4d106edf6219677e98b8ecaf9"
+}
