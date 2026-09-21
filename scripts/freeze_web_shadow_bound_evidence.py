@@ -339,6 +339,7 @@ def freeze_web_shadow_bound_evidence(
         "raw_workflow_run_id": raw_run_id,
         "raw_artifact_id": raw_artifact_id,
         "raw_artifact_sha256": raw_artifact_sha,
+        "workflow_source_sha": source_sha,
         "bound_artifact_id": bound_artifact_id,
         "bound_artifact_sha256": bound_digest,
         "predicted_target_count": predicted,
