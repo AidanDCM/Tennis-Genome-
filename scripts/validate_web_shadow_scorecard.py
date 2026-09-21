@@ -119,6 +119,35 @@ def _compute_metrics(rows: list[dict[str, float | bool]]) -> dict[str, Any]:
     }
 
 
+def _compute_baseline_comparison(
+    *,
+    genome_rows: list[dict[str, float | bool]],
+    baseline_rows: list[dict[str, float | bool]],
+) -> dict[str, Any]:
+    if len(genome_rows) != len(baseline_rows):
+        raise ValueError("Genome and baseline comparison denominators differ")
+    if not genome_rows:
+        raise ValueError("baseline comparison requires at least one settled match")
+
+    genome_metrics = _compute_metrics(genome_rows)
+    baseline_metrics = _compute_metrics(baseline_rows)
+    return {
+        "schema_version": _BASELINE_COMPARISON_SCHEMA,
+        "baseline_name": _BASELINE_NAME,
+        "settled_match_count": len(genome_rows),
+        "genome": genome_metrics,
+        "baseline": baseline_metrics,
+        "brier_improvement_baseline_minus_genome": (
+            float(baseline_metrics["brier_score"])
+            - float(genome_metrics["brier_score"])
+        ),
+        "log_loss_improvement_baseline_minus_genome": (
+            float(baseline_metrics["log_loss"])
+            - float(genome_metrics["log_loss"])
+        ),
+    }
+
+
 def _assert_metric_payload(expected: Any, observed: Any, *, path: str) -> None:
     if isinstance(expected, float):
         try:
@@ -476,23 +505,10 @@ def validate_web_shadow_scorecard(
         raise ValueError("unsettled scorecard must not publish metrics")
 
     if baseline_metric_rows:
-        genome_benchmark = _compute_metrics(baseline_genome_metric_rows)
-        baseline_benchmark = _compute_metrics(baseline_metric_rows)
-        expected_comparison = {
-            "schema_version": _BASELINE_COMPARISON_SCHEMA,
-            "baseline_name": _BASELINE_NAME,
-            "settled_match_count": len(baseline_metric_rows),
-            "genome": genome_benchmark,
-            "baseline": baseline_benchmark,
-            "brier_improvement_baseline_minus_genome": (
-                float(baseline_benchmark["brier_score"])
-                - float(genome_benchmark["brier_score"])
-            ),
-            "log_loss_improvement_baseline_minus_genome": (
-                float(baseline_benchmark["log_loss"])
-                - float(genome_benchmark["log_loss"])
-            ),
-        }
+        expected_comparison = _compute_baseline_comparison(
+            genome_rows=baseline_genome_metric_rows,
+            baseline_rows=baseline_metric_rows,
+        )
         _assert_metric_payload(
             expected_comparison,
             scorecard.get("baseline_comparison"),
