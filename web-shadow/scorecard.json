@@ -1,8 +1,8 @@
 {
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "production_eligible": false,
-  "official_slate_count": 3,
-  "pending_match_count": 9,
+  "official_slate_count": 4,
+  "pending_match_count": 11,
   "settled_match_count": 7,
   "slates": [
     {
@@ -179,6 +179,33 @@
           "selected_player": "Alina Charaeva",
           "selected_probability": 0.62326573994696,
           "scheduled_start": "2026-09-22T17:00:00+09:00",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "slate_id": "2026-09-21-run-35621137740",
+      "receipt_path": "web-shadow/slates/2026-09-21-run-35621137740/slate-receipt.json",
+      "workflow_run_id": 35621137740,
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "status": "PENDING_SETTLEMENT",
+      "predictions": [
+        {
+          "match_id": "web:wta:singapore:2026:r32:oliynykova-wolff",
+          "prediction_path": "web-shadow/slates/2026-09-21-run-35621137740/predictions/singapore-2026-r32-oliynykova-wolff.json",
+          "prediction_record_sha256": "f9d10003f5963780c1c7fe6652e9eb264500b28201adffedb069b9368434ec6e",
+          "selected_player": "Oleksandra Oliynykova",
+          "selected_probability": 0.5454161011844827,
+          "scheduled_start": "2026-09-22T11:00:00+08:00",
+          "status": "PENDING"
+        },
+        {
+          "match_id": "web:wta:singapore:2026:r32:parks-yamaguchi",
+          "prediction_path": "web-shadow/slates/2026-09-21-run-35621137740/predictions/singapore-2026-r32-parks-yamaguchi.json",
+          "prediction_record_sha256": "9352e07cf66d38eef04b7e67b7ebf7176d8cfb045594e04a4a531afe409cb1b2",
+          "selected_player": "Alycia Parks",
+          "selected_probability": 0.6224215717621162,
+          "scheduled_start": "2026-09-22T12:30:00+08:00",
           "status": "PENDING"
         }
       ]

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T15:46:51.176873+00:00",
+  "fixture": {
+    "match_id": "web:wta:singapore:2026:r32:parks-yamaguchi",
+    "player_a": "Mei Yamaguchi",
+    "player_b": "Alycia Parks",
+    "round": "R32",
+    "schedule_source_url": "https://polymarket.com/sports/wta/wta-parks-yamaguc-2026-09-22",
+    "scheduled_start": "2026-09-22T12:30:00+08:00",
+    "source_observed_at": "2026-09-21T11:38:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1152/singapore/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "c0cb4831c007e4e0bfd300230ea2ca231252fc2c2d728a30f58f5abc52dcbf88",
+  "model_source_sha": "9ee4308fd2f238517cc23e54a2d608155488e94c",
+  "p_player_a": 0.37757842823788385,
+  "p_player_b": 0.6224215717621162,
+  "player_a_id": "wta:id:215614",
+  "player_b_id": "wta:id:219917",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "9352e07cf66d38eef04b7e67b7ebf7176d8cfb045594e04a4a531afe409cb1b2",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alycia Parks"
+}
