@@ -10,6 +10,9 @@ from typing import Any
 
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
 _METRICS_SCHEMA = "tennis-genome-web-shadow-metrics-v1"
+_BASELINE_SCHEMA = "tennis-genome-web-shadow-baseline-v1"
+_BASELINE_COMPARISON_SCHEMA = "tennis-genome-web-shadow-baseline-comparison-v1"
+_BASELINE_NAME = "overall_elo_v1"
 _ALLOWED_STATUSES = {"PENDING", "SETTLED"}
 
 
@@ -161,6 +164,9 @@ def validate_web_shadow_scorecard(
     pending = 0
     settled = 0
     metric_rows: list[dict[str, float | bool]] = []
+    baseline_genome_metric_rows: list[dict[str, float | bool]] = []
+    baseline_metric_rows: list[dict[str, float | bool]] = []
+    baseline_count = 0
 
     for slate in slates:
         if not isinstance(slate, dict):
@@ -268,6 +274,79 @@ def validate_web_shadow_scorecard(
             ):
                 raise ValueError(f"scorecard selected probability mismatch: {match_id}")
 
+            baseline: dict[str, Any] | None = None
+            baseline_path_raw = str(entry.get("baseline_path", "")).strip()
+            if baseline_path_raw:
+                baseline_path = _repo_path(
+                    repo_root,
+                    baseline_path_raw,
+                    prefix="web-shadow",
+                )
+                expected_baseline_root = slate_root / "baselines"
+                try:
+                    baseline_path.relative_to(expected_baseline_root)
+                except ValueError as exc:
+                    raise ValueError(
+                        f"baseline is outside its immutable slate directory: {match_id}"
+                    ) from exc
+                baseline = _load_json(baseline_path)
+                if baseline.get("schema_version") != _BASELINE_SCHEMA:
+                    raise ValueError(f"unsupported baseline schema: {match_id}")
+                if baseline.get("record_type") != "WEB_SHADOW_BASELINE":
+                    raise ValueError(f"unexpected baseline record type: {match_id}")
+                if baseline.get("baseline_name") != _BASELINE_NAME:
+                    raise ValueError(f"unexpected baseline name: {match_id}")
+                if baseline.get("production_eligible") is not False:
+                    raise ValueError(f"baseline escaped non-production isolation: {match_id}")
+                _assert_record_digest(baseline, label=f"baseline {match_id}")
+                if baseline.get("slate_id") != slate_id:
+                    raise ValueError(f"baseline slate identity mismatch: {match_id}")
+                if baseline.get("match_id") != match_id:
+                    raise ValueError(f"baseline match identity mismatch: {match_id}")
+                if baseline.get("prediction_record_sha256") != observed_sha:
+                    raise ValueError(f"baseline prediction SHA mismatch: {match_id}")
+                if int(baseline.get("artifact_id", -1)) != int(
+                    receipt.get("workflow_artifact_id", -2)
+                ):
+                    raise ValueError(f"baseline artifact ID mismatch: {match_id}")
+                if baseline.get("artifact_sha256") != receipt.get(
+                    "workflow_artifact_sha256"
+                ):
+                    raise ValueError(f"baseline artifact SHA mismatch: {match_id}")
+
+                matchup_sha = str(baseline.get("matchup_input_sha256", "")).strip()
+                if len(matchup_sha) != 64:
+                    raise ValueError(f"baseline matchup input SHA is invalid: {match_id}")
+                try:
+                    int(matchup_sha, 16)
+                except ValueError as exc:
+                    raise ValueError(
+                        f"baseline matchup input SHA is invalid: {match_id}"
+                    ) from exc
+
+                elo_logit = float(baseline.get("elo_logit"))
+                if not math.isfinite(elo_logit):
+                    raise ValueError(f"baseline Elo logit is invalid: {match_id}")
+                expected_baseline_p_a = 1.0 / (1.0 + math.exp(-elo_logit))
+                baseline_p_a = float(baseline.get("p_player_a"))
+                baseline_p_b = float(baseline.get("p_player_b"))
+                if not (
+                    math.isfinite(baseline_p_a)
+                    and math.isfinite(baseline_p_b)
+                    and abs(baseline_p_a - expected_baseline_p_a) <= 1e-12
+                    and abs(baseline_p_b - (1.0 - expected_baseline_p_a)) <= 1e-12
+                ):
+                    raise ValueError(f"baseline probability mismatch: {match_id}")
+
+                expected_baseline_player = (
+                    str(fixture.get("player_a"))
+                    if baseline_p_a >= 0.5
+                    else str(fixture.get("player_b"))
+                )
+                if baseline.get("selected_player") != expected_baseline_player:
+                    raise ValueError(f"baseline selected player mismatch: {match_id}")
+                baseline_count += 1
+
             if status == "PENDING":
                 if "settlement_path" in entry:
                     raise ValueError(
@@ -345,15 +424,28 @@ def validate_web_shadow_scorecard(
             if not str(result.get("score", "")).strip():
                 raise ValueError(f"result evidence lacks score: {match_id}")
 
-            metric_rows.append(
-                {
-                    "p_player_a": float(prediction["p_player_a"]),
-                    "p_player_b": float(prediction["p_player_b"]),
-                    "selected_probability": selected_probability,
-                    "actual_player_a_won": winner == player_a,
-                    "prediction_correct": expected_correct,
-                }
-            )
+            genome_metric_row = {
+                "p_player_a": float(prediction["p_player_a"]),
+                "p_player_b": float(prediction["p_player_b"]),
+                "selected_probability": selected_probability,
+                "actual_player_a_won": winner == player_a,
+                "prediction_correct": expected_correct,
+            }
+            metric_rows.append(genome_metric_row)
+            if baseline is not None:
+                baseline_genome_metric_rows.append(genome_metric_row)
+                baseline_p_a = float(baseline["p_player_a"])
+                baseline_p_b = float(baseline["p_player_b"])
+                baseline_selected_player = str(baseline["selected_player"])
+                baseline_metric_rows.append(
+                    {
+                        "p_player_a": baseline_p_a,
+                        "p_player_b": baseline_p_b,
+                        "selected_probability": max(baseline_p_a, baseline_p_b),
+                        "actual_player_a_won": winner == player_a,
+                        "prediction_correct": winner == baseline_selected_player,
+                    }
+                )
             settled += 1
             slate_settled += 1
 
@@ -382,6 +474,37 @@ def validate_web_shadow_scorecard(
         )
     elif "metrics" in scorecard:
         raise ValueError("unsettled scorecard must not publish metrics")
+
+    if baseline_metric_rows:
+        genome_benchmark = _compute_metrics(baseline_genome_metric_rows)
+        baseline_benchmark = _compute_metrics(baseline_metric_rows)
+        expected_comparison = {
+            "schema_version": _BASELINE_COMPARISON_SCHEMA,
+            "baseline_name": _BASELINE_NAME,
+            "settled_match_count": len(baseline_metric_rows),
+            "genome": genome_benchmark,
+            "baseline": baseline_benchmark,
+            "brier_improvement_baseline_minus_genome": (
+                float(baseline_benchmark["brier_score"])
+                - float(genome_benchmark["brier_score"])
+            ),
+            "log_loss_improvement_baseline_minus_genome": (
+                float(baseline_benchmark["log_loss"])
+                - float(genome_benchmark["log_loss"])
+            ),
+        }
+        _assert_metric_payload(
+            expected_comparison,
+            scorecard.get("baseline_comparison"),
+            path="baseline_comparison",
+        )
+    elif "baseline_comparison" in scorecard:
+        raise ValueError(
+            "scorecard cannot publish baseline comparison without settled baselines"
+        )
+
+    if baseline_count != int(scorecard.get("baseline_match_count", 0)):
+        raise ValueError("baseline match count does not match scorecard contents")
 
     return {
         "official_slate_count": len(slates),

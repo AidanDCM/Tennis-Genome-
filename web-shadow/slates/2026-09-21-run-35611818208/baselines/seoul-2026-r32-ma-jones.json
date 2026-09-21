@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35611818208",
+  "match_id": "web:wta:seoul:2026:r32:ma-jones",
+  "prediction_record_sha256": "ce2e66650149c9842cae467302b2c206c849cb892a4cac91df5ad9a8d54f148f",
+  "artifact_id": 10644062797,
+  "artifact_sha256": "701cbda7ac28207fdcaf939e57651c01ec454e000bb2b241558c5abca06242b5",
+  "matchup_input_sha256": "ae83c11ebd23f7e5893953a1328466029dbc6c9b708c3d3c513f3976afd544aa",
+  "elo_logit": -0.5132840530434418,
+  "p_player_a": 0.3744239829403624,
+  "p_player_b": 0.6255760170596376,
+  "selected_player": "Emerson Jones",
+  "production_eligible": false,
+  "record_sha256": "92db0a94808c8794ce329c608303844a7e4ec60b9ccb30952b1fc0a6062d3448"
+}

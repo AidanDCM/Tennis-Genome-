@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35611818208",
+  "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
+  "prediction_record_sha256": "6af4a995c4bcb958f032963a6ccded421fe9df38ab0e878e3955042525df363f",
+  "artifact_id": 10644062797,
+  "artifact_sha256": "701cbda7ac28207fdcaf939e57651c01ec454e000bb2b241558c5abca06242b5",
+  "matchup_input_sha256": "f2287d10236bce5ba7e6bf10b3091a726601a11c969e19a0b21534f747f6fdbf",
+  "elo_logit": 0.08032148306912736,
+  "p_player_a": 0.5200695819503341,
+  "p_player_b": 0.47993041804966585,
+  "selected_player": "Kimberly Birrell",
+  "production_eligible": false,
+  "record_sha256": "43316b35b84e865e38d1c5acbb160ceb25da71ec58ea29ac8ca4b1417c89e2ec"
+}

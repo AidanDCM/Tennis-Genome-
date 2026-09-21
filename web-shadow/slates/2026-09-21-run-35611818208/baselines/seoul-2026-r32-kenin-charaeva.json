@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35611818208",
+  "match_id": "web:wta:seoul:2026:r32:kenin-charaeva",
+  "prediction_record_sha256": "eaee3a6600daebe8aeba5eb246aea421fd6c0fe9732d2b9ab4b4b33a721ff498",
+  "artifact_id": 10644062797,
+  "artifact_sha256": "701cbda7ac28207fdcaf939e57651c01ec454e000bb2b241558c5abca06242b5",
+  "matchup_input_sha256": "3e1d1ea2cb77a79302f9e3ae5d3c8ee443a38a1effd8f46ea8e1e657c17e2c47",
+  "elo_logit": -0.3618384985691211,
+  "p_player_a": 0.4105145902495578,
+  "p_player_b": 0.5894854097504423,
+  "selected_player": "Alina Charaeva",
+  "production_eligible": false,
+  "record_sha256": "3fe7fc3813afe5479d22c295337dc21a3dc15839cd82006bbf4b2157430eba30"
+}

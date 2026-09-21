@@ -1,0 +1,17 @@
+{
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "baseline_name": "overall_elo_v1",
+  "slate_id": "2026-09-21-run-35611818208",
+  "match_id": "web:wta:seoul:2026:r32:montgomery-park",
+  "prediction_record_sha256": "50eea9b45802dd687a77a82d56b662614eea52e91eecb76e46ed31178b8fb4e7",
+  "artifact_id": 10644062797,
+  "artifact_sha256": "701cbda7ac28207fdcaf939e57651c01ec454e000bb2b241558c5abca06242b5",
+  "matchup_input_sha256": "ab98190f5195492b7b05ae1f8136617336ef258b566aabdeb9db3ec0b7505989",
+  "elo_logit": 0.11340864352214546,
+  "p_player_a": 0.528321812254863,
+  "p_player_b": 0.47167818774513703,
+  "selected_player": "Sohyun Park",
+  "production_eligible": false,
+  "record_sha256": "39cb3004df9c05af5102a46ee80dfcbc002bf9b6ddeaa428846bcfc91407ab28"
+}
