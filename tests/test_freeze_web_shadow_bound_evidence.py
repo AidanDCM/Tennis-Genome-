@@ -178,6 +178,7 @@ def test_freeze_bound_evidence_uses_finalized_records_without_rederiving(
 
     frozen = repo_root / "web-shadow/slates/2026-09-21-run-123"
     assert summary["raw_artifact_id"] == 456
+    assert summary["workflow_source_sha"] == "a" * 40
     assert summary["bound_artifact_id"] == 789
     assert summary["pending_match_count"] == 1
     assert (frozen / "predictions/test-match.json").is_file()
