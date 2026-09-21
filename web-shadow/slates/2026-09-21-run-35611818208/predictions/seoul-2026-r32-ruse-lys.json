@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:41.316538+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:ruse-lys",
+    "player_a": "Elena Gabriela Ruse",
+    "player_b": "Eva Lys",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T12:00:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "d9b62187057fb717bcb247d2f891c303e51bf6a7da365f15b442d4ed67f86fa5",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.5263663766965141,
+  "p_player_b": 0.4736336233034859,
+  "player_a_id": "wta:id:211817",
+  "player_b_id": "wta:id:220332",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "e119aa4589c8a237636cef4dd2f4139dd82705fa0c1ceff0675b1df909849d89",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elena Gabriela Ruse"
+}
