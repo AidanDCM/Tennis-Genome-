@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "2532195f73760cbc8593c44fdfd7a4713ad282322fcf75646a1eb99b33bc0f3f",
+  "match_id": "web:wta:seoul:2026:qfnl:ma-lee",
+  "winner": "Ye Xin Ma",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": true,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-seoul-2026-qfnl-ma-lee.json",
+  "record_sha256": "06728eb62bad300cc4cb92bb604a226cb4dea53d855069e2d572ac2879145ebb"
+}
