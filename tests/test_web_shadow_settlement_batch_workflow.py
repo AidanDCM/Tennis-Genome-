@@ -19,3 +19,14 @@ def test_web_shadow_batch_settlement_verifies_denominator() -> None:
     assert "settlement_count" in text
     assert "result batch denominator drift" in text
     assert "production_eligible" in text
+
+
+def test_web_shadow_batch_settlement_verifies_evaluation_and_evidence_hashes() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "evaluation_eligible_count" in text
+    assert "excluded_noncompleted_count" in text
+    assert "evaluation denominator drift" in text
+    assert "correct-count denominator drift" in text
+    assert "empty evaluation cohort published accuracy" in text
+    assert "result_record_sha256" in text
+    assert "settlement_record_sha256" in text

@@ -16,6 +16,8 @@ def settle_from_result_file(
     result = json.loads(result_path.read_text(encoding="utf-8"))
     if not isinstance(result, dict):
         raise ValueError("result JSON must contain an object")
+    if not str(result.get("score", "")).strip():
+        raise ValueError("result score must be non-empty")
 
     prediction_path_raw = str(result.get("prediction_path", "")).strip()
     if not prediction_path_raw:

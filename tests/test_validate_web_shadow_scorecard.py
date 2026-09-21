@@ -8,6 +8,7 @@ import pytest
 
 from scripts.validate_web_shadow_scorecard import (
     _compute_baseline_comparison,
+    _settlement_is_evaluation_eligible,
     validate_web_shadow_scorecard,
 )
 
@@ -296,3 +297,63 @@ def test_baseline_comparison_rejects_empty_cohort() -> None:
             genome_rows=[],
             baseline_rows=[],
         )
+
+
+def test_scorecard_rejects_settlement_link_hash_drift(tmp_path: Path) -> None:
+    scorecard = json.loads(
+        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
+    )
+    scorecard["slates"][0]["predictions"][0]["settlement_record_sha256"] = "0" * 64
+    path = tmp_path / "scorecard.json"
+    path.write_text(json.dumps(scorecard), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="scorecard settlement SHA mismatch"):
+        validate_web_shadow_scorecard(
+            scorecard_path=path,
+            repo_root=Path("."),
+        )
+
+
+def test_scorecard_rejects_result_score_tampering(tmp_path: Path) -> None:
+    import shutil
+
+    scorecard = json.loads(
+        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
+    )
+    entry = scorecard["slates"][0]["predictions"][0]
+    settlement_path = Path(entry["settlement_path"])
+    settlement = json.loads(settlement_path.read_text(encoding="utf-8"))
+    result_path = Path(settlement["result_record_path"])
+
+    fake_root = tmp_path / "repo"
+    fake_scorecard = fake_root / "web-shadow/scorecard.json"
+    fake_scorecard.parent.mkdir(parents=True)
+    fake_scorecard.write_text(json.dumps(scorecard), encoding="utf-8")
+    shutil.copytree("web-shadow/slates", fake_root / "web-shadow/slates")
+    shutil.copytree("web-shadow/results", fake_root / "web-shadow/results")
+
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    result["score"] = "0-6 0-6"
+    (fake_root / result_path).write_text(json.dumps(result), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="scorecard result SHA mismatch"):
+        validate_web_shadow_scorecard(
+            scorecard_path=fake_scorecard,
+            repo_root=fake_root,
+        )
+
+
+@pytest.mark.parametrize(
+    ("status", "eligible"),
+    [
+        ("COMPLETED", True),
+        ("RETIREMENT", False),
+        ("WALKOVER", False),
+        ("DEFAULTED", False),
+    ],
+)
+def test_scorecard_metrics_only_use_completed_settlements(
+    status: str,
+    eligible: bool,
+) -> None:
+    assert _settlement_is_evaluation_eligible({"status": status}) is eligible

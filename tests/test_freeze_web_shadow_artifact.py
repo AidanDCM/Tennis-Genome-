@@ -256,7 +256,7 @@ def test_freeze_artifact_rolls_back_when_final_scorecard_validation_fails(
 
     with pytest.raises(
         ValueError,
-        match="unsettled scorecard must not publish metrics",
+        match="scorecard cannot publish metrics without completed settlements",
     ):
         freeze.freeze_web_shadow_artifact(
             artifact_zip=archive,
