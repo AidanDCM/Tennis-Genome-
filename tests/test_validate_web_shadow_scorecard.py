@@ -14,9 +14,9 @@ def test_repository_web_shadow_scorecard_is_valid() -> None:
         repo_root=Path("."),
     )
     assert summary == {
-        "official_slate_count": 3,
-        "official_match_count": 16,
-        "pending_match_count": 9,
+        "official_slate_count": 4,
+        "official_match_count": 18,
+        "pending_match_count": 11,
         "settled_match_count": 7,
     }
 
@@ -114,9 +114,9 @@ def test_scorecard_retains_settled_metrics_with_pending_slate() -> None:
     scorecard = json.loads(
         Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
     )
-    assert scorecard["official_slate_count"] == 3
-    assert scorecard["pending_match_count"] == 9
+    assert scorecard["official_slate_count"] == 4
+    assert scorecard["pending_match_count"] == 11
     assert scorecard["settled_match_count"] == 7
     assert scorecard["slates"][-1]["status"] == "PENDING_SETTLEMENT"
-    assert len(scorecard["slates"][-1]["predictions"]) == 9
+    assert len(scorecard["slates"][-1]["predictions"]) == 2
     assert scorecard["metrics"]["settled_match_count"] == 7
