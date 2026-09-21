@@ -1,0 +1,12 @@
+{
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "match_id": "web:wta:singapore:2026:RS005",
+  "prediction_path": "web-shadow/slates/2026-09-19-run-35457838597/predictions/singapore-2026-rs005-hibino-ito.json",
+  "expected_prediction_record_sha256": "56756be3bae1eda565dca76401fdb3105e2f5af5b852c97f5443da81609af16a",
+  "winner": "Nao Hibino",
+  "status": "COMPLETED",
+  "score": "6-2 2-6 7-6(2)",
+  "result_source_url": "https://www.tennismajors.com/matches/wta/singapore-tennis-open/nao-hibino-vs-aoi-ito",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "production_eligible": false
+}

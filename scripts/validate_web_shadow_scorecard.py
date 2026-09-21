@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 _SCORECARD_SCHEMA = "tennis-genome-web-shadow-scorecard-v1"
+_METRICS_SCHEMA = "tennis-genome-web-shadow-metrics-v1"
 _ALLOWED_STATUSES = {"PENDING", "SETTLED"}
 
 
@@ -42,6 +43,104 @@ def _repo_path(root: Path, value: str, *, prefix: str) -> Path:
     return path
 
 
+def _assert_record_digest(record: dict[str, Any], *, label: str) -> str:
+    observed = str(record.get("record_sha256", "")).strip()
+    unsigned = dict(record)
+    unsigned.pop("record_sha256", None)
+    if not observed or _canonical_sha256(unsigned) != observed:
+        raise ValueError(f"{label} record digest mismatch")
+    return observed
+
+
+def _compute_metrics(rows: list[dict[str, float | bool]]) -> dict[str, Any]:
+    if not rows:
+        raise ValueError("cannot compute Web Shadow metrics without settlements")
+
+    correct = sum(bool(row["prediction_correct"]) for row in rows)
+    accuracy = correct / len(rows)
+    brier = sum(
+        (float(row["p_player_a"]) - float(row["actual_player_a_won"])) ** 2
+        for row in rows
+    ) / len(rows)
+    log_loss = sum(
+        -math.log(
+            float(row["p_player_a"])
+            if bool(row["actual_player_a_won"])
+            else float(row["p_player_b"])
+        )
+        for row in rows
+    ) / len(rows)
+    mean_selected_probability = sum(
+        float(row["selected_probability"]) for row in rows
+    ) / len(rows)
+
+    buckets: list[dict[str, Any]] = []
+    for lower_int in range(50, 100, 10):
+        lower = lower_int / 100.0
+        upper = (lower_int + 10) / 100.0
+        members = [
+            row
+            for row in rows
+            if lower <= float(row["selected_probability"]) < upper
+        ]
+        if not members:
+            continue
+        bucket_correct = sum(bool(row["prediction_correct"]) for row in members)
+        buckets.append(
+            {
+                "label": f"{lower:.2f}-{upper:.2f}",
+                "lower_bound": lower,
+                "upper_bound": upper,
+                "match_count": len(members),
+                "correct_prediction_count": bucket_correct,
+                "accuracy": bucket_correct / len(members),
+                "mean_selected_probability": sum(
+                    float(row["selected_probability"]) for row in members
+                )
+                / len(members),
+            }
+        )
+
+    return {
+        "schema_version": _METRICS_SCHEMA,
+        "settled_match_count": len(rows),
+        "correct_prediction_count": correct,
+        "accuracy": accuracy,
+        "brier_score": brier,
+        "log_loss": log_loss,
+        "mean_selected_probability": mean_selected_probability,
+        "calibration_gap_accuracy_minus_mean_selected_probability": (
+            accuracy - mean_selected_probability
+        ),
+        "confidence_buckets": buckets,
+    }
+
+
+def _assert_metric_payload(expected: Any, observed: Any, *, path: str) -> None:
+    if isinstance(expected, float):
+        try:
+            value = float(observed)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"scorecard metric is not numeric: {path}") from exc
+        if not math.isfinite(value) or abs(expected - value) > 1e-12:
+            raise ValueError(f"scorecard metric mismatch: {path}")
+        return
+    if isinstance(expected, dict):
+        if not isinstance(observed, dict) or set(observed) != set(expected):
+            raise ValueError(f"scorecard metric object mismatch: {path}")
+        for key, value in expected.items():
+            _assert_metric_payload(value, observed[key], path=f"{path}.{key}")
+        return
+    if isinstance(expected, list):
+        if not isinstance(observed, list) or len(observed) != len(expected):
+            raise ValueError(f"scorecard metric array mismatch: {path}")
+        for index, value in enumerate(expected):
+            _assert_metric_payload(value, observed[index], path=f"{path}[{index}]")
+        return
+    if observed != expected:
+        raise ValueError(f"scorecard metric mismatch: {path}")
+
+
 def validate_web_shadow_scorecard(
     *,
     scorecard_path: Path,
@@ -61,6 +160,7 @@ def validate_web_shadow_scorecard(
     seen_match_ids: set[str] = set()
     pending = 0
     settled = 0
+    metric_rows: list[dict[str, float | bool]] = []
 
     for slate in slates:
         if not isinstance(slate, dict):
@@ -97,6 +197,7 @@ def validate_web_shadow_scorecard(
 
         slate_root = receipt_path.parent
         expected_prediction_root = slate_root / "predictions"
+        slate_settled = 0
 
         for entry in predictions:
             if not isinstance(entry, dict):
@@ -128,11 +229,10 @@ def validate_web_shadow_scorecard(
             if prediction.get("record_type") != "WEB_SHADOW_PREDICTION":
                 raise ValueError(f"unexpected prediction record type: {match_id}")
 
-            observed_sha = str(prediction.get("record_sha256", ""))
-            unsigned = dict(prediction)
-            unsigned.pop("record_sha256", None)
-            if _canonical_sha256(unsigned) != observed_sha:
-                raise ValueError(f"prediction record digest mismatch: {match_id}")
+            observed_sha = _assert_record_digest(
+                prediction,
+                label=f"prediction {match_id}",
+            )
             if observed_sha != str(entry.get("prediction_record_sha256", "")):
                 raise ValueError(f"scorecard prediction SHA mismatch: {match_id}")
 
@@ -174,18 +274,96 @@ def validate_web_shadow_scorecard(
                         f"pending scorecard entry already has a settlement: {match_id}"
                     )
                 pending += 1
-            else:
-                settlement_path = str(entry.get("settlement_path", "")).strip()
-                if not settlement_path:
-                    raise ValueError(f"settled scorecard entry lacks settlement: {match_id}")
-                settlement = _load_json(
-                    _repo_path(repo_root, settlement_path, prefix="web-shadow")
-                )
-                if settlement.get("record_type") != "WEB_SHADOW_SETTLEMENT":
-                    raise ValueError(f"unexpected settlement type: {match_id}")
-                if settlement.get("prediction_record_sha256") != observed_sha:
-                    raise ValueError(f"settlement prediction SHA mismatch: {match_id}")
-                settled += 1
+                continue
+
+            settlement_path_raw = str(entry.get("settlement_path", "")).strip()
+            if not settlement_path_raw:
+                raise ValueError(f"settled scorecard entry lacks settlement: {match_id}")
+            settlement_path = _repo_path(
+                repo_root,
+                settlement_path_raw,
+                prefix="web-shadow",
+            )
+            expected_settlement_root = slate_root / "settlements"
+            try:
+                settlement_path.relative_to(expected_settlement_root)
+            except ValueError as exc:
+                raise ValueError(
+                    f"settlement is outside its immutable slate directory: {match_id}"
+                ) from exc
+
+            settlement = _load_json(settlement_path)
+            if settlement.get("record_type") != "WEB_SHADOW_SETTLEMENT":
+                raise ValueError(f"unexpected settlement type: {match_id}")
+            if settlement.get("production_eligible") is not False:
+                raise ValueError(f"settlement escaped non-production isolation: {match_id}")
+            _assert_record_digest(settlement, label=f"settlement {match_id}")
+            if settlement.get("prediction_record_sha256") != observed_sha:
+                raise ValueError(f"settlement prediction SHA mismatch: {match_id}")
+            if settlement.get("match_id") != match_id:
+                raise ValueError(f"settlement match identity mismatch: {match_id}")
+
+            winner = str(settlement.get("winner", ""))
+            player_a = str(fixture.get("player_a", ""))
+            player_b = str(fixture.get("player_b", ""))
+            if winner not in {player_a, player_b}:
+                raise ValueError(f"settlement winner is outside fixture: {match_id}")
+            expected_correct = winner == selected_player
+            if settlement.get("prediction_correct") is not expected_correct:
+                raise ValueError(f"settlement correctness mismatch: {match_id}")
+
+            result_observed_at = datetime.fromisoformat(
+                str(settlement.get("result_observed_at", ""))
+            )
+            if result_observed_at.tzinfo is None:
+                raise ValueError(f"settlement observation must be timezone-aware: {match_id}")
+            if result_observed_at <= scheduled_start:
+                raise ValueError(f"settlement observation is not post-start: {match_id}")
+
+            result_path_raw = str(settlement.get("result_record_path", "")).strip()
+            result_path = _repo_path(repo_root, result_path_raw, prefix="web-shadow")
+            result_parts = Path(result_path_raw).parts
+            if len(result_parts) != 3 or result_parts[:2] != (
+                "web-shadow",
+                "results",
+            ):
+                raise ValueError(f"settlement result path is outside results: {match_id}")
+            result = _load_json(result_path)
+            if result.get("production_eligible") is not False:
+                raise ValueError(f"result escaped non-production isolation: {match_id}")
+            expected_result_values = {
+                "match_id": match_id,
+                "expected_prediction_record_sha256": observed_sha,
+                "winner": winner,
+                "status": settlement.get("status"),
+                "result_source_url": settlement.get("result_source_url"),
+                "result_observed_at": settlement.get("result_observed_at"),
+            }
+            for key, value in expected_result_values.items():
+                if result.get(key) != value:
+                    raise ValueError(f"result evidence mismatch for {key}: {match_id}")
+            if not str(result.get("score", "")).strip():
+                raise ValueError(f"result evidence lacks score: {match_id}")
+
+            metric_rows.append(
+                {
+                    "p_player_a": float(prediction["p_player_a"]),
+                    "p_player_b": float(prediction["p_player_b"]),
+                    "selected_probability": selected_probability,
+                    "actual_player_a_won": winner == player_a,
+                    "prediction_correct": expected_correct,
+                }
+            )
+            settled += 1
+            slate_settled += 1
+
+        expected_slate_status = (
+            "SETTLED"
+            if slate_settled == len(predictions)
+            else "PENDING_SETTLEMENT"
+        )
+        if slate.get("status") != expected_slate_status:
+            raise ValueError(f"slate settlement status mismatch: {slate_id}")
 
     if int(scorecard.get("official_slate_count", -1)) != len(slates):
         raise ValueError("official slate count does not match scorecard contents")
@@ -193,6 +371,17 @@ def validate_web_shadow_scorecard(
         raise ValueError("pending match count does not match scorecard contents")
     if int(scorecard.get("settled_match_count", -1)) != settled:
         raise ValueError("settled match count does not match scorecard contents")
+
+    if settled:
+        expected_metrics = _compute_metrics(metric_rows)
+        observed_metrics = scorecard.get("metrics")
+        _assert_metric_payload(
+            expected_metrics,
+            observed_metrics,
+            path="metrics",
+        )
+    elif "metrics" in scorecard:
+        raise ValueError("unsettled scorecard must not publish metrics")
 
     return {
         "official_slate_count": len(slates),

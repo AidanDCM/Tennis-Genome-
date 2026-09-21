@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "65951f1acd5e8e98e65ba7f53e1248132e98f2e11927c52919dbaf91e9a61771",
+  "match_id": "web:wta:seoul:2026:qfnl:yao-kuramochi",
+  "winner": "Xinxin Yao",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": true,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-seoul-2026-qfnl-yao-kuramochi.json",
+  "record_sha256": "9e8b67730e0c9063de87f3f222f8602293ee0155688ff4877052cb09bbcc4494"
+}

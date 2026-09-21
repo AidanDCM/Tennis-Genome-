@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "90d8246d6e03cb2db9778b9b0bbb7c686e193f77247b4ebb5bfa7ee0cfcb1f2e",
+  "match_id": "web:wta:singapore:2026:RS006",
+  "winner": "Kyoka Okamura",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.tennismajors.com/matches/wta/singapore-tennis-open/mei-yamaguchi-vs-kyoka-okamura",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": true,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-singapore-2026-rs006-yamaguchi-okamura.json",
+  "record_sha256": "900e2a89ac04517748026f20b51db2a69634eadf88a0983eddf5e4c39c8a6d5f"
+}

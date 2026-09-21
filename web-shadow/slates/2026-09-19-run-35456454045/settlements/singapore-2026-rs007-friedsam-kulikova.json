@@ -1,0 +1,14 @@
+{
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "prediction_record_sha256": "bb084f91b8bc8ab5eba778b0484fb88481959e1c93bd74a0b537c09fad57c522",
+  "match_id": "web:wta:singapore:2026:RS007",
+  "winner": "Anna Lena Friedsam",
+  "status": "COMPLETED",
+  "result_source_url": "https://www.tennismajors.com/matches/wta/singapore-tennis-open/anna-lena-friedsam-vs-anastasia-kulikova",
+  "result_observed_at": "2026-09-21T10:00:00-04:00",
+  "prediction_correct": false,
+  "production_eligible": false,
+  "result_record_path": "web-shadow/results/2026-09-20-singapore-2026-rs007-friedsam-kulikova.json",
+  "record_sha256": "f74aac6119928454afefaa950b4bff1c28a41633beb9f30b91b669a6c487aa14"
+}
