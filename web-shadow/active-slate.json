@@ -1,7 +1,7 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/singapore-2026-r32-oliynykova-wolff.json",
-    "web-shadow/fixtures/singapore-2026-r32-parks-yamaguchi.json"
+    "web-shadow/fixtures/singapore-2026-r16-sasnovich-andreeva.json",
+    "web-shadow/fixtures/singapore-2026-r16-anisimova-gibson.json"
   ],
-  "rerun_reason": "official-slate-4-singapore-clean-times"
+  "rerun_reason": "official-slate-5-singapore-september-23-r16"
 }
