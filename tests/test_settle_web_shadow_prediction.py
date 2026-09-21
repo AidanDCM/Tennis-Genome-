@@ -155,8 +155,40 @@ def test_settlement_runner_rejects_missing_score(monkeypatch, tmp_path: Path) ->
     )
     monkeypatch.chdir(tmp_path)
 
-    with pytest.raises(ValueError, match="result score must be non-empty"):
+    with pytest.raises(ValueError, match="result score must be a non-empty string"):
         runner.settle_from_result_file(
             result_path=Path("web-shadow/results/test.json"),
+            output_path=tmp_path / "settlement.json",
+        )
+
+
+@pytest.mark.parametrize("invalid_score", [None, [], {}, 123])
+def test_settlement_runner_rejects_nonstring_score(
+    monkeypatch,
+    tmp_path: Path,
+    invalid_score: object,
+) -> None:
+    prediction_path, prediction = _prediction(tmp_path)
+    result_path = tmp_path / "web-shadow/results/test-invalid-score.json"
+    result_path.parent.mkdir(parents=True)
+    result_path.write_text(
+        json.dumps(
+            {
+                "prediction_path": prediction_path.relative_to(tmp_path).as_posix(),
+                "expected_prediction_record_sha256": prediction["record_sha256"],
+                "winner": "Alpha",
+                "status": "COMPLETED",
+                "score": invalid_score,
+                "result_source_url": "https://example.com/result",
+                "result_observed_at": "2026-09-20T15:00:00+00:00",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="result score must be a non-empty string"):
+        runner.settle_from_result_file(
+            result_path=Path("web-shadow/results/test-invalid-score.json"),
             output_path=tmp_path / "settlement.json",
         )
