@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
+  "tour": "WTA",
+  "tournament": "Korea Open",
+  "round": "R32",
+  "surface": "Hard",
+  "scheduled_start": "2026-09-22T15:00:00+09:00",
+  "player_a": "Kimberly Birrell",
+  "player_b": "Tamara Zidansek",
+  "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+  "source_observed_at": "2026-09-21T10:00:00-04:00",
+  "tournament_id": "web:wta:seoul:2026",
+  "tournament_level": "I",
+  "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today"
+}
