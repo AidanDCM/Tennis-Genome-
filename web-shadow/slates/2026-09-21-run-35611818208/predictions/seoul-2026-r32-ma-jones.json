@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-21T14:24:43.737416+00:00",
+  "fixture": {
+    "match_id": "web:wta:seoul:2026:r32:ma-jones",
+    "player_a": "Ye Xin Ma",
+    "player_b": "Emerson Jones",
+    "round": "R32",
+    "schedule_source_url": "https://www.wtaschedule.com/wta-matches-today",
+    "scheduled_start": "2026-09-22T13:30:00+09:00",
+    "source_observed_at": "2026-09-21T10:00:00-04:00",
+    "source_url": "https://www.wtatennis.com/tournaments/1024/Seoul/2026/draws",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "ae83c11ebd23f7e5893953a1328466029dbc6c9b708c3d3c513f3976afd544aa",
+  "model_source_sha": "fe67d05c205e9b6e4038168c8c74016ed8bb7d2f",
+  "p_player_a": 0.36513295932913625,
+  "p_player_b": 0.6348670406708637,
+  "player_a_id": "wta:id:215946",
+  "player_b_id": "wta:id:263644",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "ce2e66650149c9842cae467302b2c206c849cb892a4cac91df5ad9a8d54f148f",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Emerson Jones"
+}
