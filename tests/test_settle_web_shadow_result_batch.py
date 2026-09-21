@@ -84,6 +84,7 @@ def _write_result(
     prediction: dict[str, object],
     match_id: str,
     winner: str,
+    status: str = "COMPLETED",
 ) -> Path:
     path = root / f"web-shadow/results/{stem}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,7 +95,8 @@ def _write_result(
                 "prediction_path": prediction_path.relative_to(root).as_posix(),
                 "expected_prediction_record_sha256": prediction["record_sha256"],
                 "winner": winner,
-                "status": "COMPLETED",
+                "status": status,
+                "score": "6-3 6-4",
                 "result_source_url": "https://example.com/result",
                 "result_observed_at": "2026-09-22T16:00:00+00:00",
                 "production_eligible": False,
@@ -175,9 +177,13 @@ def test_batch_settles_pending_official_predictions(
 
     assert summary["requested_result_count"] == 2
     assert summary["settlement_count"] == 2
+    assert summary["evaluation_eligible_count"] == 2
+    assert summary["excluded_noncompleted_count"] == 0
     assert summary["correct_prediction_count"] == 1
     assert summary["accuracy"] == pytest.approx(0.5)
     assert summary["production_eligible"] is False
+    assert len(summary["results"][0]["result_record_sha256"]) == 64
+    assert all(row["evaluation_eligible"] is True for row in summary["results"])
     assert (tmp_path / "batch-output/test-run/settlements/first.json").is_file()
     assert (tmp_path / "batch-output/test-run/settlements/second.json").is_file()
 
@@ -272,3 +278,57 @@ def test_batch_rejects_nonpending_prediction(monkeypatch, tmp_path: Path) -> Non
             scorecard_path=scorecard.relative_to(tmp_path),
             output_root=Path("batch-output"),
         )
+
+
+def test_batch_retains_retirement_but_excludes_it_from_metrics(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    slate_id = "test-run"
+    prediction_path, prediction = _prediction(
+        tmp_path,
+        slate_id=slate_id,
+        stem="retired",
+        match_id="web:wta:test:retired",
+        player_a="Alpha",
+        player_b="Beta",
+        p_player_a=0.7,
+    )
+    scorecard = _write_scorecard(
+        tmp_path,
+        slate_id=slate_id,
+        entries=[(prediction_path, prediction, "web:wta:test:retired")],
+    )
+    result = _write_result(
+        tmp_path,
+        stem="retired",
+        prediction_path=prediction_path,
+        prediction=prediction,
+        match_id="web:wta:test:retired",
+        winner="Alpha",
+        status="RETIREMENT",
+    )
+    manifest = tmp_path / "web-shadow/active-results.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "tennis-genome-web-shadow-result-batch-v1",
+                "result_paths": [result.relative_to(tmp_path).as_posix()],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    summary = batch.settle_web_shadow_result_batch(
+        manifest_path=Path("web-shadow/active-results.json"),
+        scorecard_path=scorecard.relative_to(tmp_path),
+        output_root=Path("batch-output"),
+    )
+
+    assert summary["settlement_count"] == 1
+    assert summary["evaluation_eligible_count"] == 0
+    assert summary["excluded_noncompleted_count"] == 1
+    assert summary["correct_prediction_count"] == 0
+    assert summary["accuracy"] is None
+    assert summary["results"][0]["evaluation_eligible"] is False
