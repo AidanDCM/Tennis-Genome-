@@ -11,6 +11,7 @@ on:
       - "scripts/build_web_shadow_local_input.py"
       - "scripts/build_web_shadow_target_state.py"
       - "scripts/run_web_shadow_prediction.py"
+      - "scripts/derive_web_shadow_elo_baseline.py"
       - "scripts/manage_web_shadow_history_cache.py"
       - ".github/workflows/wta_web_shadow_slate.yml"
       - "src/tennis_genome/features/**"
@@ -206,6 +207,28 @@ jobs:
               record = json.loads(Path(result["prediction_path"]).read_text())
               if record.get("production_eligible") is not False:
                   raise SystemExit("Web Shadow prediction escaped isolation")
+              candidate_path = Path(result["baseline_candidate_path"])
+              candidate = json.loads(candidate_path.read_text())
+              if candidate.get("record_type") != "WEB_SHADOW_BASELINE_CANDIDATE":
+                  raise SystemExit("unexpected Web Shadow baseline candidate type")
+              if candidate.get("production_eligible") is not False:
+                  raise SystemExit("Web Shadow baseline candidate escaped isolation")
+              if (
+                  candidate.get("prediction_record_sha256")
+                  != record.get("record_sha256")
+              ):
+                  raise SystemExit("baseline candidate prediction SHA mismatch")
+              if (
+                  candidate.get("record_sha256")
+                  != result.get("baseline_candidate_record_sha256")
+              ):
+                  raise SystemExit("baseline candidate record SHA mismatch")
+              p_a = float(candidate["p_player_a"])
+              p_b = float(candidate["p_player_b"])
+              if not (0.0 <= p_a <= 1.0 and 0.0 <= p_b <= 1.0):
+                  raise SystemExit("baseline candidate probability out of range")
+              if abs((p_a + p_b) - 1.0) > 1e-12:
+                  raise SystemExit("baseline candidate probabilities do not sum to one")
           PY
 
       - name: Upload Web Shadow slate artifact
