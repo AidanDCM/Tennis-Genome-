@@ -1,0 +1,40 @@
+name: WTA API Schema Probe
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/wta_api_schema_probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Probe official WTA Singapore endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers=(
+            -H "Accept: application/json"
+            -H "Accept-Language: en"
+            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36"
+          )
+          curl --fail --location --silent --show-error --retry 3             "${headers[@]}"             "https://api.wtatennis.com/tennis/tournaments/1152/2026"             -o tournament.json
+          curl --fail --location --silent --show-error --retry 3             "${headers[@]}"             "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches"             -o matches.json
+          echo "=== tournament keys ==="
+          jq 'keys' tournament.json
+          echo "=== tournament ==="
+          jq '{tournamentGroup,year,title,startDate,endDate,surface,inOutdoor,city,country,level,status,liveScoringId}' tournament.json
+          echo "=== matches root keys ==="
+          jq 'keys' matches.json
+          echo "=== match count ==="
+          jq '.matches | length' matches.json
+          echo "=== first 8 match key sets ==="
+          jq '[.matches[:8][] | keys]' matches.json
+          echo "=== upcoming-like match samples ==="
+          jq '[.matches[] | select((.MatchState // .matchState // "") | tostring | test("UP|SCHED|NOT|LIVE"; "i"))][0:8]' matches.json
+          echo "=== last 12 match samples ==="
+          jq '.matches[-12:]' matches.json
