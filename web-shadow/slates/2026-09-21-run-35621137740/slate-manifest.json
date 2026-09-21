@@ -1,0 +1,48 @@
+{
+  "eligible_target_count": 2,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "singapore-2026-r32-oliynykova-wolff",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r32-oliynykova-wolff.json",
+      "match_id": "web:wta:singapore:2026:r32:oliynykova-wolff",
+      "minimum_point_exposure": 1592,
+      "p_player_a": 0.45458389881551725,
+      "p_player_b": 0.5454161011844827,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r32-oliynykova-wolff/prediction.json",
+      "prediction_record_sha256": "f9d10003f5963780c1c7fe6652e9eb264500b28201adffedb069b9368434ec6e",
+      "scheduled_start": "2026-09-22T11:00:00+08:00",
+      "selected_player": "Oleksandra Oliynykova",
+      "target_history_match_counts": {
+        "wta:id:215386": 27,
+        "wta:id:220716": 25
+      }
+    },
+    {
+      "artifact_stem": "singapore-2026-r32-parks-yamaguchi",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r32-parks-yamaguchi.json",
+      "match_id": "web:wta:singapore:2026:r32:parks-yamaguchi",
+      "minimum_point_exposure": 2063,
+      "p_player_a": 0.37757842823788385,
+      "p_player_b": 0.6224215717621162,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r32-parks-yamaguchi/prediction.json",
+      "prediction_record_sha256": "9352e07cf66d38eef04b7e67b7ebf7176d8cfb045594e04a4a531afe409cb1b2",
+      "scheduled_start": "2026-09-22T12:30:00+08:00",
+      "selected_player": "Alycia Parks",
+      "target_history_match_counts": {
+        "wta:id:215614": 29,
+        "wta:id:219917": 133
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 2,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
