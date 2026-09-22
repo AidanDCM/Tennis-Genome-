@@ -1,0 +1,27 @@
+{
+  "schema_version": "tennis-genome-web-shadow-intake-config-v1",
+  "production_eligible": false,
+  "selection_rule": {
+    "minimum_lead_hours": 8,
+    "maximum_horizon_hours": 48,
+    "maximum_matches_per_slate": 8
+  },
+  "tournaments": [
+    {
+      "group_id": 1152,
+      "year": 2026,
+      "slug": "singapore",
+      "display_name": "Singapore Tennis Open presented by BNP Paribas",
+      "tournament_id": "web:wta:singapore:2026",
+      "tournament_level": "P"
+    },
+    {
+      "group_id": 1024,
+      "year": 2026,
+      "slug": "seoul",
+      "display_name": "Korea Open",
+      "tournament_id": "web:wta:seoul:2026",
+      "tournament_level": "I"
+    }
+  ]
+}
