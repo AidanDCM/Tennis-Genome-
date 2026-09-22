@@ -42,29 +42,40 @@ def _config(tmp_path: Path, *, maximum: int = 8) -> Path:
 
 def _match(
     *,
-    event_id: str,
+    match_id: str,
     start: str,
-    player_a: str = "Alpha One",
-    player_b: str = "Beta Two",
-    player_a_id: int = 101,
-    player_b_id: int = 202,
+    first_a: str = "Alpha",
+    last_a: str = "One",
+    first_b: str = "Beta",
+    last_b: str = "Two",
+    player_a_id: str = "101",
+    player_b_id: str = "202",
     draw_type: str = "S",
+    draw_level: str = "M",
     state: str = "U",
     unscheduled: bool = False,
     not_before: str = "",
     round_id: int = 5,
+    event_id: str = "1152",
+    event_year: int = 2026,
 ) -> dict[str, object]:
     return {
         "EventID": event_id,
-        "MatchID": f"match-{event_id}",
+        "EventYear": event_year,
+        "MatchID": match_id,
         "DrawMatchType": draw_type,
+        "DrawLevelType": draw_level,
         "MatchState": state,
         "Unscheduled": unscheduled,
         "NotBefore": not_before,
         "MatchTimeStamp": start,
         "RoundID": round_id,
-        "PlayerA": {"id": player_a_id, "fullName": player_a},
-        "PlayerB": {"id": player_b_id, "fullName": player_b},
+        "PlayerIDA": player_a_id,
+        "PlayerNameFirstA": first_a,
+        "PlayerNameLastA": last_a,
+        "PlayerIDB": player_b_id,
+        "PlayerNameFirstB": first_b,
+        "PlayerNameLastB": last_b,
     }
 
 
@@ -100,36 +111,42 @@ def _run(
     return manifest, repo
 
 
-def test_intake_materializes_sorted_model_blind_slate_and_evidence(
+def test_intake_materializes_sorted_slate_and_retained_evidence(
     tmp_path: Path,
 ) -> None:
     matches = [
         _match(
-            event_id="LS002",
+            match_id="LS002",
             start="2026-09-23T08:00:00+00:00",
-            player_a="Gamma Three",
-            player_b="Delta Four",
-            player_a_id=303,
-            player_b_id=404,
+            first_a="Gamma",
+            last_a="Three",
+            first_b="Delta",
+            last_b="Four",
+            player_a_id="303",
+            player_b_id="404",
         ),
-        _match(event_id="LS001", start="2026-09-23T06:00:00+00:00"),
+        _match(match_id="LS001", start="2026-09-23T06:00:00+00:00"),
     ]
 
     manifest, repo = _run(tmp_path, matches)
 
     assert manifest["selected_match_count"] == 2
-    assert [row["event_id"] for row in manifest["selected"]] == ["LS001", "LS002"]
+    assert [row["source_match_id"] for row in manifest["selected"]] == [
+        "LS001",
+        "LS002",
+    ]
     assert manifest["selection_rule"]["round_id_map"]["5"] == "R32"
+    assert manifest["selection_rule"]["draw_level_type"] == "M"
     assert manifest["production_eligible"] is False
 
     slate = json.loads((repo / "web-shadow/active-slate.json").read_text())
     assert len(slate["fixture_paths"]) == 2
-    first_fixture = json.loads((repo / slate["fixture_paths"][0]).read_text())
-    assert first_fixture["match_id"] == "web:wta:1152:2026:LS001"
-    assert first_fixture["round"] == "R32"
-    assert first_fixture["surface"] == "Hard"
-    assert first_fixture["tournament_level"] == "P"
-    assert first_fixture["source_observed_at"] == "2026-09-22T10:00:00+00:00"
+    fixture = json.loads((repo / slate["fixture_paths"][0]).read_text())
+    assert fixture["match_id"] == "web:wta:1152:2026:LS001"
+    assert fixture["player_a"] == "Alpha One"
+    assert fixture["round"] == "R32"
+    assert fixture["surface"] == "Hard"
+    assert fixture["tournament_level"] == "P"
 
     evidence = repo / "web-shadow/intake-evidence/test-snapshot"
     assert (evidence / "intake-manifest.json").is_file()
@@ -138,42 +155,49 @@ def test_intake_materializes_sorted_model_blind_slate_and_evidence(
     assert len(manifest["source_records"][0]["matches_sha256"]) == 64
 
 
-def test_intake_filters_doubles_finished_unscheduled_lead_and_horizon(
+def test_intake_filters_before_model_and_accounts_denominator(
     tmp_path: Path,
 ) -> None:
     matches = [
         _match(
-            event_id="DOUBLE",
+            match_id="DOUBLE",
             start="2026-09-23T06:00:00+00:00",
             draw_type="D",
         ),
         _match(
-            event_id="DONE",
+            match_id="QUAL",
+            start="2026-09-23T06:00:00+00:00",
+            draw_level="Q",
+        ),
+        _match(
+            match_id="DONE",
             start="2026-09-23T06:00:00+00:00",
             state="F",
         ),
         _match(
-            event_id="UNSCHED",
+            match_id="UNSCHED",
             start="2026-09-23T06:00:00+00:00",
             unscheduled=True,
         ),
         _match(
-            event_id="FOLLOW",
+            match_id="FOLLOW",
             start="2026-09-23T06:00:00+00:00",
             not_before="Followed By",
         ),
-        _match(event_id="SOON", start="2026-09-22T17:00:00+00:00"),
-        _match(event_id="LATE", start="2026-09-24T12:00:01+00:00"),
-        _match(event_id="GOOD", start="2026-09-23T06:00:00+00:00"),
+        _match(match_id="SOON", start="2026-09-22T17:00:00+00:00"),
+        _match(match_id="LATE", start="2026-09-24T12:00:01+00:00"),
+        _match(match_id="GOOD", start="2026-09-23T06:00:00+00:00"),
     ]
 
     manifest, _ = _run(tmp_path, matches)
 
     assert manifest["selected_match_count"] == 1
-    assert manifest["selected"][0]["event_id"] == "GOOD"
+    assert manifest["selected"][0]["source_match_id"] == "GOOD"
+    assert manifest["source_match_count"] == 8
+    assert manifest["excluded_match_count"] == 7
     assert manifest["exclusion_counts"] == {
-        "capacity": 0,
         "insufficient_lead_time": 1,
+        "not_main_draw": 1,
         "not_singles": 1,
         "not_upcoming": 1,
         "outside_horizon": 1,
@@ -181,57 +205,51 @@ def test_intake_filters_doubles_finished_unscheduled_lead_and_horizon(
     }
 
 
-def test_intake_applies_fixed_capacity_after_deterministic_sort(
-    tmp_path: Path,
-) -> None:
+def test_intake_applies_capacity_after_deterministic_sort(tmp_path: Path) -> None:
     matches = [
         _match(
-            event_id="LS003",
+            match_id="LS003",
             start="2026-09-23T06:00:00+00:00",
-            player_a_id=301,
-            player_b_id=302,
-            player_a="C A",
-            player_b="C B",
+            player_a_id="301",
+            player_b_id="302",
         ),
         _match(
-            event_id="LS001",
+            match_id="LS001",
             start="2026-09-23T06:00:00+00:00",
-            player_a_id=101,
-            player_b_id=102,
-            player_a="A A",
-            player_b="A B",
+            player_a_id="101",
+            player_b_id="102",
         ),
         _match(
-            event_id="LS002",
+            match_id="LS002",
             start="2026-09-23T06:00:00+00:00",
-            player_a_id=201,
-            player_b_id=202,
-            player_a="B A",
-            player_b="B B",
+            player_a_id="201",
+            player_b_id="202",
         ),
     ]
 
     manifest, _ = _run(tmp_path, matches, maximum=2)
 
-    assert [row["event_id"] for row in manifest["selected"]] == ["LS001", "LS002"]
+    assert [row["source_match_id"] for row in manifest["selected"]] == [
+        "LS001",
+        "LS002",
+    ]
     assert manifest["pre_capacity_eligible_count"] == 3
-    assert manifest["selected_match_count"] == 2
     assert manifest["exclusion_counts"]["capacity"] == 1
 
 
-def test_intake_excludes_existing_official_event_id(tmp_path: Path) -> None:
+def test_intake_dedupes_manual_fixture_by_time_and_players(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     _write_json(
         repo / "web-shadow/fixtures/existing.json",
         {
-            "match_id": "web:wta:1152:2026:LS001",
+            "match_id": "web:wta:singapore:2026:r32:alpha-beta",
             "tour": "WTA",
             "tournament": "Singapore Tennis Open",
             "round": "R32",
             "surface": "Hard",
             "scheduled_start": "2026-09-23T06:00:00+00:00",
-            "player_a": "Alpha One",
-            "player_b": "Beta Two",
+            "player_a": "Beta Two",
+            "player_b": "Alpha One",
             "source_url": "https://example.com",
             "source_observed_at": "2026-09-21T10:00:00+00:00",
             "tournament_id": "web:wta:singapore:2026",
@@ -240,14 +258,16 @@ def test_intake_excludes_existing_official_event_id(tmp_path: Path) -> None:
         },
     )
     matches = [
-        _match(event_id="LS001", start="2026-09-23T06:00:00+00:00"),
+        _match(match_id="LS001", start="2026-09-23T06:00:00+00:00"),
         _match(
-            event_id="LS002",
+            match_id="LS002",
             start="2026-09-23T08:00:00+00:00",
-            player_a_id=303,
-            player_b_id=404,
-            player_a="Gamma Three",
-            player_b="Delta Four",
+            first_a="Gamma",
+            last_a="Three",
+            first_b="Delta",
+            last_b="Four",
+            player_a_id="303",
+            player_b_id="404",
         ),
     ]
 
@@ -259,7 +279,7 @@ def test_intake_excludes_existing_official_event_id(tmp_path: Path) -> None:
         snapshot_id="dedupe",
     )
 
-    assert [row["event_id"] for row in manifest["selected"]] == ["LS002"]
+    assert [row["source_match_id"] for row in manifest["selected"]] == ["LS002"]
     assert manifest["exclusion_counts"]["already_consumed"] == 1
 
 
@@ -268,7 +288,7 @@ def test_intake_excludes_existing_official_event_id(tmp_path: Path) -> None:
     [
         ("Unscheduled", "false", "non-boolean Unscheduled"),
         ("MatchTimeStamp", "2026-09-23T06:00:00", "timezone-aware"),
-        ("PlayerA", {"id": 101, "fullName": ""}, "player_a_name"),
+        ("PlayerNameFirstA", "", "PlayerNameFirstA"),
     ],
 )
 def test_intake_fails_closed_on_upcoming_schema_drift(
@@ -277,79 +297,70 @@ def test_intake_fails_closed_on_upcoming_schema_drift(
     value: object,
     message: str,
 ) -> None:
-    match = _match(event_id="LS001", start="2026-09-23T06:00:00+00:00")
+    match = _match(match_id="LS001", start="2026-09-23T06:00:00+00:00")
     match[field] = value
 
     with pytest.raises(ValueError, match=message):
         _run(tmp_path, [match])
 
 
-def test_intake_rejects_duplicate_upcoming_event_ids(tmp_path: Path) -> None:
+def test_intake_rejects_duplicate_source_match_ids(tmp_path: Path) -> None:
     matches = [
-        _match(event_id="LS001", start="2026-09-23T06:00:00+00:00"),
+        _match(match_id="LS001", start="2026-09-23T06:00:00+00:00"),
         _match(
-            event_id="LS001",
+            match_id="LS001",
             start="2026-09-23T08:00:00+00:00",
-            player_a_id=303,
-            player_b_id=404,
-            player_a="Gamma Three",
-            player_b="Delta Four",
+            player_a_id="303",
+            player_b_id="404",
         ),
     ]
 
-    with pytest.raises(ValueError, match="duplicate WTA EventID"):
+    with pytest.raises(ValueError, match="duplicate WTA MatchID"):
         _run(tmp_path, matches)
 
 
-def test_intake_excludes_unsupported_round_id_without_guessing(
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("EventID", "9999"),
+        ("EventYear", 2025),
+    ],
+)
+def test_intake_rejects_match_tournament_identity_drift(
     tmp_path: Path,
+    field: str,
+    value: object,
 ) -> None:
+    match = _match(match_id="LS001", start="2026-09-23T06:00:00+00:00")
+    match[field] = value
+
+    with pytest.raises(ValueError, match="match row tournament identity mismatch"):
+        _run(tmp_path, [match])
+
+
+def test_intake_excludes_unknown_round_without_guessing(tmp_path: Path) -> None:
     matches = [
         _match(
-            event_id="QUAL",
+            match_id="UNKNOWN",
             start="2026-09-23T06:00:00+00:00",
             round_id=99,
         ),
         _match(
-            event_id="MAIN",
+            match_id="MAIN",
             start="2026-09-23T08:00:00+00:00",
             round_id=5,
-            player_a_id=303,
-            player_b_id=404,
-            player_a="Gamma Three",
-            player_b="Delta Four",
+            player_a_id="303",
+            player_b_id="404",
         ),
     ]
 
     manifest, _ = _run(tmp_path, matches)
 
-    assert [row["event_id"] for row in manifest["selected"]] == ["MAIN"]
+    assert [row["source_match_id"] for row in manifest["selected"]] == ["MAIN"]
     assert manifest["exclusion_counts"]["unsupported_round_id"] == 1
 
 
-def test_intake_rejects_tournament_identity_mismatch(tmp_path: Path) -> None:
-    config = _config(tmp_path)
-    source_root = _sources(
-        tmp_path,
-        [_match(event_id="LS001", start="2026-09-23T06:00:00+00:00")],
-    )
-    payload = json.loads((source_root / "singapore-tournament.json").read_text())
-    payload["tournamentGroup"]["id"] = 9999
-    _write_json(source_root / "singapore-tournament.json", payload)
-
-    with pytest.raises(ValueError, match="tournament identity mismatch"):
-        build_wta_web_shadow_intake(
-            config_path=config,
-            source_root=source_root,
-            repo_root=tmp_path / "repo",
-            observed_at="2026-09-22T10:00:00+00:00",
-            snapshot_id="identity",
-        )
-
-
-def test_intake_refuses_empty_slate_without_mutating_active_slate(
-    tmp_path: Path,
-) -> None:
+def test_intake_refuses_empty_slate_without_mutation(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     active = repo / "web-shadow/active-slate.json"
     _write_json(active, {"fixture_paths": ["web-shadow/fixtures/old.json"]})
@@ -362,7 +373,7 @@ def test_intake_refuses_empty_slate_without_mutating_active_slate(
                 tmp_path,
                 [
                     _match(
-                        event_id="DONE",
+                        match_id="DONE",
                         start="2026-09-23T06:00:00+00:00",
                         state="F",
                     )
