@@ -1,0 +1,146 @@
+{
+  "excluded_match_count": 72,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 18,
+    "not_upcoming": 28,
+    "unscheduled": 2
+  },
+  "observed_at": "2026-09-22T17:05:32+00:00",
+  "pre_capacity_eligible_count": 6,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1024",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "group_id": 1024,
+      "match_id": "web:wta:1024:2026:LS010",
+      "player_a_wta_id": "329651",
+      "player_b_wta_id": "326561",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T12:00:00+09:00",
+      "slug": "seoul",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "1024",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "group_id": 1024,
+      "match_id": "web:wta:1024:2026:LS014",
+      "player_a_wta_id": "325936",
+      "player_b_wta_id": "327391",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T12:00:00+09:00",
+      "slug": "seoul",
+      "source_match_id": "LS014",
+      "year": 2026
+    },
+    {
+      "event_id": "1024",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "group_id": 1024,
+      "match_id": "web:wta:1024:2026:LS011",
+      "player_a_wta_id": "327351",
+      "player_b_wta_id": "330544",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T14:00:00+09:00",
+      "slug": "seoul",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "1152",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "group_id": 1152,
+      "match_id": "web:wta:1152:2026:LS011",
+      "player_a_wta_id": "327182",
+      "player_b_wta_id": "325639",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T13:00:00+08:00",
+      "slug": "singapore",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "1152",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "group_id": 1152,
+      "match_id": "web:wta:1152:2026:LS010",
+      "player_a_wta_id": "317964",
+      "player_b_wta_id": "318314",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T14:30:00+08:00",
+      "slug": "singapore",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "1152",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "group_id": 1152,
+      "match_id": "web:wta:1152:2026:LS008",
+      "player_a_wta_id": "331809",
+      "player_b_wta_id": "317790",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-09-23T18:30:00+08:00",
+      "slug": "singapore",
+      "source_match_id": "LS008",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 6,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20260922t170532z",
+  "source_match_count": 78,
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "8be874dbc7a9f210548da9e8ed098588946f9f0872b9125abf688f2a892b0326",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 36,
+      "slug": "singapore",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026",
+      "tournament_sha256": "d7db86697443bde8c568e6d3b8dbfc11c7d186d736e2f5ff9588b06193434317",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "8893858ab8674580c5b0cc7a1068c8165a8a1618e276affca509014edff35e08",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 42,
+      "slug": "seoul",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026",
+      "tournament_sha256": "3dcfe679df7675d8b1210793e55cc816a457d508882f58b57bb6db1d2ba88e8a",
+      "year": 2026
+    }
+  ]
+}
