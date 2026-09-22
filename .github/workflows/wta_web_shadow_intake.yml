@@ -24,7 +24,7 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Refuse parallel intake proposals
+      - name: Refuse parallel or orphan intake proposals
         id: pr_gate
         shell: bash
         env:
@@ -44,9 +44,42 @@ jobs:
           if [ "${open_count}" -gt 0 ]; then
             echo "blocked=true" >> "${GITHUB_OUTPUT}"
             echo "An intake proposal is already open; leaving it immutable."
-          else
-            echo "blocked=false" >> "${GITHUB_OUTPUT}"
+            exit 0
           fi
+
+          orphan_branches=()
+          while IFS= read -r remote_ref; do
+            [ -n "${remote_ref}" ] || continue
+            branch="${remote_ref#origin/}"
+            prior_pr_count="$(
+              gh pr list \
+                --state all \
+                --head "${branch}" \
+                --limit 1 \
+                --json number \
+                --jq 'length'
+            )"
+            if [ "${prior_pr_count}" -gt 0 ]; then
+              echo "Cleaning stale intake branch with an existing closed/merged PR: ${branch}"
+              git push origin --delete "${branch}"
+              continue
+            fi
+            orphan_branches+=("${branch}")
+          done < <(
+            git for-each-ref \
+              --format='%(refname:short)' \
+              'refs/remotes/origin/automation/wta-web-shadow-intake-*'
+          )
+
+          if [ "${#orphan_branches[@]}" -gt 0 ]; then
+            echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "An unpublished intake proposal branch already exists:" >&2
+            printf '  %s\n' "${orphan_branches[@]}" >&2
+            echo "Open or delete that proposal before acquiring another snapshot." >&2
+            exit 0
+          fi
+
+          echo "blocked=false" >> "${GITHUB_OUTPUT}"
 
       - name: Set acquisition identity
         id: stamp
@@ -232,8 +265,34 @@ jobs:
           Merging this PR is the review gate that allows the existing
           \`WTA Web Shadow Slate\` workflow to run on \`main\`.
           EOF
-          gh pr create \
-            --base main \
-            --head "${BRANCH_NAME}" \
-            --title "Refresh WTA Web Shadow intake ${SNAPSHOT_ID}" \
-            --body-file "${body}"
+
+          set +e
+          pr_output="$(
+            gh pr create \
+              --base main \
+              --head "${BRANCH_NAME}" \
+              --title "Refresh WTA Web Shadow intake ${SNAPSHOT_ID}" \
+              --body-file "${body}" \
+              2>&1
+          )"
+          status=$?
+          set -e
+
+          if [ "${status}" -ne 0 ]; then
+            echo "${pr_output}" >&2
+            compare_url="https://github.com/${GITHUB_REPOSITORY}/compare/main...${BRANCH_NAME}?expand=1"
+            {
+              echo "### WTA intake proposal requires manual PR publication"
+              echo
+              echo "GitHub preserved the validated proposal branch but blocked automated PR creation."
+              echo
+              echo "- Branch: \`${BRANCH_NAME}\`"
+              echo "- Snapshot: \`${SNAPSHOT_ID}\`"
+              echo "- Open PR: ${compare_url}"
+              echo
+              echo "The next scheduled intake run will stop at the orphan-branch gate rather than create a duplicate snapshot."
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit "${status}"
+          fi
+
+          echo "${pr_output}"
