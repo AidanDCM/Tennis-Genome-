@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:37.387714+00:00",
+  "fixture": {
+    "match_id": "web:wta:1152:2026:LS008",
+    "player_a": "Aliaksandra Sasnovich",
+    "player_b": "Mirra Andreeva",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "scheduled_start": "2026-09-23T18:30:00+08:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "b11f6c21989feb8927c8469e04e7f01e142d7b09cf549f8f8d1dc9f9cc9cd932",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.20332982655072263,
+  "p_player_b": 0.7966701734492774,
+  "player_a_id": "wta:id:205925",
+  "player_b_id": "wta:id:259799",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Mirra Andreeva"
+}

@@ -1,0 +1,75 @@
+{
+  "baseline_count": 6,
+  "eligible_target_count": 6,
+  "predicted_target_count": 6,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park",
+      "baseline_candidate_path": "baseline-candidates/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "baseline_candidate_record_sha256": "686276ab2d3dfee5fe6e31bef0dcb812244c2043f76c9dc60aea17d29797deb1",
+      "baseline_path": "baselines/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "baseline_record_sha256": "816ee75390ccc5b6b8bad1b66819230ff8eb1f7b54dee67391a8e696d60ed652",
+      "match_id": "web:wta:1024:2026:LS010",
+      "prediction_path": "predictions/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea"
+    },
+    {
+      "artifact_stem": "seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets",
+      "baseline_candidate_path": "baseline-candidates/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "baseline_candidate_record_sha256": "13418b6b3adc30c8acf13f30563833b912c611c912320c60c35e7dfd020ecc4d",
+      "baseline_path": "baselines/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "baseline_record_sha256": "328d324238e2d045283b3be7d4a9e6cc75a1472a878be008b956e1375233b09f",
+      "match_id": "web:wta:1024:2026:LS014",
+      "prediction_path": "predictions/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482"
+    },
+    {
+      "artifact_stem": "seoul-2026-r16-ls011-dayeon-back-maya-joint",
+      "baseline_candidate_path": "baseline-candidates/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "baseline_candidate_record_sha256": "f3d7f2db84442bd06d5f7003d381582453c0aeb1add665f63b83d5c2f4fb0f2f",
+      "baseline_path": "baselines/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "baseline_record_sha256": "d28f4c62d7826511be758ead724ea6b60507a969d3ed77e380f2e9014e723d8f",
+      "match_id": "web:wta:1024:2026:LS011",
+      "prediction_path": "predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599"
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska",
+      "baseline_candidate_path": "baseline-candidates/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "baseline_candidate_record_sha256": "a82af72d034e2e66ba0eef22c272d5bcbc59a54ee42bedd319bd6c3caddda03e",
+      "baseline_path": "baselines/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "baseline_record_sha256": "bdd15d6fe6cf31c03e00a8474aa72aa919b01e024cb8dd3213083cfb129726b1",
+      "match_id": "web:wta:1152:2026:LS011",
+      "prediction_path": "predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6"
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova",
+      "baseline_candidate_path": "baseline-candidates/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "baseline_candidate_record_sha256": "9741ee348f3909b98b7850924f563e3fd7fde2cca229fe42530aaf980776d924",
+      "baseline_path": "baselines/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "baseline_record_sha256": "414e17ae3725dd86b21a23c516f2f3c98e53166f3553e708d06d969a614614c5",
+      "match_id": "web:wta:1152:2026:LS010",
+      "prediction_path": "predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5"
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich",
+      "baseline_candidate_path": "baseline-candidates/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "baseline_candidate_record_sha256": "116e5abcfb5aa0f0b29a99f4f47a2c03dbd79359ed88e99aa10486d85314dd19",
+      "baseline_path": "baselines/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "baseline_record_sha256": "7c513d93bdfdf8c75585291c84ba2fca9b03f7263cff63cc2cb54bd2f0542130",
+      "match_id": "web:wta:1152:2026:LS008",
+      "prediction_path": "predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-09-22-run-35758950241",
+  "workflow_artifact_id": 10709725590,
+  "workflow_artifact_sha256": "393a9c583b1c2c5efc699abab88575a042ee0a237a5d57b53af7e5e5676f979b",
+  "workflow_run_id": 35758950241,
+  "workflow_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c"
+}

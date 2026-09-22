@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:36.120686+00:00",
+  "fixture": {
+    "match_id": "web:wta:1152:2026:LS011",
+    "player_a": "Maja Chwalinska",
+    "player_b": "Oleksandra Oliynykova",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "scheduled_start": "2026-09-23T13:00:00+08:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "cdfbf2ee07378a7ddb5d64fb89f077db699bbda7b083fa74e0bde4d3bca62fcc",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.614219756135314,
+  "p_player_b": 0.385780243864686,
+  "player_a_id": "wta:id:216081",
+  "player_b_id": "wta:id:220716",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Maja Chwalinska"
+}

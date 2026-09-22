@@ -1,299 +1,368 @@
 {
-  "schema_version": "tennis-genome-web-shadow-scorecard-v1",
+  "baseline_match_count": 19,
+  "metrics": {
+    "accuracy": 0.7142857142857143,
+    "brier_score": 0.24063277730212165,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.12122192758857386,
+    "confidence_buckets": [
+      {
+        "accuracy": 0.8,
+        "correct_prediction_count": 4,
+        "label": "0.50-0.60",
+        "lower_bound": 0.5,
+        "match_count": 5,
+        "mean_selected_probability": 0.5637951028294079,
+        "upper_bound": 0.6
+      },
+      {
+        "accuracy": 0.5,
+        "correct_prediction_count": 1,
+        "label": "0.60-0.70",
+        "lower_bound": 0.6,
+        "match_count": 2,
+        "mean_selected_probability": 0.6662354963664721,
+        "upper_bound": 0.7
+      }
+    ],
+    "correct_prediction_count": 5,
+    "log_loss": 0.6771440099091525,
+    "mean_selected_probability": 0.5930637866971404,
+    "schema_version": "tennis-genome-web-shadow-metrics-v1",
+    "settled_match_count": 7
+  },
+  "official_slate_count": 6,
+  "pending_match_count": 19,
   "production_eligible": false,
-  "official_slate_count": 5,
-  "pending_match_count": 13,
+  "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 7,
   "slates": [
     {
-      "slate_id": "2026-09-19-run-35456454045",
-      "receipt_path": "web-shadow/slates/2026-09-19-run-35456454045/slate-receipt.json",
-      "workflow_run_id": 35456454045,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "SETTLED",
       "predictions": [
         {
           "match_id": "web:wta:singapore:2026:RS007",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/singapore-2026-rs007-friedsam-kulikova.json",
           "prediction_record_sha256": "bb084f91b8bc8ab5eba778b0484fb88481959e1c93bd74a0b537c09fad57c522",
+          "result_record_sha256": "cba055cc3215ca89177a25eba695d314946fea9c74fa5cadfe975bf7116351a6",
+          "scheduled_start": "2026-09-20T12:00:00+08:00",
           "selected_player": "Anastasia Kulikova",
           "selected_probability": 0.5608402352288062,
-          "scheduled_start": "2026-09-20T12:00:00+08:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/singapore-2026-rs007-friedsam-kulikova.json",
           "settlement_record_sha256": "f74aac6119928454afefaa950b4bff1c28a41633beb9f30b91b669a6c487aa14",
-          "result_record_sha256": "cba055cc3215ca89177a25eba695d314946fea9c74fa5cadfe975bf7116351a6"
+          "status": "SETTLED"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:ma-lee",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-ma-lee.json",
           "prediction_record_sha256": "2532195f73760cbc8593c44fdfd7a4713ad282322fcf75646a1eb99b33bc0f3f",
+          "result_record_sha256": "8e6425cd901b8a71c1a4b679ad9eab6b42b33c7de8490a8fec8f876eef048416",
+          "scheduled_start": "2026-09-20T11:00:00+09:00",
           "selected_player": "Ye Xin Ma",
           "selected_probability": 0.5515373548078999,
-          "scheduled_start": "2026-09-20T11:00:00+09:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-ma-lee.json",
           "settlement_record_sha256": "06728eb62bad300cc4cb92bb604a226cb4dea53d855069e2d572ac2879145ebb",
-          "result_record_sha256": "8e6425cd901b8a71c1a4b679ad9eab6b42b33c7de8490a8fec8f876eef048416"
+          "status": "SETTLED"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:shubladze-astakhova",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-shubladze-astakhova.json",
           "prediction_record_sha256": "cd38df4f39228eb28d8f42a87c64c1f567a7bd68c599243c15c749895bbd8cac",
+          "result_record_sha256": "d6b2abd1f06b2ddedced9a569e71bbec4294ee6e31c0badcc6fcdec1ad21e520",
+          "scheduled_start": "2026-09-20T11:00:00+09:00",
           "selected_player": "Alexandra Shubladze",
           "selected_probability": 0.6932029075821968,
-          "scheduled_start": "2026-09-20T11:00:00+09:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-shubladze-astakhova.json",
           "settlement_record_sha256": "3ee1c6729cab7e7fa4ce159af1bdadeb3cf839e4d106edf6219677e98b8ecaf9",
-          "result_record_sha256": "d6b2abd1f06b2ddedced9a569e71bbec4294ee6e31c0badcc6fcdec1ad21e520"
+          "status": "SETTLED"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:yao-kuramochi",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-yao-kuramochi.json",
           "prediction_record_sha256": "65951f1acd5e8e98e65ba7f53e1248132e98f2e11927c52919dbaf91e9a61771",
+          "result_record_sha256": "012b5eb5e30204e3fc548e9a52ce3be9e8d0533be9a25243f0f944cd13d3178c",
+          "scheduled_start": "2026-09-20T13:00:00+09:00",
           "selected_player": "Xinxin Yao",
           "selected_probability": 0.6392680851507473,
-          "scheduled_start": "2026-09-20T13:00:00+09:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-yao-kuramochi.json",
           "settlement_record_sha256": "9e8b67730e0c9063de87f3f222f8602293ee0155688ff4877052cb09bbcc4494",
-          "result_record_sha256": "012b5eb5e30204e3fc548e9a52ce3be9e8d0533be9a25243f0f944cd13d3178c"
+          "status": "SETTLED"
         },
         {
           "match_id": "web:wta:seoul:2026:qfnl:ibragimova-saito",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35456454045/predictions/seoul-2026-qfnl-ibragimova-saito.json",
           "prediction_record_sha256": "9f17dd4e00bcaae3be282be46523cafabedcdb4b415855b0bd11aa0f2e70bc56",
+          "result_record_sha256": "7f18121c0c2765d1b24b1fe806b0120ff043a62b65db733eb006824757912642",
+          "scheduled_start": "2026-09-20T13:30:00+09:00",
           "selected_player": "Alevtina Ibragimova",
           "selected_probability": 0.5860762665100968,
-          "scheduled_start": "2026-09-20T13:30:00+09:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35456454045/settlements/seoul-2026-qfnl-ibragimova-saito.json",
           "settlement_record_sha256": "dc0ae7782180879d2a66e5b25889be828eb4c0165b5e60b8c552248f931fcebe",
-          "result_record_sha256": "7f18121c0c2765d1b24b1fe806b0120ff043a62b65db733eb006824757912642"
+          "status": "SETTLED"
         }
-      ]
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-19-run-35456454045/slate-receipt.json",
+      "slate_id": "2026-09-19-run-35456454045",
+      "status": "SETTLED",
+      "workflow_run_id": 35456454045
     },
     {
-      "slate_id": "2026-09-19-run-35457838597",
-      "receipt_path": "web-shadow/slates/2026-09-19-run-35457838597/slate-receipt.json",
-      "workflow_run_id": 35457838597,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "SETTLED",
       "predictions": [
         {
           "match_id": "web:wta:singapore:2026:RS005",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35457838597/predictions/singapore-2026-rs005-hibino-ito.json",
           "prediction_record_sha256": "56756be3bae1eda565dca76401fdb3105e2f5af5b852c97f5443da81609af16a",
+          "result_record_sha256": "666441f93afedd9adcb87b41d78063b7cdc67e8aca70cd67e717a1303e23bc28",
+          "scheduled_start": "2026-09-20T12:00:00+08:00",
           "selected_player": "Nao Hibino",
           "selected_probability": 0.5559476201281999,
-          "scheduled_start": "2026-09-20T12:00:00+08:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35457838597/settlements/singapore-2026-rs005-hibino-ito.json",
           "settlement_record_sha256": "eeb98d525f9498809fc0913fc07cf7d227061d32f0e5fd1aac246820e60c3dd4",
-          "result_record_sha256": "666441f93afedd9adcb87b41d78063b7cdc67e8aca70cd67e717a1303e23bc28"
+          "status": "SETTLED"
         },
         {
           "match_id": "web:wta:singapore:2026:RS006",
           "prediction_path": "web-shadow/slates/2026-09-19-run-35457838597/predictions/singapore-2026-rs006-yamaguchi-okamura.json",
           "prediction_record_sha256": "90d8246d6e03cb2db9778b9b0bbb7c686e193f77247b4ebb5bfa7ee0cfcb1f2e",
+          "result_record_sha256": "91f326d2192620ffd60a7b9613b341bf3e023af952d57c572156c8313d0de154",
+          "scheduled_start": "2026-09-20T13:30:00+08:00",
           "selected_player": "Kyoka Okamura",
           "selected_probability": 0.5645740374720367,
-          "scheduled_start": "2026-09-20T13:30:00+08:00",
-          "status": "SETTLED",
           "settlement_path": "web-shadow/slates/2026-09-19-run-35457838597/settlements/singapore-2026-rs006-yamaguchi-okamura.json",
           "settlement_record_sha256": "900e2a89ac04517748026f20b51db2a69634eadf88a0983eddf5e4c39c8a6d5f",
-          "result_record_sha256": "91f326d2192620ffd60a7b9613b341bf3e023af952d57c572156c8313d0de154"
+          "status": "SETTLED"
         }
-      ]
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-19-run-35457838597/slate-receipt.json",
+      "slate_id": "2026-09-19-run-35457838597",
+      "status": "SETTLED",
+      "workflow_run_id": 35457838597
     },
     {
-      "slate_id": "2026-09-21-run-35611818208",
-      "receipt_path": "web-shadow/slates/2026-09-21-run-35611818208/slate-receipt.json",
-      "workflow_run_id": 35611818208,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "PENDING_SETTLEMENT",
       "predictions": [
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-sakatsume-preston.json",
           "match_id": "web:wta:seoul:2026:r32:sakatsume-preston",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-sakatsume-preston.json",
           "prediction_record_sha256": "e864581ef939dd8d8ce3a8d45ec52cbcdae3b5277a875572615eea40ac556903",
+          "scheduled_start": "2026-09-22T12:00:00+09:00",
           "selected_player": "Taylah Preston",
           "selected_probability": 0.6159859816503763,
-          "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-sakatsume-preston.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ruse-lys.json",
           "match_id": "web:wta:seoul:2026:r32:ruse-lys",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-ruse-lys.json",
           "prediction_record_sha256": "e119aa4589c8a237636cef4dd2f4139dd82705fa0c1ceff0675b1df909849d89",
+          "scheduled_start": "2026-09-22T12:00:00+09:00",
           "selected_player": "Elena Gabriela Ruse",
           "selected_probability": 0.5263663766965141,
-          "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ruse-lys.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-montgomery-park.json",
           "match_id": "web:wta:seoul:2026:r32:montgomery-park",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-montgomery-park.json",
           "prediction_record_sha256": "50eea9b45802dd687a77a82d56b662614eea52e91eecb76e46ed31178b8fb4e7",
+          "scheduled_start": "2026-09-22T12:00:00+09:00",
           "selected_player": "Sohyun Park",
           "selected_probability": 0.5254181373214782,
-          "scheduled_start": "2026-09-22T12:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-montgomery-park.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zarazua-bondar.json",
           "match_id": "web:wta:seoul:2026:r32:zarazua-bondar",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-zarazua-bondar.json",
           "prediction_record_sha256": "9a30e7602c41658393d08b38e1eb82a72b8ba17662303bf854b2432dee668d29",
+          "scheduled_start": "2026-09-22T13:30:00+09:00",
           "selected_player": "Anna Bondar",
           "selected_probability": 0.6356737169626167,
-          "scheduled_start": "2026-09-22T13:30:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zarazua-bondar.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ma-jones.json",
           "match_id": "web:wta:seoul:2026:r32:ma-jones",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-ma-jones.json",
           "prediction_record_sha256": "ce2e66650149c9842cae467302b2c206c849cb892a4cac91df5ad9a8d54f148f",
+          "scheduled_start": "2026-09-22T13:30:00+09:00",
           "selected_player": "Emerson Jones",
           "selected_probability": 0.6348670406708637,
-          "scheduled_start": "2026-09-22T13:30:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ma-jones.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ku-ibragimova.json",
           "match_id": "web:wta:seoul:2026:r32:ku-ibragimova",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-ku-ibragimova.json",
           "prediction_record_sha256": "3703ceb7705b79106ca8fc26c94e0ee2ceaeeb35fc44fcb3258fd8022637512e",
+          "scheduled_start": "2026-09-22T14:00:00+09:00",
           "selected_player": "Alevtina Ibragimova",
           "selected_probability": 0.5057441333416045,
-          "scheduled_start": "2026-09-22T14:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-ku-ibragimova.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-birrell-zidansek.json",
           "match_id": "web:wta:seoul:2026:r32:birrell-zidansek",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-birrell-zidansek.json",
           "prediction_record_sha256": "6af4a995c4bcb958f032963a6ccded421fe9df38ab0e878e3955042525df363f",
+          "scheduled_start": "2026-09-22T15:00:00+09:00",
           "selected_player": "Kimberly Birrell",
           "selected_probability": 0.5181652846948649,
-          "scheduled_start": "2026-09-22T15:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-birrell-zidansek.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zakharova-ostapenko.json",
           "match_id": "web:wta:seoul:2026:r32:zakharova-ostapenko",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-zakharova-ostapenko.json",
           "prediction_record_sha256": "fe6f4042d2e3314dcd7b6ee84eb115e3d7902d2efcf8482f8e102f9f1348f0b0",
+          "scheduled_start": "2026-09-22T15:30:00+09:00",
           "selected_player": "Jelena Ostapenko",
           "selected_probability": 0.6431591839359134,
-          "scheduled_start": "2026-09-22T15:30:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-zakharova-ostapenko.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-kenin-charaeva.json",
           "match_id": "web:wta:seoul:2026:r32:kenin-charaeva",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35611818208/predictions/seoul-2026-r32-kenin-charaeva.json",
           "prediction_record_sha256": "eaee3a6600daebe8aeba5eb246aea421fd6c0fe9732d2b9ab4b4b33a721ff498",
+          "scheduled_start": "2026-09-22T17:00:00+09:00",
           "selected_player": "Alina Charaeva",
           "selected_probability": 0.62326573994696,
-          "scheduled_start": "2026-09-22T17:00:00+09:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35611818208/baselines/seoul-2026-r32-kenin-charaeva.json"
+          "status": "PENDING"
         }
-      ]
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-21-run-35611818208/slate-receipt.json",
+      "slate_id": "2026-09-21-run-35611818208",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 35611818208
     },
     {
-      "slate_id": "2026-09-21-run-35621137740",
-      "receipt_path": "web-shadow/slates/2026-09-21-run-35621137740/slate-receipt.json",
-      "workflow_run_id": 35621137740,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "PENDING_SETTLEMENT",
       "predictions": [
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-oliynykova-wolff.json",
           "match_id": "web:wta:singapore:2026:r32:oliynykova-wolff",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35621137740/predictions/singapore-2026-r32-oliynykova-wolff.json",
           "prediction_record_sha256": "f9d10003f5963780c1c7fe6652e9eb264500b28201adffedb069b9368434ec6e",
+          "scheduled_start": "2026-09-22T11:00:00+08:00",
           "selected_player": "Oleksandra Oliynykova",
           "selected_probability": 0.5454161011844827,
-          "scheduled_start": "2026-09-22T11:00:00+08:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-oliynykova-wolff.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-parks-yamaguchi.json",
           "match_id": "web:wta:singapore:2026:r32:parks-yamaguchi",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35621137740/predictions/singapore-2026-r32-parks-yamaguchi.json",
           "prediction_record_sha256": "9352e07cf66d38eef04b7e67b7ebf7176d8cfb045594e04a4a531afe409cb1b2",
+          "scheduled_start": "2026-09-22T12:30:00+08:00",
           "selected_player": "Alycia Parks",
           "selected_probability": 0.6224215717621162,
-          "scheduled_start": "2026-09-22T12:30:00+08:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35621137740/baselines/singapore-2026-r32-parks-yamaguchi.json"
+          "status": "PENDING"
         }
-      ]
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-21-run-35621137740/slate-receipt.json",
+      "slate_id": "2026-09-21-run-35621137740",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 35621137740
     },
     {
-      "slate_id": "2026-09-21-run-35640968895",
-      "receipt_path": "web-shadow/slates/2026-09-21-run-35640968895/slate-receipt.json",
-      "workflow_run_id": 35640968895,
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
-      "status": "PENDING_SETTLEMENT",
       "predictions": [
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-sasnovich-andreeva.json",
           "match_id": "web:wta:singapore:2026:r16:sasnovich-andreeva",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35640968895/predictions/singapore-2026-r16-sasnovich-andreeva.json",
           "prediction_record_sha256": "d22949fad5e47c8acc86d94bd44bf11380cadd42d8d84a7e77fb8544ef97141f",
+          "scheduled_start": "2026-09-23T12:00:00+08:00",
           "selected_player": "Mirra Andreeva",
           "selected_probability": 0.7966701734492774,
-          "scheduled_start": "2026-09-23T12:00:00+08:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-sasnovich-andreeva.json"
+          "status": "PENDING"
         },
         {
+          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-anisimova-gibson.json",
           "match_id": "web:wta:singapore:2026:r16:anisimova-gibson",
           "prediction_path": "web-shadow/slates/2026-09-21-run-35640968895/predictions/singapore-2026-r16-anisimova-gibson.json",
           "prediction_record_sha256": "58e8da571331cc3cd48ee0300352c2018987aaf832b663bf48a7c09795a8c26c",
+          "scheduled_start": "2026-09-23T12:00:00+08:00",
           "selected_player": "Amanda Anisimova",
           "selected_probability": 0.7379442578486107,
-          "scheduled_start": "2026-09-23T12:00:00+08:00",
-          "status": "PENDING",
-          "baseline_path": "web-shadow/slates/2026-09-21-run-35640968895/baselines/singapore-2026-r16-anisimova-gibson.json"
+          "status": "PENDING"
         }
-      ]
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-21-run-35640968895/slate-receipt.json",
+      "slate_id": "2026-09-21-run-35640968895",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 35640968895
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+          "match_id": "web:wta:1024:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+          "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+          "scheduled_start": "2026-09-23T12:00:00+09:00",
+          "selected_player": "Lanlana Tararudee",
+          "selected_probability": 0.691649454942094,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+          "match_id": "web:wta:1024:2026:LS014",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+          "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+          "scheduled_start": "2026-09-23T12:00:00+09:00",
+          "selected_player": "Katie Volynets",
+          "selected_probability": 0.6082880494361693,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+          "match_id": "web:wta:1024:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+          "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+          "scheduled_start": "2026-09-23T14:00:00+09:00",
+          "selected_player": "Dayeon Back",
+          "selected_probability": 0.7167236821681026,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+          "match_id": "web:wta:1152:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+          "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+          "scheduled_start": "2026-09-23T13:00:00+08:00",
+          "selected_player": "Maja Chwalinska",
+          "selected_probability": 0.614219756135314,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+          "match_id": "web:wta:1152:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+          "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+          "scheduled_start": "2026-09-23T14:30:00+08:00",
+          "selected_player": "Elise Mertens",
+          "selected_probability": 0.5227489062092218,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+          "match_id": "web:wta:1152:2026:LS008",
+          "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+          "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+          "scheduled_start": "2026-09-23T18:30:00+08:00",
+          "selected_player": "Mirra Andreeva",
+          "selected_probability": 0.7966701734492774,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-09-22-run-35758950241/slate-receipt.json",
+      "slate_id": "2026-09-22-run-35758950241",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 35758950241
     }
-  ],
-  "metrics": {
-    "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 7,
-    "correct_prediction_count": 5,
-    "accuracy": 0.7142857142857143,
-    "brier_score": 0.24063277730212165,
-    "log_loss": 0.6771440099091525,
-    "mean_selected_probability": 0.5930637866971404,
-    "calibration_gap_accuracy_minus_mean_selected_probability": 0.12122192758857386,
-    "confidence_buckets": [
-      {
-        "label": "0.50-0.60",
-        "lower_bound": 0.5,
-        "upper_bound": 0.6,
-        "match_count": 5,
-        "correct_prediction_count": 4,
-        "accuracy": 0.8,
-        "mean_selected_probability": 0.5637951028294079
-      },
-      {
-        "label": "0.60-0.70",
-        "lower_bound": 0.6,
-        "upper_bound": 0.7,
-        "match_count": 2,
-        "correct_prediction_count": 1,
-        "accuracy": 0.5,
-        "mean_selected_probability": 0.6662354963664721
-      }
-    ]
-  },
-  "baseline_match_count": 13
+  ]
 }

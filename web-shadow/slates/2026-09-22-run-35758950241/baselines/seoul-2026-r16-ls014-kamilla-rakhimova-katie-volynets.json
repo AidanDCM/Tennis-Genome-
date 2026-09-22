@@ -1,0 +1,17 @@
+{
+  "artifact_id": 10709725590,
+  "artifact_sha256": "393a9c583b1c2c5efc699abab88575a042ee0a237a5d57b53af7e5e5676f979b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.31498187381762144,
+  "match_id": "web:wta:1024:2026:LS014",
+  "matchup_input_sha256": "5d8082265c4cb3200c2ba73689371e09f24d4462216c7df636462bfc830d23ff",
+  "p_player_a": 0.4218991880900847,
+  "p_player_b": 0.5781008119099154,
+  "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+  "production_eligible": false,
+  "record_sha256": "328d324238e2d045283b3be7d4a9e6cc75a1472a878be008b956e1375233b09f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Katie Volynets",
+  "slate_id": "2026-09-22-run-35758950241"
+}

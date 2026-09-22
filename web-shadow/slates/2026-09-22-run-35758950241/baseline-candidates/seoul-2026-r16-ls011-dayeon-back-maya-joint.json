@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7035819634972018,
+  "match_id": "web:wta:1024:2026:LS011",
+  "matchup_input_sha256": "9641f29606b7e00ad7292f8d5ec317f1052fd10bb516dea5d61edb75230d87dc",
+  "p_player_a": 0.6689814605869422,
+  "p_player_b": 0.3310185394130578,
+  "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+  "production_eligible": false,
+  "record_sha256": "f3d7f2db84442bd06d5f7003d381582453c0aeb1add665f63b83d5c2f4fb0f2f",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Dayeon Back"
+}

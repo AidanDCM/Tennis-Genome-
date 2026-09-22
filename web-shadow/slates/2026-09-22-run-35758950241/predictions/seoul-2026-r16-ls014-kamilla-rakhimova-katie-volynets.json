@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:34.479676+00:00",
+  "fixture": {
+    "match_id": "web:wta:1024:2026:LS014",
+    "player_a": "Kamilla Rakhimova",
+    "player_b": "Katie Volynets",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "scheduled_start": "2026-09-23T12:00:00+09:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "5d8082265c4cb3200c2ba73689371e09f24d4462216c7df636462bfc830d23ff",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.3917119505638306,
+  "p_player_b": 0.6082880494361693,
+  "player_a_id": "wta:id:215872",
+  "player_b_id": "wta:id:220465",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Katie Volynets"
+}

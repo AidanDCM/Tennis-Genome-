@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:33.782045+00:00",
+  "fixture": {
+    "match_id": "web:wta:1024:2026:LS010",
+    "player_a": "Sohyun Park",
+    "player_b": "Lanlana Tararudee",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "scheduled_start": "2026-09-23T12:00:00+09:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "a74c22f4c2b25efc3e277fbfcaeca979b9172eea555758a35a3b2c74a468c7b0",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.3083505450579061,
+  "p_player_b": 0.691649454942094,
+  "player_a_id": "wta:id:216213",
+  "player_b_id": "wta:id:222290",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Lanlana Tararudee"
+}

@@ -1,0 +1,17 @@
+{
+  "artifact_id": 10709725590,
+  "artifact_sha256": "393a9c583b1c2c5efc699abab88575a042ee0a237a5d57b53af7e5e5676f979b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7035819634972018,
+  "match_id": "web:wta:1024:2026:LS011",
+  "matchup_input_sha256": "9641f29606b7e00ad7292f8d5ec317f1052fd10bb516dea5d61edb75230d87dc",
+  "p_player_a": 0.6689814605869422,
+  "p_player_b": 0.3310185394130578,
+  "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+  "production_eligible": false,
+  "record_sha256": "d28f4c62d7826511be758ead724ea6b60507a969d3ed77e380f2e9014e723d8f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Dayeon Back",
+  "slate_id": "2026-09-22-run-35758950241"
+}
