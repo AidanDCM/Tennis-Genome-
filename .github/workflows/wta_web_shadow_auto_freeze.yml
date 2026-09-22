@@ -69,8 +69,17 @@ jobs:
           fi
 
           if git ls-remote --exit-code --heads origin "${branch}" >/dev/null 2>&1; then
-            echo "remote branch ${branch} exists without a pull request; refusing to overwrite it" >&2
-            exit 1
+            compare_url="https://github.com/${REPO}/compare/main...${branch}?expand=1"
+            echo "remote branch ${branch} exists without a pull request; preserved and requires manual PR publication"
+            {
+              echo "## Web Shadow freeze proposal preserved"
+              echo
+              echo "Validated branch \`${branch}\` already exists without a pull request."
+              echo
+              echo "Manual PR publication: ${compare_url}"
+            } >> "${GITHUB_STEP_SUMMARY}"
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            exit 0
           fi
           echo "skip=false" >> "${GITHUB_OUTPUT}"
 
@@ -294,9 +303,15 @@ jobs:
             --head "${BRANCH}" \
             --title "Freeze official Web Shadow slate ${SLATE_ID}" \
             --body-file "${body}")"; then
-            git push origin --delete "${BRANCH}" || true
-            echo "unable to create the freeze PR with GITHUB_TOKEN" >&2
-            echo "repository Actions settings must allow GitHub Actions to create pull requests" >&2
+            compare_url="https://github.com/${REPO}/compare/main...${BRANCH}?expand=1"
+            echo "unable to create the freeze PR with GITHUB_TOKEN; validated branch ${BRANCH} is preserved and requires manual PR publication" >&2
+            {
+              echo "## Web Shadow freeze proposal preserved"
+              echo
+              echo "GitHub blocked automatic PR publication. The validated branch \`${BRANCH}\` was preserved."
+              echo
+              echo "Manual PR publication: ${compare_url}"
+            } >> "${GITHUB_STEP_SUMMARY}"
             exit 1
           fi
           echo "Created ${pr_url}"
