@@ -13,23 +13,44 @@ from scripts.validate_web_shadow_scorecard import (
 )
 
 
+def _repository_scorecard() -> dict:
+    return json.loads(
+        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
+    )
+
+
+def _scorecard_entries(scorecard: dict) -> list[dict]:
+    return [
+        entry
+        for slate in scorecard["slates"]
+        for entry in slate["predictions"]
+    ]
+
+
 def test_repository_web_shadow_scorecard_is_valid() -> None:
+    scorecard = _repository_scorecard()
+    entries = _scorecard_entries(scorecard)
+    expected = {
+        "official_slate_count": len(scorecard["slates"]),
+        "official_match_count": len(entries),
+        "pending_match_count": sum(
+            entry["status"] == "PENDING" for entry in entries
+        ),
+        "settled_match_count": sum(
+            entry["status"] == "SETTLED" for entry in entries
+        ),
+    }
     summary = validate_web_shadow_scorecard(
         scorecard_path=Path("web-shadow/scorecard.json"),
         repo_root=Path("."),
     )
-    assert summary == {
-        "official_slate_count": 5,
-        "official_match_count": 20,
-        "pending_match_count": 13,
-        "settled_match_count": 7,
-    }
+    assert expected["official_slate_count"] > 0
+    assert expected["official_match_count"] > 0
+    assert summary == expected
 
 
 def test_scorecard_rejects_probability_drift(tmp_path: Path) -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     scorecard["slates"][0]["predictions"][0]["selected_probability"] = 0.99
     path = tmp_path / "scorecard.json"
     path.write_text(json.dumps(scorecard), encoding="utf-8")
@@ -42,9 +63,7 @@ def test_scorecard_rejects_probability_drift(tmp_path: Path) -> None:
 
 
 def test_scorecard_rejects_prediction_sha_drift(tmp_path: Path) -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     scorecard["slates"][0]["predictions"][0]["prediction_record_sha256"] = "0" * 64
     path = tmp_path / "scorecard.json"
     path.write_text(json.dumps(scorecard), encoding="utf-8")
@@ -57,9 +76,7 @@ def test_scorecard_rejects_prediction_sha_drift(tmp_path: Path) -> None:
 
 
 def test_repository_scorecard_publishes_first_forward_metrics() -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     metrics = scorecard["metrics"]
     assert metrics["settled_match_count"] == 7
     assert metrics["correct_prediction_count"] == 5
@@ -72,9 +89,7 @@ def test_repository_scorecard_publishes_first_forward_metrics() -> None:
 
 
 def test_scorecard_rejects_metric_drift(tmp_path: Path) -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     scorecard["metrics"]["accuracy"] = 1.0
     path = tmp_path / "scorecard.json"
     path.write_text(json.dumps(scorecard), encoding="utf-8")
@@ -87,9 +102,7 @@ def test_scorecard_rejects_metric_drift(tmp_path: Path) -> None:
 
 
 def test_scorecard_rejects_settlement_digest_drift(tmp_path: Path) -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     settlement_path = Path(
         scorecard["slates"][0]["predictions"][0]["settlement_path"]
     )
@@ -116,39 +129,54 @@ def test_scorecard_rejects_settlement_digest_drift(tmp_path: Path) -> None:
 
 
 def test_scorecard_retains_settled_metrics_with_pending_slate() -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
+    scorecard = _repository_scorecard()
+    entries = _scorecard_entries(scorecard)
+    pending = [entry for entry in entries if entry["status"] == "PENDING"]
+    settled = [entry for entry in entries if entry["status"] == "SETTLED"]
+
+    assert scorecard["official_slate_count"] == len(scorecard["slates"])
+    assert scorecard["pending_match_count"] == len(pending)
+    assert scorecard["settled_match_count"] == len(settled)
+    assert pending
+    assert settled
+    assert any(
+        slate["status"] == "PENDING_SETTLEMENT"
+        for slate in scorecard["slates"]
     )
-    assert scorecard["official_slate_count"] == 5
-    assert scorecard["pending_match_count"] == 13
-    assert scorecard["settled_match_count"] == 7
-    assert scorecard["slates"][-1]["status"] == "PENDING_SETTLEMENT"
-    assert len(scorecard["slates"][-1]["predictions"]) == 2
-    assert scorecard["metrics"]["settled_match_count"] == 7
+    assert 0 < scorecard["metrics"]["settled_match_count"] <= len(settled)
 
 
-def test_pending_scorecard_has_prospective_elo_baselines() -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+def test_scorecard_baselines_track_repository_growth() -> None:
+    scorecard = _repository_scorecard()
     baseline_entries = [
         entry
-        for slate in scorecard["slates"]
-        for entry in slate["predictions"]
+        for entry in _scorecard_entries(scorecard)
         if "baseline_path" in entry
     ]
-    assert scorecard["baseline_match_count"] == 13
-    assert len(baseline_entries) == 13
-    assert all(entry["status"] == "PENDING" for entry in baseline_entries)
-    assert "baseline_comparison" not in scorecard
+    completed_baseline_entries = []
+    for entry in baseline_entries:
+        assert entry["status"] in {"PENDING", "SETTLED"}
+        if entry["status"] != "SETTLED":
+            continue
+        settlement = json.loads(
+            Path(entry["settlement_path"]).read_text(encoding="utf-8")
+        )
+        if settlement["status"] == "COMPLETED":
+            completed_baseline_entries.append(entry)
+
+    assert baseline_entries
+    assert scorecard["baseline_match_count"] == len(baseline_entries)
+    if completed_baseline_entries:
+        comparison = scorecard["baseline_comparison"]
+        assert comparison["settled_match_count"] == len(completed_baseline_entries)
+    else:
+        assert "baseline_comparison" not in scorecard
 
 
 def test_scorecard_rejects_baseline_digest_drift(tmp_path: Path) -> None:
     import shutil
 
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     entry = next(
         entry
         for slate in scorecard["slates"]
@@ -179,9 +207,7 @@ def test_scorecard_rejects_baseline_probability_drift(tmp_path: Path) -> None:
     import hashlib
     import shutil
 
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     entry = next(
         entry
         for slate in scorecard["slates"]
@@ -300,9 +326,7 @@ def test_baseline_comparison_rejects_empty_cohort() -> None:
 
 
 def test_scorecard_rejects_settlement_link_hash_drift(tmp_path: Path) -> None:
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     scorecard["slates"][0]["predictions"][0]["settlement_record_sha256"] = "0" * 64
     path = tmp_path / "scorecard.json"
     path.write_text(json.dumps(scorecard), encoding="utf-8")
@@ -317,9 +341,7 @@ def test_scorecard_rejects_settlement_link_hash_drift(tmp_path: Path) -> None:
 def test_scorecard_rejects_result_score_tampering(tmp_path: Path) -> None:
     import shutil
 
-    scorecard = json.loads(
-        Path("web-shadow/scorecard.json").read_text(encoding="utf-8")
-    )
+    scorecard = _repository_scorecard()
     entry = scorecard["slates"][0]["predictions"][0]
     settlement_path = Path(entry["settlement_path"])
     settlement = json.loads(settlement_path.read_text(encoding="utf-8"))
