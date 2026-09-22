@@ -67,3 +67,11 @@ def test_auto_freeze_is_idempotent_and_never_auto_merges() -> None:
     assert "No provider requests, model changes, production routing changes" in text
     assert "gh pr merge" not in text
     assert "merge_pull_request" not in text
+
+
+def test_auto_freeze_preserves_validated_branch_when_pr_publication_is_blocked() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "requires manual PR publication" in text
+    assert "compare/main...${BRANCH}?expand=1" in text
+    assert "preserved" in text.lower()
+    assert 'git push origin --delete "${BRANCH}"' not in text
