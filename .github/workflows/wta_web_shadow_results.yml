@@ -1,0 +1,356 @@
+name: WTA Web Shadow Result Acquisition
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/wta_web_shadow_results.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: wta-web-shadow-results
+  cancel-in-progress: false
+
+jobs:
+  acquire-and-propose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Refuse parallel or orphan result proposals
+        id: pr_gate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          open_count="$(
+            gh pr list \
+              --state open \
+              --limit 100 \
+              --json headRefName \
+              --jq '[.[] | select(
+                .headRefName
+                | startswith("automation/wta-web-shadow-results-")
+              )] | length'
+          )"
+          if [ "${open_count}" -gt 0 ]; then
+            echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "A result proposal is already open; leaving it immutable."
+            exit 0
+          fi
+
+          orphan_branches=()
+          while IFS= read -r remote_ref; do
+            [ -n "${remote_ref}" ] || continue
+            branch="${remote_ref#origin/}"
+            prior_pr_count="$(
+              gh pr list \
+                --state all \
+                --head "${branch}" \
+                --limit 1 \
+                --json number \
+                --jq 'length'
+            )"
+            if [ "${prior_pr_count}" -gt 0 ]; then
+              echo "Cleaning stale result branch with existing PR: ${branch}"
+              git push origin --delete "${branch}"
+              continue
+            fi
+            orphan_branches+=("${branch}")
+          done < <(
+            git for-each-ref \
+              --format='%(refname:short)' \
+              'refs/remotes/origin/automation/wta-web-shadow-results-*'
+          )
+
+          if [ "${#orphan_branches[@]}" -gt 0 ]; then
+            echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "An unpublished result proposal branch already exists:" >&2
+            printf '  %s\n' "${orphan_branches[@]}" >&2
+            echo "Open or delete that proposal before acquiring another result snapshot." >&2
+            exit 0
+          fi
+          echo "blocked=false" >> "${GITHUB_OUTPUT}"
+
+      - name: Set result acquisition identity
+        id: stamp
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%S+00:00')"
+          snapshot_id="$(date -u +'wta-results-%Y%m%dt%H%M%Sz')"
+          source_root="${RUNNER_TEMP}/wta-result-source-${GITHUB_RUN_ID}"
+          summary="${RUNNER_TEMP}/wta-result-summary-${GITHUB_RUN_ID}.json"
+          echo "observed_at=${observed_at}" >> "${GITHUB_OUTPUT}"
+          echo "snapshot_id=${snapshot_id}" >> "${GITHUB_OUTPUT}"
+          echo "source_root=${source_root}" >> "${GITHUB_OUTPUT}"
+          echo "summary=${summary}" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/setup-python@v5
+        if: steps.pr_gate.outputs.blocked != 'true'
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+          cache: "pip"
+          cache-dependency-path: requirements/ci.lock
+
+      - name: Install pinned runtime and test tools
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Fetch retained official WTA sources
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        env:
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+          SOURCE_ROOT: ${{ steps.stamp.outputs.source_root }}
+        run: |
+          set -euo pipefail
+          python -m scripts.fetch_web_shadow_wta_source \
+            --config web-shadow/intake-config.json \
+            --source-root "${SOURCE_ROOT}" \
+            --observed-at "${OBSERVED_AT}" \
+            --manifest-out "${SOURCE_ROOT}/acquisition-manifest.json"
+
+      - name: Compile finished official WTA rows
+        id: results
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        env:
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          SOURCE_ROOT: ${{ steps.stamp.outputs.source_root }}
+          SUMMARY_PATH: ${{ steps.stamp.outputs.summary }}
+        run: |
+          set -euo pipefail
+          python -m scripts.build_web_shadow_wta_results \
+            --config web-shadow/intake-config.json \
+            --scorecard web-shadow/scorecard.json \
+            --acquisition-manifest "${SOURCE_ROOT}/acquisition-manifest.json" \
+            --source-root "${SOURCE_ROOT}" \
+            --repo-root . \
+            --observed-at "${OBSERVED_AT}" \
+            --snapshot-id "${SNAPSHOT_ID}" \
+            --summary-out "${SUMMARY_PATH}"
+
+          result_count="$(jq -r '.result_count' "${SUMMARY_PATH}")"
+          if ! [[ "${result_count}" =~ ^[0-9]+$ ]]; then
+            echo "result compiler returned an invalid result count" >&2
+            exit 1
+          fi
+          if [ "${result_count}" -eq 0 ]; then
+            echo "selected=false" >> "${GITHUB_OUTPUT}"
+            echo "No currently pending official prediction has a finished WTA result."
+            exit 0
+          fi
+          echo "selected=true" >> "${GITHUB_OUTPUT}"
+          echo "result_count=${result_count}" >> "${GITHUB_OUTPUT}"
+
+      - name: Dry-run existing settlement batch contract
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.results.outputs.selected == 'true'
+        shell: bash
+        env:
+          RESULT_COUNT: ${{ steps.results.outputs.result_count }}
+        run: |
+          set -euo pipefail
+          validation_root="${RUNNER_TEMP}/wta-result-settlement-check"
+          validation_summary="${RUNNER_TEMP}/wta-result-settlement-check.json"
+          python -m scripts.settle_web_shadow_result_batch \
+            --manifest web-shadow/active-results.json \
+            --scorecard web-shadow/scorecard.json \
+            --output-root "${validation_root}" \
+            | tee "${validation_summary}"
+          settled="$(jq -r '.settlement_count' "${validation_summary}")"
+          requested="$(jq -r '.requested_result_count' "${validation_summary}")"
+          if [ "${settled}" != "${RESULT_COUNT}" ] || [ "${requested}" != "${RESULT_COUNT}" ]; then
+            echo "result proposal differs from settlement batch denominator" >&2
+            exit 1
+          fi
+
+      - name: Verify result proposal mutation scope
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.results.outputs.selected == 'true'
+        shell: bash
+        env:
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          RESULT_COUNT: ${{ steps.results.outputs.result_count }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import subprocess
+          from pathlib import Path
+
+          snapshot_id = os.environ["SNAPSHOT_ID"]
+          expected_results = int(os.environ["RESULT_COUNT"])
+          raw = subprocess.check_output(
+              ["git", "status", "--porcelain=v1", "--untracked-files=all", "-z"]
+          ).decode("utf-8")
+          entries = [entry for entry in raw.split("\0") if entry]
+          saw_active = False
+          result_count = 0
+          evidence_prefix = f"web-shadow/result-evidence/{snapshot_id}/"
+          for entry in entries:
+              if len(entry) < 4:
+                  raise SystemExit(f"unexpected git status entry: {entry!r}")
+              path = entry[3:]
+              if " -> " in path:
+                  raise SystemExit(f"renames are not allowed in result acquisition: {path}")
+              if path == "web-shadow/active-results.json":
+                  saw_active = True
+                  continue
+              parts = Path(path).parts
+              if (
+                  len(parts) == 3
+                  and parts[:2] == ("web-shadow", "results")
+                  and parts[2].endswith(".json")
+              ):
+                  result_count += 1
+                  continue
+              if path.startswith(evidence_prefix):
+                  continue
+              raise SystemExit(f"result acquisition changed an unexpected path: {path}")
+          if not saw_active:
+              raise SystemExit("result acquisition must update active-results.json")
+          if result_count != expected_results:
+              raise SystemExit("result acquisition result-file denominator drift")
+          PY
+
+      - name: Verify full repository contract before proposal
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.results.outputs.selected == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff check .
+          python -m pytest -q
+          git diff --check
+
+      - name: Upload result acquisition attempt
+        if: >-
+          always() &&
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.stamp.outputs.source_root != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: wta-result-source-${{ github.run_id }}
+          path: |
+            ${{ steps.stamp.outputs.source_root }}
+            ${{ steps.stamp.outputs.summary }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Commit immutable result proposal
+        id: commit
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.results.outputs.selected == 'true'
+        shell: bash
+        env:
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+        run: |
+          set -euo pipefail
+          branch="automation/wta-web-shadow-results-${SNAPSHOT_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${branch}"
+          git add \
+            web-shadow/active-results.json \
+            web-shadow/results \
+            "web-shadow/result-evidence/${SNAPSHOT_ID}"
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "selected=false" >> "${GITHUB_OUTPUT}"
+            echo "No result changes survived validation."
+            exit 0
+          fi
+          git commit -m "Capture WTA Web Shadow results ${SNAPSHOT_ID}"
+          git push origin "${branch}"
+          echo "selected=true" >> "${GITHUB_OUTPUT}"
+          echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
+
+      - name: Open result review PR
+        if: steps.commit.outputs.selected == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.commit.outputs.branch }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+          SUMMARY_PATH: ${{ steps.stamp.outputs.summary }}
+        run: |
+          set -euo pipefail
+          result_count="$(jq -r '.result_count' "${SUMMARY_PATH}")"
+          pending_count="$(jq -r '.pending_prediction_count' "${SUMMARY_PATH}")"
+          unresolved="$(jq -r '.unresolved_prediction_count' "${SUMMARY_PATH}")"
+          unfinished="$(jq -r '.unfinished_prediction_count' "${SUMMARY_PATH}")"
+          body="${RUNNER_TEMP}/wta-result-pr.md"
+          cat > "${body}" <<EOF
+          Automated **non-production** WTA Web Shadow result proposal.
+
+          - Snapshot: \`${SNAPSHOT_ID}\`
+          - Observed at: \`${OBSERVED_AT}\`
+          - Pending official predictions inspected: ${pending_count}
+          - Finished official WTA results captured: ${result_count}
+          - Pending predictions not resolved in current provider rows: ${unresolved}
+          - Matched predictions not yet finished: ${unfinished}
+          - Result source: official WTA API retained byte-for-byte with SHA-256 provenance
+          - Settlement contract: dry-run passed before publication
+          - Auto-merge: disabled
+
+          Merging this PR changes \`web-shadow/active-results.json\`, which triggers
+          the existing \`WTA Web Shadow Settlement Batch\` workflow. The official
+          scorecard is not mutated by this proposal.
+          EOF
+
+          set +e
+          pr_output="$(
+            gh pr create \
+              --base main \
+              --head "${BRANCH_NAME}" \
+              --title "Capture WTA Web Shadow results ${SNAPSHOT_ID}" \
+              --body-file "${body}" \
+              2>&1
+          )"
+          status=$?
+          set -e
+          if [ "${status}" -ne 0 ]; then
+            echo "${pr_output}" >&2
+            compare_url="https://github.com/${GITHUB_REPOSITORY}/compare/main...${BRANCH_NAME}?expand=1"
+            {
+              echo "### WTA result proposal requires manual PR publication"
+              echo
+              echo "GitHub preserved the validated proposal branch but blocked automated PR creation."
+              echo
+              echo "- Branch: \`${BRANCH_NAME}\`"
+              echo "- Snapshot: \`${SNAPSHOT_ID}\`"
+              echo "- Open PR: ${compare_url}"
+              echo
+              echo "The next scheduled result run will stop at the orphan-branch gate rather than create a duplicate snapshot."
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit "${status}"
+          fi
+          echo "${pr_output}"
