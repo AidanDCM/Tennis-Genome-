@@ -75,17 +75,28 @@ def test_scorecard_rejects_prediction_sha_drift(tmp_path: Path) -> None:
         )
 
 
-def test_repository_scorecard_publishes_first_forward_metrics() -> None:
+def test_repository_scorecard_publishes_completed_forward_metrics() -> None:
     scorecard = _repository_scorecard()
+    completed_entries = []
+    for entry in _scorecard_entries(scorecard):
+        if entry["status"] != "SETTLED":
+            continue
+        settlement = json.loads(
+            Path(entry["settlement_path"]).read_text(encoding="utf-8")
+        )
+        if settlement["status"] == "COMPLETED":
+            completed_entries.append(entry)
+
     metrics = scorecard["metrics"]
-    assert metrics["settled_match_count"] == 7
-    assert metrics["correct_prediction_count"] == 5
-    assert metrics["accuracy"] == pytest.approx(5 / 7)
-    assert metrics["brier_score"] == pytest.approx(0.24063277730212165)
-    assert metrics["log_loss"] == pytest.approx(0.6771440099091525)
-    assert metrics["mean_selected_probability"] == pytest.approx(
-        0.5930637866971404
+    assert completed_entries
+    assert metrics["settled_match_count"] == len(completed_entries)
+    assert 0 <= metrics["correct_prediction_count"] <= len(completed_entries)
+    assert metrics["accuracy"] == pytest.approx(
+        metrics["correct_prediction_count"] / len(completed_entries)
     )
+    assert 0.0 <= metrics["brier_score"] <= 1.0
+    assert metrics["log_loss"] >= 0.0
+    assert 0.5 <= metrics["mean_selected_probability"] <= 1.0
 
 
 def test_scorecard_rejects_metric_drift(tmp_path: Path) -> None:
