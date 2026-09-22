@@ -148,20 +148,15 @@ jobs:
             "${SOURCE_ROOT}"/tournament-index-*.json \
             "${evidence_root}/"
 
-      - name: Verify acquisition and intake regression contracts
+      - name: Verify full repository contract before proposal
         if: >-
           steps.pr_gate.outputs.blocked != 'true' &&
           steps.intake.outputs.selected == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          python -m ruff check \
-            scripts/web_shadow_wta_acquisition_core.py \
-            scripts/fetch_web_shadow_wta_source.py \
-            tests/test_web_shadow_wta_acquisition.py
-          python -m pytest -q \
-            tests/test_web_shadow_wta_acquisition.py \
-            tests/test_web_shadow_wta_intake.py
+          python -m ruff check .
+          python -m pytest -q
           git diff --check
 
       - name: Upload acquisition attempt
