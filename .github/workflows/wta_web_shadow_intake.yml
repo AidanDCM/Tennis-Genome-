@@ -1,0 +1,239 @@
+name: WTA Web Shadow Intake
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: wta-web-shadow-intake
+  cancel-in-progress: false
+
+jobs:
+  acquire-and-propose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Refuse parallel intake proposals
+        id: pr_gate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          open_count="$(
+            gh pr list \
+              --state open \
+              --limit 100 \
+              --json headRefName \
+              --jq '[.[] | select(
+                .headRefName
+                | startswith("automation/wta-web-shadow-intake-")
+              )] | length'
+          )"
+          if [ "${open_count}" -gt 0 ]; then
+            echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "An intake proposal is already open; leaving it immutable."
+          else
+            echo "blocked=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set acquisition identity
+        id: stamp
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%S+00:00')"
+          snapshot_id="$(date -u +'wta-%Y%m%dt%H%M%Sz')"
+          source_root="${RUNNER_TEMP}/wta-source-${GITHUB_RUN_ID}"
+          echo "observed_at=${observed_at}" >> "${GITHUB_OUTPUT}"
+          echo "snapshot_id=${snapshot_id}" >> "${GITHUB_OUTPUT}"
+          echo "source_root=${source_root}" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/setup-python@v5
+        if: steps.pr_gate.outputs.blocked != 'true'
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+          cache: "pip"
+          cache-dependency-path: requirements/ci.lock
+
+      - name: Install pinned runtime
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Fetch retained official WTA sources
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        env:
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+          SOURCE_ROOT: ${{ steps.stamp.outputs.source_root }}
+        run: |
+          set -euo pipefail
+          python -m scripts.fetch_web_shadow_wta_source \
+            --config web-shadow/intake-config.json \
+            --source-root "${SOURCE_ROOT}" \
+            --observed-at "${OBSERVED_AT}" \
+            --manifest-out "${SOURCE_ROOT}/acquisition-manifest.json"
+
+      - name: Build deterministic intake proposal
+        id: intake
+        if: steps.pr_gate.outputs.blocked != 'true'
+        shell: bash
+        env:
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          SOURCE_ROOT: ${{ steps.stamp.outputs.source_root }}
+        run: |
+          set -euo pipefail
+          stdout="${RUNNER_TEMP}/wta-intake-stdout.json"
+          stderr="${RUNNER_TEMP}/wta-intake-stderr.log"
+          set +e
+          python -m scripts.build_web_shadow_wta_intake \
+            --config web-shadow/intake-config.json \
+            --source-root "${SOURCE_ROOT}" \
+            --repo-root . \
+            --observed-at "${OBSERVED_AT}" \
+            --snapshot-id "${SNAPSHOT_ID}" \
+            > "${stdout}" 2> "${stderr}"
+          status=$?
+          set -e
+
+          if [ "${status}" -ne 0 ]; then
+            if grep -Fq \
+              "deterministic WTA intake found no eligible unseen matches" \
+              "${stderr}"; then
+              echo "selected=false" >> "${GITHUB_OUTPUT}"
+              echo "No eligible unseen matches in the frozen intake window."
+              exit 0
+            fi
+            cat "${stderr}" >&2
+            exit "${status}"
+          fi
+
+          cat "${stdout}"
+          echo "selected=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Bind acquisition evidence to selected intake
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.intake.outputs.selected == 'true'
+        shell: bash
+        env:
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          SOURCE_ROOT: ${{ steps.stamp.outputs.source_root }}
+        run: |
+          set -euo pipefail
+          evidence_root="web-shadow/intake-evidence/${SNAPSHOT_ID}"
+          test -d "${evidence_root}"
+          cp \
+            "${SOURCE_ROOT}/acquisition-manifest.json" \
+            "${evidence_root}/acquisition-manifest.json"
+          cp \
+            "${SOURCE_ROOT}"/tournament-index-*.json \
+            "${evidence_root}/"
+
+      - name: Verify full repository contract before proposal
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.intake.outputs.selected == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff check .
+          python -m pytest -q
+          git diff --check
+
+      - name: Upload acquisition attempt
+        if: >-
+          always() &&
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.stamp.outputs.source_root != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: wta-intake-source-${{ github.run_id }}
+          path: ${{ steps.stamp.outputs.source_root }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Commit immutable intake proposal
+        id: commit
+        if: >-
+          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.intake.outputs.selected == 'true'
+        shell: bash
+        env:
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+        run: |
+          set -euo pipefail
+          branch="automation/wta-web-shadow-intake-${SNAPSHOT_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${branch}"
+          git add \
+            web-shadow/active-slate.json \
+            web-shadow/fixtures \
+            web-shadow/intake-evidence
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "selected=false" >> "${GITHUB_OUTPUT}"
+            echo "No repository changes survived intake validation."
+            exit 0
+          fi
+          git commit -m "Refresh WTA Web Shadow intake ${SNAPSHOT_ID}"
+          git push origin "${branch}"
+          echo "selected=true" >> "${GITHUB_OUTPUT}"
+          echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
+
+      - name: Open scientific review PR
+        if: >-
+          steps.commit.outputs.selected == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.commit.outputs.branch }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+          OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
+        run: |
+          set -euo pipefail
+          manifest="web-shadow/intake-evidence/${SNAPSHOT_ID}/intake-manifest.json"
+          selected_count="$(jq -r '.selected_match_count' "${manifest}")"
+          source_count="$(jq -r '.source_match_count' "${manifest}")"
+          body="${RUNNER_TEMP}/wta-intake-pr.md"
+          cat > "${body}" <<EOF
+          Automated **non-production** WTA Web Shadow intake proposal.
+
+          - Snapshot: \`${SNAPSHOT_ID}\`
+          - Observed at: \`${OBSERVED_AT}\`
+          - Raw official WTA rows: ${source_count}
+          - Deterministically selected unseen matches: ${selected_count}
+          - Tournament index role: audit/discovery only
+          - Selection authority: \`web-shadow/intake-config.json\`
+          - Auto-merge: disabled
+
+          The official provider bytes, their SHA-256 values, the frozen
+          selection manifest, and generated fixtures are retained in this PR.
+          Merging this PR is the review gate that allows the existing
+          \`WTA Web Shadow Slate\` workflow to run on \`main\`.
+          EOF
+          gh pr create \
+            --base main \
+            --head "${BRANCH_NAME}" \
+            --title "Refresh WTA Web Shadow intake ${SNAPSHOT_ID}" \
+            --body-file "${body}"
