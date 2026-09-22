@@ -1,0 +1,28 @@
+name: WTA Web Shadow Intake Smoke Dispatch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/wta_web_shadow_intake.yml"
+      - ".github/workflows/wta_web_shadow_intake_smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch-intake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch live WTA intake smoke run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh workflow run wta_web_shadow_intake.yml --ref main
