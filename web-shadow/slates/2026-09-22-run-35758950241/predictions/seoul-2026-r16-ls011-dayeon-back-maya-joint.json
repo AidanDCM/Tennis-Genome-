@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:35.132987+00:00",
+  "fixture": {
+    "match_id": "web:wta:1024:2026:LS011",
+    "player_a": "Dayeon Back",
+    "player_b": "Maya Joint",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "scheduled_start": "2026-09-23T14:00:00+09:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Korea Open",
+    "tournament_id": "web:wta:seoul:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "9641f29606b7e00ad7292f8d5ec317f1052fd10bb516dea5d61edb75230d87dc",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.7167236821681026,
+  "p_player_b": 0.28327631783189744,
+  "player_a_id": "wta:id:220432",
+  "player_b_id": "wta:id:233741",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Dayeon Back"
+}

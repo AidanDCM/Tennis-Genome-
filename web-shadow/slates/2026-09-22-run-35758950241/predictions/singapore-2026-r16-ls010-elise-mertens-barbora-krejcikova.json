@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-09-22T17:11:36.750171+00:00",
+  "fixture": {
+    "match_id": "web:wta:1152:2026:LS010",
+    "player_a": "Barbora Krejcikova",
+    "player_b": "Elise Mertens",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "scheduled_start": "2026-09-23T14:30:00+08:00",
+    "source_observed_at": "2026-09-22T17:05:32+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Singapore Tennis Open presented by BNP Paribas",
+    "tournament_id": "web:wta:singapore:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "a5fed693b43458b7f97c050e4f94ab40375b2f31adb25510514ee9c19dbc2acb",
+  "model_source_sha": "66cf7a8f6664d5142b8c1493a61af823e34eaa0c",
+  "p_player_a": 0.47725109379077824,
+  "p_player_b": 0.5227489062092218,
+  "player_a_id": "wta:id:206252",
+  "player_b_id": "wta:id:210722",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elise Mertens"
+}

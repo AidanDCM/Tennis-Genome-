@@ -1,0 +1,17 @@
+{
+  "artifact_id": 10709725590,
+  "artifact_sha256": "393a9c583b1c2c5efc699abab88575a042ee0a237a5d57b53af7e5e5676f979b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.11418978453465693,
+  "match_id": "web:wta:1152:2026:LS010",
+  "matchup_input_sha256": "a5fed693b43458b7f97c050e4f94ab40375b2f31adb25510514ee9c19dbc2acb",
+  "p_player_a": 0.5285164666189172,
+  "p_player_b": 0.47148353338108284,
+  "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+  "production_eligible": false,
+  "record_sha256": "414e17ae3725dd86b21a23c516f2f3c98e53166f3553e708d06d969a614614c5",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Barbora Krejcikova",
+  "slate_id": "2026-09-22-run-35758950241"
+}

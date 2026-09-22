@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.31498187381762144,
+  "match_id": "web:wta:1024:2026:LS014",
+  "matchup_input_sha256": "5d8082265c4cb3200c2ba73689371e09f24d4462216c7df636462bfc830d23ff",
+  "p_player_a": 0.4218991880900847,
+  "p_player_b": 0.5781008119099154,
+  "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+  "production_eligible": false,
+  "record_sha256": "13418b6b3adc30c8acf13f30563833b912c611c912320c60c35e7dfd020ecc4d",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Katie Volynets"
+}

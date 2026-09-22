@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.9520492034564355,
+  "match_id": "web:wta:1024:2026:LS010",
+  "matchup_input_sha256": "a74c22f4c2b25efc3e277fbfcaeca979b9172eea555758a35a3b2c74a468c7b0",
+  "p_player_a": 0.27847289739977127,
+  "p_player_b": 0.7215271026002288,
+  "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+  "production_eligible": false,
+  "record_sha256": "686276ab2d3dfee5fe6e31bef0dcb812244c2043f76c9dc60aea17d29797deb1",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Lanlana Tararudee"
+}

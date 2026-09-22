@@ -1,0 +1,17 @@
+{
+  "artifact_id": 10709725590,
+  "artifact_sha256": "393a9c583b1c2c5efc699abab88575a042ee0a237a5d57b53af7e5e5676f979b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.8626335877180606,
+  "match_id": "web:wta:1152:2026:LS008",
+  "matchup_input_sha256": "b11f6c21989feb8927c8469e04e7f01e142d7b09cf549f8f8d1dc9f9cc9cd932",
+  "p_player_a": 0.13439638107412957,
+  "p_player_b": 0.8656036189258705,
+  "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+  "production_eligible": false,
+  "record_sha256": "7c513d93bdfdf8c75585291c84ba2fca9b03f7263cff63cc2cb54bd2f0542130",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Mirra Andreeva",
+  "slate_id": "2026-09-22-run-35758950241"
+}

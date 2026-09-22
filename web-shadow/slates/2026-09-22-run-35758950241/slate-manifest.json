@@ -1,0 +1,142 @@
+{
+  "eligible_target_count": 6,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 6,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "686276ab2d3dfee5fe6e31bef0dcb812244c2043f76c9dc60aea17d29797deb1",
+      "baseline_p_player_a": 0.27847289739977127,
+      "baseline_p_player_b": 0.7215271026002288,
+      "baseline_selected_player": "Lanlana Tararudee",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "match_id": "web:wta:1024:2026:LS010",
+      "minimum_point_exposure": 2104,
+      "p_player_a": 0.3083505450579061,
+      "p_player_b": 0.691649454942094,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park/prediction.json",
+      "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+      "scheduled_start": "2026-09-23T12:00:00+09:00",
+      "selected_player": "Lanlana Tararudee",
+      "target_history_match_counts": {
+        "wta:id:216213": 30,
+        "wta:id:222290": 44
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "13418b6b3adc30c8acf13f30563833b912c611c912320c60c35e7dfd020ecc4d",
+      "baseline_p_player_a": 0.4218991880900847,
+      "baseline_p_player_b": 0.5781008119099154,
+      "baseline_selected_player": "Katie Volynets",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "match_id": "web:wta:1024:2026:LS014",
+      "minimum_point_exposure": 9686,
+      "p_player_a": 0.3917119505638306,
+      "p_player_b": 0.6082880494361693,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets/prediction.json",
+      "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+      "scheduled_start": "2026-09-23T12:00:00+09:00",
+      "selected_player": "Katie Volynets",
+      "target_history_match_counts": {
+        "wta:id:215872": 145,
+        "wta:id:220465": 132
+      }
+    },
+    {
+      "artifact_stem": "seoul-2026-r16-ls011-dayeon-back-maya-joint",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls011-dayeon-back-maya-joint/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f3d7f2db84442bd06d5f7003d381582453c0aeb1add665f63b83d5c2f4fb0f2f",
+      "baseline_p_player_a": 0.6689814605869422,
+      "baseline_p_player_b": 0.3310185394130578,
+      "baseline_selected_player": "Dayeon Back",
+      "fixture_path": "web-shadow/fixtures/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "match_id": "web:wta:1024:2026:LS011",
+      "minimum_point_exposure": 2373,
+      "p_player_a": 0.7167236821681026,
+      "p_player_b": 0.28327631783189744,
+      "prediction_path": "web-shadow-slate-run/matches/seoul-2026-r16-ls011-dayeon-back-maya-joint/prediction.json",
+      "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+      "scheduled_start": "2026-09-23T14:00:00+09:00",
+      "selected_player": "Dayeon Back",
+      "target_history_match_counts": {
+        "wta:id:220432": 41,
+        "wta:id:233741": 71
+      }
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "a82af72d034e2e66ba0eef22c272d5bcbc59a54ee42bedd319bd6c3caddda03e",
+      "baseline_p_player_a": 0.6615454324782613,
+      "baseline_p_player_b": 0.33845456752173875,
+      "baseline_selected_player": "Maja Chwalinska",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "match_id": "web:wta:1152:2026:LS011",
+      "minimum_point_exposure": 1592,
+      "p_player_a": 0.614219756135314,
+      "p_player_b": 0.385780243864686,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska/prediction.json",
+      "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+      "scheduled_start": "2026-09-23T13:00:00+08:00",
+      "selected_player": "Maja Chwalinska",
+      "target_history_match_counts": {
+        "wta:id:216081": 47,
+        "wta:id:220716": 25
+      }
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "9741ee348f3909b98b7850924f563e3fd7fde2cca229fe42530aaf980776d924",
+      "baseline_p_player_a": 0.5285164666189172,
+      "baseline_p_player_b": 0.47148353338108284,
+      "baseline_selected_player": "Barbora Krejcikova",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "match_id": "web:wta:1152:2026:LS010",
+      "minimum_point_exposure": 17837,
+      "p_player_a": 0.47725109379077824,
+      "p_player_b": 0.5227489062092218,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova/prediction.json",
+      "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+      "scheduled_start": "2026-09-23T14:30:00+08:00",
+      "selected_player": "Elise Mertens",
+      "target_history_match_counts": {
+        "wta:id:206252": 258,
+        "wta:id:210722": 506
+      }
+    },
+    {
+      "artifact_stem": "singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "116e5abcfb5aa0f0b29a99f4f47a2c03dbd79359ed88e99aa10486d85314dd19",
+      "baseline_p_player_a": 0.13439638107412957,
+      "baseline_p_player_b": 0.8656036189258705,
+      "baseline_selected_player": "Mirra Andreeva",
+      "fixture_path": "web-shadow/fixtures/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "match_id": "web:wta:1152:2026:LS008",
+      "minimum_point_exposure": 11320,
+      "p_player_a": 0.20332982655072263,
+      "p_player_b": 0.7966701734492774,
+      "prediction_path": "web-shadow-slate-run/matches/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich/prediction.json",
+      "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+      "scheduled_start": "2026-09-23T18:30:00+08:00",
+      "selected_player": "Mirra Andreeva",
+      "target_history_match_counts": {
+        "wta:id:205925": 370,
+        "wta:id:259799": 169
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 6,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

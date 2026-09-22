@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.11418978453465693,
+  "match_id": "web:wta:1152:2026:LS010",
+  "matchup_input_sha256": "a5fed693b43458b7f97c050e4f94ab40375b2f31adb25510514ee9c19dbc2acb",
+  "p_player_a": 0.5285164666189172,
+  "p_player_b": 0.47148353338108284,
+  "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+  "production_eligible": false,
+  "record_sha256": "9741ee348f3909b98b7850924f563e3fd7fde2cca229fe42530aaf980776d924",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Barbora Krejcikova"
+}
