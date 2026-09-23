@@ -1,11 +1,11 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
-    "web-shadow/fixtures/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
-    "web-shadow/fixtures/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
-    "web-shadow/fixtures/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
-    "web-shadow/fixtures/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
-    "web-shadow/fixtures/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json"
+    "web-shadow/fixtures/seoul-2026-r16-ls012-anna-bondar-alina-charaeva.json",
+    "web-shadow/fixtures/seoul-2026-r16-ls015-yexin-ma-kimberly-birrell.json",
+    "web-shadow/fixtures/seoul-2026-r16-ls013-yeonwoo-ku-elena-gabriela-ruse.json",
+    "web-shadow/fixtures/singapore-2026-r16-ls015-talia-gibson-viktoria-morvayova.json",
+    "web-shadow/fixtures/seoul-2026-r16-ls008-jelena-ostapenko-taylah-preston.json",
+    "web-shadow/fixtures/singapore-2026-r16-ls013-tatiana-prozorova-alexandra-eala.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20260922t170532z"
+  "rerun_reason": "automatic-wta-intake-wta-20260923t114537z"
 }

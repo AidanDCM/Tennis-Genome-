@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1024:2026:LS008",
+  "player_a": "Jelena Ostapenko",
+  "player_b": "Taylah Preston",
+  "round": "R16",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+  "scheduled_start": "2026-09-24T16:00:00+09:00",
+  "source_observed_at": "2026-09-23T11:45:37+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Korea Open",
+  "tournament_id": "web:wta:seoul:2026",
+  "tournament_level": "I"
+}
