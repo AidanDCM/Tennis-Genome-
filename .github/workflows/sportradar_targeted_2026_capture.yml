@@ -1,0 +1,173 @@
+name: Sportradar Bounded 2026 Historical Capture
+
+on:
+  workflow_dispatch:
+    inputs:
+      inventory_artifact_id:
+        description: Verified historical inventory artifact ID
+        required: true
+        type: string
+      census_artifact_id:
+        description: Retained partial census artifact ID
+        required: true
+        type: string
+      previous_capture_artifact_id:
+        description: Previous bounded-capture artifact ID, blank for first run
+        required: false
+        type: string
+      max_requests:
+        description: Explicit HTTP request cap, 0 to 5
+        required: true
+        default: "0"
+        type: choice
+        options:
+          - "0"
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sportradar-targeted-2026-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: src
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      INVENTORY_ARTIFACT_ID: ${{ inputs.inventory_artifact_id }}
+      CENSUS_ARTIFACT_ID: ${{ inputs.census_artifact_id }}
+      PREVIOUS_CAPTURE_ARTIFACT_ID: ${{ inputs.previous_capture_artifact_id }}
+      MAX_REQUESTS: ${{ inputs.max_requests }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate request before any provider call
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+
+          for field in ('INVENTORY_ARTIFACT_ID', 'CENSUS_ARTIFACT_ID'):
+              if re.fullmatch(r'[1-9][0-9]*', os.environ[field]) is None:
+                  raise SystemExit(f'{field} must be a positive artifact ID')
+          prior = os.environ['PREVIOUS_CAPTURE_ARTIFACT_ID']
+          if prior and re.fullmatch(r'[1-9][0-9]*', prior) is None:
+              raise SystemExit('previous capture artifact ID is invalid')
+          if os.environ['MAX_REQUESTS'] not in {'0', '1', '2', '3', '4', '5'}:
+              raise SystemExit('request cap is invalid')
+          if os.environ.get('GITHUB_REF_NAME') != 'main':
+              raise SystemExit('capture must run from main')
+          if os.environ.get('GITHUB_REPOSITORY') != 'AidanDCM/Tennis-Genome-':
+              raise SystemExit('unexpected repository')
+          if not os.environ.get('SPORTRADAR_API_KEY', '').strip():
+              raise SystemExit('SPORTRADAR_API_KEY is unavailable')
+          PY
+
+      - name: Download immutable source artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_artifact() {
+            local artifact_id="$1" zip_path="$2" target="$3"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$zip_path"
+            mkdir -p "$target"
+            unzip -q "$zip_path" -d "$target"
+          }
+          download_artifact "$INVENTORY_ARTIFACT_ID" inventory.zip inventory-artifact
+          download_artifact "$CENSUS_ARTIFACT_ID" census.zip census-artifact
+          test -f inventory-artifact/historical-inventory-capture/inventory.json
+          test -d census-artifact/season-summaries-census/seasons
+          sha256sum inventory.zip census.zip > source-artifacts.sha256
+          if [ -n "$PREVIOUS_CAPTURE_ARTIFACT_ID" ]; then
+            download_artifact "$PREVIOUS_CAPTURE_ARTIFACT_ID" prior.zip prior-artifact
+            test -d prior-artifact/targeted-2026-capture
+            cp -a prior-artifact/targeted-2026-capture targeted-2026-capture
+            sha256sum prior.zip >> source-artifacts.sha256
+          fi
+
+      - name: Install pinned runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements/ci.lock
+          python -m pip install -e . --no-deps
+
+      - name: Verify source frontier offline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_sportradar_targeted_2026.py \
+            --inventory inventory-artifact/historical-inventory-capture/inventory.json \
+            --source-dir census-artifact/season-summaries-census \
+            --output-dir targeted-2026-capture \
+            --max-requests 0 > offline-preflight.json
+
+      - name: Capture within explicit request cap
+        if: ${{ inputs.max_requests != '0' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_sportradar_targeted_2026.py \
+            --inventory inventory-artifact/historical-inventory-capture/inventory.json \
+            --source-dir census-artifact/season-summaries-census \
+            --output-dir targeted-2026-capture \
+            --max-requests "$MAX_REQUESTS" > capture-result.json
+
+      - name: Record run provenance
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          Path('capture-receipt.json').write_text(json.dumps({
+              'schema': 'sportradar-targeted-2026-github-run-v1',
+              'run_id': os.environ.get('GITHUB_RUN_ID'),
+              'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
+              'repository': os.environ.get('GITHUB_REPOSITORY'),
+              'head_sha': os.environ.get('GITHUB_SHA'),
+              'inventory_artifact_id': os.environ.get('INVENTORY_ARTIFACT_ID'),
+              'census_artifact_id': os.environ.get('CENSUS_ARTIFACT_ID'),
+              'previous_capture_artifact_id': os.environ.get('PREVIOUS_CAPTURE_ARTIFACT_ID'),
+              'max_requests': os.environ.get('MAX_REQUESTS'),
+          }, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload capture and provenance even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: targeted-2026-capture-${{ github.run_id }}
+          path: |
+            targeted-2026-capture/
+            offline-preflight.json
+            capture-result.json
+            capture-receipt.json
+            source-artifacts.sha256
+          if-no-files-found: warn
+          retention-days: 90
