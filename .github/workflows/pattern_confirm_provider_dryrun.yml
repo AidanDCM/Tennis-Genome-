@@ -3,6 +3,10 @@ name: Sportradar One-request Connectivity Check
 on:
   workflow_dispatch:
     inputs:
+      schedule_date:
+        description: Optional UTC date to probe (YYYY-MM-DD); blank means today
+        required: false
+        type: string
       sportradar_access_level:
         description: Sportradar API access level
         required: true
@@ -26,6 +30,7 @@ jobs:
     env:
       SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
       SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
+      SCHEDULE_DATE: ${{ inputs.schedule_date }}
 
     steps:
       - uses: actions/checkout@v4
@@ -46,9 +51,6 @@ jobs:
             exit 1
           fi
 
-      - name: Install project
-        run: pip install -e .
-
       - name: Run one-request Sportradar connectivity check
         id: dryrun
         shell: bash
@@ -59,12 +61,14 @@ jobs:
           import json, os, urllib.request
           from datetime import date
           access = os.environ.get("SPORTRADAR_ACCESS_LEVEL", "trial")
-          url = f"https://api.sportradar.com/tennis/{access}/v3/en/schedules/{date.today().isoformat()}/summaries.json"
+          selected = os.environ.get("SCHEDULE_DATE", "").strip()
+          schedule_date = date.fromisoformat(selected) if selected else date.today()
+          url = f"https://api.sportradar.com/tennis/{access}/v3/en/schedules/{schedule_date.isoformat()}/summaries.json"
           request = urllib.request.Request(url, headers={"x-api-key": os.environ["SPORTRADAR_API_KEY"], "Accept": "application/json"})
           try:
               with urllib.request.urlopen(request, timeout=30) as response:
                   body = response.read()
-                  print(json.dumps({"provider":"SPORTRADAR","http_status":response.status,"bytes":len(body),"date":date.today().isoformat()}))
+                  print(json.dumps({"provider":"SPORTRADAR","http_status":response.status,"bytes":len(body),"date":schedule_date.isoformat(),"x_max_results":response.headers.get("x-max-results"),"x_result":response.headers.get("x-result")}))
           except Exception as exc:
               print(json.dumps({"provider":"SPORTRADAR","error_type":type(exc).__name__,"error":str(exc)}))
               raise
