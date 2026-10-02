@@ -24,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
       SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
       SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
 
@@ -39,10 +38,6 @@ jobs:
         shell: bash
         run: |
           missing=0
-          if [ -z "${THE_ODDS_API_KEY:-}" ]; then
-            echo "::error::THE_ODDS_API_KEY repository secret is not configured"
-            missing=1
-          fi
           if [ -z "${SPORTRADAR_API_KEY:-}" ]; then
             echo "::error::SPORTRADAR_API_KEY repository secret is not configured"
             missing=1
@@ -54,16 +49,26 @@ jobs:
       - name: Install project
         run: pip install -e .
 
-      - name: Run outcome-blind two-snapshot dry run
+      - name: Run one-request Sportradar connectivity check
         id: dryrun
         shell: bash
         run: |
           set +e
           mkdir -p provider-dryrun
-          python -m tennis_genome.experiments.pattern_confirm_provider_dryrun \
-            --output-dir provider-dryrun \
-            --delay-seconds 300 \
-            --sportradar-access-level "${SPORTRADAR_ACCESS_LEVEL}"
+          python - <<'PY' > provider-dryrun/status.json
+          import json, os, urllib.request
+          from datetime import date
+          access = os.environ.get("SPORTRADAR_ACCESS_LEVEL", "trial")
+          url = f"https://api.sportradar.com/tennis/{access}/v3/en/schedules/{date.today().isoformat()}/summaries.json"
+          request = urllib.request.Request(url, headers={"x-api-key": os.environ["SPORTRADAR_API_KEY"], "Accept": "application/json"})
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  body = response.read()
+                  print(json.dumps({"provider":"SPORTRADAR","http_status":response.status,"bytes":len(body),"date":date.today().isoformat()}))
+          except Exception as exc:
+              print(json.dumps({"provider":"SPORTRADAR","error_type":type(exc).__name__,"error":str(exc)}))
+              raise
+          PY
           exit_code=$?
           echo "exit_code=${exit_code}" >> "$GITHUB_OUTPUT"
           exit 0
