@@ -28,6 +28,9 @@ data/interim/**
 data/processed/**
 data/cache/**
 data/predictions/**
+data/independent_freeze_raw/
+data/independent_freeze_processed/
+data/source-archive/
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep

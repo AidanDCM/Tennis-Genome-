@@ -1,4 +1,4 @@
-name: PATTERN-CONFIRM Provider Dry-run
+name: Sportradar One-request Connectivity Check
 
 on:
   workflow_dispatch:
@@ -95,5 +95,5 @@ jobs:
             echo "::error::Outcome-blind provider dry-run failed closed (exit ${exit_code})"
             exit "$exit_code"
           fi
-          echo "Provider transport dry-run completed successfully."
-          echo "This workflow does not append live rows or increment confirmatory N."
+          echo "One-request Sportradar connectivity check completed successfully."
+          echo "This workflow does not validate prediction inputs or increment confirmatory N."
