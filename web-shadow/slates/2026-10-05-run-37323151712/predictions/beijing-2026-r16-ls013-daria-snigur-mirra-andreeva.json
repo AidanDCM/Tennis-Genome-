@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-05T14:16:56.768347+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS013",
+    "player_a": "Daria Snigur",
+    "player_b": "Mirra Andreeva",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-06T11:00:00+08:00",
+    "source_observed_at": "2026-10-05T14:10:08+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "9f407a05381fe9d06095adea75fe4d7613d49f25dcba05d8b8d63dec13807163",
+  "model_source_sha": "02be060b0ed79803f478ff8525799703299aa714",
+  "p_player_a": 0.27505344583543645,
+  "p_player_b": 0.7249465541645636,
+  "player_a_id": "wta:id:220750",
+  "player_b_id": "wta:id:259799",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Mirra Andreeva"
+}

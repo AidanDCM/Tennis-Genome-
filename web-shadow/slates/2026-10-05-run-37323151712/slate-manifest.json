@@ -1,0 +1,58 @@
+{
+  "eligible_target_count": 2,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-r16-ls013-daria-snigur-mirra-andreeva",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "19d61ffc65ac3b7dfc93bd21a68f8e8651e5a6377222c99feca58518d39df4eb",
+      "baseline_p_player_a": 0.19187698142916326,
+      "baseline_p_player_b": 0.8081230185708368,
+      "baseline_selected_player": "Mirra Andreeva",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "match_id": "web:wta:1020:2026:LS013",
+      "minimum_point_exposure": 3186,
+      "p_player_a": 0.27505344583543645,
+      "p_player_b": 0.7249465541645636,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva/prediction.json",
+      "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+      "scheduled_start": "2026-10-06T11:00:00+08:00",
+      "selected_player": "Mirra Andreeva",
+      "target_history_match_counts": {
+        "wta:id:220750": 52,
+        "wta:id:259799": 169
+      }
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls014-karolina-muchova-naomi-osaka",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "fca10a7d3ca3694f9ab0915e8c592bc167badc00ad6da3a754bc476fa4d4d580",
+      "baseline_p_player_a": 0.4162889685533349,
+      "baseline_p_player_b": 0.5837110314466651,
+      "baseline_selected_player": "Karolina Muchova",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "match_id": "web:wta:1020:2026:LS014",
+      "minimum_point_exposure": 17379,
+      "p_player_a": 0.45376289255511704,
+      "p_player_b": 0.546237107444883,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka/prediction.json",
+      "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+      "scheduled_start": "2026-10-06T15:00:00+08:00",
+      "selected_player": "Karolina Muchova",
+      "target_history_match_counts": {
+        "wta:id:211768": 351,
+        "wta:id:214096": 244
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 2,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

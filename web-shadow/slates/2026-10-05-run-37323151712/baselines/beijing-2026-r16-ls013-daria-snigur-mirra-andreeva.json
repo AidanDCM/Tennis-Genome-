@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11351315968,
+  "artifact_sha256": "890178b26395632e0c3c6542221b9f4714581505c0b1d70629e6210f050a846c",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.437859852683823,
+  "match_id": "web:wta:1020:2026:LS013",
+  "matchup_input_sha256": "9f407a05381fe9d06095adea75fe4d7613d49f25dcba05d8b8d63dec13807163",
+  "p_player_a": 0.19187698142916326,
+  "p_player_b": 0.8081230185708368,
+  "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+  "production_eligible": false,
+  "record_sha256": "ae6ab515de9f508685338debc9625070b4c614c4612ca3d6db6a3cf3e651b3ed",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Mirra Andreeva",
+  "slate_id": "2026-10-05-run-37323151712"
+}
