@@ -54,7 +54,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/settle_web_shadow_result_batch.py             --manifest "${MANIFEST_PATH}"             --scorecard web-shadow/scorecard.json             --output-root web-shadow-settlement-batch             | tee web-shadow-settlement-batch-summary.json
+          python -m scripts.settle_web_shadow_result_batch \
+            --manifest "${MANIFEST_PATH}" \
+            --scorecard web-shadow/scorecard.json \
+            --output-root web-shadow-settlement-batch \
+            | tee web-shadow-settlement-batch-summary.json
 
       - name: Verify batch accounting and isolation
         shell: bash
