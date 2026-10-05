@@ -255,6 +255,21 @@ def test_official_match_id_compiles_finished_result_and_retains_sources(
     assert retained.read_bytes() == raw
 
 
+def test_unrelated_qualifying_round_does_not_block_result(
+    tmp_path: Path,
+) -> None:
+    _, summary, _ = _build(
+        tmp_path,
+        rows=[_row(match_id="LQ001", round_id="Q"), _row()],
+    )
+    assert summary["result_count"] == 1
+
+
+def test_target_match_with_non_numeric_round_fails_closed(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="RoundID must be an integer"):
+        _build(tmp_path, rows=[_row(round_id="Q")])
+
+
 def test_legacy_match_id_resolves_by_tournament_player_pair_and_round(
     tmp_path: Path,
 ) -> None:
