@@ -7,7 +7,7 @@ def test_web_shadow_batch_settlement_workflow_is_provider_free() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     assert "SPORTRADAR" not in text
     assert "API_TENNIS" not in text
-    assert "settle_web_shadow_result_batch.py" in text
+    assert "python -m scripts.settle_web_shadow_result_batch" in text
     assert '"web-shadow/active-results.json"' in text
     assert "web-shadow/scorecard.json" in text
     assert "settlement-batch-summary.json" in text
