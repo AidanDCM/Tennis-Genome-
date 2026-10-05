@@ -419,8 +419,9 @@ def _match_row(
         match = matches[0]
         if match["player_pair"] != pending["player_pair"]:
             raise ValueError("official WTA MatchID player identity mismatch")
-        if match["round"] != pending["round"]:
-            raise ValueError("official WTA MatchID round identity mismatch")
+        # WTA has changed RoundID values for already-issued MatchIDs. Exact
+        # event, MatchID, and player-pair identity remain mandatory; retain the
+        # round discrepancy in evidence instead of blocking all results.
         return match
 
     matches = [
@@ -472,6 +473,9 @@ def _result_record(
     evidence = {
         "match_id": pending["match_id"],
         "source_match_id": match["source_match_id"],
+        "prediction_round": pending["round"],
+        "source_round": match["round"],
+        "round_identity_conflict": match["round"] != pending["round"],
         "prediction_path": pending["prediction_path"],
         "prediction_record_sha256": pending["prediction_sha256"],
         "winner": winner,
