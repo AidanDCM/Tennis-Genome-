@@ -141,6 +141,23 @@ def _score(row: dict[str, Any], *, status: str) -> str:
     raise ValueError("finished WTA result lacks score evidence")
 
 
+def _walkover_winner_from_result_string(
+    row: dict[str, Any], match: dict[str, Any]
+) -> str:
+    result = _text(row.get("ResultString"), field="ResultString")
+    if " d " not in result:
+        raise ValueError("walkover result lacks an explicit winner phrase")
+    winner_phrase = _name_key(result.split(" d ", 1)[0])
+    matches = [
+        player
+        for player in (match["player_a"], match["player_b"])
+        if winner_phrase.endswith(_name_key(player.split(" ", 1)[1]))
+    ]
+    if len(matches) != 1:
+        raise ValueError("walkover result winner is ambiguous")
+    return matches[0]
+
+
 def _configured_tournaments(config: dict[str, Any]) -> list[dict[str, Any]]:
     if config.get("schema_version") != _CONFIG_SCHEMA:
         raise ValueError("unsupported Web Shadow intake config schema")
@@ -449,14 +466,19 @@ def _result_record(
         return None
     if observed <= pending["scheduled_start"].astimezone(UTC):
         raise ValueError("finished WTA result was observed before scheduled start")
+    status = _status(row)
     winner_code = str(row.get("Winner", "")).strip()
     if winner_code == "2":
         winner = match["player_a"]
+        winner_source = "winner_code"
     elif winner_code == "3":
         winner = match["player_b"]
+        winner_source = "winner_code"
+    elif status == "WALKOVER":
+        winner = _walkover_winner_from_result_string(row, match)
+        winner_source = "result_string"
     else:
         raise ValueError("finished WTA result has unsupported Winner code")
-    status = _status(row)
     score = _score(row, status=status)
     result = {
         "schema_version": _RESULT_SCHEMA,
@@ -479,6 +501,7 @@ def _result_record(
         "prediction_path": pending["prediction_path"],
         "prediction_record_sha256": pending["prediction_sha256"],
         "winner": winner,
+        "winner_source": winner_source,
         "status": status,
         "score": score,
         "source_last_updated": row.get("LastUpdated"),
