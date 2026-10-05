@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1024:2026:LS014",
+  "prediction_correct": true,
+  "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+  "production_eligible": false,
+  "record_sha256": "3b4f30860cf7c04395f77952e6e84bf70502efb217424d41a4997b583506fdcc",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-05T14:43:36+00:00",
+  "result_record_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets-4354ad6d2d.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Katie Volynets"
+}
