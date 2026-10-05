@@ -270,6 +270,20 @@ def test_target_match_with_non_numeric_round_fails_closed(tmp_path: Path) -> Non
         _build(tmp_path, rows=[_row(round_id="Q")])
 
 
+def test_exact_match_id_retains_changed_source_round(tmp_path: Path) -> None:
+    repo_root, summary, _ = _build(tmp_path, rows=[_row(round_id="2")])
+    assert summary["result_count"] == 1
+    evidence_root = (
+        repo_root / "web-shadow/result-evidence/wta-results-20260922t150000z"
+    )
+    evidence = json.loads(
+        (evidence_root / "result-intake-manifest.json").read_text(encoding="utf-8")
+    )["results"][0]
+    assert evidence["prediction_round"] == "R32"
+    assert evidence["source_round"] == "SF"
+    assert evidence["round_identity_conflict"] is True
+
+
 def test_legacy_match_id_resolves_by_tournament_player_pair_and_round(
     tmp_path: Path,
 ) -> None:
