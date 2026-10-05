@@ -1,0 +1,91 @@
+{
+  "accuracy": 0.8,
+  "correct_prediction_count": 4,
+  "evaluation_eligible_count": 5,
+  "excluded_noncompleted_count": 1,
+  "production_eligible": false,
+  "requested_result_count": 6,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1024:2026:LS010",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park-92332c7720.json",
+      "result_record_sha256": "6ce1ba8bd3ffeee89108f9b477f612866a6dda5f85368f9d9359c35f70ceed13",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "settlement_record_sha256": "083dab360a04faea810938eed2ce8f403425dfc6d70cbdaf5c09fb086332925a",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Lanlana Tararudee"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1024:2026:LS014",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets-4354ad6d2d.json",
+      "result_record_sha256": "06d3a12ef67e17c6810251c5e521010d43ad8c5186c179ec5a889707402fd50c",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "settlement_record_sha256": "3b4f30860cf7c04395f77952e6e84bf70502efb217424d41a4997b583506fdcc",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Katie Volynets"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1024:2026:LS011",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls011-dayeon-back-maya-joint-898436b6f8.json",
+      "result_record_sha256": "46d7c82c441f6474785876ef1003d048f2452f3e1a54f30c5e4308b68766ef04",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "settlement_record_sha256": "7de465a8052f08511ef63f3863c1537869d546fdf02b3018c676101991652d06",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Maya Joint"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1152:2026:LS011",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska-b2a2516c75.json",
+      "result_record_sha256": "511b8c2cf19e055e1ebd30b6e467dd3ec72c03e999d2e410bd9fd550c7eb2a59",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "settlement_record_sha256": "583fd459212b1e29b10021359cd03370d3f1bbc194ac3c9836da677691c1edb7",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Maja Chwalinska"
+    },
+    {
+      "evaluation_eligible": false,
+      "match_id": "web:wta:1152:2026:LS010",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova-da99ee0ff7.json",
+      "result_record_sha256": "929fa3b232b64c5d42abe0c531c7791569fb5b79c9fe7388cae2671b2600f1dc",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "settlement_record_sha256": "592c58ea085af5757e83ce3df06f6afe7579dc30edef7cf1aa5775e73f318633",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Elise Mertens"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1152:2026:LS008",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich-ec63b7b034.json",
+      "result_record_sha256": "d9f4096c97335dc620137200a090232d75b2071f6d9f935dab97350256b3e90e",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "settlement_record_sha256": "3faa4b0ede1982d9154c667ead0f2336fa37bed5d30df287dc342c439b74ca99",
+      "slate_id": "2026-09-22-run-35758950241",
+      "winner": "Mirra Andreeva"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 6,
+  "slate_count": 1
+}

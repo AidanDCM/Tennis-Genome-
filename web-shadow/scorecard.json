@@ -1,9 +1,94 @@
 {
+  "baseline_comparison": {
+    "baseline": {
+      "accuracy": 0.8,
+      "brier_score": 0.16713923112569692,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.10084831469975652,
+      "confidence_buckets": [
+        {
+          "accuracy": 1.0,
+          "correct_prediction_count": 1,
+          "label": "0.50-0.60",
+          "lower_bound": 0.5,
+          "match_count": 1,
+          "mean_selected_probability": 0.5781008119099154,
+          "upper_bound": 0.6
+        },
+        {
+          "accuracy": 0.5,
+          "correct_prediction_count": 1,
+          "label": "0.60-0.70",
+          "lower_bound": 0.6,
+          "match_count": 2,
+          "mean_selected_probability": 0.6652634465326017,
+          "upper_bound": 0.7
+        },
+        {
+          "accuracy": 1.0,
+          "correct_prediction_count": 1,
+          "label": "0.70-0.80",
+          "lower_bound": 0.7,
+          "match_count": 1,
+          "mean_selected_probability": 0.7215271026002288,
+          "upper_bound": 0.8
+        },
+        {
+          "accuracy": 1.0,
+          "correct_prediction_count": 1,
+          "label": "0.80-0.90",
+          "lower_bound": 0.8,
+          "match_count": 1,
+          "mean_selected_probability": 0.8656036189258705,
+          "upper_bound": 0.9
+        }
+      ],
+      "correct_prediction_count": 4,
+      "log_loss": 0.5074956098807022,
+      "mean_selected_probability": 0.6991516853002435,
+      "schema_version": "tennis-genome-web-shadow-metrics-v1",
+      "settled_match_count": 5
+    },
+    "baseline_name": "overall_elo_v1",
+    "brier_improvement_baseline_minus_genome": -0.023336881345118188,
+    "genome": {
+      "accuracy": 0.8,
+      "brier_score": 0.1904761124708151,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.11448977677380867,
+      "confidence_buckets": [
+        {
+          "accuracy": 1.0,
+          "correct_prediction_count": 3,
+          "label": "0.60-0.70",
+          "lower_bound": 0.6,
+          "match_count": 3,
+          "mean_selected_probability": 0.6380524201711925,
+          "upper_bound": 0.7
+        },
+        {
+          "accuracy": 0.5,
+          "correct_prediction_count": 1,
+          "label": "0.70-0.80",
+          "lower_bound": 0.7,
+          "match_count": 2,
+          "mean_selected_probability": 0.7566969278086899,
+          "upper_bound": 0.8
+        }
+      ],
+      "correct_prediction_count": 4,
+      "log_loss": 0.5683664519539717,
+      "mean_selected_probability": 0.6855102232261914,
+      "schema_version": "tennis-genome-web-shadow-metrics-v1",
+      "settled_match_count": 5
+    },
+    "log_loss_improvement_baseline_minus_genome": -0.06087084207326954,
+    "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
+    "settled_match_count": 5
+  },
   "baseline_match_count": 21,
   "metrics": {
-    "accuracy": 0.7142857142857143,
-    "brier_score": 0.24063277730212165,
-    "calibration_gap_accuracy_minus_mean_selected_probability": 0.12122192758857386,
+    "accuracy": 0.75,
+    "brier_score": 0.21973416695574396,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.1184168647490883,
     "confidence_buckets": [
       {
         "accuracy": 0.8,
@@ -15,26 +100,35 @@
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.5,
-        "correct_prediction_count": 1,
+        "accuracy": 0.8,
+        "correct_prediction_count": 4,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 2,
-        "mean_selected_probability": 0.6662354963664721,
+        "match_count": 5,
+        "mean_selected_probability": 0.6493256506493044,
         "upper_bound": 0.7
+      },
+      {
+        "accuracy": 0.5,
+        "correct_prediction_count": 1,
+        "label": "0.70-0.80",
+        "lower_bound": 0.7,
+        "match_count": 2,
+        "mean_selected_probability": 0.7566969278086899,
+        "upper_bound": 0.8
       }
     ],
-    "correct_prediction_count": 5,
-    "log_loss": 0.6771440099091525,
-    "mean_selected_probability": 0.5930637866971404,
+    "correct_prediction_count": 9,
+    "log_loss": 0.6318200274278271,
+    "mean_selected_probability": 0.6315831352509117,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 7
+    "settled_match_count": 12
   },
   "official_slate_count": 7,
-  "pending_match_count": 21,
+  "pending_match_count": 15,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 7,
+  "settled_match_count": 13,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -303,65 +397,83 @@
           "match_id": "web:wta:1024:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
           "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+          "result_record_sha256": "6ce1ba8bd3ffeee89108f9b477f612866a6dda5f85368f9d9359c35f70ceed13",
           "scheduled_start": "2026-09-23T12:00:00+09:00",
           "selected_player": "Lanlana Tararudee",
           "selected_probability": 0.691649454942094,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+          "settlement_record_sha256": "083dab360a04faea810938eed2ce8f403425dfc6d70cbdaf5c09fb086332925a",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
           "match_id": "web:wta:1024:2026:LS014",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
           "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+          "result_record_sha256": "06d3a12ef67e17c6810251c5e521010d43ad8c5186c179ec5a889707402fd50c",
           "scheduled_start": "2026-09-23T12:00:00+09:00",
           "selected_player": "Katie Volynets",
           "selected_probability": 0.6082880494361693,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+          "settlement_record_sha256": "3b4f30860cf7c04395f77952e6e84bf70502efb217424d41a4997b583506fdcc",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
           "match_id": "web:wta:1024:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
           "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+          "result_record_sha256": "46d7c82c441f6474785876ef1003d048f2452f3e1a54f30c5e4308b68766ef04",
           "scheduled_start": "2026-09-23T14:00:00+09:00",
           "selected_player": "Dayeon Back",
           "selected_probability": 0.7167236821681026,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+          "settlement_record_sha256": "7de465a8052f08511ef63f3863c1537869d546fdf02b3018c676101991652d06",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
           "match_id": "web:wta:1152:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
           "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+          "result_record_sha256": "511b8c2cf19e055e1ebd30b6e467dd3ec72c03e999d2e410bd9fd550c7eb2a59",
           "scheduled_start": "2026-09-23T13:00:00+08:00",
           "selected_player": "Maja Chwalinska",
           "selected_probability": 0.614219756135314,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+          "settlement_record_sha256": "583fd459212b1e29b10021359cd03370d3f1bbc194ac3c9836da677691c1edb7",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
           "match_id": "web:wta:1152:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
           "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+          "result_record_sha256": "929fa3b232b64c5d42abe0c531c7791569fb5b79c9fe7388cae2671b2600f1dc",
           "scheduled_start": "2026-09-23T14:30:00+08:00",
           "selected_player": "Elise Mertens",
           "selected_probability": 0.5227489062092218,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+          "settlement_record_sha256": "592c58ea085af5757e83ce3df06f6afe7579dc30edef7cf1aa5775e73f318633",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-09-22-run-35758950241/baselines/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
           "match_id": "web:wta:1152:2026:LS008",
           "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
           "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+          "result_record_sha256": "d9f4096c97335dc620137200a090232d75b2071f6d9f935dab97350256b3e90e",
           "scheduled_start": "2026-09-23T18:30:00+08:00",
           "selected_player": "Mirra Andreeva",
           "selected_probability": 0.7966701734492774,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-09-22-run-35758950241/settlements/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+          "settlement_record_sha256": "3faa4b0ede1982d9154c667ead0f2336fa37bed5d30df287dc342c439b74ca99",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-09-22-run-35758950241/slate-receipt.json",
       "slate_id": "2026-09-22-run-35758950241",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 35758950241
     },
     {
