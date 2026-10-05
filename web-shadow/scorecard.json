@@ -1,5 +1,5 @@
 {
-  "baseline_match_count": 19,
+  "baseline_match_count": 21,
   "metrics": {
     "accuracy": 0.7142857142857143,
     "brier_score": 0.24063277730212165,
@@ -30,8 +30,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 7
   },
-  "official_slate_count": 6,
-  "pending_match_count": 19,
+  "official_slate_count": 7,
+  "pending_match_count": 21,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 7,
@@ -363,6 +363,35 @@
       "slate_id": "2026-09-22-run-35758950241",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 35758950241
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-05-run-37323151712/baselines/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+          "match_id": "web:wta:1020:2026:LS013",
+          "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+          "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+          "scheduled_start": "2026-10-06T11:00:00+08:00",
+          "selected_player": "Mirra Andreeva",
+          "selected_probability": 0.7249465541645636,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-05-run-37323151712/baselines/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+          "match_id": "web:wta:1020:2026:LS014",
+          "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+          "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+          "scheduled_start": "2026-10-06T15:00:00+08:00",
+          "selected_player": "Karolina Muchova",
+          "selected_probability": 0.546237107444883,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-05-run-37323151712/slate-receipt.json",
+      "slate_id": "2026-10-05-run-37323151712",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 37323151712
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.437859852683823,
+  "match_id": "web:wta:1020:2026:LS013",
+  "matchup_input_sha256": "9f407a05381fe9d06095adea75fe4d7613d49f25dcba05d8b8d63dec13807163",
+  "p_player_a": 0.19187698142916326,
+  "p_player_b": 0.8081230185708368,
+  "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+  "production_eligible": false,
+  "record_sha256": "19d61ffc65ac3b7dfc93bd21a68f8e8651e5a6377222c99feca58518d39df4eb",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Mirra Andreeva"
+}

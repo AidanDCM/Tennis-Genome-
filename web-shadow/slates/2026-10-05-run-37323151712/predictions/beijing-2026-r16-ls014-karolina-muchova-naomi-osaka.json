@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-05T14:16:57.891116+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS014",
+    "player_a": "Naomi Osaka",
+    "player_b": "Karolina Muchova",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-06T15:00:00+08:00",
+    "source_observed_at": "2026-10-05T14:10:08+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "9289fcc43c451dfa39d0e85cf7ed5c67f5b5048a322c0576109a3f2c966c5836",
+  "model_source_sha": "02be060b0ed79803f478ff8525799703299aa714",
+  "p_player_a": 0.45376289255511704,
+  "p_player_b": 0.546237107444883,
+  "player_a_id": "wta:id:211768",
+  "player_b_id": "wta:id:214096",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Karolina Muchova"
+}

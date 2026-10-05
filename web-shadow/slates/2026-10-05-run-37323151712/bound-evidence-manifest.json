@@ -1,0 +1,35 @@
+{
+  "baseline_count": 2,
+  "eligible_target_count": 2,
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-r16-ls013-daria-snigur-mirra-andreeva",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "baseline_candidate_record_sha256": "19d61ffc65ac3b7dfc93bd21a68f8e8651e5a6377222c99feca58518d39df4eb",
+      "baseline_path": "baselines/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "baseline_record_sha256": "ae6ab515de9f508685338debc9625070b4c614c4612ca3d6db6a3cf3e651b3ed",
+      "match_id": "web:wta:1020:2026:LS013",
+      "prediction_path": "predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00"
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls014-karolina-muchova-naomi-osaka",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "baseline_candidate_record_sha256": "fca10a7d3ca3694f9ab0915e8c592bc167badc00ad6da3a754bc476fa4d4d580",
+      "baseline_path": "baselines/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "baseline_record_sha256": "6cb0b065246737c1b4f10905cad24fda7a3abb6012497b26e68ff3fd643e965d",
+      "match_id": "web:wta:1020:2026:LS014",
+      "prediction_path": "predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-05-run-37323151712",
+  "workflow_artifact_id": 11351315968,
+  "workflow_artifact_sha256": "890178b26395632e0c3c6542221b9f4714581505c0b1d70629e6210f050a846c",
+  "workflow_run_id": 37323151712,
+  "workflow_source_sha": "02be060b0ed79803f478ff8525799703299aa714"
+}

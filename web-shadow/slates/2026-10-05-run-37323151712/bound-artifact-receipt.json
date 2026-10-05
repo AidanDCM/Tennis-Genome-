@@ -1,0 +1,9 @@
+{
+  "bound_artifact_id": 11350388921,
+  "bound_artifact_sha256": "ff9fe5d873836b07a0dbaa3c491a0bfebf6a929c955d12170bcba9b9b818cc6e",
+  "production_eligible": false,
+  "raw_artifact_id": 11351315968,
+  "raw_artifact_sha256": "890178b26395632e0c3c6542221b9f4714581505c0b1d70629e6210f050a846c",
+  "raw_workflow_run_id": 37323151712,
+  "schema_version": "tennis-genome-web-shadow-bound-artifact-receipt-v1"
+}
