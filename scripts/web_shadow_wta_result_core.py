@@ -347,6 +347,7 @@ def _row_identity(
     row: dict[str, Any],
     *,
     tournament: dict[str, Any],
+    strict_round: bool = True,
 ) -> dict[str, Any] | None:
     if row.get("DrawMatchType") != "S" or row.get("DrawLevelType") != "M":
         return None
@@ -357,7 +358,12 @@ def _row_identity(
     ):
         raise ValueError("WTA result row tournament identity mismatch")
     source_match_id = _text(row.get("MatchID"), field="MatchID")
-    round_id = _integer(row.get("RoundID"), field="RoundID")
+    try:
+        round_id = _integer(row.get("RoundID"), field="RoundID")
+    except ValueError:
+        if strict_round:
+            raise
+        return None
     round_name = _ROUND_ID_MAP.get(round_id)
     if round_name is None:
         return None
@@ -377,13 +383,29 @@ def _match_row(
     pending: dict[str, Any],
     rows: list[dict[str, Any]],
 ) -> dict[str, Any] | None:
+    source_match_id = pending["source_match_id"]
+    # The official feed includes qualifying rows with textual RoundID values.
+    # An unrelated qualifying row must not block a main-draw settlement, but a
+    # malformed row carrying the exact target MatchID must still fail closed.
+    relevant_rows = (
+        [
+            row
+            for row in rows
+            if str(row.get("MatchID", "")).strip() == source_match_id
+        ]
+        if source_match_id is not None
+        else rows
+    )
     identities = [
         identity
-        for row in rows
-        if (identity := _row_identity(row, tournament=pending["tournament"]))
+        for row in relevant_rows
+        if (identity := _row_identity(
+            row,
+            tournament=pending["tournament"],
+            strict_round=source_match_id is not None,
+        ))
         is not None
     ]
-    source_match_id = pending["source_match_id"]
     if source_match_id is not None:
         matches = [
             item

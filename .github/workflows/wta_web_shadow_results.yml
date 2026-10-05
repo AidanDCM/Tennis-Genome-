@@ -125,7 +125,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m scripts.fetch_web_shadow_wta_source \
-            --config web-shadow/intake-config.json \
+            --config web-shadow/result-config.json \
             --source-root "${SOURCE_ROOT}" \
             --observed-at "${OBSERVED_AT}" \
             --manifest-out "${SOURCE_ROOT}/acquisition-manifest.json"
@@ -142,7 +142,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m scripts.build_web_shadow_wta_results \
-            --config web-shadow/intake-config.json \
+            --config web-shadow/result-config.json \
             --scorecard web-shadow/scorecard.json \
             --acquisition-manifest "${SOURCE_ROOT}/acquisition-manifest.json" \
             --source-root "${SOURCE_ROOT}" \
