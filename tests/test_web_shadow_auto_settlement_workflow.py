@@ -3,13 +3,14 @@ from pathlib import Path
 WORKFLOW = Path(".github/workflows/wta_web_shadow_auto_settlement.yml")
 
 
-def test_auto_settlement_only_consumes_successful_main_push_batches() -> None:
+def test_auto_settlement_only_consumes_successful_main_batches() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     assert 'workflows:\n      - "WTA Web Shadow Settlement Batch"' in text
     assert "types:\n      - completed" in text
     assert "branches:\n      - main" in text
     assert "github.event.workflow_run.conclusion == 'success'" in text
     assert "github.event.workflow_run.event == 'push'" in text
+    assert "github.event.workflow_run.event == 'workflow_dispatch'" in text
     assert "github.event.workflow_run.head_branch == 'main'" in text
     assert (
         "github.event.workflow_run.head_repository.full_name == github.repository"
