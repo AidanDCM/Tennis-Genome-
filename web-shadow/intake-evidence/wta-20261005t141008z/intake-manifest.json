@@ -1,0 +1,80 @@
+{
+  "excluded_match_count": 137,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 19,
+    "not_upcoming": 80,
+    "unscheduled": 2
+  },
+  "observed_at": "2026-10-05T14:10:08+00:00",
+  "pre_capacity_eligible_count": 2,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1020",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "group_id": 1020,
+      "match_id": "web:wta:1020:2026:LS013",
+      "player_a_wta_id": "327845",
+      "player_b_wta_id": "331809",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-06T11:00:00+08:00",
+      "slug": "beijing",
+      "source_match_id": "LS013",
+      "year": 2026
+    },
+    {
+      "event_id": "1020",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "group_id": 1020,
+      "match_id": "web:wta:1020:2026:LS014",
+      "player_a_wta_id": "322191",
+      "player_b_wta_id": "319998",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-06T15:00:00+08:00",
+      "slug": "beijing",
+      "source_match_id": "LS014",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 2,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261005t141008z",
+  "source_match_count": 139,
+  "source_records": [
+    {
+      "group_id": 1020,
+      "matches_sha256": "b30affdd940d487cb7e3226fb734c9bad57d9eb1dcf667c5690e641ec232a77f",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 139,
+      "slug": "beijing",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026",
+      "tournament_sha256": "270c1e0b39bd7e0ceef803d0eee76900e509fa33b0b33e8d3a9f656467fad725",
+      "year": 2026
+    }
+  ]
+}

@@ -8,20 +8,12 @@
   },
   "tournaments": [
     {
-      "group_id": 1152,
+      "group_id": 1020,
       "year": 2026,
-      "slug": "singapore",
-      "display_name": "Singapore Tennis Open presented by BNP Paribas",
-      "tournament_id": "web:wta:singapore:2026",
-      "tournament_level": "P"
-    },
-    {
-      "group_id": 1024,
-      "year": 2026,
-      "slug": "seoul",
-      "display_name": "Korea Open",
-      "tournament_id": "web:wta:seoul:2026",
-      "tournament_level": "I"
+      "slug": "beijing",
+      "display_name": "China Open",
+      "tournament_id": "web:wta:beijing:2026",
+      "tournament_level": "PM"
     }
   ]
 }
