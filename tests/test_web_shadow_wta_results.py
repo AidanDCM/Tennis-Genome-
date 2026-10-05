@@ -343,6 +343,33 @@ def test_winner_code_maps_to_official_player_side(
     assert result["winner"] == expected
 
 
+def test_walkover_with_non_side_winner_code_uses_explicit_result_phrase(
+    tmp_path: Path,
+) -> None:
+    repo_root, summary, _ = _build(
+        tmp_path,
+        rows=[_row(winner="6", result="A. One d B. Two W/O", score=" W/O")],
+    )
+    result = json.loads(
+        (repo_root / summary["result_paths"][0]).read_text(encoding="utf-8")
+    )
+    assert result["winner"] == "Alpha One"
+    assert result["status"] == "WALKOVER"
+    evidence = json.loads(
+        (
+            repo_root
+            / "web-shadow/result-evidence/wta-results-20260922t150000z"
+            / "result-intake-manifest.json"
+        ).read_text(encoding="utf-8")
+    )["results"][0]
+    assert evidence["winner_source"] == "result_string"
+
+
+def test_walkover_without_explicit_winner_phrase_fails_closed(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="explicit winner phrase"):
+        _build(tmp_path, rows=[_row(winner="6", result="W/O", score=" W/O")])
+
+
 @pytest.mark.parametrize(
     ("result_string", "score_string", "expected_status", "expected_score"),
     [
