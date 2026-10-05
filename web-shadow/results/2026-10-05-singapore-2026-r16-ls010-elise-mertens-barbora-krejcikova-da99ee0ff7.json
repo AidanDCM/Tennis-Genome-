@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+  "match_id": "web:wta:1152:2026:LS010",
+  "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-05T14:43:36+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "W/O",
+  "status": "WALKOVER",
+  "winner": "Elise Mertens"
+}
