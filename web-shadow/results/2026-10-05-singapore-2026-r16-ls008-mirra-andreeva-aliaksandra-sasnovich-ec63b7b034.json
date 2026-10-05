@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+  "match_id": "web:wta:1152:2026:LS008",
+  "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-05T14:43:36+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-2",
+  "status": "COMPLETED",
+  "winner": "Mirra Andreeva"
+}

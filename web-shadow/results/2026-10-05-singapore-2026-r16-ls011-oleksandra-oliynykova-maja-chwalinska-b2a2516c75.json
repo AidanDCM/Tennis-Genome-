@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+  "match_id": "web:wta:1152:2026:LS011",
+  "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-05T14:43:36+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-0 6-1",
+  "status": "COMPLETED",
+  "winner": "Maja Chwalinska"
+}

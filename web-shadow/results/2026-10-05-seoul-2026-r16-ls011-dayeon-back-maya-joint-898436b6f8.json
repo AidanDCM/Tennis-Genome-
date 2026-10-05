@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+  "match_id": "web:wta:1024:2026:LS011",
+  "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-05T14:43:36+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-1",
+  "status": "COMPLETED",
+  "winner": "Maya Joint"
+}

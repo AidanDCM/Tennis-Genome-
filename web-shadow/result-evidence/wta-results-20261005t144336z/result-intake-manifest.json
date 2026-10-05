@@ -1,0 +1,142 @@
+{
+  "observed_at": "2026-10-05T14:43:36+00:00",
+  "pending_prediction_count": 21,
+  "production_eligible": false,
+  "result_count": 6,
+  "result_paths": [
+    "web-shadow/results/2026-10-05-seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park-92332c7720.json",
+    "web-shadow/results/2026-10-05-seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets-4354ad6d2d.json",
+    "web-shadow/results/2026-10-05-seoul-2026-r16-ls011-dayeon-back-maya-joint-898436b6f8.json",
+    "web-shadow/results/2026-10-05-singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska-b2a2516c75.json",
+    "web-shadow/results/2026-10-05-singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova-da99ee0ff7.json",
+    "web-shadow/results/2026-10-05-singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich-ec63b7b034.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1024:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park.json",
+      "prediction_record_sha256": "92332c7720f4dab774a5aa8fa5ca6ab55695cd61edf757b3c7596848635213ea",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls010-lanlana-tararudee-sohyun-park-92332c7720.json",
+      "round_identity_conflict": true,
+      "score": "7-6(5) 6-0",
+      "source_last_updated": "2026-09-23T04:44:11.23+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "[3]L. Tararudee d S. Park 7-6(5),6-0",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Lanlana Tararudee",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1024:2026:LS014",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets.json",
+      "prediction_record_sha256": "4354ad6d2dc39fcf7315587ebea5b94a57b76e2ca70c6650fe2aae17368be482",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls014-kamilla-rakhimova-katie-volynets-4354ad6d2d.json",
+      "round_identity_conflict": true,
+      "score": "6-3 6-0",
+      "source_last_updated": "2026-09-23T04:32:49.153+00:00",
+      "source_match_id": "LS014",
+      "source_result_string": "K. Volynets d [8]K. Rakhimova 6-3,6-0",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Katie Volynets",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1024:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/seoul-2026-r16-ls011-dayeon-back-maya-joint.json",
+      "prediction_record_sha256": "898436b6f857e6189d63d648f6bda24d83cbb2cb11916a972d41bea18e6c3599",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-seoul-2026-r16-ls011-dayeon-back-maya-joint-898436b6f8.json",
+      "round_identity_conflict": true,
+      "score": "6-2 6-1",
+      "source_last_updated": "2026-09-23T06:10:08.64+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "[5]M. Joint d D. Back 6-2,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Maya Joint",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1152:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska.json",
+      "prediction_record_sha256": "b2a2516c751ca2b174831727978d5916c9d1fad74e7671aa8793908ab0135ea6",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls011-oleksandra-oliynykova-maja-chwalinska-b2a2516c75.json",
+      "round_identity_conflict": true,
+      "score": "6-0 6-1",
+      "source_last_updated": "2026-09-23T06:07:01.957+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "[5]M. Chwalinska d O. Oliynykova 6-0,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Maja Chwalinska",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1152:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova.json",
+      "prediction_record_sha256": "da99ee0ff73f73ca442baf408a4bb75989b30d0360a6af6e16340de6f197ada5",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls010-elise-mertens-barbora-krejcikova-da99ee0ff7.json",
+      "round_identity_conflict": true,
+      "score": "W/O",
+      "source_last_updated": "2026-09-23T06:27:31.36+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "[4]E. Mertens d B. Krejcikova  W/O",
+      "source_round": "SF",
+      "status": "WALKOVER",
+      "winner": "Elise Mertens",
+      "winner_source": "result_string"
+    },
+    {
+      "match_id": "web:wta:1152:2026:LS008",
+      "prediction_path": "web-shadow/slates/2026-09-22-run-35758950241/predictions/singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich.json",
+      "prediction_record_sha256": "ec63b7b03484a13d93bf602b91e58d3a0c7217114523e8a5f311cfd4172ae9d4",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-05-singapore-2026-r16-ls008-mirra-andreeva-aliaksandra-sasnovich-ec63b7b034.json",
+      "round_identity_conflict": true,
+      "score": "6-2 6-2",
+      "source_last_updated": "2026-09-23T11:50:49.59+00:00",
+      "source_match_id": "LS008",
+      "source_result_string": "[1]M. Andreeva d A. Sasnovich 6-2,6-2",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Mirra Andreeva",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261005t144336z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "0bfcf0a92957c384415d1280f8f5da30175db36790575a25d6b491a1d827810a",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 139,
+      "slug": "beijing",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 2,
+  "unresolved_prediction_count": 13
+}
