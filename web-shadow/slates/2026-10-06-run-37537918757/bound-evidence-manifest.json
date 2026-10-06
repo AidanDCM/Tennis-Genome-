@@ -1,0 +1,45 @@
+{
+  "baseline_count": 3,
+  "eligible_target_count": 3,
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-r16-ls011-iva-jovic-iga-swiatek",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "baseline_candidate_record_sha256": "0e0a28f91bb420de3ff41186309fe4a74d0abd838945a85a3b76f2b0c2b577e3",
+      "baseline_path": "baselines/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "baseline_record_sha256": "0a93ee7379550bca124074886338d5d0c9df25a0a2ea6898399abaeb08f8f85e",
+      "match_id": "web:wta:1020:2026:LS011",
+      "prediction_path": "predictions/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "prediction_record_sha256": "e902914f59ec83d530adf1882c72341fc099988e977efa476aeb799f68c3d878"
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls010-coco-gauff-elise-mertens",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "baseline_candidate_record_sha256": "4fd30637bba79721aa55c1e70909d9505a7bbb7bf6a44d50c240b65d9db9e042",
+      "baseline_path": "baselines/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "baseline_record_sha256": "4e9e54230d975f2a9ed01e34a95124a6f75da7e9b31e452fd6a2049924490a6f",
+      "match_id": "web:wta:1020:2026:LS010",
+      "prediction_path": "predictions/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682"
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "baseline_candidate_record_sha256": "72d5f1be105e4d88ae3b084b0fad7b2928dad0b5deeea836431f5f31998d5799",
+      "baseline_path": "baselines/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "baseline_record_sha256": "a9025c7b8448f2eebf649210d5a786849610b289017819fc730c4179ffa01784",
+      "match_id": "web:wta:1020:2026:LS008",
+      "prediction_path": "predictions/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-06-run-37537918757",
+  "workflow_artifact_id": 11446853766,
+  "workflow_artifact_sha256": "1c245db195550d119840f82bf3343f168f1540421da855fe121ea34ddd657b85",
+  "workflow_run_id": 37537918757,
+  "workflow_source_sha": "7bb11873d4ea5463a6ed4221071b7515bd33cdc8"
+}

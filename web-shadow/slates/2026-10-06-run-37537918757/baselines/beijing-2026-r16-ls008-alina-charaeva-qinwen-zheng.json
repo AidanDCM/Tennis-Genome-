@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11446853766,
+  "artifact_sha256": "1c245db195550d119840f82bf3343f168f1540421da855fe121ea34ddd657b85",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 1.378871154208014,
+  "match_id": "web:wta:1020:2026:LS008",
+  "matchup_input_sha256": "e292e2a2801f4cbc9402ab33b011556820e3364edc9cee65e83778aa5b776749",
+  "p_player_a": 0.7988096414769363,
+  "p_player_b": 0.20119035852306366,
+  "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+  "production_eligible": false,
+  "record_sha256": "a9025c7b8448f2eebf649210d5a786849610b289017819fc730c4179ffa01784",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Qinwen Zheng",
+  "slate_id": "2026-10-06-run-37537918757"
+}

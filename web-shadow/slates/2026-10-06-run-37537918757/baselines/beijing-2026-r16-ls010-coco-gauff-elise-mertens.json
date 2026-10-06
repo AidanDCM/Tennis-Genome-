@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11446853766,
+  "artifact_sha256": "1c245db195550d119840f82bf3343f168f1540421da855fe121ea34ddd657b85",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.208294080143114,
+  "match_id": "web:wta:1020:2026:LS010",
+  "matchup_input_sha256": "5ebc00ed3a5dfe3d58f4ad423dcc80dda1276285e704d0070ba973bc42673454",
+  "p_player_a": 0.2300030329899139,
+  "p_player_b": 0.7699969670100861,
+  "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+  "production_eligible": false,
+  "record_sha256": "4e9e54230d975f2a9ed01e34a95124a6f75da7e9b31e452fd6a2049924490a6f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Coco Gauff",
+  "slate_id": "2026-10-06-run-37537918757"
+}

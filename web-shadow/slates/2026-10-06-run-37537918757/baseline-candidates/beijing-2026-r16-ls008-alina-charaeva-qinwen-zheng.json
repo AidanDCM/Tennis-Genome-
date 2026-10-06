@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 1.378871154208014,
+  "match_id": "web:wta:1020:2026:LS008",
+  "matchup_input_sha256": "e292e2a2801f4cbc9402ab33b011556820e3364edc9cee65e83778aa5b776749",
+  "p_player_a": 0.7988096414769363,
+  "p_player_b": 0.20119035852306366,
+  "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+  "production_eligible": false,
+  "record_sha256": "72d5f1be105e4d88ae3b084b0fad7b2928dad0b5deeea836431f5f31998d5799",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Qinwen Zheng"
+}
