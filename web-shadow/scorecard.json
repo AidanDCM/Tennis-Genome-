@@ -1,17 +1,17 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.8,
-      "brier_score": 0.16713923112569692,
-      "calibration_gap_accuracy_minus_mean_selected_probability": 0.10084831469975652,
+      "accuracy": 0.8571428571428571,
+      "brier_score": 0.14940134813857878,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.1589153604973258,
       "confidence_buckets": [
         {
           "accuracy": 1.0,
-          "correct_prediction_count": 1,
+          "correct_prediction_count": 2,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 1,
-          "mean_selected_probability": 0.5781008119099154,
+          "match_count": 2,
+          "mean_selected_probability": 0.5809059216782902,
           "upper_bound": 0.6
         },
         {
@@ -34,27 +34,36 @@
         },
         {
           "accuracy": 1.0,
-          "correct_prediction_count": 1,
+          "correct_prediction_count": 2,
           "label": "0.80-0.90",
           "lower_bound": 0.8,
-          "match_count": 1,
-          "mean_selected_probability": 0.8656036189258705,
+          "match_count": 2,
+          "mean_selected_probability": 0.8368633187483536,
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 4,
-      "log_loss": 0.5074956098807022,
-      "mean_selected_probability": 0.6991516853002435,
+      "correct_prediction_count": 6,
+      "log_loss": 0.46983832264658093,
+      "mean_selected_probability": 0.6982274966455313,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 5
+      "settled_match_count": 7
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": -0.023336881345118188,
+    "brier_improvement_baseline_minus_genome": -0.026875183729994034,
     "genome": {
-      "accuracy": 0.8,
-      "brier_score": 0.1904761124708151,
-      "calibration_gap_accuracy_minus_mean_selected_probability": 0.11448977677380867,
+      "accuracy": 0.8571428571428571,
+      "brier_score": 0.1762765318685728,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.1858950317513709,
       "confidence_buckets": [
+        {
+          "accuracy": 1.0,
+          "correct_prediction_count": 1,
+          "label": "0.50-0.60",
+          "lower_bound": 0.5,
+          "match_count": 1,
+          "mean_selected_probability": 0.546237107444883,
+          "upper_bound": 0.6
+        },
         {
           "accuracy": 1.0,
           "correct_prediction_count": 3,
@@ -65,38 +74,38 @@
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.5,
-          "correct_prediction_count": 1,
+          "accuracy": 0.6666666666666666,
+          "correct_prediction_count": 2,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 2,
-          "mean_selected_probability": 0.7566969278086899,
+          "match_count": 3,
+          "mean_selected_probability": 0.7461134699273145,
           "upper_bound": 0.8
         }
       ],
-      "correct_prediction_count": 4,
-      "log_loss": 0.5683664519539717,
-      "mean_selected_probability": 0.6855102232261914,
+      "correct_prediction_count": 6,
+      "log_loss": 0.5383131056843988,
+      "mean_selected_probability": 0.6712478253914862,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 5
+      "settled_match_count": 7
     },
-    "log_loss_improvement_baseline_minus_genome": -0.06087084207326954,
+    "log_loss_improvement_baseline_minus_genome": -0.0684747830378179,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 5
+    "settled_match_count": 7
   },
   "baseline_match_count": 21,
   "metrics": {
-    "accuracy": 0.75,
-    "brier_score": 0.21973416695574396,
-    "calibration_gap_accuracy_minus_mean_selected_probability": 0.1184168647490883,
+    "accuracy": 0.7857142857142857,
+    "brier_score": 0.20845465458534726,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.15355847966997238,
     "confidence_buckets": [
       {
-        "accuracy": 0.8,
-        "correct_prediction_count": 4,
+        "accuracy": 0.8333333333333334,
+        "correct_prediction_count": 5,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 5,
-        "mean_selected_probability": 0.5637951028294079,
+        "match_count": 6,
+        "mean_selected_probability": 0.5608687702653204,
         "upper_bound": 0.6
       },
       {
@@ -109,26 +118,26 @@
         "upper_bound": 0.7
       },
       {
-        "accuracy": 0.5,
-        "correct_prediction_count": 1,
+        "accuracy": 0.6666666666666666,
+        "correct_prediction_count": 2,
         "label": "0.70-0.80",
         "lower_bound": 0.7,
-        "match_count": 2,
-        "mean_selected_probability": 0.7566969278086899,
+        "match_count": 3,
+        "mean_selected_probability": 0.7461134699273145,
         "upper_bound": 0.8
       }
     ],
-    "correct_prediction_count": 9,
-    "log_loss": 0.6318200274278271,
-    "mean_selected_probability": 0.6315831352509117,
+    "correct_prediction_count": 11,
+    "log_loss": 0.6077285577967756,
+    "mean_selected_probability": 0.6321558060443133,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 12
+    "settled_match_count": 14
   },
   "official_slate_count": 7,
-  "pending_match_count": 15,
+  "pending_match_count": 13,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 13,
+  "settled_match_count": 15,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -484,25 +493,31 @@
           "match_id": "web:wta:1020:2026:LS013",
           "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
           "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+          "result_record_sha256": "c36dab170dbbfe74409e0cf3e8e7af6ea2d01857ab9f34cb13d7e82e9fcf9066",
           "scheduled_start": "2026-10-06T11:00:00+08:00",
           "selected_player": "Mirra Andreeva",
           "selected_probability": 0.7249465541645636,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-05-run-37323151712/settlements/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+          "settlement_record_sha256": "9a5edfe8cb2064d5474466412564a5d1f830758cfdeed9710e353a8536b47f40",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-05-run-37323151712/baselines/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
           "match_id": "web:wta:1020:2026:LS014",
           "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
           "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+          "result_record_sha256": "88642aef6303b0b480ad93ad2e0af4e270c4f6d8a35720c57b24545658931a6b",
           "scheduled_start": "2026-10-06T15:00:00+08:00",
           "selected_player": "Karolina Muchova",
           "selected_probability": 0.546237107444883,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-05-run-37323151712/settlements/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+          "settlement_record_sha256": "66c982f589534eea695ba13e0716663143e87ea469d6197ccdd140d30313d249",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-10-05-run-37323151712/slate-receipt.json",
       "slate_id": "2026-10-05-run-37323151712",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 37323151712
     }
   ]

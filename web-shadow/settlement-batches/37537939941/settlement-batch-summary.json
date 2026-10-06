@@ -1,0 +1,39 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 2,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS013",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+      "result_path": "web-shadow/results/2026-10-06-beijing-2026-r16-ls013-daria-snigur-mirra-andreeva-6c173e9ffa.json",
+      "result_record_sha256": "c36dab170dbbfe74409e0cf3e8e7af6ea2d01857ab9f34cb13d7e82e9fcf9066",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-05-run-37323151712/settlements/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "settlement_record_sha256": "9a5edfe8cb2064d5474466412564a5d1f830758cfdeed9710e353a8536b47f40",
+      "slate_id": "2026-10-05-run-37323151712",
+      "winner": "Mirra Andreeva"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS014",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+      "result_path": "web-shadow/results/2026-10-06-beijing-2026-r16-ls014-karolina-muchova-naomi-osaka-dc842ac9e2.json",
+      "result_record_sha256": "88642aef6303b0b480ad93ad2e0af4e270c4f6d8a35720c57b24545658931a6b",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-05-run-37323151712/settlements/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "settlement_record_sha256": "66c982f589534eea695ba13e0716663143e87ea469d6197ccdd140d30313d249",
+      "slate_id": "2026-10-05-run-37323151712",
+      "winner": "Karolina Muchova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
