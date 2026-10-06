@@ -1,0 +1,44 @@
+{
+  "index_records": [
+    {
+      "entry_count": 100,
+      "filename": "tournament-index-2026-page-0.json",
+      "page": 0,
+      "sha256": "0d311407927a90f42dda74f82bdaf648b0dcd60e333c914d9c0686fa18b210b0",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=0&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    },
+    {
+      "entry_count": 24,
+      "filename": "tournament-index-2026-page-1.json",
+      "page": 1,
+      "sha256": "9c046029c49d81e0ce8e258f572303613828ff1748853fb044ac0654206a71e3",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=1&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    }
+  ],
+  "observed_at": "2026-10-06T18:26:33+00:00",
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-acquisition-v1",
+  "source_policy": {
+    "api_root": "https://api.wtatennis.com/tennis",
+    "index_role": "audit_and_discovery_only",
+    "provider": "WTA",
+    "response_serialization": "provider_bytes_unmodified",
+    "selection_authority": "web-shadow/intake-config.json"
+  },
+  "source_records": [
+    {
+      "group_id": 1020,
+      "matches_filename": "beijing-matches.json",
+      "matches_sha256": "54ca6756bf8bf252ecc70fd96b53c83b92828d542a92a00f9c0f97bc01f47335",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 148,
+      "slug": "beijing",
+      "tournament_filename": "beijing-tournament.json",
+      "tournament_sha256": "c739b40b2590a8204c402176c7df596b81913c5349ef09a552e898e9cb996ddf",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026",
+      "year": 2026
+    }
+  ]
+}

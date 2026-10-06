@@ -1,0 +1,94 @@
+{
+  "excluded_match_count": 145,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 24,
+    "not_upcoming": 84,
+    "unscheduled": 1
+  },
+  "observed_at": "2026-10-06T18:26:33+00:00",
+  "pre_capacity_eligible_count": 3,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1020",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "group_id": 1020,
+      "match_id": "web:wta:1020:2026:LS011",
+      "player_a_wta_id": "332285",
+      "player_b_wta_id": "326408",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-07T13:00:00+08:00",
+      "slug": "beijing",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "1020",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "group_id": 1020,
+      "match_id": "web:wta:1020:2026:LS010",
+      "player_a_wta_id": "328560",
+      "player_b_wta_id": "317964",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-07T14:15:00+08:00",
+      "slug": "beijing",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "1020",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "group_id": 1020,
+      "match_id": "web:wta:1020:2026:LS008",
+      "player_a_wta_id": "329198",
+      "player_b_wta_id": "328120",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-07T19:00:00+08:00",
+      "slug": "beijing",
+      "source_match_id": "LS008",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 3,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261006t182633z",
+  "source_match_count": 148,
+  "source_records": [
+    {
+      "group_id": 1020,
+      "matches_sha256": "54ca6756bf8bf252ecc70fd96b53c83b92828d542a92a00f9c0f97bc01f47335",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 148,
+      "slug": "beijing",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026",
+      "tournament_sha256": "c739b40b2590a8204c402176c7df596b81913c5349ef09a552e898e9cb996ddf",
+      "year": 2026
+    }
+  ]
+}
