@@ -1,0 +1,16 @@
+{
+  "cross_source_overlap_ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "cross_source_overlap_rows_removed": 0,
+  "cross_source_overlap_unique_id_count": 0,
+  "primary_match_count": 1295,
+  "primary_source": "data/wta-live-raw/wta_matches_2026.csv",
+  "reconciled_secondary": "data/wta-live-raw/wta_matches_qual_itf_2026_reconciled.csv",
+  "schema_version": "tennis-genome-web-shadow-2026-source-reconciliation-v2",
+  "secondary_internal_conflicting_id_count": 0,
+  "secondary_internal_exact_duplicate_id_count": 216,
+  "secondary_internal_exact_duplicate_ids_sha256": "a6cee08d72d8aa50accf58da7fb595144eb9de38b8bf937ebdd21972dced4d99",
+  "secondary_internal_exact_duplicate_rows_removed": 216,
+  "secondary_original_match_count": 8975,
+  "secondary_reconciled_match_count": 8759,
+  "secondary_source": "data/wta-live-raw/wta_matches_qual_itf_2026.csv"
+}

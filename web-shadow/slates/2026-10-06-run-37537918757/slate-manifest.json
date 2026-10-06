@@ -1,0 +1,79 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-r16-ls011-iva-jovic-iga-swiatek",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls011-iva-jovic-iga-swiatek/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "0e0a28f91bb420de3ff41186309fe4a74d0abd838945a85a3b76f2b0c2b577e3",
+      "baseline_p_player_a": 0.7863518378823551,
+      "baseline_p_player_b": 0.21364816211764492,
+      "baseline_selected_player": "Iga Swiatek",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "match_id": "web:wta:1020:2026:LS011",
+      "minimum_point_exposure": 4056,
+      "p_player_a": 0.7385181000493595,
+      "p_player_b": 0.26148189995064053,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls011-iva-jovic-iga-swiatek/prediction.json",
+      "prediction_record_sha256": "e902914f59ec83d530adf1882c72341fc099988e977efa476aeb799f68c3d878",
+      "scheduled_start": "2026-10-07T13:00:00+08:00",
+      "selected_player": "Iga Swiatek",
+      "target_history_match_counts": {
+        "wta:id:216347": 428,
+        "wta:id:260300": 63
+      }
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls010-coco-gauff-elise-mertens",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls010-coco-gauff-elise-mertens/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "4fd30637bba79721aa55c1e70909d9505a7bbb7bf6a44d50c240b65d9db9e042",
+      "baseline_p_player_a": 0.2300030329899139,
+      "baseline_p_player_b": 0.7699969670100861,
+      "baseline_selected_player": "Coco Gauff",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "match_id": "web:wta:1020:2026:LS010",
+      "minimum_point_exposure": 25461,
+      "p_player_a": 0.3020232691856015,
+      "p_player_b": 0.6979767308143985,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls010-coco-gauff-elise-mertens/prediction.json",
+      "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+      "scheduled_start": "2026-10-07T14:15:00+08:00",
+      "selected_player": "Coco Gauff",
+      "target_history_match_counts": {
+        "wta:id:210722": 506,
+        "wta:id:221103": 375
+      }
+    },
+    {
+      "artifact_stem": "beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "72d5f1be105e4d88ae3b084b0fad7b2928dad0b5deeea836431f5f31998d5799",
+      "baseline_p_player_a": 0.7988096414769363,
+      "baseline_p_player_b": 0.20119035852306366,
+      "baseline_selected_player": "Qinwen Zheng",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "match_id": "web:wta:1020:2026:LS008",
+      "minimum_point_exposure": 2407,
+      "p_player_a": 0.6690593761278242,
+      "p_player_b": 0.3309406238721758,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng/prediction.json",
+      "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+      "scheduled_start": "2026-10-07T19:00:00+08:00",
+      "selected_player": "Qinwen Zheng",
+      "target_history_match_counts": {
+        "wta:id:221012": 204,
+        "wta:id:221406": 34
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

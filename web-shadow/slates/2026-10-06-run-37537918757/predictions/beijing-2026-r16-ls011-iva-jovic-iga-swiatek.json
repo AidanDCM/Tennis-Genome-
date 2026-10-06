@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-06T22:02:50.007859+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS011",
+    "player_a": "Iga Swiatek",
+    "player_b": "Iva Jovic",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-07T13:00:00+08:00",
+    "source_observed_at": "2026-10-06T18:26:33+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "28c2a556935fa9ff6fe98c2a4109355c153709443e66e37c80f267eb4f2e200c",
+  "model_source_sha": "7bb11873d4ea5463a6ed4221071b7515bd33cdc8",
+  "p_player_a": 0.7385181000493595,
+  "p_player_b": 0.26148189995064053,
+  "player_a_id": "wta:id:216347",
+  "player_b_id": "wta:id:260300",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "e902914f59ec83d530adf1882c72341fc099988e977efa476aeb799f68c3d878",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Iga Swiatek"
+}

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-06T22:02:50.697779+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS010",
+    "player_a": "Elise Mertens",
+    "player_b": "Coco Gauff",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-07T14:15:00+08:00",
+    "source_observed_at": "2026-10-06T18:26:33+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "5ebc00ed3a5dfe3d58f4ad423dcc80dda1276285e704d0070ba973bc42673454",
+  "model_source_sha": "7bb11873d4ea5463a6ed4221071b7515bd33cdc8",
+  "p_player_a": 0.3020232691856015,
+  "p_player_b": 0.6979767308143985,
+  "player_a_id": "wta:id:210722",
+  "player_b_id": "wta:id:221103",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Coco Gauff"
+}

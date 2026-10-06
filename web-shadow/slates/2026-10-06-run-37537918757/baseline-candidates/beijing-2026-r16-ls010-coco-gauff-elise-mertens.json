@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.208294080143114,
+  "match_id": "web:wta:1020:2026:LS010",
+  "matchup_input_sha256": "5ebc00ed3a5dfe3d58f4ad423dcc80dda1276285e704d0070ba973bc42673454",
+  "p_player_a": 0.2300030329899139,
+  "p_player_b": 0.7699969670100861,
+  "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+  "production_eligible": false,
+  "record_sha256": "4fd30637bba79721aa55c1e70909d9505a7bbb7bf6a44d50c240b65d9db9e042",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Coco Gauff"
+}
