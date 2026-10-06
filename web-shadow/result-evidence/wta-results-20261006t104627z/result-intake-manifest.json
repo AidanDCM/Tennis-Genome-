@@ -1,0 +1,74 @@
+{
+  "observed_at": "2026-10-06T10:46:27+00:00",
+  "pending_prediction_count": 15,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-06-beijing-2026-r16-ls013-daria-snigur-mirra-andreeva-6c173e9ffa.json",
+    "web-shadow/results/2026-10-06-beijing-2026-r16-ls014-karolina-muchova-naomi-osaka-dc842ac9e2.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1020:2026:LS013",
+      "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+      "prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-06-beijing-2026-r16-ls013-daria-snigur-mirra-andreeva-6c173e9ffa.json",
+      "round_identity_conflict": false,
+      "score": "6-2 6-2",
+      "source_last_updated": "2026-10-06T04:11:58.557+00:00",
+      "source_match_id": "LS013",
+      "source_result_string": "[4]M. Andreeva d D. Snigur 6-2,6-2",
+      "source_round": "R16",
+      "status": "COMPLETED",
+      "winner": "Mirra Andreeva",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1020:2026:LS014",
+      "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+      "prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-06-beijing-2026-r16-ls014-karolina-muchova-naomi-osaka-dc842ac9e2.json",
+      "round_identity_conflict": false,
+      "score": "7-5 1-6 7-6(7)",
+      "source_last_updated": "2026-10-06T10:01:16.397+00:00",
+      "source_match_id": "LS014",
+      "source_result_string": "[7]K. Muchova d [12]N. Osaka 7-5,1-6,7-6(7)",
+      "source_round": "R16",
+      "status": "COMPLETED",
+      "winner": "Karolina Muchova",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261006t104627z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "a6213a86509eea3f52fb4cdc7df2498668c9818908019e314747dfcafa21d9fa",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 148,
+      "slug": "beijing",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 0,
+  "unresolved_prediction_count": 13
+}

@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "6c173e9ffa68fcfee5b483275ba04bcc0cccb6c80360a240126bd91b06800c00",
+  "match_id": "web:wta:1020:2026:LS013",
+  "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls013-daria-snigur-mirra-andreeva.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-06T10:46:27+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-2",
+  "status": "COMPLETED",
+  "winner": "Mirra Andreeva"
+}

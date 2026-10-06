@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "dc842ac9e21e7af26fe1abdef31d3799d1e03f8c8960b9e73dfddcdcac7fb5c1",
+  "match_id": "web:wta:1020:2026:LS014",
+  "prediction_path": "web-shadow/slates/2026-10-05-run-37323151712/predictions/beijing-2026-r16-ls014-karolina-muchova-naomi-osaka.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-06T10:46:27+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-5 1-6 7-6(7)",
+  "status": "COMPLETED",
+  "winner": "Karolina Muchova"
+}
