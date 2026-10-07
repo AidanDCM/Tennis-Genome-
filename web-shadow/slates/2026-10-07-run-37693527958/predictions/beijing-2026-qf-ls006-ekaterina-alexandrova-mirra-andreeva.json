@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-07T22:03:16.398982+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS006",
+    "player_a": "Ekaterina Alexandrova",
+    "player_b": "Mirra Andreeva",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-08T19:00:00+08:00",
+    "source_observed_at": "2026-10-07T13:32:28+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "43724fc276fa114c16fb3c75bbd1117da268ae631a552986fe8b95600c01bd34",
+  "model_source_sha": "9a711263b11bc6568aa9350bdf14e2d206e77b23",
+  "p_player_a": 0.213139812644488,
+  "p_player_b": 0.786860187355512,
+  "player_a_id": "wta:id:206420",
+  "player_b_id": "wta:id:259799",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Mirra Andreeva"
+}

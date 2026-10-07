@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-07T22:03:15.601202+00:00",
+  "fixture": {
+    "match_id": "web:wta:1020:2026:LS007",
+    "player_a": "Karolina Muchova",
+    "player_b": "Nikola Bartunkova",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "scheduled_start": "2026-10-08T15:00:00+08:00",
+    "source_observed_at": "2026-10-07T13:32:28+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "China Open",
+    "tournament_id": "web:wta:beijing:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "b61cbf7937459d05d02f74b87f90896e6446ea6a29f687dab6d359079f34b5bc",
+  "model_source_sha": "9a711263b11bc6568aa9350bdf14e2d206e77b23",
+  "p_player_a": 0.7109513810945159,
+  "p_player_b": 0.28904861890548406,
+  "player_a_id": "wta:id:214096",
+  "player_b_id": "wta:id:223360",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Karolina Muchova"
+}

@@ -1,0 +1,35 @@
+{
+  "baseline_count": 2,
+  "eligible_target_count": 2,
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "baseline_candidate_record_sha256": "d0115f00c24a9561e9c4546c86608017c6e9c178210d5033f35f6c658c5ee8e1",
+      "baseline_path": "baselines/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "baseline_record_sha256": "22e6e308d3c36d11bb4db9b57872e0578754b0b77aae07edf257028de4e9e02b",
+      "match_id": "web:wta:1020:2026:LS007",
+      "prediction_path": "predictions/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480"
+    },
+    {
+      "artifact_stem": "beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva",
+      "baseline_candidate_path": "baseline-candidates/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "baseline_candidate_record_sha256": "7aa544dfcede0ebd2805e5c800b89be8ab8606942fb86cb9cc957fd4effbf6e8",
+      "baseline_path": "baselines/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "baseline_record_sha256": "b3b3a57e4d2dcace0b3b7ae5570608b466b2d987aed45ae420907d8cb1b8a4d0",
+      "match_id": "web:wta:1020:2026:LS006",
+      "prediction_path": "predictions/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-07-run-37693527958",
+  "workflow_artifact_id": 11514392408,
+  "workflow_artifact_sha256": "d47fac2e6a3f3329711f34a3075326449072b970492eb0792dab71e404283da0",
+  "workflow_run_id": 37693527958,
+  "workflow_source_sha": "9a711263b11bc6568aa9350bdf14e2d206e77b23"
+}
