@@ -1,0 +1,58 @@
+{
+  "eligible_target_count": 2,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "d0115f00c24a9561e9c4546c86608017c6e9c178210d5033f35f6c658c5ee8e1",
+      "baseline_p_player_a": 0.8417241535551961,
+      "baseline_p_player_b": 0.15827584644480386,
+      "baseline_selected_player": "Karolina Muchova",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "match_id": "web:wta:1020:2026:LS007",
+      "minimum_point_exposure": 2964,
+      "p_player_a": 0.7109513810945159,
+      "p_player_b": 0.28904861890548406,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova/prediction.json",
+      "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+      "scheduled_start": "2026-10-08T15:00:00+08:00",
+      "selected_player": "Karolina Muchova",
+      "target_history_match_counts": {
+        "wta:id:214096": 244,
+        "wta:id:223360": 41
+      }
+    },
+    {
+      "artifact_stem": "beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "7aa544dfcede0ebd2805e5c800b89be8ab8606942fb86cb9cc957fd4effbf6e8",
+      "baseline_p_player_a": 0.12533487101373278,
+      "baseline_p_player_b": 0.8746651289862672,
+      "baseline_selected_player": "Mirra Andreeva",
+      "fixture_path": "web-shadow/fixtures/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "match_id": "web:wta:1020:2026:LS006",
+      "minimum_point_exposure": 11320,
+      "p_player_a": 0.213139812644488,
+      "p_player_b": 0.786860187355512,
+      "prediction_path": "web-shadow-slate-run/matches/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva/prediction.json",
+      "prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+      "scheduled_start": "2026-10-08T19:00:00+08:00",
+      "selected_player": "Mirra Andreeva",
+      "target_history_match_counts": {
+        "wta:id:206420": 426,
+        "wta:id:259799": 169
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 2,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

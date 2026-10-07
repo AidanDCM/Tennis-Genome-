@@ -93,7 +93,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 7
   },
-  "baseline_match_count": 24,
+  "baseline_match_count": 26,
   "metrics": {
     "accuracy": 0.7857142857142857,
     "brier_score": 0.20845465458534726,
@@ -133,8 +133,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 14
   },
-  "official_slate_count": 8,
-  "pending_match_count": 16,
+  "official_slate_count": 9,
+  "pending_match_count": 18,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 15,
@@ -558,6 +558,35 @@
       "slate_id": "2026-10-06-run-37537918757",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 37537918757
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-07-run-37693527958/baselines/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+          "match_id": "web:wta:1020:2026:LS007",
+          "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+          "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+          "scheduled_start": "2026-10-08T15:00:00+08:00",
+          "selected_player": "Karolina Muchova",
+          "selected_probability": 0.7109513810945159,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-07-run-37693527958/baselines/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+          "match_id": "web:wta:1020:2026:LS006",
+          "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+          "prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+          "scheduled_start": "2026-10-08T19:00:00+08:00",
+          "selected_player": "Mirra Andreeva",
+          "selected_probability": 0.786860187355512,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-07-run-37693527958/slate-receipt.json",
+      "slate_id": "2026-10-07-run-37693527958",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 37693527958
     }
   ]
 }
