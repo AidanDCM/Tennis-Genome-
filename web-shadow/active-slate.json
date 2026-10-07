@@ -1,8 +1,7 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
-    "web-shadow/fixtures/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
-    "web-shadow/fixtures/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json"
+    "web-shadow/fixtures/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+    "web-shadow/fixtures/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261006t182633z"
+  "rerun_reason": "automatic-wta-intake-wta-20261007t133228z"
 }

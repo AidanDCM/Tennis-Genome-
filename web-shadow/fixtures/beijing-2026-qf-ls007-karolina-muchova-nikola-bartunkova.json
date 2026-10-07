@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1020:2026:LS007",
+  "player_a": "Karolina Muchova",
+  "player_b": "Nikola Bartunkova",
+  "round": "QF",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "scheduled_start": "2026-10-08T15:00:00+08:00",
+  "source_observed_at": "2026-10-07T13:32:28+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "China Open",
+  "tournament_id": "web:wta:beijing:2026",
+  "tournament_level": "PM"
+}
