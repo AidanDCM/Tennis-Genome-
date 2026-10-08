@@ -1,0 +1,74 @@
+{
+  "observed_at": "2026-10-07T09:14:55+00:00",
+  "pending_prediction_count": 16,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-07-beijing-2026-r16-ls011-iva-jovic-iga-swiatek-e902914f59.json",
+    "web-shadow/results/2026-10-07-beijing-2026-r16-ls010-coco-gauff-elise-mertens-11e32eb263.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1020:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "prediction_record_sha256": "e902914f59ec83d530adf1882c72341fc099988e977efa476aeb799f68c3d878",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-07-beijing-2026-r16-ls011-iva-jovic-iga-swiatek-e902914f59.json",
+      "round_identity_conflict": false,
+      "score": "6-1 6-3",
+      "source_last_updated": "2026-10-07T06:46:05.517+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "[8]I. Swiatek d [10]I. Jovic 6-1,6-3",
+      "source_round": "R16",
+      "status": "COMPLETED",
+      "winner": "Iga Swiatek",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1020:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-07-beijing-2026-r16-ls010-coco-gauff-elise-mertens-11e32eb263.json",
+      "round_identity_conflict": false,
+      "score": "6-3 6-3",
+      "source_last_updated": "2026-10-07T08:25:27.053+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "[13]E. Mertens d [3]C. Gauff 6-3,6-3",
+      "source_round": "R16",
+      "status": "COMPLETED",
+      "winner": "Elise Mertens",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261007t091455z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "88cc1a08f8b71a872340f771f0f52911301dfd635da9c2bccfbf559c96feb958",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 148,
+      "slug": "beijing",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 1,
+  "unresolved_prediction_count": 13
+}
