@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+  "match_id": "web:wta:1020:2026:LS010",
+  "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-08T02:02:56+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-3 6-3",
+  "status": "COMPLETED",
+  "winner": "Elise Mertens"
+}
