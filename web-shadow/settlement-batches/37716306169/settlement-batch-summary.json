@@ -1,0 +1,26 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS008",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+      "result_path": "web-shadow/results/2026-10-08-beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng-e584b05553.json",
+      "result_record_sha256": "4d19ec9ba0fb0719f934ece58d148322c22913b70e435d2b6abbc16dfbaeb2cb",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-06-run-37537918757/settlements/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+      "settlement_record_sha256": "3d6586aadecc77969af8a06701964143aff48086cf82920879de5b6c592cf47f",
+      "slate_id": "2026-10-06-run-37537918757",
+      "winner": "Qinwen Zheng"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}

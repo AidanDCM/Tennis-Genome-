@@ -1,9 +1,9 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.7777777777777778,
-      "brier_score": 0.18715003370567007,
-      "calibration_gap_accuracy_minus_mean_selected_probability": 0.06178430206542662,
+      "accuracy": 0.8,
+      "brier_score": 0.17248278637136694,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.07572490771119034,
       "confidence_buckets": [
         {
           "accuracy": 1.0,
@@ -24,12 +24,12 @@
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.6666666666666666,
-          "correct_prediction_count": 2,
+          "accuracy": 0.75,
+          "correct_prediction_count": 3,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 3,
-          "mean_selected_probability": 0.7592919691642234,
+          "match_count": 4,
+          "mean_selected_probability": 0.7691713872424016,
           "upper_bound": 0.8
         },
         {
@@ -42,18 +42,18 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 7,
-      "log_loss": 0.5554313330639395,
-      "mean_selected_probability": 0.7159934757123512,
+      "correct_prediction_count": 8,
+      "log_loss": 0.5223514605137677,
+      "mean_selected_probability": 0.7242750922888097,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 9
+      "settled_match_count": 10
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": -0.01168108005434787,
+    "brier_improvement_baseline_minus_genome": -0.017417385665539714,
     "genome": {
-      "accuracy": 0.7777777777777778,
-      "brier_score": 0.19883111376001794,
-      "calibration_gap_accuracy_minus_mean_selected_probability": 0.09608559904398206,
+      "accuracy": 0.8,
+      "brier_score": 0.18990017203690665,
+      "calibration_gap_accuracy_minus_mean_selected_probability": 0.1195711015268015,
       "confidence_buckets": [
         {
           "accuracy": 1.0,
@@ -65,12 +65,12 @@
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.75,
-          "correct_prediction_count": 3,
+          "accuracy": 0.8,
+          "correct_prediction_count": 4,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 4,
-          "mean_selected_probability": 0.6530334978319939,
+          "match_count": 5,
+          "mean_selected_probability": 0.65623867349116,
           "upper_bound": 0.7
         },
         {
@@ -83,21 +83,21 @@
           "upper_bound": 0.8
         }
       ],
-      "correct_prediction_count": 7,
-      "log_loss": 0.5853947357985437,
-      "mean_selected_probability": 0.6816921787337957,
+      "correct_prediction_count": 8,
+      "log_loss": 0.567043509142487,
+      "mean_selected_probability": 0.6804288984731985,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 9
+      "settled_match_count": 10
     },
-    "log_loss_improvement_baseline_minus_genome": -0.029963402734604183,
+    "log_loss_improvement_baseline_minus_genome": -0.04469204862871934,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 9
+    "settled_match_count": 10
   },
   "baseline_match_count": 26,
   "metrics": {
-    "accuracy": 0.75,
-    "brier_score": 0.21711934155968837,
-    "calibration_gap_accuracy_minus_mean_selected_probability": 0.10708274278224095,
+    "accuracy": 0.7647058823529411,
+    "brier_score": 0.21079006832258346,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.12025085343458997,
     "confidence_buckets": [
       {
         "accuracy": 0.8333333333333334,
@@ -109,12 +109,12 @@
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.6666666666666666,
-        "correct_prediction_count": 4,
+        "accuracy": 0.7142857142857143,
+        "correct_prediction_count": 5,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 6,
-        "mean_selected_probability": 0.6574341640101534,
+        "match_count": 7,
+        "mean_selected_probability": 0.659094908598392,
         "upper_bound": 0.7
       },
       {
@@ -127,17 +127,17 @@
         "upper_bound": 0.8
       }
     ],
-    "correct_prediction_count": 12,
-    "log_loss": 0.625535043221935,
-    "mean_selected_probability": 0.642917257217759,
+    "correct_prediction_count": 13,
+    "log_loss": 0.6123790094581727,
+    "mean_selected_probability": 0.6444550289183512,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 16
+    "settled_match_count": 17
   },
   "official_slate_count": 9,
-  "pending_match_count": 16,
+  "pending_match_count": 15,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 17,
+  "settled_match_count": 18,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -554,15 +554,18 @@
           "match_id": "web:wta:1020:2026:LS008",
           "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
           "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+          "result_record_sha256": "4d19ec9ba0fb0719f934ece58d148322c22913b70e435d2b6abbc16dfbaeb2cb",
           "scheduled_start": "2026-10-07T19:00:00+08:00",
           "selected_player": "Qinwen Zheng",
           "selected_probability": 0.6690593761278242,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-06-run-37537918757/settlements/beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng.json",
+          "settlement_record_sha256": "3d6586aadecc77969af8a06701964143aff48086cf82920879de5b6c592cf47f",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-10-06-run-37537918757/slate-receipt.json",
       "slate_id": "2026-10-06-run-37537918757",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 37537918757
     },
     {

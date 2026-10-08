@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1020:2026:LS008",
+  "prediction_correct": true,
+  "prediction_record_sha256": "e584b0555308f7b129a1fef6c810f4541764577bf6cc91be181409c401987cf0",
+  "production_eligible": false,
+  "record_sha256": "3d6586aadecc77969af8a06701964143aff48086cf82920879de5b6c592cf47f",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-08T02:02:56+00:00",
+  "result_record_path": "web-shadow/results/2026-10-08-beijing-2026-r16-ls008-alina-charaeva-qinwen-zheng-e584b05553.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Qinwen Zheng"
+}
