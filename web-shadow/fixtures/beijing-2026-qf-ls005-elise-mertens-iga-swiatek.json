@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1020:2026:LS005",
+  "player_a": "Elise Mertens",
+  "player_b": "Iga Swiatek",
+  "round": "QF",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "scheduled_start": "2026-10-09T19:00:00+08:00",
+  "source_observed_at": "2026-10-08T13:38:13+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "China Open",
+  "tournament_id": "web:wta:beijing:2026",
+  "tournament_level": "PM"
+}
