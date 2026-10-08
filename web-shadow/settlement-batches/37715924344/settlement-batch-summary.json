@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS011",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "prediction_record_sha256": "e902914f59ec83d530adf1882c72341fc099988e977efa476aeb799f68c3d878",
+      "result_path": "web-shadow/results/2026-10-07-beijing-2026-r16-ls011-iva-jovic-iga-swiatek-e902914f59.json",
+      "result_record_sha256": "c2cbbe3467af42fd9b800d98a9de76041ef2d47c74f7e2ac0907097485108025",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-06-run-37537918757/settlements/beijing-2026-r16-ls011-iva-jovic-iga-swiatek.json",
+      "settlement_record_sha256": "93a3370378824f094a4c154d76212077347bf8a7d11744667a3c9e89db3f405a",
+      "slate_id": "2026-10-06-run-37537918757",
+      "winner": "Iga Swiatek"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS010",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-06-run-37537918757/predictions/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "prediction_record_sha256": "11e32eb263b51bbe607e680d6dabe97544873db42144752c5757effc3fc1b682",
+      "result_path": "web-shadow/results/2026-10-07-beijing-2026-r16-ls010-coco-gauff-elise-mertens-11e32eb263.json",
+      "result_record_sha256": "a574c17a7165053374f5c5f7acf71b62befc4ef0906dc6388d6613fb1b75a119",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-06-run-37537918757/settlements/beijing-2026-r16-ls010-coco-gauff-elise-mertens.json",
+      "settlement_record_sha256": "62ad67f7a350e66b77188697239098d9511e4e0909147c1bb5a62ff0f77da3f1",
+      "slate_id": "2026-10-06-run-37537918757",
+      "winner": "Elise Mertens"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
