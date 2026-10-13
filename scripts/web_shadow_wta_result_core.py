@@ -375,13 +375,19 @@ def _row_identity(
     ):
         raise ValueError("WTA result row tournament identity mismatch")
     source_match_id = _text(row.get("MatchID"), field="MatchID")
-    try:
-        round_id = _integer(row.get("RoundID"), field="RoundID")
-    except ValueError:
-        if strict_round:
-            raise
-        return None
-    round_name = _ROUND_ID_MAP.get(round_id)
+    # The retained Beijing feed changed quarterfinal RoundID from 3 to Q.
+    # Accept this observed alias only for exact official MatchID joins. Legacy
+    # name/round joins retain their existing interpretation and exclusion rules.
+    if strict_round and row.get("RoundID") == "Q":
+        round_name = "QF"
+    else:
+        try:
+            round_id = _integer(row.get("RoundID"), field="RoundID")
+        except ValueError:
+            if strict_round:
+                raise
+            return None
+        round_name = _ROUND_ID_MAP.get(round_id)
     if round_name is None:
         return None
     player_a = _player_name(row, "A")
