@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11829363751,
+  "artifact_sha256": "852da77f0247e8ba06fe0fc1c25ffa346ef70224d2760cb3db92ba0a951bf4e1",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 2.1031626902540603,
+  "match_id": "web:wta:1075:2026:LS024",
+  "matchup_input_sha256": "cee8d5655d93ae1dbd13b0810fd21be2b6e8ce2a70375c31d7208b3fbbedc272",
+  "p_player_a": 0.8912101957273283,
+  "p_player_b": 0.10878980427267171,
+  "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+  "production_eligible": false,
+  "record_sha256": "09a17d291a5580578c9d9a7e238789a6417a0ef2270f2206dea26c16fdac458f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Elina Svitolina",
+  "slate_id": "2026-10-13-run-38429027362"
+}

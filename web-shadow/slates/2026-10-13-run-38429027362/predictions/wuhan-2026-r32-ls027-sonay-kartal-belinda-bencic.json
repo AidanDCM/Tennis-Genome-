@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-13T16:17:01.581709+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS027",
+    "player_a": "Belinda Bencic",
+    "player_b": "Sonay Kartal",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-14T11:00:00+08:00",
+    "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "52a23d25579fbb5422204e0fe539b5248564bfa4f57cbe9f4ce65f1e2cacf815",
+  "model_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72",
+  "p_player_a": 0.5985971817965126,
+  "p_player_b": 0.40140281820348744,
+  "player_a_id": "wta:id:202505",
+  "player_b_id": "wta:id:222661",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Belinda Bencic"
+}

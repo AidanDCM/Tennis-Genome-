@@ -1,0 +1,75 @@
+{
+  "baseline_count": 6,
+  "eligible_target_count": 6,
+  "predicted_target_count": 6,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "baseline_candidate_record_sha256": "f7eae84d5eab5f2558fc642321faa28268df59d942e1af8fee962160939e77c1",
+      "baseline_path": "baselines/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "baseline_record_sha256": "a826ab3e2f110c1035e23c9eecf97460c9178abb099c041377593eb4f5d44a7f",
+      "match_id": "web:wta:1075:2026:LS019",
+      "prediction_path": "predictions/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "prediction_record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "baseline_candidate_record_sha256": "a715330881c79efaa378350130044265a506193f4b1faa6d2562cd58a22b8437",
+      "baseline_path": "baselines/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "baseline_record_sha256": "eced756253b138a2f1044a2e5fc0d3b76957a293b4200a146a4f80a7e6cce234",
+      "match_id": "web:wta:1075:2026:LS021",
+      "prediction_path": "predictions/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "prediction_record_sha256": "20759b500187ec5c115ef5b4f1bafab2f719c5b2535f438388b458c06db0b4a4"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "baseline_candidate_record_sha256": "35deed1fc7ff586b4bdcc187d79da0ae0469a728bc8f851b4158b906a653cbc7",
+      "baseline_path": "baselines/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "baseline_record_sha256": "09a17d291a5580578c9d9a7e238789a6417a0ef2270f2206dea26c16fdac458f",
+      "match_id": "web:wta:1075:2026:LS024",
+      "prediction_path": "predictions/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "baseline_candidate_record_sha256": "2fd63200633b5a03e38a24d0377230338977ee8603bde1582824e6352b8b6850",
+      "baseline_path": "baselines/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "baseline_record_sha256": "c1796d9ef7e4e667a69ced1015e4518275172bc433dc26adaf6327d0b714dd9c",
+      "match_id": "web:wta:1075:2026:LS027",
+      "prediction_path": "predictions/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "baseline_candidate_record_sha256": "bf4b2815f8d6ddf82bc63d7d3ced749d3b47949308f582f59282f1a96b3dcfc4",
+      "baseline_path": "baselines/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "baseline_record_sha256": "d9ec3fca0fe69f3f5884ba42888a33ec3f0359c9c34f7c0043ea4171258081d3",
+      "match_id": "web:wta:1075:2026:LS018",
+      "prediction_path": "predictions/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "prediction_record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r32-ls016-aryna-sabalenka-ann-li",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "baseline_candidate_record_sha256": "f65743abdbe4bbcdb86e5597d358b43512f589023e757e8ef5fb7076e5f2e6c9",
+      "baseline_path": "baselines/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "baseline_record_sha256": "ea5dc6c31e38b94eb50d783ac9731a59d50df0edfb3396b751839260effe7639",
+      "match_id": "web:wta:1075:2026:LS016",
+      "prediction_path": "predictions/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-13-run-38429027362",
+  "workflow_artifact_id": 11829363751,
+  "workflow_artifact_sha256": "852da77f0247e8ba06fe0fc1c25ffa346ef70224d2760cb3db92ba0a951bf4e1",
+  "workflow_run_id": 38429027362,
+  "workflow_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72"
+}

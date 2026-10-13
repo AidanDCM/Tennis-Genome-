@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-13T16:17:02.877024+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS016",
+    "player_a": "Aryna Sabalenka",
+    "player_b": "Ann Li",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-14T19:00:00+08:00",
+    "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "56ef426ff583b351b19888ef044e2aba8c30664429bf707449767234793a2447",
+  "model_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72",
+  "p_player_a": 0.8289602643644943,
+  "p_player_b": 0.17103973563550567,
+  "player_a_id": "wta:id:214544",
+  "player_b_id": "wta:id:215983",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Aryna Sabalenka"
+}
