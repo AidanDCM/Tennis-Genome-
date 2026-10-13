@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-13T16:17:02.232669+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS018",
+    "player_a": "Ashlyn Krueger",
+    "player_b": "Lanlana Tararudee",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-14T15:30:00+08:00",
+    "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "7b2bfbf886395172372294b0eb078dbf7842487e256bc2a2490da95eaaabd291",
+  "model_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72",
+  "p_player_a": 0.3989827332588417,
+  "p_player_b": 0.6010172667411583,
+  "player_a_id": "wta:id:221909",
+  "player_b_id": "wta:id:222290",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Lanlana Tararudee"
+}

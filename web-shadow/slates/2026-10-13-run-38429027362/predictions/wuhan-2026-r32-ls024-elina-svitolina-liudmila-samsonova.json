@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-13T16:17:00.512822+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS024",
+    "player_a": "Elina Svitolina",
+    "player_b": "Liudmila Samsonova",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-14T11:00:00+08:00",
+    "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "cee8d5655d93ae1dbd13b0810fd21be2b6e8ce2a70375c31d7208b3fbbedc272",
+  "model_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72",
+  "p_player_a": 0.7853931999076912,
+  "p_player_b": 0.2146068000923088,
+  "player_a_id": "wta:id:202494",
+  "player_b_id": "wta:id:214643",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elina Svitolina"
+}

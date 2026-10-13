@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 2.6060590584376047,
+  "match_id": "web:wta:1075:2026:LS016",
+  "matchup_input_sha256": "56ef426ff583b351b19888ef044e2aba8c30664429bf707449767234793a2447",
+  "p_player_a": 0.9312505138049075,
+  "p_player_b": 0.06874948619509247,
+  "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+  "production_eligible": false,
+  "record_sha256": "f65743abdbe4bbcdb86e5597d358b43512f589023e757e8ef5fb7076e5f2e6c9",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Aryna Sabalenka"
+}

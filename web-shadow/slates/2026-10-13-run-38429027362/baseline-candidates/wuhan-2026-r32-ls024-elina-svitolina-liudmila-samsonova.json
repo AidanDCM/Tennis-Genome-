@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 2.1031626902540603,
+  "match_id": "web:wta:1075:2026:LS024",
+  "matchup_input_sha256": "cee8d5655d93ae1dbd13b0810fd21be2b6e8ce2a70375c31d7208b3fbbedc272",
+  "p_player_a": 0.8912101957273283,
+  "p_player_b": 0.10878980427267171,
+  "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+  "production_eligible": false,
+  "record_sha256": "35deed1fc7ff586b4bdcc187d79da0ae0469a728bc8f851b4158b906a653cbc7",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Elina Svitolina"
+}

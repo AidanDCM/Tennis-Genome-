@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.8184508107065526,
+  "match_id": "web:wta:1075:2026:LS027",
+  "matchup_input_sha256": "52a23d25579fbb5422204e0fe539b5248564bfa4f57cbe9f4ce65f1e2cacf815",
+  "p_player_a": 0.6939073913022283,
+  "p_player_b": 0.30609260869777166,
+  "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+  "production_eligible": false,
+  "record_sha256": "2fd63200633b5a03e38a24d0377230338977ee8603bde1582824e6352b8b6850",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Belinda Bencic"
+}

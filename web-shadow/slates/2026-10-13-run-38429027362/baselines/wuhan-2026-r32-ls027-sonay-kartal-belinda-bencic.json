@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11829363751,
+  "artifact_sha256": "852da77f0247e8ba06fe0fc1c25ffa346ef70224d2760cb3db92ba0a951bf4e1",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.8184508107065526,
+  "match_id": "web:wta:1075:2026:LS027",
+  "matchup_input_sha256": "52a23d25579fbb5422204e0fe539b5248564bfa4f57cbe9f4ce65f1e2cacf815",
+  "p_player_a": 0.6939073913022283,
+  "p_player_b": 0.30609260869777166,
+  "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+  "production_eligible": false,
+  "record_sha256": "c1796d9ef7e4e667a69ced1015e4518275172bc433dc26adaf6327d0b714dd9c",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Belinda Bencic",
+  "slate_id": "2026-10-13-run-38429027362"
+}

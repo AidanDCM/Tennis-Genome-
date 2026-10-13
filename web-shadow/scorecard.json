@@ -93,7 +93,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 10
   },
-  "baseline_match_count": 26,
+  "baseline_match_count": 32,
   "metrics": {
     "accuracy": 0.7647058823529411,
     "brier_score": 0.21079006832258346,
@@ -133,8 +133,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 17
   },
-  "official_slate_count": 9,
-  "pending_match_count": 15,
+  "official_slate_count": 10,
+  "pending_match_count": 21,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 18,
@@ -596,6 +596,75 @@
       "slate_id": "2026-10-07-run-37693527958",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 37693527958
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+          "match_id": "web:wta:1075:2026:LS019",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+          "prediction_record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a",
+          "scheduled_start": "2026-10-14T11:00:00+08:00",
+          "selected_player": "Iga Swiatek",
+          "selected_probability": 0.876712889598141,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+          "match_id": "web:wta:1075:2026:LS021",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+          "prediction_record_sha256": "20759b500187ec5c115ef5b4f1bafab2f719c5b2535f438388b458c06db0b4a4",
+          "scheduled_start": "2026-10-14T11:00:00+08:00",
+          "selected_player": "Maja Chwalinska",
+          "selected_probability": 0.6040236070663648,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+          "match_id": "web:wta:1075:2026:LS024",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+          "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+          "scheduled_start": "2026-10-14T11:00:00+08:00",
+          "selected_player": "Elina Svitolina",
+          "selected_probability": 0.7853931999076912,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+          "match_id": "web:wta:1075:2026:LS027",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+          "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+          "scheduled_start": "2026-10-14T11:00:00+08:00",
+          "selected_player": "Belinda Bencic",
+          "selected_probability": 0.5985971817965126,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+          "match_id": "web:wta:1075:2026:LS018",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+          "prediction_record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038",
+          "scheduled_start": "2026-10-14T15:30:00+08:00",
+          "selected_player": "Lanlana Tararudee",
+          "selected_probability": 0.6010172667411583,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-13-run-38429027362/baselines/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+          "match_id": "web:wta:1075:2026:LS016",
+          "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+          "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+          "scheduled_start": "2026-10-14T19:00:00+08:00",
+          "selected_player": "Aryna Sabalenka",
+          "selected_probability": 0.8289602643644943,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-13-run-38429027362/slate-receipt.json",
+      "slate_id": "2026-10-13-run-38429027362",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 38429027362
     }
   ]
 }

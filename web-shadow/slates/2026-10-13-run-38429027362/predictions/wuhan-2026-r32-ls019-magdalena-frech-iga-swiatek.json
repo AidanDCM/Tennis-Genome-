@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-13T16:16:59.121491+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS019",
+    "player_a": "Magdalena Frech",
+    "player_b": "Iga Swiatek",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-14T11:00:00+08:00",
+    "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "eadc9b7c62d5100a4417a317028c854b78024c2128492f8664791ae6b38fe1d6",
+  "model_source_sha": "a07ecba386c1306124d3bffc9587e78c34fbbc72",
+  "p_player_a": 0.12328711040185905,
+  "p_player_b": 0.876712889598141,
+  "player_a_id": "wta:id:211684",
+  "player_b_id": "wta:id:216347",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Iga Swiatek"
+}
