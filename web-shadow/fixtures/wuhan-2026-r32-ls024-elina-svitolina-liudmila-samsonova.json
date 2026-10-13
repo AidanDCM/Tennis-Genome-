@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1075:2026:LS024",
+  "player_a": "Elina Svitolina",
+  "player_b": "Liudmila Samsonova",
+  "round": "R32",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "scheduled_start": "2026-10-14T11:00:00+08:00",
+  "source_observed_at": "2026-10-13T16:12:15.178447+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Dongfeng Voyah Wuhan Open",
+  "tournament_id": "web:wta:wuhan:2026",
+  "tournament_level": "PM"
+}

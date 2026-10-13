@@ -1,0 +1,136 @@
+{
+  "excluded_match_count": 73,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 15,
+    "not_upcoming": 26,
+    "unscheduled": 8
+  },
+  "observed_at": "2026-10-13T16:12:15.178447+00:00",
+  "pre_capacity_eligible_count": 6,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS019",
+      "player_a_wta_id": "320277",
+      "player_b_wta_id": "326408",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS019",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS021",
+      "player_a_wta_id": "320983",
+      "player_b_wta_id": "325639",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS021",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS024",
+      "player_a_wta_id": "316738",
+      "player_b_wta_id": "322222",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS024",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS027",
+      "player_a_wta_id": "329918",
+      "player_b_wta_id": "319001",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS027",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS018",
+      "player_a_wta_id": "329409",
+      "player_b_wta_id": "329651",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T15:30:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS018",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS016",
+      "player_a_wta_id": "320760",
+      "player_b_wta_id": "326096",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-14T19:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS016",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 6,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261013t161215z",
+  "source_match_count": 79,
+  "source_records": [
+    {
+      "group_id": 1075,
+      "matches_sha256": "1eddcc4e05ef49e9816b4517f3a4703390bb5425cb6fe68de81dfff5780a5cae",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 79,
+      "slug": "wuhan",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "year": 2026
+    }
+  ]
+}
