@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1020:2026:LS007",
+  "prediction_correct": false,
+  "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+  "production_eligible": false,
+  "record_sha256": "89f662586bbff0b8ec952b5978e2b7ab5881388e171ad02e271b64ee7d2cbecd",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-13T16:28:10+00:00",
+  "result_record_path": "web-shadow/results/2026-10-13-beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova-bbc9281f19.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Nikola Bartunkova"
+}

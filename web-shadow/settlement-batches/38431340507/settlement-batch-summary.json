@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS007",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+      "result_path": "web-shadow/results/2026-10-13-beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova-bbc9281f19.json",
+      "result_record_sha256": "e64fc297e292ed97d769ab36627a64293cc978cd1e7deeb803f5d1bae3993d12",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-07-run-37693527958/settlements/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "settlement_record_sha256": "89f662586bbff0b8ec952b5978e2b7ab5881388e171ad02e271b64ee7d2cbecd",
+      "slate_id": "2026-10-07-run-37693527958",
+      "winner": "Nikola Bartunkova"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1020:2026:LS006",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+      "result_path": "web-shadow/results/2026-10-13-beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva-5eb61bf873.json",
+      "result_record_sha256": "65aa138aa1094ba480588be76537ea851205e05bd16e507b303cc83ec1dfd289",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-07-run-37693527958/settlements/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "settlement_record_sha256": "687d0db8dd7306a974864592a37c4b555e0fcbfd6d3debd5d3e43dd7ea7d0e71",
+      "slate_id": "2026-10-07-run-37693527958",
+      "winner": "Mirra Andreeva"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
