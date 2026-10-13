@@ -1,0 +1,82 @@
+{
+  "observed_at": "2026-10-13T16:28:10+00:00",
+  "pending_prediction_count": 21,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-13-beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova-bbc9281f19.json",
+    "web-shadow/results/2026-10-13-beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva-5eb61bf873.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1020:2026:LS007",
+      "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova.json",
+      "prediction_record_sha256": "bbc9281f19dbc7174be347fb4013b5d83b8dbed9de81126eb91b9b7247ad4480",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-10-13-beijing-2026-qf-ls007-karolina-muchova-nikola-bartunkova-bbc9281f19.json",
+      "round_identity_conflict": false,
+      "score": "6-3 6-0",
+      "source_last_updated": "2026-10-08T08:16:18.957+00:00",
+      "source_match_id": "LS007",
+      "source_result_string": "[26]N. Bartunkova d [7]K. Muchova 6-3,6-0",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Nikola Bartunkova",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1020:2026:LS006",
+      "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+      "prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-10-13-beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva-5eb61bf873.json",
+      "round_identity_conflict": false,
+      "score": "7-6(4) 7-6(3)",
+      "source_last_updated": "2026-10-08T13:02:03.627+00:00",
+      "source_match_id": "LS006",
+      "source_result_string": "[4]M. Andreeva d [19]E. Alexandrova 7-6(4),7-6(3)",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Mirra Andreeva",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261013t162810z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "1eddcc4e05ef49e9816b4517f3a4703390bb5425cb6fe68de81dfff5780a5cae",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 79,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 6,
+  "unresolved_prediction_count": 13
+}

@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "5eb61bf87367134997968afa058c005ae94fcdfe0e49b71a27d0b08f2a18332b",
+  "match_id": "web:wta:1020:2026:LS006",
+  "prediction_path": "web-shadow/slates/2026-10-07-run-37693527958/predictions/beijing-2026-qf-ls006-ekaterina-alexandrova-mirra-andreeva.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-13T16:28:10+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-6(4) 7-6(3)",
+  "status": "COMPLETED",
+  "winner": "Mirra Andreeva"
+}
