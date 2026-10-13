@@ -1,0 +1,44 @@
+{
+  "schema_version": "tennis-genome-web-shadow-wta-acquisition-v1",
+  "production_eligible": false,
+  "observed_at": "2026-10-13T16:12:15.178447+00:00",
+  "source_policy": {
+    "provider": "WTA",
+    "api_root": "https://api.wtatennis.com/tennis",
+    "selection_authority": "web-shadow/intake-config.json",
+    "index_role": "audit_and_discovery_only",
+    "response_serialization": "provider_bytes_unmodified"
+  },
+  "index_records": [
+    {
+      "year": 2026,
+      "page": 0,
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=0&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "filename": "tournament-index-2026-page-0.json",
+      "sha256": "3f83c5eb3c6b78d7c6eba32d20dc344b66de57e4214d37c2d7208c2dce568437",
+      "entry_count": 100
+    },
+    {
+      "year": 2026,
+      "page": 1,
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=1&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "filename": "tournament-index-2026-page-1.json",
+      "sha256": "e05716333b91b8aca799aef8c5a6a2bed4cb42e3e744a8ca053bda5215ba3917",
+      "entry_count": 24
+    }
+  ],
+  "source_records": [
+    {
+      "slug": "wuhan",
+      "group_id": 1075,
+      "year": 2026,
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "tournament_filename": "wuhan-tournament.json",
+      "matches_filename": "wuhan-matches.json",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "matches_sha256": "1eddcc4e05ef49e9816b4517f3a4703390bb5425cb6fe68de81dfff5780a5cae",
+      "raw_match_count": 79
+    }
+  ]
+}

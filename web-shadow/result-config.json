@@ -30,6 +30,14 @@
       "display_name": "China Open",
       "tournament_id": "web:wta:beijing:2026",
       "tournament_level": "PM"
+    },
+    {
+      "group_id": 1075,
+      "year": 2026,
+      "slug": "wuhan",
+      "display_name": "Dongfeng Voyah Wuhan Open",
+      "tournament_id": "web:wta:wuhan:2026",
+      "tournament_level": "PM"
     }
   ]
 }
