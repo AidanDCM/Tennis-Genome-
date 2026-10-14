@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3141111597402411,
+  "match_id": "web:wta:1075:2026:LS015",
+  "matchup_input_sha256": "32681255ef0aee6072ed53a3ff1ec85f4831ae1a793535bd31a7d89e54fbee2a",
+  "p_player_a": 0.5778884300880044,
+  "p_player_b": 0.4221115699119956,
+  "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+  "production_eligible": false,
+  "record_sha256": "55517cca4d92cc4996c6f5c167723b2d0735f1f7eb037144b6513e866a1f87ee",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Jelena Ostapenko"
+}

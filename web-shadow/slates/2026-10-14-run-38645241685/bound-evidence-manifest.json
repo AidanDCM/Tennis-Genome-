@@ -1,0 +1,65 @@
+{
+  "baseline_count": 5,
+  "eligible_target_count": 5,
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "baseline_candidate_record_sha256": "3575dd25c6692570878ba14b61ca82f867b10651a37fd00bc971d5619fad2439",
+      "baseline_path": "baselines/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "baseline_record_sha256": "fdd37966a5a924789dbe7002999fcc22f5cc398c1ee3c97f4c542f0871fe0068",
+      "match_id": "web:wta:1075:2026:LS011",
+      "prediction_path": "predictions/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "baseline_candidate_record_sha256": "f010ab5cdc0d403f4cae656564b0ee68b8c418d17123200d5f691a096a966317",
+      "baseline_path": "baselines/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "baseline_record_sha256": "34cdf46a93b9dd19992aac0e48077a6621ae045e1ed57a56780b3330afa54cd5",
+      "match_id": "web:wta:1075:2026:LS014",
+      "prediction_path": "predictions/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "baseline_candidate_record_sha256": "ee99dfb5891a882123f41c4af65d01cab911ccca4381d64aabf3274723f26a5e",
+      "baseline_path": "baselines/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "baseline_record_sha256": "b6c0f93f4a129de6b6ea202f5a962fa6c18cd2d9a5c3ccd26d0bcd826cce1222",
+      "match_id": "web:wta:1075:2026:LS010",
+      "prediction_path": "predictions/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "baseline_candidate_record_sha256": "55517cca4d92cc4996c6f5c167723b2d0735f1f7eb037144b6513e866a1f87ee",
+      "baseline_path": "baselines/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "baseline_record_sha256": "1e8b0d3cc8d901946b2aaccba9ec0ff48fb279378d70bd4eb376dff965524346",
+      "match_id": "web:wta:1075:2026:LS015",
+      "prediction_path": "predictions/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7"
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "baseline_candidate_record_sha256": "39e2e72f21c45170b6de987738a31fb4db59870c92e4fa04fe38dc9ee5b398ed",
+      "baseline_path": "baselines/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "baseline_record_sha256": "881442eed5fcf2594baae4e5517797ffbe84e42be24d6ad60b59a2822fed784b",
+      "match_id": "web:wta:1075:2026:LS009",
+      "prediction_path": "predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-14-run-38645241685",
+  "workflow_artifact_id": 11932231042,
+  "workflow_artifact_sha256": "33d32d04024917dbb7d51f7cf285b010eb2cddb8bd0a00cd8203e0194432c658",
+  "workflow_run_id": 38645241685,
+  "workflow_source_sha": "b1bcef2eefbb2cdbae24ae3227fd11edbe80d2c6"
+}

@@ -1,0 +1,121 @@
+{
+  "eligible_target_count": 5,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "3575dd25c6692570878ba14b61ca82f867b10651a37fd00bc971d5619fad2439",
+      "baseline_p_player_a": 0.6266526763263384,
+      "baseline_p_player_b": 0.37334732367366164,
+      "baseline_selected_player": "Maria Sakkari",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "match_id": "web:wta:1075:2026:LS011",
+      "minimum_point_exposure": 1507,
+      "p_player_a": 0.5425063362710356,
+      "p_player_b": 0.4574936637289644,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari/prediction.json",
+      "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+      "scheduled_start": "2026-10-15T11:00:00+08:00",
+      "selected_player": "Maria Sakkari",
+      "target_history_match_counts": {
+        "wta:id:206289": 477,
+        "wta:id:266376": 21
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f010ab5cdc0d403f4cae656564b0ee68b8c418d17123200d5f691a096a966317",
+      "baseline_p_player_a": 0.6717124366092935,
+      "baseline_p_player_b": 0.3282875633907065,
+      "baseline_selected_player": "Karolina Muchova",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "match_id": "web:wta:1075:2026:LS014",
+      "minimum_point_exposure": 11662,
+      "p_player_a": 0.5974989548244967,
+      "p_player_b": 0.40250104517550334,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider/prediction.json",
+      "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+      "scheduled_start": "2026-10-15T11:00:00+08:00",
+      "selected_player": "Karolina Muchova",
+      "target_history_match_counts": {
+        "wta:id:214096": 244,
+        "wta:id:223670": 170
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "ee99dfb5891a882123f41c4af65d01cab911ccca4381d64aabf3274723f26a5e",
+      "baseline_p_player_a": 0.5188882163035899,
+      "baseline_p_player_b": 0.48111178369641006,
+      "baseline_selected_player": "Maja Chwalinska",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "match_id": "web:wta:1075:2026:LS010",
+      "minimum_point_exposure": 2580,
+      "p_player_a": 0.4513860646973832,
+      "p_player_b": 0.5486139353026168,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska/prediction.json",
+      "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+      "scheduled_start": "2026-10-15T12:00:00+08:00",
+      "selected_player": "Iva Jovic",
+      "target_history_match_counts": {
+        "wta:id:216081": 47,
+        "wta:id:260300": 63
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "55517cca4d92cc4996c6f5c167723b2d0735f1f7eb037144b6513e866a1f87ee",
+      "baseline_p_player_a": 0.5778884300880044,
+      "baseline_p_player_b": 0.4221115699119956,
+      "baseline_selected_player": "Jelena Ostapenko",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "match_id": "web:wta:1075:2026:LS015",
+      "minimum_point_exposure": 19815,
+      "p_player_a": 0.5437618710785752,
+      "p_player_b": 0.4562381289214248,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko/prediction.json",
+      "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+      "scheduled_start": "2026-10-15T15:30:00+08:00",
+      "selected_player": "Jelena Ostapenko",
+      "target_history_match_counts": {
+        "wta:id:211533": 513,
+        "wta:id:220367": 281
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "39e2e72f21c45170b6de987738a31fb4db59870c92e4fa04fe38dc9ee5b398ed",
+      "baseline_p_player_a": 0.8720869671999634,
+      "baseline_p_player_b": 0.12791303280003663,
+      "baseline_selected_player": "Iga Swiatek",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "match_id": "web:wta:1075:2026:LS009",
+      "minimum_point_exposure": 9372,
+      "p_player_a": 0.8249299177779753,
+      "p_player_b": 0.1750700822220247,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek/prediction.json",
+      "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+      "scheduled_start": "2026-10-15T19:00:00+08:00",
+      "selected_player": "Iga Swiatek",
+      "target_history_match_counts": {
+        "wta:id:216347": 428,
+        "wta:id:221909": 129
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 5,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

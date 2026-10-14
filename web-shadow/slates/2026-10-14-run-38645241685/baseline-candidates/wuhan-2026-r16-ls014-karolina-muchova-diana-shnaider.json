@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7159403852798731,
+  "match_id": "web:wta:1075:2026:LS014",
+  "matchup_input_sha256": "8163506196e32c7245c4ea000035431f9a52addea89d514fae942ef01ef62356",
+  "p_player_a": 0.6717124366092935,
+  "p_player_b": 0.3282875633907065,
+  "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+  "production_eligible": false,
+  "record_sha256": "f010ab5cdc0d403f4cae656564b0ee68b8c418d17123200d5f691a096a966317",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Karolina Muchova"
+}

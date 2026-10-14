@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11932231042,
+  "artifact_sha256": "33d32d04024917dbb7d51f7cf285b010eb2cddb8bd0a00cd8203e0194432c658",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7159403852798731,
+  "match_id": "web:wta:1075:2026:LS014",
+  "matchup_input_sha256": "8163506196e32c7245c4ea000035431f9a52addea89d514fae942ef01ef62356",
+  "p_player_a": 0.6717124366092935,
+  "p_player_b": 0.3282875633907065,
+  "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+  "production_eligible": false,
+  "record_sha256": "34cdf46a93b9dd19992aac0e48077a6621ae045e1ed57a56780b3330afa54cd5",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Karolina Muchova",
+  "slate_id": "2026-10-14-run-38645241685"
+}
