@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-14T22:07:25.457292+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS010",
+    "player_a": "Maja Chwalinska",
+    "player_b": "Iva Jovic",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-15T12:00:00+08:00",
+    "source_observed_at": "2026-10-14T17:17:40+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "051136e4966c3849b77c38ebb585c17fa39029f855a79e73083fa214acaf7bce",
+  "model_source_sha": "b1bcef2eefbb2cdbae24ae3227fd11edbe80d2c6",
+  "p_player_a": 0.4513860646973832,
+  "p_player_b": 0.5486139353026168,
+  "player_a_id": "wta:id:216081",
+  "player_b_id": "wta:id:260300",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Iva Jovic"
+}

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-14T22:07:23.672391+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS011",
+    "player_a": "Maria Sakkari",
+    "player_b": "Mia Pohankova",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-15T11:00:00+08:00",
+    "source_observed_at": "2026-10-14T17:17:40+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "d5ab2ae763abe5977f6fd3029014f9d7ae500fe81794c9d99b6256db8959f04b",
+  "model_source_sha": "b1bcef2eefbb2cdbae24ae3227fd11edbe80d2c6",
+  "p_player_a": 0.5425063362710356,
+  "p_player_b": 0.4574936637289644,
+  "player_a_id": "wta:id:206289",
+  "player_b_id": "wta:id:266376",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Maria Sakkari"
+}

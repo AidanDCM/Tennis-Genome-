@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-14T22:07:24.787657+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS014",
+    "player_a": "Karolina Muchova",
+    "player_b": "Diana Shnaider",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-15T11:00:00+08:00",
+    "source_observed_at": "2026-10-14T17:17:40+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "8163506196e32c7245c4ea000035431f9a52addea89d514fae942ef01ef62356",
+  "model_source_sha": "b1bcef2eefbb2cdbae24ae3227fd11edbe80d2c6",
+  "p_player_a": 0.5974989548244967,
+  "p_player_b": 0.40250104517550334,
+  "player_a_id": "wta:id:214096",
+  "player_b_id": "wta:id:223670",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Karolina Muchova"
+}

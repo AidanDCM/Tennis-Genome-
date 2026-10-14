@@ -1,0 +1,17 @@
+{
+  "artifact_id": 11932231042,
+  "artifact_sha256": "33d32d04024917dbb7d51f7cf285b010eb2cddb8bd0a00cd8203e0194432c658",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3141111597402411,
+  "match_id": "web:wta:1075:2026:LS015",
+  "matchup_input_sha256": "32681255ef0aee6072ed53a3ff1ec85f4831ae1a793535bd31a7d89e54fbee2a",
+  "p_player_a": 0.5778884300880044,
+  "p_player_b": 0.4221115699119956,
+  "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+  "production_eligible": false,
+  "record_sha256": "1e8b0d3cc8d901946b2aaccba9ec0ff48fb279378d70bd4eb376dff965524346",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Jelena Ostapenko",
+  "slate_id": "2026-10-14-run-38645241685"
+}

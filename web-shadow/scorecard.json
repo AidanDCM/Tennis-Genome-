@@ -93,7 +93,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 12
   },
-  "baseline_match_count": 32,
+  "baseline_match_count": 37,
   "metrics": {
     "accuracy": 0.7368421052631579,
     "brier_score": 0.21759534776306558,
@@ -133,8 +133,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 19
   },
-  "official_slate_count": 10,
-  "pending_match_count": 19,
+  "official_slate_count": 11,
+  "pending_match_count": 24,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 20,
@@ -671,6 +671,65 @@
       "slate_id": "2026-10-13-run-38429027362",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 38429027362
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+          "match_id": "web:wta:1075:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+          "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+          "scheduled_start": "2026-10-15T11:00:00+08:00",
+          "selected_player": "Maria Sakkari",
+          "selected_probability": 0.5425063362710356,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+          "match_id": "web:wta:1075:2026:LS014",
+          "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+          "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+          "scheduled_start": "2026-10-15T11:00:00+08:00",
+          "selected_player": "Karolina Muchova",
+          "selected_probability": 0.5974989548244967,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+          "match_id": "web:wta:1075:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+          "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+          "scheduled_start": "2026-10-15T12:00:00+08:00",
+          "selected_player": "Iva Jovic",
+          "selected_probability": 0.5486139353026168,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+          "match_id": "web:wta:1075:2026:LS015",
+          "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+          "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+          "scheduled_start": "2026-10-15T15:30:00+08:00",
+          "selected_player": "Jelena Ostapenko",
+          "selected_probability": 0.5437618710785752,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+          "match_id": "web:wta:1075:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+          "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+          "scheduled_start": "2026-10-15T19:00:00+08:00",
+          "selected_player": "Iga Swiatek",
+          "selected_probability": 0.8249299177779753,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-14-run-38645241685/slate-receipt.json",
+      "slate_id": "2026-10-14-run-38645241685",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 38645241685
     }
   ]
 }

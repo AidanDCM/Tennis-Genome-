@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-14T22:07:26.119728+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS015",
+    "player_a": "Jelena Ostapenko",
+    "player_b": "Leylah Fernandez",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-15T15:30:00+08:00",
+    "source_observed_at": "2026-10-14T17:17:40+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "32681255ef0aee6072ed53a3ff1ec85f4831ae1a793535bd31a7d89e54fbee2a",
+  "model_source_sha": "b1bcef2eefbb2cdbae24ae3227fd11edbe80d2c6",
+  "p_player_a": 0.5437618710785752,
+  "p_player_b": 0.4562381289214248,
+  "player_a_id": "wta:id:211533",
+  "player_b_id": "wta:id:220367",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Jelena Ostapenko"
+}
