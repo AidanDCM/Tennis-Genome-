@@ -1,0 +1,122 @@
+{
+  "excluded_match_count": 87,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 20,
+    "not_upcoming": 40,
+    "unscheduled": 3
+  },
+  "observed_at": "2026-10-14T17:17:40+00:00",
+  "pre_capacity_eligible_count": 5,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS011",
+      "player_a_wta_id": "334183",
+      "player_b_wta_id": "318312",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-15T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS014",
+      "player_a_wta_id": "322191",
+      "player_b_wta_id": "330482",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-15T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS014",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS010",
+      "player_a_wta_id": "332285",
+      "player_b_wta_id": "325639",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-15T12:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS015",
+      "player_a_wta_id": "326735",
+      "player_b_wta_id": "319939",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-15T15:30:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS015",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS009",
+      "player_a_wta_id": "329409",
+      "player_b_wta_id": "326408",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-15T19:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS009",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 5,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261014t171740z",
+  "source_match_count": 92,
+  "source_records": [
+    {
+      "group_id": 1075,
+      "matches_sha256": "342f6d9fd7878f06504d849f4d5cd271382b631e53e616895480d965203aaa21",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 92,
+      "slug": "wuhan",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "year": 2026
+    }
+  ]
+}
