@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a",
+  "match_id": "web:wta:1075:2026:LS019",
+  "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-14T08:01:01+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-1",
+  "status": "COMPLETED",
+  "winner": "Iga Swiatek"
+}
