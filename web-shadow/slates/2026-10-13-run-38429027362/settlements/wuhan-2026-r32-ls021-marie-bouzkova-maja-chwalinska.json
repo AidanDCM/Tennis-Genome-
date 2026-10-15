@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS021",
+  "prediction_correct": true,
+  "prediction_record_sha256": "20759b500187ec5c115ef5b4f1bafab2f719c5b2535f438388b458c06db0b4a4",
+  "production_eligible": false,
+  "record_sha256": "91e16dd8aedec79360a21fa516eaba02974a84dd44d6442b0471d865fe276b31",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-14T08:01:01+00:00",
+  "result_record_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska-20759b5001.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maja Chwalinska"
+}

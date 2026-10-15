@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS027",
+  "prediction_correct": false,
+  "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+  "production_eligible": false,
+  "record_sha256": "beecc353a2fe40b7f048ce7fd435c61277cd14984cd1560b3ad8659898cd42ab",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-14T08:01:01+00:00",
+  "result_record_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic-a41cc77a1f.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Sonay Kartal"
+}
