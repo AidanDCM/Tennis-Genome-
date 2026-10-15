@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.7276201516735714,
+  "match_id": "web:wta:1075:2026:LS004",
+  "matchup_input_sha256": "a303270e1e8092e1c9c42472d9eecc69f1a6ce5c0eea7f19853916f7862d6e1e",
+  "p_player_a": 0.15089224162865222,
+  "p_player_b": 0.8491077583713478,
+  "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+  "production_eligible": false,
+  "record_sha256": "97d74af5585b3ffbde3c571ebf9abd2db202a20c4d84e762598156aeb31c5cfd",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Iga Swiatek"
+}
