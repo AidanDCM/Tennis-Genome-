@@ -1,0 +1,94 @@
+{
+  "excluded_match_count": 97,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 24,
+    "not_upcoming": 48,
+    "unscheduled": 1
+  },
+  "observed_at": "2026-10-15T17:07:01+00:00",
+  "pre_capacity_eligible_count": 3,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS007",
+      "player_a_wta_id": "330482",
+      "player_b_wta_id": "319939",
+      "round": "QF",
+      "round_id": 3,
+      "scheduled_start": "2026-10-16T11:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS007",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS006",
+      "player_a_wta_id": "316738",
+      "player_b_wta_id": "329918",
+      "round": "QF",
+      "round_id": 3,
+      "scheduled_start": "2026-10-16T12:30:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS006",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS004",
+      "player_a_wta_id": "326096",
+      "player_b_wta_id": "326408",
+      "round": "QF",
+      "round_id": 3,
+      "scheduled_start": "2026-10-16T19:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS004",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 3,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261015t170701z",
+  "source_match_count": 100,
+  "source_records": [
+    {
+      "group_id": 1075,
+      "matches_sha256": "e7ffebfb41a05935f0573ccae240803dadda0ae812f2550b727fef75550213fa",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 100,
+      "slug": "wuhan",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "year": 2026
+    }
+  ]
+}
