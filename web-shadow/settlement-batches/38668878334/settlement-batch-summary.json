@@ -1,0 +1,65 @@
+{
+  "accuracy": 0.75,
+  "correct_prediction_count": 3,
+  "evaluation_eligible_count": 4,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 4,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS019",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "prediction_record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek-0aeab8eced.json",
+      "result_record_sha256": "4644af7ef57d197aa6587d30b3085ffa25460567bb3fad8349b0e656a1482750",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "settlement_record_sha256": "b306683f84bb3eca2e6d1313aafcfea1b33e2f6dc66f88ee76de2085fc9edbec",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Iga Swiatek"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS021",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "prediction_record_sha256": "20759b500187ec5c115ef5b4f1bafab2f719c5b2535f438388b458c06db0b4a4",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska-20759b5001.json",
+      "result_record_sha256": "c69017704a181470a5b16de3ee700e74f137477ce6c4eed304e99a361bf3c9a7",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "settlement_record_sha256": "91e16dd8aedec79360a21fa516eaba02974a84dd44d6442b0471d865fe276b31",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Maja Chwalinska"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS024",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova-cff4fed91c.json",
+      "result_record_sha256": "647402b7f85a821f381bfa33ca3d71b0868e5008798f48b74456645796e63bef",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "settlement_record_sha256": "674ed337580ea41dddaf8af9cabac13c013e05006c4d965715f159f163092fcb",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Elina Svitolina"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS027",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic-a41cc77a1f.json",
+      "result_record_sha256": "70bdcc23313b2db7ad3efb2ee6eb52093043e21ab2a567382dd29a007362adee",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "settlement_record_sha256": "beecc353a2fe40b7f048ce7fd435c61277cd14984cd1560b3ad8659898cd42ab",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Sonay Kartal"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 4,
+  "slate_count": 1
+}

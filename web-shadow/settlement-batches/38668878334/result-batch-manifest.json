@@ -1,0 +1,9 @@
+{
+  "result_paths": [
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek-0aeab8eced.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska-20759b5001.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova-cff4fed91c.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic-a41cc77a1f.json"
+  ],
+  "schema_version": "tennis-genome-web-shadow-result-batch-v1"
+}
