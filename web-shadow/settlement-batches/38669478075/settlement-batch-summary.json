@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS018",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "prediction_record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee-779f8a0c1d.json",
+      "result_record_sha256": "051ad1dee0ff2febcdbfe4206c920ea3b83e4c6b792b946604c797bb11211d4d",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "settlement_record_sha256": "d97ec7906ac1d84b1f0507098235a1bea8588af0b746a9500906dd8f0ac66506",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Ashlyn Krueger"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS016",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls016-aryna-sabalenka-ann-li-11de083b24.json",
+      "result_record_sha256": "cd59356ca8bbaec9870c2250b2282d0a14d327dd6f7be30eafcddde299d6f36f",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-13-run-38429027362/settlements/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "settlement_record_sha256": "cf322aa915d0e6e8eae4aca628b9159308ee72fd67d32a8340fff55545f71123",
+      "slate_id": "2026-10-13-run-38429027362",
+      "winner": "Ann Li"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
