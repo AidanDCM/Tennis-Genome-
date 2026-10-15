@@ -1,10 +1,8 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
-    "web-shadow/fixtures/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
-    "web-shadow/fixtures/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
-    "web-shadow/fixtures/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
-    "web-shadow/fixtures/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json"
+    "web-shadow/fixtures/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+    "web-shadow/fixtures/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+    "web-shadow/fixtures/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261014t171740z"
+  "rerun_reason": "automatic-wta-intake-wta-20261015t170701z"
 }
