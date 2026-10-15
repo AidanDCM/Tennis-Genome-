@@ -1,0 +1,14 @@
+{
+  "affected_slate_ids": [
+    "2026-10-13-run-38429027362"
+  ],
+  "applied_settlement_count": 2,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-artifact-receipt-v1",
+  "settlement_artifact_id": 11943059734,
+  "settlement_artifact_sha256": "ee184f6f189aa6043601fc06e3cccb6c2056b31ffff2c1fd5743bd31afeed900",
+  "source_workflow_run_id": 38669478075,
+  "source_workflow_sha": "70f3431f8051d454766047c696498813e82c4326"
+}

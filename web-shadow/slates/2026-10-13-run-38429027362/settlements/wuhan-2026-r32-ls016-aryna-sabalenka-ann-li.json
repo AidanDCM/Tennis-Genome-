@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS016",
+  "prediction_correct": false,
+  "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+  "production_eligible": false,
+  "record_sha256": "cf322aa915d0e6e8eae4aca628b9159308ee72fd67d32a8340fff55545f71123",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-15T02:05:58+00:00",
+  "result_record_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls016-aryna-sabalenka-ann-li-11de083b24.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Ann Li"
+}

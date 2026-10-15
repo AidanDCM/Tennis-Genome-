@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS018",
+  "prediction_correct": false,
+  "prediction_record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038",
+  "production_eligible": false,
+  "record_sha256": "d97ec7906ac1d84b1f0507098235a1bea8588af0b746a9500906dd8f0ac66506",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-15T02:05:58+00:00",
+  "result_record_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee-779f8a0c1d.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Ashlyn Krueger"
+}
