@@ -1,0 +1,82 @@
+{
+  "observed_at": "2026-10-15T02:05:58+00:00",
+  "pending_prediction_count": 20,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-15-wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee-779f8a0c1d.json",
+    "web-shadow/results/2026-10-15-wuhan-2026-r32-ls016-aryna-sabalenka-ann-li-11de083b24.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS018",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee.json",
+      "prediction_record_sha256": "779f8a0c1d6d276521e3eece6bc039dfe32fc093f28341d68770e929dcc1e038",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls018-ashlyn-krueger-lanlana-tararudee-779f8a0c1d.json",
+      "round_identity_conflict": true,
+      "score": "2-6 6-1 6-1",
+      "source_last_updated": "2026-10-14T12:50:10.367+00:00",
+      "source_match_id": "LS018",
+      "source_result_string": "A. Krueger d L. Tararudee 2-6,6-1,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Ashlyn Krueger",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS016",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls016-aryna-sabalenka-ann-li.json",
+      "prediction_record_sha256": "11de083b2420fce7926055850be2a35ad98962ec6a07f4376610a5979f588b5c",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r32-ls016-aryna-sabalenka-ann-li-11de083b24.json",
+      "round_identity_conflict": true,
+      "score": "3-6 6-4 7-6(5)",
+      "source_last_updated": "2026-10-14T13:52:53.45+00:00",
+      "source_match_id": "LS016",
+      "source_result_string": "A. Li d [1]A. Sabalenka 3-6,6-4,7-6(5)",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Ann Li",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261015t020558z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "cedecdaf7e59624c67928d4bebcc1a74c6219543fa315c6e8968f2aed5138796",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 92,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 5,
+  "unresolved_prediction_count": 13
+}
