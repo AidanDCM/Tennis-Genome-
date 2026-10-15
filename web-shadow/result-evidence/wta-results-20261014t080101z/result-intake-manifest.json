@@ -1,0 +1,116 @@
+{
+  "observed_at": "2026-10-14T08:01:01+00:00",
+  "pending_prediction_count": 19,
+  "production_eligible": false,
+  "result_count": 4,
+  "result_paths": [
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek-0aeab8eced.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska-20759b5001.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova-cff4fed91c.json",
+    "web-shadow/results/2026-10-14-wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic-a41cc77a1f.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS019",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek.json",
+      "prediction_record_sha256": "0aeab8eced3b28e184936edafc26161c7a73abf47b4fc77cf83d3ea2e5db000a",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls019-magdalena-frech-iga-swiatek-0aeab8eced.json",
+      "round_identity_conflict": true,
+      "score": "6-2 6-1",
+      "source_last_updated": "2026-10-14T04:52:45.34+00:00",
+      "source_match_id": "LS019",
+      "source_result_string": "[7]I. Swiatek d M. Frech 6-2,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Iga Swiatek",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS021",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska.json",
+      "prediction_record_sha256": "20759b500187ec5c115ef5b4f1bafab2f719c5b2535f438388b458c06db0b4a4",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls021-marie-bouzkova-maja-chwalinska-20759b5001.json",
+      "round_identity_conflict": true,
+      "score": "1-6 6-1 6-1",
+      "source_last_updated": "2026-10-14T05:06:37.07+00:00",
+      "source_match_id": "LS021",
+      "source_result_string": "[16]M. Chwalinska d M. Bouzkova 1-6,6-1,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Maja Chwalinska",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS024",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova.json",
+      "prediction_record_sha256": "cff4fed91cabbe036e7456c37f4a8f06ce7ca3e1e66da4529c1388dabafe2130",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls024-elina-svitolina-liudmila-samsonova-cff4fed91c.json",
+      "round_identity_conflict": true,
+      "score": "6-2 5-7 6-2",
+      "source_last_updated": "2026-10-14T05:18:35.223+00:00",
+      "source_match_id": "LS024",
+      "source_result_string": "[5]E. Svitolina d L. Samsonova 6-2,5-7,6-2",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Elina Svitolina",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS027",
+      "prediction_path": "web-shadow/slates/2026-10-13-run-38429027362/predictions/wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic.json",
+      "prediction_record_sha256": "a41cc77a1f1bf616ffb718dc66c062cf06ac1a853139eb6c2b05315b8cb5470c",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-14-wuhan-2026-r32-ls027-sonay-kartal-belinda-bencic-a41cc77a1f.json",
+      "round_identity_conflict": true,
+      "score": "6-0 7-5",
+      "source_last_updated": "2026-10-14T04:45:26.8+00:00",
+      "source_match_id": "LS027",
+      "source_result_string": "S. Kartal d [9]B. Bencic 6-0,7-5",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Sonay Kartal",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261014t080101z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "d339bb0a8a392c071ee7ea7b14a63a05fac7ad305a37d8fc60a01a91f23245f3",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 79,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 2,
+  "unresolved_prediction_count": 13
+}
