@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-15T06:26:31+00:00",
+  "pending_prediction_count": 18,
+  "production_eligible": false,
+  "result_count": 1,
+  "result_paths": [
+    "web-shadow/results/2026-10-15-wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider-915f9882e1.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS014",
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider-915f9882e1.json",
+      "round_identity_conflict": true,
+      "score": "7-5 6-3",
+      "source_last_updated": "2026-10-15T05:03:32.057+00:00",
+      "source_match_id": "LS014",
+      "source_result_string": "[11]D. Shnaider d [6]K. Muchova 7-5,6-3",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Diana Shnaider",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261015t062631z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "ccdc41ce9c039802dee803690f1288782cdfaaaddafd2dd2b5c450c8b5e8c235",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 92,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 4,
+  "unresolved_prediction_count": 13
+}
