@@ -1,0 +1,45 @@
+{
+  "baseline_count": 3,
+  "eligible_target_count": 3,
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "baseline_candidate_record_sha256": "f867da614ec44548c61bc6f959fbc0509ffb5560e8db848ab9dd820c3d1eab15",
+      "baseline_path": "baselines/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "baseline_record_sha256": "b3e34cdb242bfe97e0bcf6d959ba049f48acc1d990c79868bc818c5c059b7539",
+      "match_id": "web:wta:1075:2026:LS007",
+      "prediction_path": "predictions/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829"
+    },
+    {
+      "artifact_stem": "wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "baseline_candidate_record_sha256": "cffdb046c5e772959ebf1b126a357769ebea5d64f9f32b411d8cf1160ebc569c",
+      "baseline_path": "baselines/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "baseline_record_sha256": "6b80d80d52db53a321e3c111ac72c684e2e9e622c75caf54cce78abca8296568",
+      "match_id": "web:wta:1075:2026:LS006",
+      "prediction_path": "predictions/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e"
+    },
+    {
+      "artifact_stem": "wuhan-2026-qf-ls004-ann-li-iga-swiatek",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "baseline_candidate_record_sha256": "97d74af5585b3ffbde3c571ebf9abd2db202a20c4d84e762598156aeb31c5cfd",
+      "baseline_path": "baselines/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "baseline_record_sha256": "1b49b43b3bc99f44c0b8a62b503656912e2554e555aa520003f7b2b852f6fae0",
+      "match_id": "web:wta:1075:2026:LS004",
+      "prediction_path": "predictions/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-15-run-38814936665",
+  "workflow_artifact_id": 12009568516,
+  "workflow_artifact_sha256": "8d90a2c417d8f9ebcbc9ea7a5b1372c77a2800597d7d07f3e4fa0e8a338becce",
+  "workflow_run_id": 38814936665,
+  "workflow_source_sha": "15a8ed10bc62867f33e5590120813af8f611ab05"
+}

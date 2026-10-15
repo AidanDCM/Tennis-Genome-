@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 18
   },
-  "baseline_match_count": 37,
+  "baseline_match_count": 40,
   "metrics": {
     "accuracy": 0.68,
     "brier_score": 0.23036320649468287,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 25
   },
-  "official_slate_count": 11,
-  "pending_match_count": 18,
+  "official_slate_count": 12,
+  "pending_match_count": 21,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 26,
@@ -775,6 +775,45 @@
       "slate_id": "2026-10-14-run-38645241685",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 38645241685
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-15-run-38814936665/baselines/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+          "match_id": "web:wta:1075:2026:LS007",
+          "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+          "prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829",
+          "scheduled_start": "2026-10-16T11:00:00+08:00",
+          "selected_player": "Diana Shnaider",
+          "selected_probability": 0.5364251882957745,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-15-run-38814936665/baselines/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+          "match_id": "web:wta:1075:2026:LS006",
+          "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+          "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+          "scheduled_start": "2026-10-16T12:30:00+08:00",
+          "selected_player": "Elina Svitolina",
+          "selected_probability": 0.6769526974116915,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-15-run-38814936665/baselines/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+          "match_id": "web:wta:1075:2026:LS004",
+          "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+          "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+          "scheduled_start": "2026-10-16T19:00:00+08:00",
+          "selected_player": "Iga Swiatek",
+          "selected_probability": 0.8084931370245464,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-15-run-38814936665/slate-receipt.json",
+      "slate_id": "2026-10-15-run-38814936665",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 38814936665
     }
   ]
 }

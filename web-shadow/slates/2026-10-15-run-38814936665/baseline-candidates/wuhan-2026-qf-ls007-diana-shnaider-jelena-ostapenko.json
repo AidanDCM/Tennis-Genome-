@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.44998758299910546,
+  "match_id": "web:wta:1075:2026:LS007",
+  "matchup_input_sha256": "a5d9a0cff50e806f22fc4cd53577522e88c93450dff272e23b441abb1fad216c",
+  "p_player_a": 0.3893637183080517,
+  "p_player_b": 0.6106362816919483,
+  "prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829",
+  "production_eligible": false,
+  "record_sha256": "f867da614ec44548c61bc6f959fbc0509ffb5560e8db848ab9dd820c3d1eab15",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Diana Shnaider"
+}

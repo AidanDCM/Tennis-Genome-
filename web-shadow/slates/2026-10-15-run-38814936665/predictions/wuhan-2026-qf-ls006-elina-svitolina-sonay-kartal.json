@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-15T22:08:36.222594+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS006",
+    "player_a": "Elina Svitolina",
+    "player_b": "Sonay Kartal",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-16T12:30:00+08:00",
+    "source_observed_at": "2026-10-15T17:07:01+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "9ad861ded41a74017519e71b06b44e14ce3a9af6414f806e4d5cdb01b1f6ed0d",
+  "model_source_sha": "15a8ed10bc62867f33e5590120813af8f611ab05",
+  "p_player_a": 0.6769526974116915,
+  "p_player_b": 0.3230473025883085,
+  "player_a_id": "wta:id:202494",
+  "player_b_id": "wta:id:222661",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elina Svitolina"
+}

@@ -1,0 +1,79 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f867da614ec44548c61bc6f959fbc0509ffb5560e8db848ab9dd820c3d1eab15",
+      "baseline_p_player_a": 0.3893637183080517,
+      "baseline_p_player_b": 0.6106362816919483,
+      "baseline_selected_player": "Diana Shnaider",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "match_id": "web:wta:1075:2026:LS007",
+      "minimum_point_exposure": 11662,
+      "p_player_a": 0.4635748117042256,
+      "p_player_b": 0.5364251882957745,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko/prediction.json",
+      "prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829",
+      "scheduled_start": "2026-10-16T11:00:00+08:00",
+      "selected_player": "Diana Shnaider",
+      "target_history_match_counts": {
+        "wta:id:211533": 513,
+        "wta:id:223670": 170
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "cffdb046c5e772959ebf1b126a357769ebea5d64f9f32b411d8cf1160ebc569c",
+      "baseline_p_player_a": 0.8050971525412925,
+      "baseline_p_player_b": 0.19490284745870745,
+      "baseline_selected_player": "Elina Svitolina",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "match_id": "web:wta:1075:2026:LS006",
+      "minimum_point_exposure": 4122,
+      "p_player_a": 0.6769526974116915,
+      "p_player_b": 0.3230473025883085,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal/prediction.json",
+      "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+      "scheduled_start": "2026-10-16T12:30:00+08:00",
+      "selected_player": "Elina Svitolina",
+      "target_history_match_counts": {
+        "wta:id:202494": 673,
+        "wta:id:222661": 63
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-qf-ls004-ann-li-iga-swiatek",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls004-ann-li-iga-swiatek/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "97d74af5585b3ffbde3c571ebf9abd2db202a20c4d84e762598156aeb31c5cfd",
+      "baseline_p_player_a": 0.15089224162865222,
+      "baseline_p_player_b": 0.8491077583713478,
+      "baseline_selected_player": "Iga Swiatek",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "match_id": "web:wta:1075:2026:LS004",
+      "minimum_point_exposure": 11227,
+      "p_player_a": 0.1915068629754536,
+      "p_player_b": 0.8084931370245464,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-qf-ls004-ann-li-iga-swiatek/prediction.json",
+      "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+      "scheduled_start": "2026-10-16T19:00:00+08:00",
+      "selected_player": "Iga Swiatek",
+      "target_history_match_counts": {
+        "wta:id:215983": 157,
+        "wta:id:216347": 428
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
