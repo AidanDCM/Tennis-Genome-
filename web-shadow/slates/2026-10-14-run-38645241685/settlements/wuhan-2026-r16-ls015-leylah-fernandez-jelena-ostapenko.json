@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS015",
+  "prediction_correct": true,
+  "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+  "production_eligible": false,
+  "record_sha256": "e381301d3244ea9d3cb1727d80eb3d9a6400306bf5d5d34b29148201042997fe",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-16T02:10:51+00:00",
+  "result_record_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko-f21dbb243f.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Jelena Ostapenko"
+}

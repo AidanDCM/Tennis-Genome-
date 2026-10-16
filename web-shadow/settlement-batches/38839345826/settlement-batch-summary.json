@@ -1,0 +1,65 @@
+{
+  "accuracy": 0.75,
+  "correct_prediction_count": 3,
+  "evaluation_eligible_count": 4,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 4,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS011",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari-d02d755d33.json",
+      "result_record_sha256": "267319f26e280ca715d6da382552c8dbfc342732626936bb4223af46aec223b5",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "settlement_record_sha256": "aa593d15ca9bc31abf88bea65ec6c87c5aa3e9e98d3bd1bf658cec64370a256b",
+      "slate_id": "2026-10-14-run-38645241685",
+      "winner": "Maria Sakkari"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS010",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska-374b449faa.json",
+      "result_record_sha256": "da4e88c1c35c18e31dfbbcc6abacf13489ff4ba5c3908c838fa222c69deb5d55",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "settlement_record_sha256": "1a5b2f6281a238a309ead1386d9708c3e75b347854c9bbcb64ade1575f15b9e8",
+      "slate_id": "2026-10-14-run-38645241685",
+      "winner": "Maja Chwalinska"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS015",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko-f21dbb243f.json",
+      "result_record_sha256": "1bf009e808235d234959db1ac5a86eeaae0f72ba818f3d54ff7bd2ef0e1a1343",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "settlement_record_sha256": "e381301d3244ea9d3cb1727d80eb3d9a6400306bf5d5d34b29148201042997fe",
+      "slate_id": "2026-10-14-run-38645241685",
+      "winner": "Jelena Ostapenko"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS009",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek-2115ec5e5d.json",
+      "result_record_sha256": "1d3d89f43bcb0c345d5ff22d56ac4a83198dbc2367f643a3250276d9075e97c0",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "settlement_record_sha256": "83631927ffe4a07076db3f54fd1e4547aab1df5e58ec1cce054f9d318a3addf6",
+      "slate_id": "2026-10-14-run-38645241685",
+      "winner": "Iga Swiatek"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 4,
+  "slate_count": 1
+}

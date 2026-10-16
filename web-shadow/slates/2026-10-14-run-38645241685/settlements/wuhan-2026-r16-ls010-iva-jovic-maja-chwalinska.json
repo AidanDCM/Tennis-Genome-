@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS010",
+  "prediction_correct": false,
+  "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+  "production_eligible": false,
+  "record_sha256": "1a5b2f6281a238a309ead1386d9708c3e75b347854c9bbcb64ade1575f15b9e8",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-16T02:10:51+00:00",
+  "result_record_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska-374b449faa.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maja Chwalinska"
+}
