@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.05728875622467429,
+  "match_id": "web:wta:1075:2026:LS003",
+  "matchup_input_sha256": "e3e63ce5fb6f8e32d863975908f7c01b3390d1819514655165569f2df6b95afd",
+  "p_player_a": 0.4856817267792629,
+  "p_player_b": 0.5143182732207371,
+  "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+  "production_eligible": false,
+  "record_sha256": "f856ed5cab8c6ba28934bdef47f81f0d22daed19f3cb1c20815246fc487c4c57",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Sonay Kartal"
+}

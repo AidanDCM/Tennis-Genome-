@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12078470013,
+  "artifact_sha256": "5ea519043a9171c69084baecc43aef307b0d403e78cba07f94270f7713552ccb",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.2274849279371147,
+  "match_id": "web:wta:1075:2026:LS002",
+  "matchup_input_sha256": "f3f8057c5399538d34bf423704910ea83c86a5133035793d2e1dffe60a2edc9d",
+  "p_player_a": 0.22662192529317537,
+  "p_player_b": 0.7733780747068246,
+  "prediction_record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5",
+  "production_eligible": false,
+  "record_sha256": "15ce5abce4431826c2d7baa523d1080ec98bb341b5657f21c3e88437b289c6f8",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Iga Swiatek",
+  "slate_id": "2026-10-16-run-38973289250"
+}
