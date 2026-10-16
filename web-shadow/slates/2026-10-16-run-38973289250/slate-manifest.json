@@ -1,0 +1,58 @@
+{
+  "eligible_target_count": 2,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f856ed5cab8c6ba28934bdef47f81f0d22daed19f3cb1c20815246fc487c4c57",
+      "baseline_p_player_a": 0.4856817267792629,
+      "baseline_p_player_b": 0.5143182732207371,
+      "baseline_selected_player": "Sonay Kartal",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "match_id": "web:wta:1075:2026:LS003",
+      "minimum_point_exposure": 4122,
+      "p_player_a": 0.5035975290180211,
+      "p_player_b": 0.49640247098197887,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko/prediction.json",
+      "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+      "scheduled_start": "2026-10-17T17:00:00+08:00",
+      "selected_player": "Jelena Ostapenko",
+      "target_history_match_counts": {
+        "wta:id:211533": 513,
+        "wta:id:222661": 63
+      }
+    },
+    {
+      "artifact_stem": "wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2ef634c3cee693ba6f6d762944f627fe79256a6e744d2fd3e897176d6dcd033e",
+      "baseline_p_player_a": 0.22662192529317537,
+      "baseline_p_player_b": 0.7733780747068246,
+      "baseline_selected_player": "Iga Swiatek",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "match_id": "web:wta:1075:2026:LS002",
+      "minimum_point_exposure": 2580,
+      "p_player_a": 0.24342977408167227,
+      "p_player_b": 0.7565702259183278,
+      "prediction_path": "web-shadow-slate-run/matches/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska/prediction.json",
+      "prediction_record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5",
+      "scheduled_start": "2026-10-17T18:30:00+08:00",
+      "selected_player": "Iga Swiatek",
+      "target_history_match_counts": {
+        "wta:id:216081": 47,
+        "wta:id:216347": 428
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 2,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

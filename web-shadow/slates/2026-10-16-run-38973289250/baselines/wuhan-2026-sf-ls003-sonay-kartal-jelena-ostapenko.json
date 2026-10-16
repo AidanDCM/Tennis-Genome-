@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12078470013,
+  "artifact_sha256": "5ea519043a9171c69084baecc43aef307b0d403e78cba07f94270f7713552ccb",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.05728875622467429,
+  "match_id": "web:wta:1075:2026:LS003",
+  "matchup_input_sha256": "e3e63ce5fb6f8e32d863975908f7c01b3390d1819514655165569f2df6b95afd",
+  "p_player_a": 0.4856817267792629,
+  "p_player_b": 0.5143182732207371,
+  "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+  "production_eligible": false,
+  "record_sha256": "bafc93d8f8e19e34c12009fd75858c9a2be61a712b04da13027c26c50ab16f1e",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Sonay Kartal",
+  "slate_id": "2026-10-16-run-38973289250"
+}

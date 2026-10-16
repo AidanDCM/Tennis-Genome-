@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-16T22:03:25.652253+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS002",
+    "player_a": "Maja Chwalinska",
+    "player_b": "Iga Swiatek",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-17T18:30:00+08:00",
+    "source_observed_at": "2026-10-16T16:44:12+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "f3f8057c5399538d34bf423704910ea83c86a5133035793d2e1dffe60a2edc9d",
+  "model_source_sha": "775c900b864115b3fe28183f27da690a70baed56",
+  "p_player_a": 0.24342977408167227,
+  "p_player_b": 0.7565702259183278,
+  "player_a_id": "wta:id:216081",
+  "player_b_id": "wta:id:216347",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Iga Swiatek"
+}

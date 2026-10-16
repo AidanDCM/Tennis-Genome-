@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-16T22:03:24.516610+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS003",
+    "player_a": "Jelena Ostapenko",
+    "player_b": "Sonay Kartal",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-17T17:00:00+08:00",
+    "source_observed_at": "2026-10-16T16:44:12+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "e3e63ce5fb6f8e32d863975908f7c01b3390d1819514655165569f2df6b95afd",
+  "model_source_sha": "775c900b864115b3fe28183f27da690a70baed56",
+  "p_player_a": 0.5035975290180211,
+  "p_player_b": 0.49640247098197887,
+  "player_a_id": "wta:id:211533",
+  "player_b_id": "wta:id:222661",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Jelena Ostapenko"
+}

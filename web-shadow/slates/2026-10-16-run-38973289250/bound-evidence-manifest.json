@@ -1,0 +1,35 @@
+{
+  "baseline_count": 2,
+  "eligible_target_count": 2,
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "baseline_candidate_record_sha256": "f856ed5cab8c6ba28934bdef47f81f0d22daed19f3cb1c20815246fc487c4c57",
+      "baseline_path": "baselines/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "baseline_record_sha256": "bafc93d8f8e19e34c12009fd75858c9a2be61a712b04da13027c26c50ab16f1e",
+      "match_id": "web:wta:1075:2026:LS003",
+      "prediction_path": "predictions/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612"
+    },
+    {
+      "artifact_stem": "wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "baseline_candidate_record_sha256": "2ef634c3cee693ba6f6d762944f627fe79256a6e744d2fd3e897176d6dcd033e",
+      "baseline_path": "baselines/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "baseline_record_sha256": "15ce5abce4431826c2d7baa523d1080ec98bb341b5657f21c3e88437b289c6f8",
+      "match_id": "web:wta:1075:2026:LS002",
+      "prediction_path": "predictions/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "prediction_record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-16-run-38973289250",
+  "workflow_artifact_id": 12078470013,
+  "workflow_artifact_sha256": "5ea519043a9171c69084baecc43aef307b0d403e78cba07f94270f7713552ccb",
+  "workflow_run_id": 38973289250,
+  "workflow_source_sha": "775c900b864115b3fe28183f27da690a70baed56"
+}
