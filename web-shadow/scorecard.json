@@ -1,26 +1,26 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.631578947368421,
-      "brier_score": 0.2521922441783399,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11737752198705798,
+      "accuracy": 0.6956521739130435,
+      "brier_score": 0.23291518840469383,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.03589953076834762,
       "confidence_buckets": [
         {
-          "accuracy": 0.75,
-          "correct_prediction_count": 3,
+          "accuracy": 0.8333333333333334,
+          "correct_prediction_count": 5,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 4,
-          "mean_selected_probability": 0.5834427688429771,
+          "match_count": 6,
+          "mean_selected_probability": 0.5717579536272505,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.25,
-          "correct_prediction_count": 1,
+          "accuracy": 0.4,
+          "correct_prediction_count": 2,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 4,
-          "mean_selected_probability": 0.6740366802441813,
+          "match_count": 5,
+          "mean_selected_probability": 0.6645598794606127,
           "upper_bound": 0.7
         },
         {
@@ -33,12 +33,12 @@
           "upper_bound": 0.8
         },
         {
-          "accuracy": 0.8,
-          "correct_prediction_count": 4,
+          "accuracy": 0.8333333333333334,
+          "correct_prediction_count": 5,
           "label": "0.80-0.90",
           "lower_bound": 0.8,
-          "match_count": 5,
-          "mean_selected_probability": 0.8562652231530998,
+          "match_count": 6,
+          "mean_selected_probability": 0.8589021804942437,
           "upper_bound": 0.9
         },
         {
@@ -51,26 +51,26 @@
           "upper_bound": 1.0
         }
       ],
-      "correct_prediction_count": 12,
-      "log_loss": 0.7272290765143559,
-      "mean_selected_probability": 0.748956469355479,
+      "correct_prediction_count": 16,
+      "log_loss": 0.6793922902699403,
+      "mean_selected_probability": 0.7315517046813911,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 19
+      "settled_match_count": 23
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.018947206164203867,
+    "brier_improvement_baseline_minus_genome": 0.007665788900349968,
     "genome": {
-      "accuracy": 0.631578947368421,
-      "brier_score": 0.23324503801413604,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06285810092004585,
+      "accuracy": 0.6521739130434783,
+      "brier_score": 0.22524939950434386,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.028439825126568397,
       "confidence_buckets": [
         {
-          "accuracy": 0.3333333333333333,
-          "correct_prediction_count": 1,
+          "accuracy": 0.5,
+          "correct_prediction_count": 3,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 3,
-          "mean_selected_probability": 0.5807777480219641,
+          "match_count": 6,
+          "mean_selected_probability": 0.5628692311196866,
           "upper_bound": 0.6
         },
         {
@@ -92,38 +92,38 @@
           "upper_bound": 0.8
         },
         {
-          "accuracy": 0.5,
-          "correct_prediction_count": 1,
+          "accuracy": 0.6666666666666666,
+          "correct_prediction_count": 2,
           "label": "0.80-0.90",
           "lower_bound": 0.8,
-          "match_count": 2,
-          "mean_selected_probability": 0.8528365769813177,
+          "match_count": 3,
+          "mean_selected_probability": 0.8435343572468702,
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 12,
-      "log_loss": 0.6597964524649679,
-      "mean_selected_probability": 0.6944370482884669,
+      "correct_prediction_count": 15,
+      "log_loss": 0.6410791785404681,
+      "mean_selected_probability": 0.6806137381700467,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 19
+      "settled_match_count": 23
     },
-    "log_loss_improvement_baseline_minus_genome": 0.06743262404938799,
+    "log_loss_improvement_baseline_minus_genome": 0.03831311172947216,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 19
+    "settled_match_count": 23
   },
   "baseline_match_count": 40,
   "metrics": {
-    "accuracy": 0.6538461538461539,
-    "brier_score": 0.23523404474551682,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.013298093244648146,
+    "accuracy": 0.6666666666666666,
+    "brier_score": 0.2288388543238254,
+    "calibration_gap_accuracy_minus_mean_selected_probability": 0.006481250506964686,
     "confidence_buckets": [
       {
-        "accuracy": 0.625,
-        "correct_prediction_count": 5,
+        "accuracy": 0.6363636363636364,
+        "correct_prediction_count": 7,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 8,
-        "mean_selected_probability": 0.5701635947766165,
+        "match_count": 11,
+        "mean_selected_probability": 0.5632900818968327,
         "upper_bound": 0.6
       },
       {
@@ -145,26 +145,26 @@
         "upper_bound": 0.8
       },
       {
-        "accuracy": 0.5,
-        "correct_prediction_count": 1,
+        "accuracy": 0.6666666666666666,
+        "correct_prediction_count": 2,
         "label": "0.80-0.90",
         "lower_bound": 0.8,
-        "match_count": 2,
-        "mean_selected_probability": 0.8528365769813177,
+        "match_count": 3,
+        "mean_selected_probability": 0.8435343572468702,
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 17,
-    "log_loss": 0.6644669486999406,
-    "mean_selected_probability": 0.667144247090802,
+    "correct_prediction_count": 20,
+    "log_loss": 0.6494943058598276,
+    "mean_selected_probability": 0.6601854161597019,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 26
+    "settled_match_count": 30
   },
   "official_slate_count": 12,
-  "pending_match_count": 20,
+  "pending_match_count": 16,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 27,
+  "settled_match_count": 31,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -725,10 +725,13 @@
           "match_id": "web:wta:1075:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
           "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+          "result_record_sha256": "267319f26e280ca715d6da382552c8dbfc342732626936bb4223af46aec223b5",
           "scheduled_start": "2026-10-15T11:00:00+08:00",
           "selected_player": "Maria Sakkari",
           "selected_probability": 0.5425063362710356,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+          "settlement_record_sha256": "aa593d15ca9bc31abf88bea65ec6c87c5aa3e9e98d3bd1bf658cec64370a256b",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
@@ -748,35 +751,44 @@
           "match_id": "web:wta:1075:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
           "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+          "result_record_sha256": "da4e88c1c35c18e31dfbbcc6abacf13489ff4ba5c3908c838fa222c69deb5d55",
           "scheduled_start": "2026-10-15T12:00:00+08:00",
           "selected_player": "Iva Jovic",
           "selected_probability": 0.5486139353026168,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+          "settlement_record_sha256": "1a5b2f6281a238a309ead1386d9708c3e75b347854c9bbcb64ade1575f15b9e8",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
           "match_id": "web:wta:1075:2026:LS015",
           "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
           "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+          "result_record_sha256": "1bf009e808235d234959db1ac5a86eeaae0f72ba818f3d54ff7bd2ef0e1a1343",
           "scheduled_start": "2026-10-15T15:30:00+08:00",
           "selected_player": "Jelena Ostapenko",
           "selected_probability": 0.5437618710785752,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+          "settlement_record_sha256": "e381301d3244ea9d3cb1727d80eb3d9a6400306bf5d5d34b29148201042997fe",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
           "match_id": "web:wta:1075:2026:LS009",
           "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
           "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+          "result_record_sha256": "1d3d89f43bcb0c345d5ff22d56ac4a83198dbc2367f643a3250276d9075e97c0",
           "scheduled_start": "2026-10-15T19:00:00+08:00",
           "selected_player": "Iga Swiatek",
           "selected_probability": 0.8249299177779753,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+          "settlement_record_sha256": "83631927ffe4a07076db3f54fd1e4547aab1df5e58ec1cce054f9d318a3addf6",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-10-14-run-38645241685/slate-receipt.json",
       "slate_id": "2026-10-14-run-38645241685",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 38645241685
     },
     {
