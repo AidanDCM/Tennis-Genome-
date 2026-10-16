@@ -1,0 +1,116 @@
+{
+  "observed_at": "2026-10-16T02:10:51+00:00",
+  "pending_prediction_count": 20,
+  "production_eligible": false,
+  "result_count": 4,
+  "result_paths": [
+    "web-shadow/results/2026-10-16-wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari-d02d755d33.json",
+    "web-shadow/results/2026-10-16-wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska-374b449faa.json",
+    "web-shadow/results/2026-10-16-wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko-f21dbb243f.json",
+    "web-shadow/results/2026-10-16-wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek-2115ec5e5d.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari.json",
+      "prediction_record_sha256": "d02d755d339c837263f4b43448a452134f8ad0a9bf355c186dfb0e019c3e06c6",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls011-mia-pohankova-maria-sakkari-d02d755d33.json",
+      "round_identity_conflict": true,
+      "score": "6-1 6-4",
+      "source_last_updated": "2026-10-15T07:50:44.45+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "M. Sakkari d M. Pohankova 6-1,6-4",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Maria Sakkari",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",
+      "prediction_record_sha256": "374b449faac96f4c04157afbf55feae560b6461469fb5026ef8c5c5fb050ed95",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska-374b449faa.json",
+      "round_identity_conflict": true,
+      "score": "6-4 6-1",
+      "source_last_updated": "2026-10-15T08:20:13.96+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "[16]M. Chwalinska d [10]I. Jovic 6-4,6-1",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Maja Chwalinska",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS015",
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko.json",
+      "prediction_record_sha256": "f21dbb243febc3807c2fcb6ffc956935d387d6575b9ddbb3cab98a1f8be239c7",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls015-leylah-fernandez-jelena-ostapenko-f21dbb243f.json",
+      "round_identity_conflict": true,
+      "score": "6-1 1-6 6-4",
+      "source_last_updated": "2026-10-15T09:35:02.837+00:00",
+      "source_match_id": "LS015",
+      "source_result_string": "J. Ostapenko d L. Fernandez 6-1,1-6,6-4",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Jelena Ostapenko",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS009",
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+      "prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek-2115ec5e5d.json",
+      "round_identity_conflict": true,
+      "score": "6-1 6-4",
+      "source_last_updated": "2026-10-15T13:00:14.44+00:00",
+      "source_match_id": "LS009",
+      "source_result_string": "[7]I. Swiatek d A. Krueger 6-1,6-4",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Iga Swiatek",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261016t021051z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "78bf3345a785522df2c0da9eb6990973a2270ed532b01a961f8d6878cb46299c",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 100,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 3,
+  "unresolved_prediction_count": 13
+}
