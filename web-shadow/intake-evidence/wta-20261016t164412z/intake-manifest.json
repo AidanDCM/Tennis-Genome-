@@ -1,0 +1,79 @@
+{
+  "excluded_match_count": 102,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 26,
+    "not_upcoming": 52
+  },
+  "observed_at": "2026-10-16T16:44:12+00:00",
+  "pre_capacity_eligible_count": 2,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS003",
+      "player_a_wta_id": "329918",
+      "player_b_wta_id": "319939",
+      "round": "SF",
+      "round_id": 2,
+      "scheduled_start": "2026-10-17T17:00:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS003",
+      "year": 2026
+    },
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS002",
+      "player_a_wta_id": "326408",
+      "player_b_wta_id": "325639",
+      "round": "SF",
+      "round_id": 2,
+      "scheduled_start": "2026-10-17T18:30:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS002",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 2,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261016t164412z",
+  "source_match_count": 104,
+  "source_records": [
+    {
+      "group_id": 1075,
+      "matches_sha256": "7d917d2dd83619485d341210196f62399cfa08b5ca229bca7e7f97b1d6d94f48",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 104,
+      "slug": "wuhan",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "year": 2026
+    }
+  ]
+}
