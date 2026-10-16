@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "2115ec5e5db4e84f37150be0cb115e272c5ed2864b5233d8dc38cfbbdd91f53f",
+  "match_id": "web:wta:1075:2026:LS009",
+  "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls009-ashlyn-krueger-iga-swiatek.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-16T02:10:51+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-1 6-4",
+  "status": "COMPLETED",
+  "winner": "Iga Swiatek"
+}
