@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829",
+  "match_id": "web:wta:1075:2026:LS007",
+  "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-16T06:23:57+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-6(6) 6-1",
+  "status": "COMPLETED",
+  "winner": "Jelena Ostapenko"
+}
