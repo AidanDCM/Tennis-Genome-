@@ -1,9 +1,9 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.6666666666666666,
-      "brier_score": 0.2411363912162702,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.08658113784137811,
+      "accuracy": 0.631578947368421,
+      "brier_score": 0.2521922441783399,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11737752198705798,
       "confidence_buckets": [
         {
           "accuracy": 0.75,
@@ -15,12 +15,12 @@
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.3333333333333333,
+          "accuracy": 0.25,
           "correct_prediction_count": 1,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 3,
-          "mean_selected_probability": 0.6748114281224772,
+          "match_count": 4,
+          "mean_selected_probability": 0.6740366802441813,
           "upper_bound": 0.7
         },
         {
@@ -52,25 +52,25 @@
         }
       ],
       "correct_prediction_count": 12,
-      "log_loss": 0.705749284263162,
-      "mean_selected_probability": 0.7532478045080447,
+      "log_loss": 0.7272290765143559,
+      "mean_selected_probability": 0.748956469355479,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 18
+      "settled_match_count": 19
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.014766906702258026,
+    "brier_improvement_baseline_minus_genome": 0.018947206164203867,
     "genome": {
-      "accuracy": 0.6666666666666666,
-      "brier_score": 0.22636948451401218,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.033155831258687485,
+      "accuracy": 0.631578947368421,
+      "brier_score": 0.23324503801413604,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06285810092004585,
       "confidence_buckets": [
         {
-          "accuracy": 0.5,
+          "accuracy": 0.3333333333333333,
           "correct_prediction_count": 1,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 2,
-          "mean_selected_probability": 0.5724171446206978,
+          "match_count": 3,
+          "mean_selected_probability": 0.5807777480219641,
           "upper_bound": 0.6
         },
         {
@@ -102,28 +102,28 @@
         }
       ],
       "correct_prediction_count": 12,
-      "log_loss": 0.6458930561898236,
-      "mean_selected_probability": 0.6998224979253541,
+      "log_loss": 0.6597964524649679,
+      "mean_selected_probability": 0.6944370482884669,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 18
+      "settled_match_count": 19
     },
-    "log_loss_improvement_baseline_minus_genome": 0.05985622807333835,
+    "log_loss_improvement_baseline_minus_genome": 0.06743262404938799,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 18
+    "settled_match_count": 19
   },
   "baseline_match_count": 40,
   "metrics": {
-    "accuracy": 0.68,
-    "brier_score": 0.23036320649468287,
-    "calibration_gap_accuracy_minus_mean_selected_probability": 0.010069941218545764,
+    "accuracy": 0.6538461538461539,
+    "brier_score": 0.23523404474551682,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.013298093244648146,
     "confidence_buckets": [
       {
-        "accuracy": 0.7142857142857143,
+        "accuracy": 0.625,
         "correct_prediction_count": 5,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 7,
-        "mean_selected_probability": 0.5662585433412051,
+        "match_count": 8,
+        "mean_selected_probability": 0.5701635947766165,
         "upper_bound": 0.6
       },
       {
@@ -155,16 +155,16 @@
       }
     ],
     "correct_prediction_count": 17,
-    "log_loss": 0.6546433232312355,
-    "mean_selected_probability": 0.6699300587814543,
+    "log_loss": 0.6644669486999406,
+    "mean_selected_probability": 0.667144247090802,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 25
+    "settled_match_count": 26
   },
   "official_slate_count": 12,
-  "pending_match_count": 21,
+  "pending_match_count": 20,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 26,
+  "settled_match_count": 27,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -735,10 +735,13 @@
           "match_id": "web:wta:1075:2026:LS014",
           "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
           "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+          "result_record_sha256": "4f3a5bf97ddf23d8601b314254bfcaaf24a518ad86df6236d3afffbd3f481cdc",
           "scheduled_start": "2026-10-15T11:00:00+08:00",
           "selected_player": "Karolina Muchova",
           "selected_probability": 0.5974989548244967,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+          "settlement_record_sha256": "07ec054d05e28030dd9ba1c2bfa310e7375f76b056c402382e4e70aa0df9cf77",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-14-run-38645241685/baselines/wuhan-2026-r16-ls010-iva-jovic-maja-chwalinska.json",

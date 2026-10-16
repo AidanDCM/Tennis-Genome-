@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS014",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-14-run-38645241685/predictions/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "prediction_record_sha256": "915f9882e1671ecbbcca28bbd0aebf48d742c49310ea74b794948796b6831c0c",
+      "result_path": "web-shadow/results/2026-10-15-wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider-915f9882e1.json",
+      "result_record_sha256": "4f3a5bf97ddf23d8601b314254bfcaaf24a518ad86df6236d3afffbd3f481cdc",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-14-run-38645241685/settlements/wuhan-2026-r16-ls014-karolina-muchova-diana-shnaider.json",
+      "settlement_record_sha256": "07ec054d05e28030dd9ba1c2bfa310e7375f76b056c402382e4e70aa0df9cf77",
+      "slate_id": "2026-10-14-run-38645241685",
+      "winner": "Diana Shnaider"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
