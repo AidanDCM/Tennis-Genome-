@@ -1,0 +1,25 @@
+{
+  "baseline_count": 1,
+  "eligible_target_count": 1,
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal",
+      "baseline_candidate_path": "baseline-candidates/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "baseline_candidate_record_sha256": "a270d9a8710c199a1e900f045536ecee3fb1f017f68f77571588e56b6d76113d",
+      "baseline_path": "baselines/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "baseline_record_sha256": "5e562fda641ae61bec557c063d9299bd3084f88d6938d6aa57e569acaebc709f",
+      "match_id": "web:wta:1075:2026:LS001",
+      "prediction_path": "predictions/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-17-run-39077025892",
+  "workflow_artifact_id": 12116524161,
+  "workflow_artifact_sha256": "1bd5837f1d36d1a4175940d4bb8fcda458f1b1ddfd14e5e8d23d162c960565b6",
+  "workflow_run_id": 39077025892,
+  "workflow_source_sha": "ec5f0809a1b85d74a6a7d676af85b7bf39cc555a"
+}

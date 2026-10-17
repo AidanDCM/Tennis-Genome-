@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12116524161,
+  "artifact_sha256": "1bd5837f1d36d1a4175940d4bb8fcda458f1b1ddfd14e5e8d23d162c960565b6",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.02725231541924827,
+  "match_id": "web:wta:1075:2026:LS001",
+  "matchup_input_sha256": "b1486cd997236165e189f3bab54918aaedd123234837588f6f70f6774f261f07",
+  "p_player_a": 0.506812657219739,
+  "p_player_b": 0.493187342780261,
+  "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+  "production_eligible": false,
+  "record_sha256": "5e562fda641ae61bec557c063d9299bd3084f88d6938d6aa57e569acaebc709f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Maja Chwalinska",
+  "slate_id": "2026-10-17-run-39077025892"
+}

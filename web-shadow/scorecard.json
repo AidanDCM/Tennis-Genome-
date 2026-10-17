@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 27
   },
-  "baseline_match_count": 42,
+  "baseline_match_count": 43,
   "metrics": {
     "accuracy": 0.6176470588235294,
     "brier_score": 0.23239611519663644,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 34
   },
-  "official_slate_count": 13,
-  "pending_match_count": 14,
+  "official_slate_count": 14,
+  "pending_match_count": 15,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 35,
@@ -870,6 +870,25 @@
       "slate_id": "2026-10-16-run-38973289250",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 38973289250
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-17-run-39077025892/baselines/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+          "match_id": "web:wta:1075:2026:LS001",
+          "prediction_path": "web-shadow/slates/2026-10-17-run-39077025892/predictions/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+          "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+          "scheduled_start": "2026-10-18T18:30:00+08:00",
+          "selected_player": "Sonay Kartal",
+          "selected_probability": 0.5258316682531567,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-17-run-39077025892/slate-receipt.json",
+      "slate_id": "2026-10-17-run-39077025892",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 39077025892
     }
   ]
 }

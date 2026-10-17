@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-17T22:56:37.942887+00:00",
+  "fixture": {
+    "match_id": "web:wta:1075:2026:LS001",
+    "player_a": "Maja Chwalinska",
+    "player_b": "Sonay Kartal",
+    "round": "F",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "scheduled_start": "2026-10-18T18:30:00+08:00",
+    "source_observed_at": "2026-10-17T20:40:46+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Dongfeng Voyah Wuhan Open",
+    "tournament_id": "web:wta:wuhan:2026",
+    "tournament_level": "PM"
+  },
+  "input_manifest_sha256": "b1486cd997236165e189f3bab54918aaedd123234837588f6f70f6774f261f07",
+  "model_source_sha": "ec5f0809a1b85d74a6a7d676af85b7bf39cc555a",
+  "p_player_a": 0.4741683317468433,
+  "p_player_b": 0.5258316682531567,
+  "player_a_id": "wta:id:216081",
+  "player_b_id": "wta:id:222661",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Sonay Kartal"
+}
