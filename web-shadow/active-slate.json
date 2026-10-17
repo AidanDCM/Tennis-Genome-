@@ -1,7 +1,6 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
-    "web-shadow/fixtures/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json"
+    "web-shadow/fixtures/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261016t164412z"
+  "rerun_reason": "automatic-wta-intake-wta-20261017t204046z"
 }

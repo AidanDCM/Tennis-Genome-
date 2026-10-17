@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1075:2026:LS001",
+  "player_a": "Maja Chwalinska",
+  "player_b": "Sonay Kartal",
+  "round": "F",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "scheduled_start": "2026-10-18T18:30:00+08:00",
+  "source_observed_at": "2026-10-17T20:40:46+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Dongfeng Voyah Wuhan Open",
+  "tournament_id": "web:wta:wuhan:2026",
+  "tournament_level": "PM"
+}

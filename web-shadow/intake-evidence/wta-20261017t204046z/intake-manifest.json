@@ -1,0 +1,65 @@
+{
+  "excluded_match_count": 105,
+  "exclusion_counts": {
+    "not_main_draw": 24,
+    "not_singles": 27,
+    "not_upcoming": 54
+  },
+  "observed_at": "2026-10-17T20:40:46+00:00",
+  "pre_capacity_eligible_count": 1,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1075",
+      "fixture_path": "web-shadow/fixtures/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "group_id": 1075,
+      "match_id": "web:wta:1075:2026:LS001",
+      "player_a_wta_id": "325639",
+      "player_b_wta_id": "329918",
+      "round": "F",
+      "round_id": 1,
+      "scheduled_start": "2026-10-18T18:30:00+08:00",
+      "slug": "wuhan",
+      "source_match_id": "LS001",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 1,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261017t204046z",
+  "source_match_count": 106,
+  "source_records": [
+    {
+      "group_id": 1075,
+      "matches_sha256": "786ba4170aad0a27b19a2860e877bc4f29725280d4cee4d3cccd4c5d4da97f54",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "tournament_sha256": "7c4ccf97f40bd679c4ac1ff513936399c5a17ef2c33ab154705e47a44a9049f9",
+      "year": 2026
+    }
+  ]
+}
