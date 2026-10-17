@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS006",
+  "prediction_correct": false,
+  "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+  "production_eligible": false,
+  "record_sha256": "07766a3a02214519f67028f1496aadeacd18a032ac0c5b08ea1fd51225ae51cc",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-17T13:04:03+00:00",
+  "result_record_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal-bde93834c0.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Sonay Kartal"
+}
