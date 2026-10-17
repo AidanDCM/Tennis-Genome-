@@ -390,30 +390,33 @@ def test_abnormal_finish_classification(
     assert _score(row, status=status) == expected_score
 
 
-def test_official_quarterfinal_alias_preserves_identity_and_round_evidence(
-    tmp_path: Path,
+@pytest.mark.parametrize(("alias", "source_round"), [("Q", "QF"), ("S", "SF")])
+def test_official_textual_alias_preserves_identity_and_round_evidence(
+    tmp_path: Path, alias: str, source_round: str,
 ) -> None:
-    repo, summary, _ = _build(tmp_path, rows=[_row(round_id="Q")])
+    repo, summary, _ = _build(tmp_path, rows=[_row(round_id=alias)])
     assert summary["result_count"] == 1
     evidence = json.loads(
         (repo / "web-shadow/result-evidence/wta-results-20260922t150000z"
          / "result-intake-manifest.json").read_text(encoding="utf-8")
     )["results"][0]
-    assert evidence["source_round"] == "QF"
+    assert evidence["source_round"] == source_round
     assert evidence["prediction_round"] == "R32"
     assert evidence["round_identity_conflict"] is True
 
 
-def test_quarterfinal_alias_does_not_relax_player_identity(tmp_path: Path) -> None:
+@pytest.mark.parametrize("alias", ["Q", "S"])
+def test_textual_alias_does_not_relax_player_identity(tmp_path: Path, alias: str) -> None:
     with pytest.raises(ValueError, match="player identity mismatch"):
-        _build(tmp_path, rows=[_row(round_id="Q", player_a="Gamma Three")])
+        _build(tmp_path, rows=[_row(round_id=alias, player_a="Gamma Three")])
 
 
-def test_quarterfinal_alias_does_not_change_legacy_join(tmp_path: Path) -> None:
+@pytest.mark.parametrize("alias", ["Q", "S"])
+def test_textual_alias_does_not_change_legacy_join(tmp_path: Path, alias: str) -> None:
     _, summary, _ = _build(
         tmp_path,
         match_id="web:wta:seoul:2026:r32:alpha-beta",
-        rows=[_row(round_id="Q")],
+        rows=[_row(round_id=alias)],
     )
     assert summary["result_count"] == 0
     assert summary["unresolved_prediction_count"] == 1
