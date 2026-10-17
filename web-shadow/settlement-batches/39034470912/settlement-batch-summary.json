@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS007",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "prediction_record_sha256": "ce87500a0b2ddab368c0c49dbc92b22366fd02700e35b061e79a48e1a09dd829",
+      "result_path": "web-shadow/results/2026-10-16-wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko-ce87500a0b.json",
+      "result_record_sha256": "798658ca1b36736b77a4c4db9fd4886e642001c84859aacec0df4cd86192227d",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-15-run-38814936665/settlements/wuhan-2026-qf-ls007-diana-shnaider-jelena-ostapenko.json",
+      "settlement_record_sha256": "2c1b76dc8e76f0ceaa4a7693aaf7ae0b7b01e2671f86bcf6e44ab7a5c9c84eea",
+      "slate_id": "2026-10-15-run-38814936665",
+      "winner": "Jelena Ostapenko"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
