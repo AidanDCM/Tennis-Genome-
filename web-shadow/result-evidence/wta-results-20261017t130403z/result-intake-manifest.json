@@ -1,0 +1,99 @@
+{
+  "observed_at": "2026-10-17T13:04:03+00:00",
+  "pending_prediction_count": 17,
+  "production_eligible": false,
+  "result_count": 3,
+  "result_paths": [
+    "web-shadow/results/2026-10-17-wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal-bde93834c0.json",
+    "web-shadow/results/2026-10-17-wuhan-2026-qf-ls004-ann-li-iga-swiatek-51c4d7ba2d.json",
+    "web-shadow/results/2026-10-17-wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko-b6c7d22d97.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS006",
+      "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal-bde93834c0.json",
+      "round_identity_conflict": false,
+      "score": "6-2 2-6 6-4",
+      "source_last_updated": "2026-10-16T07:15:35.3+00:00",
+      "source_match_id": "LS006",
+      "source_result_string": "S. Kartal d [5]E. Svitolina 6-2,2-6,6-4",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Sonay Kartal",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS004",
+      "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls004-ann-li-iga-swiatek-51c4d7ba2d.json",
+      "round_identity_conflict": false,
+      "score": "6-4 6-1",
+      "source_last_updated": "2026-10-16T12:51:50.01+00:00",
+      "source_match_id": "LS004",
+      "source_result_string": "[7]I. Swiatek d A. Li 6-4,6-1",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Iga Swiatek",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1075:2026:LS003",
+      "prediction_path": "web-shadow/slates/2026-10-16-run-38973289250/predictions/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+      "prediction_round": "SF",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko-b6c7d22d97.json",
+      "round_identity_conflict": false,
+      "score": "7-6(9) 7-6(5)",
+      "source_last_updated": "2026-10-17T11:21:01.73+00:00",
+      "source_match_id": "LS003",
+      "source_result_string": "S. Kartal d J. Ostapenko 7-6(9),7-6(5)",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Sonay Kartal",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261017t130403z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "ea2afe572582a56e8dc0a5790c97559f1d5d6928dae8cf9583215c4ff42613b7",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 1,
+  "unresolved_prediction_count": 13
+}
