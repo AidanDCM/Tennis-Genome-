@@ -1,0 +1,52 @@
+{
+  "accuracy": 0.3333333333333333,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 3,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 3,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS006",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "prediction_record_sha256": "bde93834c04e6119c8e2144acf9e3bc32871a37c0f06145e91aa96f91592086e",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal-bde93834c0.json",
+      "result_record_sha256": "43600e7a95298fb95a01b9c43860ec8231b95812bd9b2783e1b0780a90639df4",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-15-run-38814936665/settlements/wuhan-2026-qf-ls006-elina-svitolina-sonay-kartal.json",
+      "settlement_record_sha256": "07766a3a02214519f67028f1496aadeacd18a032ac0c5b08ea1fd51225ae51cc",
+      "slate_id": "2026-10-15-run-38814936665",
+      "winner": "Sonay Kartal"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS004",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-15-run-38814936665/predictions/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls004-ann-li-iga-swiatek-51c4d7ba2d.json",
+      "result_record_sha256": "0a75894af77bd399dcdccd3984d0e0ad2f6360cc47c229faae298b351eaef5d9",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-15-run-38814936665/settlements/wuhan-2026-qf-ls004-ann-li-iga-swiatek.json",
+      "settlement_record_sha256": "d5f58d87258bc55b9253f9c6e741686333e56ef1f117502a5f07f7b47e445906",
+      "slate_id": "2026-10-15-run-38814936665",
+      "winner": "Iga Swiatek"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS003",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-16-run-38973289250/predictions/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "prediction_record_sha256": "b6c7d22d97bba5279e539626e8444bf8a2a88f81a29beef786544bea060d1612",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko-b6c7d22d97.json",
+      "result_record_sha256": "74c78185518ff3df1f27e04cb6612a2d8e72d90d24c670a148640d8e4ab59477",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-16-run-38973289250/settlements/wuhan-2026-sf-ls003-sonay-kartal-jelena-ostapenko.json",
+      "settlement_record_sha256": "67bce506282dc380616f6ea4c81fc564468d560f8b713efb9b64eb29bb6fbe6f",
+      "slate_id": "2026-10-16-run-38973289250",
+      "winner": "Sonay Kartal"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 3,
+  "slate_count": 2
+}

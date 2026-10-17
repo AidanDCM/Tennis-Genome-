@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS004",
+  "prediction_correct": true,
+  "prediction_record_sha256": "51c4d7ba2d3adc610e166dab4aeda940268654b2bfe391e8c6cdd71f8849437f",
+  "production_eligible": false,
+  "record_sha256": "d5f58d87258bc55b9253f9c6e741686333e56ef1f117502a5f07f7b47e445906",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-17T13:04:03+00:00",
+  "result_record_path": "web-shadow/results/2026-10-17-wuhan-2026-qf-ls004-ann-li-iga-swiatek-51c4d7ba2d.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Iga Swiatek"
+}
