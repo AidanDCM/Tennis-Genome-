@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.02725231541924827,
+  "match_id": "web:wta:1075:2026:LS001",
+  "matchup_input_sha256": "b1486cd997236165e189f3bab54918aaedd123234837588f6f70f6774f261f07",
+  "p_player_a": 0.506812657219739,
+  "p_player_b": 0.493187342780261,
+  "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+  "production_eligible": false,
+  "record_sha256": "a270d9a8710c199a1e900f045536ecee3fb1f017f68f77571588e56b6d76113d",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Maja Chwalinska"
+}
