@@ -1,0 +1,142 @@
+{
+  "eligible_target_count": 6,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 6,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "osaka-2026-r32-ls016-ann-li-emerson-jones",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls016-ann-li-emerson-jones/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "6cda5112f29b139289397a74d650afd8dafac2dde951862f16d894f2a7418289",
+      "baseline_p_player_a": 0.5961858237535792,
+      "baseline_p_player_b": 0.4038141762464208,
+      "baseline_selected_player": "Ann Li",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "match_id": "web:wta:405:2026:LS016",
+      "minimum_point_exposure": 1943,
+      "p_player_a": 0.5654506079932036,
+      "p_player_b": 0.43454939200679643,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls016-ann-li-emerson-jones/prediction.json",
+      "prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "selected_player": "Ann Li",
+      "target_history_match_counts": {
+        "wta:id:215983": 157,
+        "wta:id:263644": 30
+      }
+    },
+    {
+      "artifact_stem": "osaka-2026-r32-ls018-tereza-valentova-shuai-zhang",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "fe7b217b10ea225b6773941b5d35e406d50d8d9643d741cf32e1ad1fca3f207f",
+      "baseline_p_player_a": 0.37924845885175956,
+      "baseline_p_player_b": 0.6207515411482405,
+      "baseline_selected_player": "Tereza Valentova",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "match_id": "web:wta:405:2026:LS018",
+      "minimum_point_exposure": 2544,
+      "p_player_a": 0.3593509546502489,
+      "p_player_b": 0.6406490453497511,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang/prediction.json",
+      "prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "selected_player": "Tereza Valentova",
+      "target_history_match_counts": {
+        "wta:id:201533": 522,
+        "wta:id:238184": 36
+      }
+    },
+    {
+      "artifact_stem": "osaka-2026-r32-ls030-claire-liu-magda-linette",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls030-claire-liu-magda-linette/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "0f032483a3f1fd47a9f5b1a9aaebfb476736d9523fe1d0bc88b829bc101e3693",
+      "baseline_p_player_a": 0.6075953524644992,
+      "baseline_p_player_b": 0.39240464753550075,
+      "baseline_selected_player": "Magda Linette",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "match_id": "web:wta:405:2026:LS030",
+      "minimum_point_exposure": 9097,
+      "p_player_a": 0.5170555272695679,
+      "p_player_b": 0.48294447273043206,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r32-ls030-claire-liu-magda-linette/prediction.json",
+      "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd",
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "selected_player": "Magda Linette",
+      "target_history_match_counts": {
+        "wta:id:202663": 459,
+        "wta:id:214906": 125
+      }
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "1813d69ebaa874c08733aa777d0bb23e451133b9468b50f9d4d6505a7d7518dc",
+      "baseline_p_player_a": 0.32790426727108957,
+      "baseline_p_player_b": 0.6720957327289104,
+      "baseline_selected_player": "Diana Shnaider",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "match_id": "web:wta:2092:2026:LS023",
+      "minimum_point_exposure": 11662,
+      "p_player_a": 0.3759698527421959,
+      "p_player_b": 0.624030147257804,
+      "prediction_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider/prediction.json",
+      "prediction_record_sha256": "5264bc8047ac6b4152c29d309919f091cf9feed88ee9b74c8f6a2c67e90e036c",
+      "scheduled_start": "2026-10-20T13:00:00+08:00",
+      "selected_player": "Diana Shnaider",
+      "target_history_match_counts": {
+        "wta:id:201709": 540,
+        "wta:id:223670": 170
+      }
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls029-sara-bejlek-alycia-parks",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "7aaa813f84e07f8bd037e60c95fae68dfd7cfb2ce129006065201393d0ca8a00",
+      "baseline_p_player_a": 0.47851395794362167,
+      "baseline_p_player_b": 0.5214860420563783,
+      "baseline_selected_player": "Sara Bejlek",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "match_id": "web:wta:2092:2026:LS029",
+      "minimum_point_exposure": 2402,
+      "p_player_a": 0.46793289282106526,
+      "p_player_b": 0.5320671071789347,
+      "prediction_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks/prediction.json",
+      "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+      "scheduled_start": "2026-10-20T13:00:00+08:00",
+      "selected_player": "Sara Bejlek",
+      "target_history_match_counts": {
+        "wta:id:219917": 133,
+        "wta:id:239383": 40
+      }
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2a1f3106756d3876f1f0e48a6bf24f79ae9aeb5e043c438b13e7a503ed2c09c1",
+      "baseline_p_player_a": 0.6894654283952625,
+      "baseline_p_player_b": 0.3105345716047375,
+      "baseline_selected_player": "Ekaterina Alexandrova",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "match_id": "web:wta:2092:2026:LS026",
+      "minimum_point_exposure": 2106,
+      "p_player_a": 0.5736906151776625,
+      "p_player_b": 0.4263093848223375,
+      "prediction_path": "web-shadow-slate-run/matches/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova/prediction.json",
+      "prediction_record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817",
+      "scheduled_start": "2026-10-20T19:00:00+08:00",
+      "selected_player": "Ekaterina Alexandrova",
+      "target_history_match_counts": {
+        "wta:id:206420": 426,
+        "wta:id:215250": 32
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 6,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

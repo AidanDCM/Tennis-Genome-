@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-19T18:26:46.651112+00:00",
+  "fixture": {
+    "match_id": "web:wta:405:2026:LS018",
+    "player_a": "Shuai Zhang",
+    "player_b": "Tereza Valentova",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "scheduled_start": "2026-10-20T11:30:00+09:00",
+    "source_observed_at": "2026-10-19T18:22:02+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Kinoshita Group Japan Open",
+    "tournament_id": "web:wta:osaka:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "0892df56fa25ad62d9b0d407101489f9c908de69c4af205c5f3f40be318ea92f",
+  "model_source_sha": "da106bd8b034b1aa5275e19c06485f652a59a7ea",
+  "p_player_a": 0.3593509546502489,
+  "p_player_b": 0.6406490453497511,
+  "player_a_id": "wta:id:201533",
+  "player_b_id": "wta:id:238184",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Tereza Valentova"
+}

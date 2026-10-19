@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12210728496,
+  "artifact_sha256": "f7a490fb7052018aee356e2304969d747664dd9e710cd571a4673580ec19c9ab",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.43721555019386477,
+  "match_id": "web:wta:405:2026:LS030",
+  "matchup_input_sha256": "e3867a5712633fb6fc0f9dfe978a0e5293b37e52f10898e9d71f64276916cbcb",
+  "p_player_a": 0.6075953524644992,
+  "p_player_b": 0.39240464753550075,
+  "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd",
+  "production_eligible": false,
+  "record_sha256": "32b69498c8bc80c3bb3aa259893ce061fb9cd4aeaf99054ab3e418bc6653b849",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Magda Linette",
+  "slate_id": "2026-10-19-run-39302380651"
+}

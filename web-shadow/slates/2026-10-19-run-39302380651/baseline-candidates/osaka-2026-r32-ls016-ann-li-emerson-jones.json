@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.38959759093089186,
+  "match_id": "web:wta:405:2026:LS016",
+  "matchup_input_sha256": "324ba5a1f38fa2c69fe9bd872c3da24eda64e650c85fa3646ae45249868322f0",
+  "p_player_a": 0.5961858237535792,
+  "p_player_b": 0.4038141762464208,
+  "prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+  "production_eligible": false,
+  "record_sha256": "6cda5112f29b139289397a74d650afd8dafac2dde951862f16d894f2a7418289",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Ann Li"
+}
