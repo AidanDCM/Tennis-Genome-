@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.08599712841640243,
+  "match_id": "web:wta:2092:2026:LS029",
+  "matchup_input_sha256": "0454dde939e0c850e2271fe762c97907355e25d629ecae7decf8ec6163f7fed7",
+  "p_player_a": 0.47851395794362167,
+  "p_player_b": 0.5214860420563783,
+  "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+  "production_eligible": false,
+  "record_sha256": "7aaa813f84e07f8bd037e60c95fae68dfd7cfb2ce129006065201393d0ca8a00",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Sara Bejlek"
+}

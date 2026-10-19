@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-19T18:26:45.953904+00:00",
+  "fixture": {
+    "match_id": "web:wta:405:2026:LS016",
+    "player_a": "Ann Li",
+    "player_b": "Emerson Jones",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "scheduled_start": "2026-10-20T11:30:00+09:00",
+    "source_observed_at": "2026-10-19T18:22:02+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Kinoshita Group Japan Open",
+    "tournament_id": "web:wta:osaka:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "324ba5a1f38fa2c69fe9bd872c3da24eda64e650c85fa3646ae45249868322f0",
+  "model_source_sha": "da106bd8b034b1aa5275e19c06485f652a59a7ea",
+  "p_player_a": 0.5654506079932036,
+  "p_player_b": 0.43454939200679643,
+  "player_a_id": "wta:id:215983",
+  "player_b_id": "wta:id:263644",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Ann Li"
+}

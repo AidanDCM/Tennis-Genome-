@@ -1,0 +1,75 @@
+{
+  "baseline_count": 6,
+  "eligible_target_count": 6,
+  "predicted_target_count": 6,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "osaka-2026-r32-ls016-ann-li-emerson-jones",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "baseline_candidate_record_sha256": "6cda5112f29b139289397a74d650afd8dafac2dde951862f16d894f2a7418289",
+      "baseline_path": "baselines/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "baseline_record_sha256": "b98d17a753358b32d2ae5becd6b889c2c893348bd682306c13499a11f1118b40",
+      "match_id": "web:wta:405:2026:LS016",
+      "prediction_path": "predictions/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329"
+    },
+    {
+      "artifact_stem": "osaka-2026-r32-ls018-tereza-valentova-shuai-zhang",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "baseline_candidate_record_sha256": "fe7b217b10ea225b6773941b5d35e406d50d8d9643d741cf32e1ad1fca3f207f",
+      "baseline_path": "baselines/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "baseline_record_sha256": "9f71a1b8e8a55414afb0b969eb8da6f6fa4bb6c667c0231d61b68292a0e8892f",
+      "match_id": "web:wta:405:2026:LS018",
+      "prediction_path": "predictions/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89"
+    },
+    {
+      "artifact_stem": "osaka-2026-r32-ls030-claire-liu-magda-linette",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "baseline_candidate_record_sha256": "0f032483a3f1fd47a9f5b1a9aaebfb476736d9523fe1d0bc88b829bc101e3693",
+      "baseline_path": "baselines/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "baseline_record_sha256": "32b69498c8bc80c3bb3aa259893ce061fb9cd4aeaf99054ab3e418bc6653b849",
+      "match_id": "web:wta:405:2026:LS030",
+      "prediction_path": "predictions/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd"
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider",
+      "baseline_candidate_path": "baseline-candidates/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "baseline_candidate_record_sha256": "1813d69ebaa874c08733aa777d0bb23e451133b9468b50f9d4d6505a7d7518dc",
+      "baseline_path": "baselines/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "baseline_record_sha256": "255bd52b3e9eaacb8a4a1235d4b46be3bf6441aa3e995a5ee83c18ac1995f9ad",
+      "match_id": "web:wta:2092:2026:LS023",
+      "prediction_path": "predictions/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "prediction_record_sha256": "5264bc8047ac6b4152c29d309919f091cf9feed88ee9b74c8f6a2c67e90e036c"
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls029-sara-bejlek-alycia-parks",
+      "baseline_candidate_path": "baseline-candidates/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "baseline_candidate_record_sha256": "7aaa813f84e07f8bd037e60c95fae68dfd7cfb2ce129006065201393d0ca8a00",
+      "baseline_path": "baselines/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "baseline_record_sha256": "61be750010c07bd4ffb4f092423e3fab63949b3a4d0bf318e7e4f0b463b1a7c6",
+      "match_id": "web:wta:2092:2026:LS029",
+      "prediction_path": "predictions/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab"
+    },
+    {
+      "artifact_stem": "ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova",
+      "baseline_candidate_path": "baseline-candidates/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "baseline_candidate_record_sha256": "2a1f3106756d3876f1f0e48a6bf24f79ae9aeb5e043c438b13e7a503ed2c09c1",
+      "baseline_path": "baselines/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "baseline_record_sha256": "2d6b36eb36ae148c196e3bb404d8e52f0b9bfa734d5d3f086338ee0d29dcfd05",
+      "match_id": "web:wta:2092:2026:LS026",
+      "prediction_path": "predictions/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-19-run-39302380651",
+  "workflow_artifact_id": 12210728496,
+  "workflow_artifact_sha256": "f7a490fb7052018aee356e2304969d747664dd9e710cd571a4673580ec19c9ab",
+  "workflow_run_id": 39302380651,
+  "workflow_source_sha": "da106bd8b034b1aa5275e19c06485f652a59a7ea"
+}

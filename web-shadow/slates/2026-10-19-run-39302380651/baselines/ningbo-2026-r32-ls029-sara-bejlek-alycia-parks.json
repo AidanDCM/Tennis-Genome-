@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12210728496,
+  "artifact_sha256": "f7a490fb7052018aee356e2304969d747664dd9e710cd571a4673580ec19c9ab",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.08599712841640243,
+  "match_id": "web:wta:2092:2026:LS029",
+  "matchup_input_sha256": "0454dde939e0c850e2271fe762c97907355e25d629ecae7decf8ec6163f7fed7",
+  "p_player_a": 0.47851395794362167,
+  "p_player_b": 0.5214860420563783,
+  "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+  "production_eligible": false,
+  "record_sha256": "61be750010c07bd4ffb4f092423e3fab63949b3a4d0bf318e7e4f0b463b1a7c6",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Sara Bejlek",
+  "slate_id": "2026-10-19-run-39302380651"
+}

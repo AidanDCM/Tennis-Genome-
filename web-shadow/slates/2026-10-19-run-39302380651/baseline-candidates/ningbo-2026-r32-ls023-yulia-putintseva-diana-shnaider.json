@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.7176790920883709,
+  "match_id": "web:wta:2092:2026:LS023",
+  "matchup_input_sha256": "6aa124371ef91ca7cd2a8c879515bcc37a2641d2712ce97bc967506ea4845dad",
+  "p_player_a": 0.32790426727108957,
+  "p_player_b": 0.6720957327289104,
+  "prediction_record_sha256": "5264bc8047ac6b4152c29d309919f091cf9feed88ee9b74c8f6a2c67e90e036c",
+  "production_eligible": false,
+  "record_sha256": "1813d69ebaa874c08733aa777d0bb23e451133b9468b50f9d4d6505a7d7518dc",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Diana Shnaider"
+}

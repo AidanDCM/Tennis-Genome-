@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-19T18:26:49.617967+00:00",
+  "fixture": {
+    "match_id": "web:wta:2092:2026:LS026",
+    "player_a": "Ekaterina Alexandrova",
+    "player_b": "Hanyu Guo",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+    "scheduled_start": "2026-10-20T19:00:00+08:00",
+    "source_observed_at": "2026-10-19T18:22:02+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "BNB Ningbo Open",
+    "tournament_id": "web:wta:ningbo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "b53de5934eea866ccb28fd014eb12b3f7b27897a4a085bdd0b125d7d8f45cc5f",
+  "model_source_sha": "da106bd8b034b1aa5275e19c06485f652a59a7ea",
+  "p_player_a": 0.5736906151776625,
+  "p_player_b": 0.4263093848223375,
+  "player_a_id": "wta:id:206420",
+  "player_b_id": "wta:id:215250",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Ekaterina Alexandrova"
+}
