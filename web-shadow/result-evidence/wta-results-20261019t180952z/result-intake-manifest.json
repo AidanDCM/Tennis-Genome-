@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-19T18:09:52+00:00",
+  "pending_prediction_count": 14,
+  "production_eligible": false,
+  "result_count": 1,
+  "result_paths": [
+    "web-shadow/results/2026-10-19-wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal-3b0309c668.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1075:2026:LS001",
+      "prediction_path": "web-shadow/slates/2026-10-17-run-39077025892/predictions/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+      "prediction_round": "F",
+      "result_path": "web-shadow/results/2026-10-19-wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal-3b0309c668.json",
+      "round_identity_conflict": false,
+      "score": "2-6 6-4 6-2",
+      "source_last_updated": "2026-10-18T13:23:51.953+00:00",
+      "source_match_id": "LS001",
+      "source_result_string": "[16]M. Chwalinska d S. Kartal 2-6,6-4,6-2",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Maja Chwalinska",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261019t180952z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 0,
+  "unresolved_prediction_count": 13
+}
