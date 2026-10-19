@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS001",
+  "prediction_correct": false,
+  "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+  "production_eligible": false,
+  "record_sha256": "94c82273cca0bbf88fd4bb10b98e10e7880ceb3abaee6eb2dcf292e11fb730dc",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-19T18:09:52+00:00",
+  "result_record_path": "web-shadow/results/2026-10-19-wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal-3b0309c668.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maja Chwalinska"
+}
