@@ -375,11 +375,11 @@ def _row_identity(
     ):
         raise ValueError("WTA result row tournament identity mismatch")
     source_match_id = _text(row.get("MatchID"), field="MatchID")
-    # Retained feeds use Q for quarterfinals and S for semifinals.
+    # Retained feeds use Q, S and F for quarterfinals, semifinals and finals.
     # Accept these observed aliases only for exact official MatchID joins. Legacy
     # name/round joins retain their existing interpretation and exclusion rules.
-    if strict_round and row.get("RoundID") in ("Q", "S"):
-        round_name = "QF" if row["RoundID"] == "Q" else "SF"
+    if strict_round and row.get("RoundID") in ("Q", "S", "F"):
+        round_name = {"Q": "QF", "S": "SF", "F": "F"}[row["RoundID"]]
     else:
         try:
             round_id = _integer(row.get("RoundID"), field="RoundID")

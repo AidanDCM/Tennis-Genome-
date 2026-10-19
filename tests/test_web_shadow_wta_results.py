@@ -390,7 +390,7 @@ def test_abnormal_finish_classification(
     assert _score(row, status=status) == expected_score
 
 
-@pytest.mark.parametrize(("alias", "source_round"), [("Q", "QF"), ("S", "SF")])
+@pytest.mark.parametrize(("alias", "source_round"), [("Q", "QF"), ("S", "SF"), ("F", "F")])
 def test_official_textual_alias_preserves_identity_and_round_evidence(
     tmp_path: Path, alias: str, source_round: str,
 ) -> None:
@@ -405,13 +405,13 @@ def test_official_textual_alias_preserves_identity_and_round_evidence(
     assert evidence["round_identity_conflict"] is True
 
 
-@pytest.mark.parametrize("alias", ["Q", "S"])
+@pytest.mark.parametrize("alias", ["Q", "S", "F"])
 def test_textual_alias_does_not_relax_player_identity(tmp_path: Path, alias: str) -> None:
     with pytest.raises(ValueError, match="player identity mismatch"):
         _build(tmp_path, rows=[_row(round_id=alias, player_a="Gamma Three")])
 
 
-@pytest.mark.parametrize("alias", ["Q", "S"])
+@pytest.mark.parametrize("alias", ["Q", "S", "F"])
 def test_textual_alias_does_not_change_legacy_join(tmp_path: Path, alias: str) -> None:
     _, summary, _ = _build(
         tmp_path,
