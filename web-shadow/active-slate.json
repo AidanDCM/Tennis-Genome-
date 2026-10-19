@@ -1,6 +1,11 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json"
+    "web-shadow/fixtures/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+    "web-shadow/fixtures/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+    "web-shadow/fixtures/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+    "web-shadow/fixtures/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+    "web-shadow/fixtures/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+    "web-shadow/fixtures/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261017t204046z"
+  "rerun_reason": "automatic-wta-intake-wta-20261019t182202z"
 }

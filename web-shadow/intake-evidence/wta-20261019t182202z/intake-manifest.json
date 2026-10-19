@@ -1,0 +1,146 @@
+{
+  "excluded_match_count": 70,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 12,
+    "not_upcoming": 12,
+    "unscheduled": 10
+  },
+  "observed_at": "2026-10-19T18:22:02+00:00",
+  "pre_capacity_eligible_count": 6,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS016",
+      "player_a_wta_id": "326096",
+      "player_b_wta_id": "333111",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS016",
+      "year": 2026
+    },
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS018",
+      "player_a_wta_id": "330808",
+      "player_b_wta_id": "311779",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS018",
+      "year": 2026
+    },
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS030",
+      "player_a_wta_id": "323966",
+      "player_b_wta_id": "315130",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T11:30:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS030",
+      "year": 2026
+    },
+    {
+      "event_id": "2092",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "group_id": 2092,
+      "match_id": "web:wta:2092:2026:LS023",
+      "player_a_wta_id": "317683",
+      "player_b_wta_id": "330482",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T13:00:00+08:00",
+      "slug": "ningbo",
+      "source_match_id": "LS023",
+      "year": 2026
+    },
+    {
+      "event_id": "2092",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "group_id": 2092,
+      "match_id": "web:wta:2092:2026:LS029",
+      "player_a_wta_id": "330375",
+      "player_b_wta_id": "326007",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T13:00:00+08:00",
+      "slug": "ningbo",
+      "source_match_id": "LS029",
+      "year": 2026
+    },
+    {
+      "event_id": "2092",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "group_id": 2092,
+      "match_id": "web:wta:2092:2026:LS026",
+      "player_a_wta_id": "323087",
+      "player_b_wta_id": "319007",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-20T19:00:00+08:00",
+      "slug": "ningbo",
+      "source_match_id": "LS026",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 6,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261019t182202z",
+  "source_match_count": 76,
+  "source_records": [
+    {
+      "group_id": 405,
+      "matches_sha256": "6448e8594c84c55349c18ef097cc23d1da52f1b79638922cfa34e74d1d9fd655",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 42,
+      "slug": "osaka",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026",
+      "tournament_sha256": "006d9a11875a428c7b2079436a6f3736cc07edd04cf5d93fdd6e40d758d40ecf",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "1eb7e2b27da7a4f6580ccb0f9c40a31482d71847045a459de9cb192ea815fe38",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 34,
+      "slug": "ningbo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026",
+      "tournament_sha256": "f9aaa0c1ec3c699eaa88e13cee18a0e262912276bce33d69a363763266b4a39e",
+      "year": 2026
+    }
+  ]
+}
