@@ -8,12 +8,20 @@
   },
   "tournaments": [
     {
-      "group_id": 1075,
+      "group_id": 405,
       "year": 2026,
-      "slug": "wuhan",
-      "display_name": "Dongfeng Voyah Wuhan Open",
-      "tournament_id": "web:wta:wuhan:2026",
-      "tournament_level": "PM"
+      "slug": "osaka",
+      "display_name": "Kinoshita Group Japan Open",
+      "tournament_id": "web:wta:osaka:2026",
+      "tournament_level": "I"
+    },
+    {
+      "group_id": 2092,
+      "year": 2026,
+      "slug": "ningbo",
+      "display_name": "BNB Ningbo Open",
+      "tournament_id": "web:wta:ningbo:2026",
+      "tournament_level": "P"
     }
   ]
 }
