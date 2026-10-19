@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS001",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-17-run-39077025892/predictions/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "prediction_record_sha256": "3b0309c668d83f97119d7cac910d7f2a762bc9f6c20673364f68318c9c2ab728",
+      "result_path": "web-shadow/results/2026-10-19-wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal-3b0309c668.json",
+      "result_record_sha256": "c9a3998da1f30fbb146da5a719f705dfbe96dbf05d1b27a865229ef9679c340d",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-17-run-39077025892/settlements/wuhan-2026-f-ls001-maja-chwalinska-sonay-kartal.json",
+      "settlement_record_sha256": "94c82273cca0bbf88fd4bb10b98e10e7880ceb3abaee6eb2dcf292e11fb730dc",
+      "slate_id": "2026-10-17-run-39077025892",
+      "winner": "Maja Chwalinska"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
