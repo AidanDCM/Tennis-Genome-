@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1075:2026:LS002",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-16-run-38973289250/predictions/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "prediction_record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5",
+      "result_path": "web-shadow/results/2026-10-17-wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska-25d790f94b.json",
+      "result_record_sha256": "703e424fa4d0e817968979bfba5a32a1f4ad6e52c3c8c28814ef61a98421b07a",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-16-run-38973289250/settlements/wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska.json",
+      "settlement_record_sha256": "6149b44e906394927513d611a1615b5028744013f70af0c48988203f54587859",
+      "slate_id": "2026-10-16-run-38973289250",
+      "winner": "Maja Chwalinska"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}

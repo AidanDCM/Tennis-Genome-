@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1075:2026:LS002",
+  "prediction_correct": false,
+  "prediction_record_sha256": "25d790f94baccf06882e58dc80ec7d6c2739e0271b4ab25fb1044fbe3ac51cc5",
+  "production_eligible": false,
+  "record_sha256": "6149b44e906394927513d611a1615b5028744013f70af0c48988203f54587859",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-17T17:32:14+00:00",
+  "result_record_path": "web-shadow/results/2026-10-17-wuhan-2026-sf-ls002-iga-swiatek-maja-chwalinska-25d790f94b.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maja Chwalinska"
+}
