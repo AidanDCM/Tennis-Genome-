@@ -1,0 +1,121 @@
+{
+  "eligible_target_count": 5,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "osaka-2026-r16-ls010-talia-gibson-sinja-kraus",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls010-talia-gibson-sinja-kraus/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "e2f333f3dafcf47f155037c36b0bea43dbc1a7d1c25fe376ecc1018209ec8feb",
+      "baseline_p_player_a": 0.5169683871458406,
+      "baseline_p_player_b": 0.4830316128541594,
+      "baseline_selected_player": "Sinja Kraus",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "match_id": "web:wta:405:2026:LS010",
+      "minimum_point_exposure": 3229,
+      "p_player_a": 0.49266962480531346,
+      "p_player_b": 0.5073303751946865,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls010-talia-gibson-sinja-kraus/prediction.json",
+      "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+      "scheduled_start": "2026-10-21T11:30:00+09:00",
+      "selected_player": "Talia Gibson",
+      "target_history_match_counts": {
+        "wta:id:221257": 63,
+        "wta:id:221883": 50
+      }
+    },
+    {
+      "artifact_stem": "osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "192abb6bf229dbbd315e7e8ad6062f6e654fa8ee9b58fef8d74d8cdf2333e258",
+      "baseline_p_player_a": 0.40996614882904714,
+      "baseline_p_player_b": 0.5900338511709529,
+      "baseline_selected_player": "Lanlana Tararudee",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "match_id": "web:wta:405:2026:LS011",
+      "minimum_point_exposure": 2958,
+      "p_player_a": 0.3989827332588417,
+      "p_player_b": 0.6010172667411583,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger/prediction.json",
+      "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+      "scheduled_start": "2026-10-21T11:30:00+09:00",
+      "selected_player": "Lanlana Tararudee",
+      "target_history_match_counts": {
+        "wta:id:221909": 129,
+        "wta:id:222290": 44
+      }
+    },
+    {
+      "artifact_stem": "osaka-2026-r16-ls009-tereza-valentova-lilli-tagger",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "de27abe04c3d1b3d7e9351f3121daf57e06918242532e176646adac404ae6438",
+      "baseline_p_player_a": 0.5956851197635573,
+      "baseline_p_player_b": 0.4043148802364427,
+      "baseline_selected_player": "Tereza Valentova",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "match_id": "web:wta:405:2026:LS009",
+      "minimum_point_exposure": 2377,
+      "p_player_a": 0.563499348383124,
+      "p_player_b": 0.436500651616876,
+      "prediction_path": "web-shadow-slate-run/matches/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger/prediction.json",
+      "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+      "scheduled_start": "2026-10-21T13:00:00+09:00",
+      "selected_player": "Tereza Valentova",
+      "target_history_match_counts": {
+        "wta:id:238184": 36,
+        "wta:id:260172": 37
+      }
+    },
+    {
+      "artifact_stem": "ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "492c23e6da42da5d90cf1e622502b9bc548c6deb5466f338fb13051fa7aa68a3",
+      "baseline_p_player_a": 0.6009368920825578,
+      "baseline_p_player_b": 0.39906310791744215,
+      "baseline_selected_player": "Marie Bouzkova",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "match_id": "web:wta:2092:2026:LS015",
+      "minimum_point_exposure": 4821,
+      "p_player_a": 0.5582918832715228,
+      "p_player_b": 0.4417081167284772,
+      "prediction_path": "web-shadow-slate-run/matches/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova/prediction.json",
+      "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+      "scheduled_start": "2026-10-21T13:00:00+08:00",
+      "selected_player": "Marie Bouzkova",
+      "target_history_match_counts": {
+        "wta:id:213631": 277,
+        "wta:id:220435": 69
+      }
+    },
+    {
+      "artifact_stem": "ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "075acdbe0da8861f7786cec705457fd243d1bd7f6ebd920c594c957c1c0fa4b9",
+      "baseline_p_player_a": 0.12482781040411627,
+      "baseline_p_player_b": 0.8751721895958837,
+      "baseline_selected_player": "Marta Kostyuk",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "match_id": "web:wta:2092:2026:LS013",
+      "minimum_point_exposure": 18961,
+      "p_player_a": 0.16261733846372642,
+      "p_player_b": 0.8373826615362736,
+      "prediction_path": "web-shadow-slate-run/matches/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk/prediction.json",
+      "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+      "scheduled_start": "2026-10-21T19:00:00+08:00",
+      "selected_player": "Marta Kostyuk",
+      "target_history_match_counts": {
+        "wta:id:206420": 426,
+        "wta:id:216146": 269
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 5,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

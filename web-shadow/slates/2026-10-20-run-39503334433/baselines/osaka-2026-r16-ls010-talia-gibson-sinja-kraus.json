@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12301248318,
+  "artifact_sha256": "e423e3c177c1717c897a7a8434222d6ccd0d36c7a6cb9b992053481c62b521ef",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.06789962336449316,
+  "match_id": "web:wta:405:2026:LS010",
+  "matchup_input_sha256": "e51967f44ab6d055cdaf86bb0d96a3274d02e7784e77e3cf5655e97f68c6e0f8",
+  "p_player_a": 0.5169683871458406,
+  "p_player_b": 0.4830316128541594,
+  "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+  "production_eligible": false,
+  "record_sha256": "7d04cab9040303cc8b3cd4e0cdb70ec6ce2364cad6ffb1ba31fcba687010051b",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Sinja Kraus",
+  "slate_id": "2026-10-20-run-39503334433"
+}

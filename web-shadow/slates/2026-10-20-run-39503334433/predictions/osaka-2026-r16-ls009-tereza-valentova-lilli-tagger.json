@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-20T21:49:53.468049+00:00",
+  "fixture": {
+    "match_id": "web:wta:405:2026:LS009",
+    "player_a": "Tereza Valentova",
+    "player_b": "Lilli Tagger",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "scheduled_start": "2026-10-21T13:00:00+09:00",
+    "source_observed_at": "2026-10-20T17:15:23+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Kinoshita Group Japan Open",
+    "tournament_id": "web:wta:osaka:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "81d18733d4bf2209ead025716d34f1c49693be05796a64d051e5f583b8e7e250",
+  "model_source_sha": "af984f7fbbae7cbb7493ce447f28dc55d705ec4f",
+  "p_player_a": 0.563499348383124,
+  "p_player_b": 0.436500651616876,
+  "player_a_id": "wta:id:238184",
+  "player_b_id": "wta:id:260172",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Tereza Valentova"
+}

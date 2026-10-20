@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-20T21:49:55.086661+00:00",
+  "fixture": {
+    "match_id": "web:wta:2092:2026:LS013",
+    "player_a": "Ekaterina Alexandrova",
+    "player_b": "Marta Kostyuk",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+    "scheduled_start": "2026-10-21T19:00:00+08:00",
+    "source_observed_at": "2026-10-20T17:15:23+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "BNB Ningbo Open",
+    "tournament_id": "web:wta:ningbo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "13f7ac25b88ac7b345f26a364cca5722b71f2fb6fb7a9d5af34418e3ffab2a6e",
+  "model_source_sha": "af984f7fbbae7cbb7493ce447f28dc55d705ec4f",
+  "p_player_a": 0.16261733846372642,
+  "p_player_b": 0.8373826615362736,
+  "player_a_id": "wta:id:206420",
+  "player_b_id": "wta:id:216146",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Marta Kostyuk"
+}

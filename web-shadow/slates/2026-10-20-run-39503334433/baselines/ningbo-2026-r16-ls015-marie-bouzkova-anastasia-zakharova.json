@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12301248318,
+  "artifact_sha256": "e423e3c177c1717c897a7a8434222d6ccd0d36c7a6cb9b992053481c62b521ef",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.409370354577811,
+  "match_id": "web:wta:2092:2026:LS015",
+  "matchup_input_sha256": "2f988e53dba1af5030628f9d9081994511255d669ac841cd6b02737271071cd5",
+  "p_player_a": 0.6009368920825578,
+  "p_player_b": 0.39906310791744215,
+  "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+  "production_eligible": false,
+  "record_sha256": "bfeb23441eaac57fe637c13fcb5ee251ce977f502432dff8c3e1e3ce8f4bd420",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Marie Bouzkova",
+  "slate_id": "2026-10-20-run-39503334433"
+}

@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12301248318,
+  "artifact_sha256": "e423e3c177c1717c897a7a8434222d6ccd0d36c7a6cb9b992053481c62b521ef",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.9474853842201507,
+  "match_id": "web:wta:2092:2026:LS013",
+  "matchup_input_sha256": "13f7ac25b88ac7b345f26a364cca5722b71f2fb6fb7a9d5af34418e3ffab2a6e",
+  "p_player_a": 0.12482781040411627,
+  "p_player_b": 0.8751721895958837,
+  "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+  "production_eligible": false,
+  "record_sha256": "5ed37d44a982834b148d5c42636a50de3394b257dc67e30e05264b90a6853a41",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Marta Kostyuk",
+  "slate_id": "2026-10-20-run-39503334433"
+}
