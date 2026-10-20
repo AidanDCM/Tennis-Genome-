@@ -1,0 +1,166 @@
+{
+  "observed_at": "2026-10-20T21:35:58+00:00",
+  "pending_prediction_count": 19,
+  "production_eligible": false,
+  "result_count": 6,
+  "result_paths": [
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls016-ann-li-emerson-jones-1ee6ce3894.json",
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls018-tereza-valentova-shuai-zhang-faed118467.json",
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls030-claire-liu-magda-linette-f2fbbaa3a3.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider-5264bc8047.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls029-sara-bejlek-alycia-parks-a73a96d8d5.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova-948964fdc3.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:405:2026:LS016",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls016-ann-li-emerson-jones-1ee6ce3894.json",
+      "round_identity_conflict": true,
+      "score": "5-7 6-0 6-3",
+      "source_last_updated": "2026-10-20T04:37:17.72+00:00",
+      "source_match_id": "LS016",
+      "source_result_string": "[1]A. Li d E. Jones 5-7,6-0,6-3",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Ann Li",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:405:2026:LS018",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls018-tereza-valentova-shuai-zhang-faed118467.json",
+      "round_identity_conflict": true,
+      "score": "6-2 1-6 6-4",
+      "source_last_updated": "2026-10-20T04:31:02.813+00:00",
+      "source_match_id": "LS018",
+      "source_result_string": "T. Valentova d S. Zhang 6-2,1-6,6-4",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Tereza Valentova",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:405:2026:LS030",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls030-claire-liu-magda-linette-f2fbbaa3a3.json",
+      "round_identity_conflict": true,
+      "score": "6-4 6-3",
+      "source_last_updated": "2026-10-20T04:38:06.017+00:00",
+      "source_match_id": "LS030",
+      "source_result_string": "M. Linette d C. Liu 6-4,6-3",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Magda Linette",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:2092:2026:LS023",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "prediction_record_sha256": "5264bc8047ac6b4152c29d309919f091cf9feed88ee9b74c8f6a2c67e90e036c",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider-5264bc8047.json",
+      "round_identity_conflict": true,
+      "score": "7-5 7-6(4)",
+      "source_last_updated": "2026-10-20T07:35:00.67+00:00",
+      "source_match_id": "LS023",
+      "source_result_string": "[6]D. Shnaider d Y. Putintseva 7-5,7-6(4)",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Diana Shnaider",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:2092:2026:LS029",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls029-sara-bejlek-alycia-parks-a73a96d8d5.json",
+      "round_identity_conflict": true,
+      "score": "4-6 6-3 6-3",
+      "source_last_updated": "2026-10-20T07:30:23.11+00:00",
+      "source_match_id": "LS029",
+      "source_result_string": "S. Bejlek d A. Parks 4-6,6-3,6-3",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Sara Bejlek",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:2092:2026:LS026",
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova-948964fdc3.json",
+      "round_identity_conflict": true,
+      "score": "6-2 6-3",
+      "source_last_updated": "2026-10-20T13:10:44.33+00:00",
+      "source_match_id": "LS026",
+      "source_result_string": "E. Alexandrova d H. Guo 6-2,6-3",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Ekaterina Alexandrova",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261020t213558z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "f607c1ed2dab2985fdbeb7651ef2d9132755fb51846114d92d3b011b171c8ca0",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "760cdd0fdfdb0ff723ccc0cba86fade87efb279f3d207cd469af0b7565559afa",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 49,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "13d29d5b8594a4577019e312af71384410cdfa4667c94b46cc745a79f5d1e7b8",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 42,
+      "slug": "ningbo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 0,
+  "unresolved_prediction_count": 13
+}

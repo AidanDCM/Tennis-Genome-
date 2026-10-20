@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817",
+  "match_id": "web:wta:2092:2026:LS026",
+  "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-3",
+  "status": "COMPLETED",
+  "winner": "Ekaterina Alexandrova"
+}

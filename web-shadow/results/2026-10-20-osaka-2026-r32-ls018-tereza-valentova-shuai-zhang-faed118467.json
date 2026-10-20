@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+  "match_id": "web:wta:405:2026:LS018",
+  "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 1-6 6-4",
+  "status": "COMPLETED",
+  "winner": "Tereza Valentova"
+}
