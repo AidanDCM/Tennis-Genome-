@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+  "match_id": "web:wta:405:2026:LS016",
+  "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "5-7 6-0 6-3",
+  "status": "COMPLETED",
+  "winner": "Ann Li"
+}
