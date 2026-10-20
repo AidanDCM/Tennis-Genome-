@@ -1,0 +1,11 @@
+{
+  "result_paths": [
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls016-ann-li-emerson-jones-1ee6ce3894.json",
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls018-tereza-valentova-shuai-zhang-faed118467.json",
+    "web-shadow/results/2026-10-20-osaka-2026-r32-ls030-claire-liu-magda-linette-f2fbbaa3a3.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider-5264bc8047.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls029-sara-bejlek-alycia-parks-a73a96d8d5.json",
+    "web-shadow/results/2026-10-20-ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova-948964fdc3.json"
+  ],
+  "schema_version": "tennis-genome-web-shadow-result-batch-v1"
+}

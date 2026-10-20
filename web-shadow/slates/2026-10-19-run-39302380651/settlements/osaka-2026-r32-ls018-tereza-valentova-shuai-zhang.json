@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:405:2026:LS018",
+  "prediction_correct": true,
+  "prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+  "production_eligible": false,
+  "record_sha256": "acbb17723e90f6bb656fa2030f1802b92db0996b2a31b7c35561175749539946",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_record_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls018-tereza-valentova-shuai-zhang-faed118467.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Tereza Valentova"
+}
