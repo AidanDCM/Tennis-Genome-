@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:405:2026:LS011",
+  "player_a": "Lanlana Tararudee",
+  "player_b": "Ashlyn Krueger",
+  "round": "R16",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "scheduled_start": "2026-10-21T11:30:00+09:00",
+  "source_observed_at": "2026-10-20T17:15:23+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Kinoshita Group Japan Open",
+  "tournament_id": "web:wta:osaka:2026",
+  "tournament_level": "I"
+}

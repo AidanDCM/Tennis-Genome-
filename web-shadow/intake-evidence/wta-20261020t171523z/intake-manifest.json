@@ -1,0 +1,132 @@
+{
+  "excluded_match_count": 86,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 19,
+    "not_upcoming": 28,
+    "unscheduled": 3
+  },
+  "observed_at": "2026-10-20T17:15:23+00:00",
+  "pre_capacity_eligible_count": 5,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS010",
+      "player_a_wta_id": "329393",
+      "player_b_wta_id": "327061",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-21T11:30:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS011",
+      "player_a_wta_id": "329651",
+      "player_b_wta_id": "329409",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-21T11:30:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "405",
+      "fixture_path": "web-shadow/fixtures/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "group_id": 405,
+      "match_id": "web:wta:405:2026:LS009",
+      "player_a_wta_id": "330808",
+      "player_b_wta_id": "332150",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-21T13:00:00+09:00",
+      "slug": "osaka",
+      "source_match_id": "LS009",
+      "year": 2026
+    },
+    {
+      "event_id": "2092",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "group_id": 2092,
+      "match_id": "web:wta:2092:2026:LS015",
+      "player_a_wta_id": "320983",
+      "player_b_wta_id": "327367",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-21T13:00:00+08:00",
+      "slug": "ningbo",
+      "source_match_id": "LS015",
+      "year": 2026
+    },
+    {
+      "event_id": "2092",
+      "fixture_path": "web-shadow/fixtures/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "group_id": 2092,
+      "match_id": "web:wta:2092:2026:LS013",
+      "player_a_wta_id": "319007",
+      "player_b_wta_id": "326482",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-21T19:00:00+08:00",
+      "slug": "ningbo",
+      "source_match_id": "LS013",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 5,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261020t171523z",
+  "source_match_count": 91,
+  "source_records": [
+    {
+      "group_id": 405,
+      "matches_sha256": "760cdd0fdfdb0ff723ccc0cba86fade87efb279f3d207cd469af0b7565559afa",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 49,
+      "slug": "osaka",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026",
+      "tournament_sha256": "7d566772c8147ba414a292f2fde3310ec49fd27759366876044c094a4a49a213",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "13d29d5b8594a4577019e312af71384410cdfa4667c94b46cc745a79f5d1e7b8",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 42,
+      "slug": "ningbo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026",
+      "tournament_sha256": "f9aaa0c1ec3c699eaa88e13cee18a0e262912276bce33d69a363763266b4a39e",
+      "year": 2026
+    }
+  ]
+}

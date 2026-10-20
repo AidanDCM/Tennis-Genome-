@@ -1,0 +1,56 @@
+{
+  "index_records": [
+    {
+      "entry_count": 100,
+      "filename": "tournament-index-2026-page-0.json",
+      "page": 0,
+      "sha256": "3f83c5eb3c6b78d7c6eba32d20dc344b66de57e4214d37c2d7208c2dce568437",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=0&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    },
+    {
+      "entry_count": 24,
+      "filename": "tournament-index-2026-page-1.json",
+      "page": 1,
+      "sha256": "b665dddbb1c3647761fa9d6bae2e79c1082a54c18ff6b3e533103fc57f36c4bd",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=1&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    }
+  ],
+  "observed_at": "2026-10-20T17:15:23+00:00",
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-acquisition-v1",
+  "source_policy": {
+    "api_root": "https://api.wtatennis.com/tennis",
+    "index_role": "audit_and_discovery_only",
+    "provider": "WTA",
+    "response_serialization": "provider_bytes_unmodified",
+    "selection_authority": "web-shadow/intake-config.json"
+  },
+  "source_records": [
+    {
+      "group_id": 405,
+      "matches_filename": "osaka-matches.json",
+      "matches_sha256": "760cdd0fdfdb0ff723ccc0cba86fade87efb279f3d207cd469af0b7565559afa",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 49,
+      "slug": "osaka",
+      "tournament_filename": "osaka-tournament.json",
+      "tournament_sha256": "7d566772c8147ba414a292f2fde3310ec49fd27759366876044c094a4a49a213",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_filename": "ningbo-matches.json",
+      "matches_sha256": "13d29d5b8594a4577019e312af71384410cdfa4667c94b46cc745a79f5d1e7b8",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 42,
+      "slug": "ningbo",
+      "tournament_filename": "ningbo-tournament.json",
+      "tournament_sha256": "f9aaa0c1ec3c699eaa88e13cee18a0e262912276bce33d69a363763266b4a39e",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026",
+      "year": 2026
+    }
+  ]
+}
