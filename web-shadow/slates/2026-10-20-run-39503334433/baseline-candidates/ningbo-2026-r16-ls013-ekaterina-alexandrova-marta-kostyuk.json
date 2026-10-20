@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.9474853842201507,
+  "match_id": "web:wta:2092:2026:LS013",
+  "matchup_input_sha256": "13f7ac25b88ac7b345f26a364cca5722b71f2fb6fb7a9d5af34418e3ffab2a6e",
+  "p_player_a": 0.12482781040411627,
+  "p_player_b": 0.8751721895958837,
+  "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+  "production_eligible": false,
+  "record_sha256": "075acdbe0da8861f7786cec705457fd243d1bd7f6ebd920c594c957c1c0fa4b9",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Marta Kostyuk"
+}

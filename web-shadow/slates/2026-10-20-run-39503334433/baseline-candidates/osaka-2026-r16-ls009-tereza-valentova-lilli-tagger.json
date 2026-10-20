@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3875182240019889,
+  "match_id": "web:wta:405:2026:LS009",
+  "matchup_input_sha256": "81d18733d4bf2209ead025716d34f1c49693be05796a64d051e5f583b8e7e250",
+  "p_player_a": 0.5956851197635573,
+  "p_player_b": 0.4043148802364427,
+  "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+  "production_eligible": false,
+  "record_sha256": "de27abe04c3d1b3d7e9351f3121daf57e06918242532e176646adac404ae6438",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Tereza Valentova"
+}

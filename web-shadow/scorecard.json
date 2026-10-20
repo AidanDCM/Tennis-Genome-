@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 35
   },
-  "baseline_match_count": 49,
+  "baseline_match_count": 54,
   "metrics": {
     "accuracy": 0.6428571428571429,
     "brier_score": 0.23437193397986952,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 42
   },
-  "official_slate_count": 15,
-  "pending_match_count": 13,
+  "official_slate_count": 16,
+  "pending_match_count": 18,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 43,
@@ -982,6 +982,65 @@
       "slate_id": "2026-10-19-run-39302380651",
       "status": "SETTLED",
       "workflow_run_id": 39302380651
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+          "match_id": "web:wta:405:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+          "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+          "scheduled_start": "2026-10-21T11:30:00+09:00",
+          "selected_player": "Talia Gibson",
+          "selected_probability": 0.5073303751946865,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+          "match_id": "web:wta:405:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+          "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+          "scheduled_start": "2026-10-21T11:30:00+09:00",
+          "selected_player": "Lanlana Tararudee",
+          "selected_probability": 0.6010172667411583,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+          "match_id": "web:wta:405:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+          "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+          "scheduled_start": "2026-10-21T13:00:00+09:00",
+          "selected_player": "Tereza Valentova",
+          "selected_probability": 0.563499348383124,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+          "match_id": "web:wta:2092:2026:LS015",
+          "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+          "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+          "scheduled_start": "2026-10-21T13:00:00+08:00",
+          "selected_player": "Marie Bouzkova",
+          "selected_probability": 0.5582918832715228,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+          "match_id": "web:wta:2092:2026:LS013",
+          "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+          "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+          "scheduled_start": "2026-10-21T19:00:00+08:00",
+          "selected_player": "Marta Kostyuk",
+          "selected_probability": 0.8373826615362736,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-20-run-39503334433/slate-receipt.json",
+      "slate_id": "2026-10-20-run-39503334433",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 39503334433
     }
   ]
 }

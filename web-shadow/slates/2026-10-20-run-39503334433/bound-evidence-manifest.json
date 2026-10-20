@@ -1,0 +1,65 @@
+{
+  "baseline_count": 5,
+  "eligible_target_count": 5,
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "osaka-2026-r16-ls010-talia-gibson-sinja-kraus",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "baseline_candidate_record_sha256": "e2f333f3dafcf47f155037c36b0bea43dbc1a7d1c25fe376ecc1018209ec8feb",
+      "baseline_path": "baselines/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "baseline_record_sha256": "7d04cab9040303cc8b3cd4e0cdb70ec6ce2364cad6ffb1ba31fcba687010051b",
+      "match_id": "web:wta:405:2026:LS010",
+      "prediction_path": "predictions/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934"
+    },
+    {
+      "artifact_stem": "osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "baseline_candidate_record_sha256": "192abb6bf229dbbd315e7e8ad6062f6e654fa8ee9b58fef8d74d8cdf2333e258",
+      "baseline_path": "baselines/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "baseline_record_sha256": "42a0aa432354bc5a5057bcdc549ffc41f08abb1b3c69917a8bd8816e46df9d7b",
+      "match_id": "web:wta:405:2026:LS011",
+      "prediction_path": "predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5"
+    },
+    {
+      "artifact_stem": "osaka-2026-r16-ls009-tereza-valentova-lilli-tagger",
+      "baseline_candidate_path": "baseline-candidates/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "baseline_candidate_record_sha256": "de27abe04c3d1b3d7e9351f3121daf57e06918242532e176646adac404ae6438",
+      "baseline_path": "baselines/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "baseline_record_sha256": "d379e5cf1ae8863e9f04df9745fee679e66aa95919ea460dc45d7cb27f3df960",
+      "match_id": "web:wta:405:2026:LS009",
+      "prediction_path": "predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c"
+    },
+    {
+      "artifact_stem": "ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova",
+      "baseline_candidate_path": "baseline-candidates/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "baseline_candidate_record_sha256": "492c23e6da42da5d90cf1e622502b9bc548c6deb5466f338fb13051fa7aa68a3",
+      "baseline_path": "baselines/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "baseline_record_sha256": "bfeb23441eaac57fe637c13fcb5ee251ce977f502432dff8c3e1e3ce8f4bd420",
+      "match_id": "web:wta:2092:2026:LS015",
+      "prediction_path": "predictions/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f"
+    },
+    {
+      "artifact_stem": "ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk",
+      "baseline_candidate_path": "baseline-candidates/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "baseline_candidate_record_sha256": "075acdbe0da8861f7786cec705457fd243d1bd7f6ebd920c594c957c1c0fa4b9",
+      "baseline_path": "baselines/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "baseline_record_sha256": "5ed37d44a982834b148d5c42636a50de3394b257dc67e30e05264b90a6853a41",
+      "match_id": "web:wta:2092:2026:LS013",
+      "prediction_path": "predictions/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-20-run-39503334433",
+  "workflow_artifact_id": 12301248318,
+  "workflow_artifact_sha256": "e423e3c177c1717c897a7a8434222d6ccd0d36c7a6cb9b992053481c62b521ef",
+  "workflow_run_id": 39503334433,
+  "workflow_source_sha": "af984f7fbbae7cbb7493ce447f28dc55d705ec4f"
+}

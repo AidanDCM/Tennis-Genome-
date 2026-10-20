@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.409370354577811,
+  "match_id": "web:wta:2092:2026:LS015",
+  "matchup_input_sha256": "2f988e53dba1af5030628f9d9081994511255d669ac841cd6b02737271071cd5",
+  "p_player_a": 0.6009368920825578,
+  "p_player_b": 0.39906310791744215,
+  "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+  "production_eligible": false,
+  "record_sha256": "492c23e6da42da5d90cf1e622502b9bc548c6deb5466f338fb13051fa7aa68a3",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Marie Bouzkova"
+}

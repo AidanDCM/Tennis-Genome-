@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12301248318,
+  "artifact_sha256": "e423e3c177c1717c897a7a8434222d6ccd0d36c7a6cb9b992053481c62b521ef",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3875182240019889,
+  "match_id": "web:wta:405:2026:LS009",
+  "matchup_input_sha256": "81d18733d4bf2209ead025716d34f1c49693be05796a64d051e5f583b8e7e250",
+  "p_player_a": 0.5956851197635573,
+  "p_player_b": 0.4043148802364427,
+  "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+  "production_eligible": false,
+  "record_sha256": "d379e5cf1ae8863e9f04df9745fee679e66aa95919ea460dc45d7cb27f3df960",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Tereza Valentova",
+  "slate_id": "2026-10-20-run-39503334433"
+}
