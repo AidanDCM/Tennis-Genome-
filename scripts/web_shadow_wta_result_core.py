@@ -370,8 +370,13 @@ def _row_identity(
         return None
     event_id = _text(row.get("EventID"), field="EventID")
     event_year = _integer(row.get("EventYear"), field="EventYear")
-    if event_id != str(tournament["group_id"]) or event_year != int(
-        tournament["year"]
+    # Completed official feeds may zero-pad numeric IDs (Osaka: 405 -> 0405).
+    # Normalize decimal digits only; do not accept signs, floats or other IDs.
+    if (
+        not event_id.isascii()
+        or not event_id.isdecimal()
+        or int(event_id) != int(tournament["group_id"])
+        or event_year != int(tournament["year"])
     ):
         raise ValueError("WTA result row tournament identity mismatch")
     source_match_id = _text(row.get("MatchID"), field="MatchID")

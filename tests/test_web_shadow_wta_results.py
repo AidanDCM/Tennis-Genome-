@@ -420,3 +420,29 @@ def test_textual_alias_does_not_change_legacy_join(tmp_path: Path, alias: str) -
     )
     assert summary["result_count"] == 0
     assert summary["unresolved_prediction_count"] == 1
+
+
+@pytest.mark.parametrize("event_id", ["1024", "01024", "0001024"])
+def test_result_event_id_allows_decimal_zero_padding(tmp_path: Path, event_id: str) -> None:
+    row = _row()
+    row["EventID"] = event_id
+    _, summary, _ = _build(tmp_path, rows=[row])
+    assert summary["result_count"] == 1
+
+
+@pytest.mark.parametrize("event_id", ["01025", "+1024", "1024.0", "1.024e3", "-1024", "10_24"])
+def test_result_event_id_rejects_different_or_nondecimal_ids(
+    tmp_path: Path, event_id: str,
+) -> None:
+    row = _row()
+    row["EventID"] = event_id
+    with pytest.raises(ValueError, match="tournament identity mismatch"):
+        _build(tmp_path, rows=[row])
+
+
+def test_padded_event_id_still_rejects_player_mismatch(tmp_path: Path) -> None:
+    row = _row(player_a="Gamma Three")
+    row["EventID"] = "01024"
+    with pytest.raises(ValueError, match="player identity mismatch"):
+        _build(tmp_path, rows=[row])
+
