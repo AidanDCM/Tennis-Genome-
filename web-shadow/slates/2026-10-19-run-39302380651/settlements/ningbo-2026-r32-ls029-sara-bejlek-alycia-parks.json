@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:2092:2026:LS029",
+  "prediction_correct": true,
+  "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+  "production_eligible": false,
+  "record_sha256": "6e0cab15a32519b1b28602474193b2dca4e6b0822202bc84283e4706f9f51f6f",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_record_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls029-sara-bejlek-alycia-parks-a73a96d8d5.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Sara Bejlek"
+}

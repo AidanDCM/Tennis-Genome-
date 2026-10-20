@@ -1,0 +1,91 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 6,
+  "evaluation_eligible_count": 6,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 6,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS016",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "prediction_record_sha256": "1ee6ce38947381ee3b927eb6783819cd116c8f779694f17a7a60ac5611d7c329",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls016-ann-li-emerson-jones-1ee6ce3894.json",
+      "result_record_sha256": "f8c436eb72596beb91adf0af6c649a57e734f6c0b093bb1069ee4eb1bf95b6ba",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/osaka-2026-r32-ls016-ann-li-emerson-jones.json",
+      "settlement_record_sha256": "166a84007735024532311bf3d97c45a2f7f790efef1dfd57d31ba0c144d99a21",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Ann Li"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS018",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "prediction_record_sha256": "faed11846764c4878932dcf14338f2e61f783eb9c43c9e51dca2b7e9fc588c89",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls018-tereza-valentova-shuai-zhang-faed118467.json",
+      "result_record_sha256": "6ec757dbb5f9cecdc42998a8ad8102bfefb658aefc90564b56372c0573097fd6",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/osaka-2026-r32-ls018-tereza-valentova-shuai-zhang.json",
+      "settlement_record_sha256": "acbb17723e90f6bb656fa2030f1802b92db0996b2a31b7c35561175749539946",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Tereza Valentova"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS030",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd",
+      "result_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls030-claire-liu-magda-linette-f2fbbaa3a3.json",
+      "result_record_sha256": "70bc65282320c31d61c9fb17cbf396cfc926961deb4af33a99e655269f2fe319",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/osaka-2026-r32-ls030-claire-liu-magda-linette.json",
+      "settlement_record_sha256": "725415f41766256e5dba399254d231f2ec5b73372a45cb4d970c6b4abc827d3d",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Magda Linette"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:2092:2026:LS023",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "prediction_record_sha256": "5264bc8047ac6b4152c29d309919f091cf9feed88ee9b74c8f6a2c67e90e036c",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider-5264bc8047.json",
+      "result_record_sha256": "db981649bd49447fa4af9dc31b5f562f00224e9c4ff73689e4787289dff7ad7f",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/ningbo-2026-r32-ls023-yulia-putintseva-diana-shnaider.json",
+      "settlement_record_sha256": "040a9d37f27aa55d3ffd8a217d98cb7cc3417771d92eae963d90b60797e706e8",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Diana Shnaider"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:2092:2026:LS029",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "prediction_record_sha256": "a73a96d8d5d7107d1945db333a7aad609d2afac4807930e309dc49824662b0ab",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls029-sara-bejlek-alycia-parks-a73a96d8d5.json",
+      "result_record_sha256": "82cee4ebea643936aad8854e13614b0a62480663e3b568241aa176d612e59fd2",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/ningbo-2026-r32-ls029-sara-bejlek-alycia-parks.json",
+      "settlement_record_sha256": "6e0cab15a32519b1b28602474193b2dca4e6b0822202bc84283e4706f9f51f6f",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Sara Bejlek"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:2092:2026:LS026",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-19-run-39302380651/predictions/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "948964fdc36192e54c0539d76736477bb078988b283b78d0c3185330d68f0817",
+      "result_path": "web-shadow/results/2026-10-20-ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova-948964fdc3.json",
+      "result_record_sha256": "aa9197bb84179dc90e5c0f690803e761a28a3b847ce09296c636d133de86eddd",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-19-run-39302380651/settlements/ningbo-2026-r32-ls026-hanyu-guo-ekaterina-alexandrova.json",
+      "settlement_record_sha256": "606983aaf60f0af889941b5187d14a172a4597ff5e90e9377adeb3beaed28631",
+      "slate_id": "2026-10-19-run-39302380651",
+      "winner": "Ekaterina Alexandrova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 6,
+  "slate_count": 1
+}

@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:405:2026:LS030",
+  "prediction_correct": true,
+  "prediction_record_sha256": "f2fbbaa3a35aba16dcaf7dc1478b5a10b1392deb8ab035b1e4758992fcf5c9dd",
+  "production_eligible": false,
+  "record_sha256": "725415f41766256e5dba399254d231f2ec5b73372a45cb4d970c6b4abc827d3d",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-20T21:35:58+00:00",
+  "result_record_path": "web-shadow/results/2026-10-20-osaka-2026-r32-ls030-claire-liu-magda-linette-f2fbbaa3a3.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Magda Linette"
+}
