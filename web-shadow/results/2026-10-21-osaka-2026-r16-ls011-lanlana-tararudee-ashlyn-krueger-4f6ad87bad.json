@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+  "match_id": "web:wta:405:2026:LS011",
+  "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-21T05:18:17+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-3 6-1",
+  "status": "COMPLETED",
+  "winner": "Ashlyn Krueger"
+}
