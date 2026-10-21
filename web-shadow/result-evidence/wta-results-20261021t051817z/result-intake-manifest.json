@@ -1,0 +1,98 @@
+{
+  "observed_at": "2026-10-21T05:18:17+00:00",
+  "pending_prediction_count": 18,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-21-osaka-2026-r16-ls010-talia-gibson-sinja-kraus-7bae454153.json",
+    "web-shadow/results/2026-10-21-osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger-4f6ad87bad.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:405:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls010-talia-gibson-sinja-kraus-7bae454153.json",
+      "round_identity_conflict": true,
+      "score": "6-2 6-1",
+      "source_last_updated": "2026-10-21T03:49:51.36+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "[4]T. Gibson d S. Kraus 6-2,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Talia Gibson",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:405:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger-4f6ad87bad.json",
+      "round_identity_conflict": true,
+      "score": "6-3 6-1",
+      "source_last_updated": "2026-10-21T03:48:11.837+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "A. Krueger d L. Tararudee 6-3,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Ashlyn Krueger",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261021t051817z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "f052e93c63123a78f2b1da32c7fb8e5d8607e72a50825ca749eec3258f2e67c5",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 49,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "b55c4c4e079d801fc1341dc2325242c7450ba08262f48e57503ff1c0066d388c",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 42,
+      "slug": "ningbo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 3,
+  "unresolved_prediction_count": 13
+}
