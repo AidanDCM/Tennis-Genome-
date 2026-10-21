@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:2092:2026:LS015",
+  "prediction_correct": true,
+  "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+  "production_eligible": false,
+  "record_sha256": "22ce805c736e27230679481b2c50cbe395c05603a1f7fedd0d6e4b7677eae2e0",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-21T16:44:03+00:00",
+  "result_record_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova-3ee73c980d.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Marie Bouzkova"
+}
