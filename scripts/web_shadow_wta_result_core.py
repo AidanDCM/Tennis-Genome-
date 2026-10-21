@@ -120,7 +120,7 @@ def _status(row: dict[str, Any]) -> str:
     ).lower()
     if re.search(r"(?:\bw/o\b|\bwalkover\b)", evidence):
         return "WALKOVER"
-    if re.search(r"(?:\bret\.|\bretired\b|\bretirement\b)", evidence):
+    if re.search(r"(?:\bret\.|\bret['’]d\b|\bretired\b|\bretirement\b)", evidence):
         return "RETIREMENT"
     if re.search(r"(?:\bdefaulted\b|\bdefault\b|\bdef\.\b)", evidence):
         return "DEFAULTED"
@@ -156,6 +156,32 @@ def _walkover_winner_from_result_string(
     if len(matches) != 1:
         raise ValueError("walkover result winner is ambiguous")
     return matches[0]
+
+
+def _retirement_winner_from_result_string(row: dict[str, Any], match: dict[str, Any]) -> str:
+    # Code 4 is not interpreted as a player side. Both named participants in
+    # the explicit result phrase must match the already-identified match.
+    result = _text(row.get("ResultString"), field="ResultString")
+    aliases = {}
+    for side in ("A", "B"):
+        first = _text(row.get(f"PlayerNameFirst{side}"), field="first name")
+        last = _text(row.get(f"PlayerNameLast{side}"), field="last name")
+        aliases[side] = (
+            "(?:"
+            + "|".join(re.escape(name) for name in (f"{first} {last}", f"{first[0]}. {last}"))
+            + ")"
+        )
+    winners = []
+    for winner, loser in (("A", "B"), ("B", "A")):
+        phrase = (
+            rf"^\s*(?:\[\d+\]\s*)?{aliases[winner]}\s+d\s+"
+            rf"(?:\[\d+\]\s*)?{aliases[loser]}(?=\s|$)"
+        )
+        if re.search(phrase, result, re.IGNORECASE):
+            winners.append(match[f"player_{winner.lower()}"])
+    if len(winners) != 1:
+        raise ValueError("retirement result winner phrase is missing or ambiguous")
+    return winners[0]
 
 
 def _configured_tournaments(config: dict[str, Any]) -> list[dict[str, Any]]:
@@ -487,6 +513,9 @@ def _result_record(
         winner_source = "winner_code"
     elif status == "WALKOVER":
         winner = _walkover_winner_from_result_string(row, match)
+        winner_source = "result_string"
+    elif status == "RETIREMENT" and winner_code == "4":
+        winner = _retirement_winner_from_result_string(row, match)
         winner_source = "result_string"
     else:
         raise ValueError("finished WTA result has unsupported Winner code")

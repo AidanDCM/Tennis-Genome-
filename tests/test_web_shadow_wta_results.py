@@ -255,6 +255,56 @@ def test_official_match_id_compiles_finished_result_and_retains_sources(
     assert retained.read_bytes() == raw
 
 
+@pytest.mark.parametrize("marker", ["Ret'd", "Ret’d", "Retired"])
+@pytest.mark.parametrize("winner_side", ["A", "B"])
+def test_retirement_code_four_uses_explicit_identified_result(
+    tmp_path: Path,
+    marker: str,
+    winner_side: str,
+) -> None:
+    phrase = "[3]A. One d B. Two" if winner_side == "A" else "B. Two d [3]A. One"
+    repo_root, summary, _ = _build(
+        tmp_path,
+        rows=[_row(winner="4", result=f"{phrase} 6-4,0-0 {marker}")],
+    )
+    result = json.loads((repo_root / summary["result_paths"][0]).read_text())
+    assert result["status"] == "RETIREMENT"
+    assert result["winner"] == ("Alpha One" if winner_side == "A" else "Beta Two")
+    assert result["production_eligible"] is False
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "Retired",
+        "G. One d B. Two 6-4 Ret'd",
+        "A. One d G. Three 6-4 Ret'd",
+        "A. One d A. One 6-4 Ret'd",
+        "A. One d B. Two 6-4",
+    ],
+)
+def test_retirement_code_four_rejects_missing_or_conflicting_evidence(
+    tmp_path: Path,
+    phrase: str,
+) -> None:
+    with pytest.raises(ValueError):
+        _build(tmp_path, rows=[_row(winner="4", result=phrase)])
+
+
+def test_retirement_code_four_still_checks_player_identity(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="player identity mismatch"):
+        _build(
+            tmp_path,
+            rows=[
+                _row(
+                    player_a="Gamma Three",
+                    winner="4",
+                    result="G. Three d B. Two Ret'd",
+                )
+            ],
+        )
+
+
 def test_unrelated_qualifying_round_does_not_block_result(
     tmp_path: Path,
 ) -> None:
