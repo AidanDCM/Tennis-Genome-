@@ -1,0 +1,115 @@
+{
+  "observed_at": "2026-10-21T16:44:03+00:00",
+  "pending_prediction_count": 16,
+  "production_eligible": false,
+  "result_count": 3,
+  "result_paths": [
+    "web-shadow/results/2026-10-21-osaka-2026-r16-ls009-tereza-valentova-lilli-tagger-3f2079fa69.json",
+    "web-shadow/results/2026-10-21-ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova-3ee73c980d.json",
+    "web-shadow/results/2026-10-21-ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk-647c2970a9.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:405:2026:LS009",
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls009-tereza-valentova-lilli-tagger-3f2079fa69.json",
+      "round_identity_conflict": true,
+      "score": "7-5 6-3",
+      "source_last_updated": "2026-10-21T05:57:23.727+00:00",
+      "source_match_id": "LS009",
+      "source_result_string": "L. Tagger d T. Valentova 7-5,6-3",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Lilli Tagger",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:2092:2026:LS015",
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova-3ee73c980d.json",
+      "round_identity_conflict": true,
+      "score": "7-5 6-2",
+      "source_last_updated": "2026-10-21T07:03:26.597+00:00",
+      "source_match_id": "LS015",
+      "source_result_string": "M. Bouzkova d A. Zakharova 7-5,6-2",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Marie Bouzkova",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:2092:2026:LS013",
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk-647c2970a9.json",
+      "round_identity_conflict": true,
+      "score": "6-4 0-0 Ret'd",
+      "source_last_updated": "2026-10-21T13:34:47.33+00:00",
+      "source_match_id": "LS013",
+      "source_result_string": "E. Alexandrova d [3]M. Kostyuk 6-4,0-0 Ret'd",
+      "source_round": "SF",
+      "status": "RETIREMENT",
+      "winner": "Ekaterina Alexandrova",
+      "winner_source": "result_string"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261021t164403z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "500fd496702fdb3a1f8181e0733401bb5672a9b791e664910e23522f64901f17",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 55,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "025c37cdbbb7d4f6c89e1c13c2c3d5ac7b7db9a69fb7491820ecf4c8b5eca120",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 48,
+      "slug": "ningbo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 0,
+  "unresolved_prediction_count": 13
+}

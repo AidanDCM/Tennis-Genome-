@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+  "match_id": "web:wta:405:2026:LS009",
+  "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-21T16:44:03+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-5 6-3",
+  "status": "COMPLETED",
+  "winner": "Lilli Tagger"
+}
