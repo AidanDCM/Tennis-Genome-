@@ -1,17 +1,17 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.7142857142857143,
-      "brier_score": 0.23919757894780536,
-      "calibration_gap_accuracy_minus_mean_selected_probability": 0.011639447829406957,
+      "accuracy": 0.6756756756756757,
+      "brier_score": 0.24290031140564824,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.018908690926690563,
       "confidence_buckets": [
         {
-          "accuracy": 0.9,
+          "accuracy": 0.75,
           "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 10,
-          "mean_selected_probability": 0.5569350518013936,
+          "match_count": 12,
+          "mean_selected_probability": 0.5563627296942274,
           "upper_bound": 0.6
         },
         {
@@ -52,34 +52,34 @@
         }
       ],
       "correct_prediction_count": 25,
-      "log_loss": 0.6888464484728297,
-      "mean_selected_probability": 0.7026462664563073,
+      "log_loss": 0.695377825932448,
+      "mean_selected_probability": 0.6945843666023662,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 35
+      "settled_match_count": 37
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.006077813632386242,
+    "brier_improvement_baseline_minus_genome": 0.006058773563310665,
     "genome": {
-      "accuracy": 0.6285714285714286,
-      "brier_score": 0.23311976531541911,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.026140842115986218,
+      "accuracy": 0.6216216216216216,
+      "brier_score": 0.23684153784233758,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.027656138270145014,
       "confidence_buckets": [
         {
-          "accuracy": 0.5384615384615384,
-          "correct_prediction_count": 7,
+          "accuracy": 0.5714285714285714,
+          "correct_prediction_count": 8,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 13,
-          "mean_selected_probability": 0.5485641253772646,
+          "match_count": 14,
+          "mean_selected_probability": 0.5456188575070805,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.7,
+          "accuracy": 0.6363636363636364,
           "correct_prediction_count": 7,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 10,
-          "mean_selected_probability": 0.642786613128257,
+          "match_count": 11,
+          "mean_selected_probability": 0.638989399820339,
           "upper_bound": 0.7
         },
         {
@@ -101,38 +101,38 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 22,
-      "log_loss": 0.6585386923974503,
-      "mean_selected_probability": 0.6547122706874148,
+      "correct_prediction_count": 23,
+      "log_loss": 0.6661157900536494,
+      "mean_selected_probability": 0.6492777598917666,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 35
+      "settled_match_count": 37
     },
-    "log_loss_improvement_baseline_minus_genome": 0.03030775607537939,
+    "log_loss_improvement_baseline_minus_genome": 0.02926203587879861,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 35
+    "settled_match_count": 37
   },
   "baseline_match_count": 54,
   "metrics": {
-    "accuracy": 0.6428571428571429,
-    "brier_score": 0.23437193397986952,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.0015803804985594638,
+    "accuracy": 0.6363636363636364,
+    "brier_score": 0.23744468957457593,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.00397099142898516,
     "confidence_buckets": [
       {
-        "accuracy": 0.6111111111111112,
-        "correct_prediction_count": 11,
+        "accuracy": 0.631578947368421,
+        "correct_prediction_count": 12,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 18,
-        "mean_selected_probability": 0.5527949524473046,
+        "match_count": 19,
+        "mean_selected_probability": 0.5504020799603246,
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.6666666666666666,
+        "accuracy": 0.6153846153846154,
         "correct_prediction_count": 8,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 12,
-        "mean_selected_probability": 0.6466947603346264,
+        "match_count": 13,
+        "mean_selected_probability": 0.6431811069812826,
         "upper_bound": 0.7
       },
       {
@@ -154,17 +154,17 @@
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 27,
-    "log_loss": 0.6616395786494006,
-    "mean_selected_probability": 0.6444375233557024,
+    "correct_prediction_count": 28,
+    "log_loss": 0.6678702795761157,
+    "mean_selected_probability": 0.6403346277926215,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 42
+    "settled_match_count": 44
   },
   "official_slate_count": 16,
-  "pending_match_count": 18,
+  "pending_match_count": 16,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 43,
+  "settled_match_count": 45,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -991,20 +991,26 @@
           "match_id": "web:wta:405:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
           "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+          "result_record_sha256": "a558ee1c8d70d6265a3f8a2d3c8a4264ad21f8c343e1e74e70eefd36470e74c0",
           "scheduled_start": "2026-10-21T11:30:00+09:00",
           "selected_player": "Talia Gibson",
           "selected_probability": 0.5073303751946865,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+          "settlement_record_sha256": "02f65874a8c3017ff2b27c6fdc678eed1dd0c928611ab11d2265767361d5e40c",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
           "match_id": "web:wta:405:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
           "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+          "result_record_sha256": "3c7d935f60941101c7b593d646c02719f1b5237b14fbedc16c2fd0f15a2b696d",
           "scheduled_start": "2026-10-21T11:30:00+09:00",
           "selected_player": "Lanlana Tararudee",
           "selected_probability": 0.6010172667411583,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+          "settlement_record_sha256": "a54e9bac0fc8aa087677fc0509f2404c9c3e530ccbd01ee6edbea875de9b31f3",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
