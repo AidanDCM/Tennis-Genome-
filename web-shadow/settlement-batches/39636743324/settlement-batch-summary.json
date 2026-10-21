@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS010",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "prediction_record_sha256": "7bae4541538af45064809c2dcb016425ccc8d5fe925146ec7ffa3f962331f934",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls010-talia-gibson-sinja-kraus-7bae454153.json",
+      "result_record_sha256": "a558ee1c8d70d6265a3f8a2d3c8a4264ad21f8c343e1e74e70eefd36470e74c0",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls010-talia-gibson-sinja-kraus.json",
+      "settlement_record_sha256": "02f65874a8c3017ff2b27c6fdc678eed1dd0c928611ab11d2265767361d5e40c",
+      "slate_id": "2026-10-20-run-39503334433",
+      "winner": "Talia Gibson"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS011",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "prediction_record_sha256": "4f6ad87bad998c46a1dbb7a83a16f6138f3c1e2ae14eef5e6a0f22aa778f9ad5",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger-4f6ad87bad.json",
+      "result_record_sha256": "3c7d935f60941101c7b593d646c02719f1b5237b14fbedc16c2fd0f15a2b696d",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls011-lanlana-tararudee-ashlyn-krueger.json",
+      "settlement_record_sha256": "a54e9bac0fc8aa087677fc0509f2404c9c3e530ccbd01ee6edbea875de9b31f3",
+      "slate_id": "2026-10-20-run-39503334433",
+      "winner": "Ashlyn Krueger"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
