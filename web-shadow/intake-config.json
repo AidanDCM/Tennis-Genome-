@@ -8,19 +8,19 @@
   },
   "tournaments": [
     {
-      "group_id": 405,
+      "group_id": 1023,
       "year": 2026,
-      "slug": "osaka",
-      "display_name": "Kinoshita Group Japan Open",
-      "tournament_id": "web:wta:osaka:2026",
+      "slug": "guangzhou",
+      "display_name": "Guangzhou Open",
+      "tournament_id": "web:wta:guangzhou:2026",
       "tournament_level": "I"
     },
     {
-      "group_id": 2092,
+      "group_id": 1056,
       "year": 2026,
-      "slug": "ningbo",
-      "display_name": "BNB Ningbo Open",
-      "tournament_id": "web:wta:ningbo:2026",
+      "slug": "tokyo",
+      "display_name": "Toray Pan Pacific Open Tennis",
+      "tournament_id": "web:wta:tokyo:2026",
       "tournament_level": "P"
     }
   ]
