@@ -1,0 +1,132 @@
+{
+  "excluded_match_count": 84,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 18,
+    "not_upcoming": 27,
+    "unscheduled": 3
+  },
+  "observed_at": "2026-10-27T17:20:22+00:00",
+  "pre_capacity_eligible_count": 5,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS010",
+      "player_a_wta_id": "325936",
+      "player_b_wta_id": "319007",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-28T10:30:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS010",
+      "year": 2026
+    },
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS011",
+      "player_a_wta_id": "321158",
+      "player_b_wta_id": "330544",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-28T11:30:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS011",
+      "year": 2026
+    },
+    {
+      "event_id": "1023",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "group_id": 1023,
+      "match_id": "web:wta:1023:2026:LS027",
+      "player_a_wta_id": "320301",
+      "player_b_wta_id": "329651",
+      "round": "R32",
+      "round_id": 5,
+      "scheduled_start": "2026-10-28T13:00:00+08:00",
+      "slug": "guangzhou",
+      "source_match_id": "LS027",
+      "year": 2026
+    },
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS012",
+      "player_a_wta_id": "330332",
+      "player_b_wta_id": "329393",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-28T17:00:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS012",
+      "year": 2026
+    },
+    {
+      "event_id": "1023",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+      "group_id": 1023,
+      "match_id": "web:wta:1023:2026:LS011",
+      "player_a_wta_id": "329824",
+      "player_b_wta_id": "324261",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-28T19:00:00+08:00",
+      "slug": "guangzhou",
+      "source_match_id": "LS011",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 5,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261027t172022z",
+  "source_match_count": 89,
+  "source_records": [
+    {
+      "group_id": 1023,
+      "matches_sha256": "eb36d37fc2db7899f21fedb0954fa6c05aaa966fd95d5f16630ba0ab6060469a",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 47,
+      "slug": "guangzhou",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "tournament_sha256": "ff859a30cd25c4f546d83a003b0ec7129f48d1f97494edc65feef5e3be91593c",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "391b5f07eb73184015f0ebbe6fae5c5ec6b286da314f00b74d74cdf34ab9af29",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 42,
+      "slug": "tokyo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "tournament_sha256": "288a52ad4b587618b20ead01565d09e45aa8cd56082591c76952f7051740e4d5",
+      "year": 2026
+    }
+  ]
+}
