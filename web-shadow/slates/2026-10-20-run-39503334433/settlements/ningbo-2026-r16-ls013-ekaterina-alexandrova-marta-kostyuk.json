@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:2092:2026:LS013",
+  "prediction_correct": false,
+  "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+  "production_eligible": false,
+  "record_sha256": "611d39ed3d8758305fe793ce1cc613b7b587bca8b25b7ba08b42d757c501e01a",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-21T16:44:03+00:00",
+  "result_record_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk-647c2970a9.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "RETIREMENT",
+  "winner": "Ekaterina Alexandrova"
+}

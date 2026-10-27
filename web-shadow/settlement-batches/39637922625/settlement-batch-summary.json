@@ -1,0 +1,52 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 1,
+  "production_eligible": false,
+  "requested_result_count": 3,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:405:2026:LS009",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+      "result_path": "web-shadow/results/2026-10-21-osaka-2026-r16-ls009-tereza-valentova-lilli-tagger-3f2079fa69.json",
+      "result_record_sha256": "25dcc5d9d712fd0bf7cfce72256f9e81b31f18dc47e0f43f0a33a5e48fdebd00",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+      "settlement_record_sha256": "961c4af2d9aaccf95476eb750209c75976e034a95565258a2193669440382252",
+      "slate_id": "2026-10-20-run-39503334433",
+      "winner": "Lilli Tagger"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:2092:2026:LS015",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+      "result_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova-3ee73c980d.json",
+      "result_record_sha256": "d9bf0afc9de87f3d8749ccdfa214dd9f1a5ac78e5b4aa53a74497ddfbba0acc8",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-20-run-39503334433/settlements/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+      "settlement_record_sha256": "22ce805c736e27230679481b2c50cbe395c05603a1f7fedd0d6e4b7677eae2e0",
+      "slate_id": "2026-10-20-run-39503334433",
+      "winner": "Marie Bouzkova"
+    },
+    {
+      "evaluation_eligible": false,
+      "match_id": "web:wta:2092:2026:LS013",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+      "result_path": "web-shadow/results/2026-10-21-ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk-647c2970a9.json",
+      "result_record_sha256": "25bba76294de5951f615e9837591781a4242aefe4f27547a5ac705524249c7ae",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-20-run-39503334433/settlements/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+      "settlement_record_sha256": "611d39ed3d8758305fe793ce1cc613b7b587bca8b25b7ba08b42d757c501e01a",
+      "slate_id": "2026-10-20-run-39503334433",
+      "winner": "Ekaterina Alexandrova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 3,
+  "slate_count": 1
+}

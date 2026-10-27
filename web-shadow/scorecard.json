@@ -1,26 +1,26 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.6756756756756757,
-      "brier_score": 0.24290031140564824,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.018908690926690563,
+      "accuracy": 0.6666666666666666,
+      "brier_score": 0.24362573456454967,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.02298060451624795,
       "confidence_buckets": [
         {
-          "accuracy": 0.75,
+          "accuracy": 0.6923076923076923,
           "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 12,
-          "mean_selected_probability": 0.5563627296942274,
+          "match_count": 13,
+          "mean_selected_probability": 0.5593875289303297,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.6,
-          "correct_prediction_count": 6,
+          "accuracy": 0.6363636363636364,
+          "correct_prediction_count": 7,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 10,
-          "mean_selected_probability": 0.6523343733731924,
+          "match_count": 11,
+          "mean_selected_probability": 0.6476618750740438,
           "upper_bound": 0.7
         },
         {
@@ -51,26 +51,26 @@
           "upper_bound": 1.0
         }
       ],
-      "correct_prediction_count": 25,
-      "log_loss": 0.695377825932448,
-      "mean_selected_probability": 0.6945843666023662,
+      "correct_prediction_count": 26,
+      "log_loss": 0.6959950310869202,
+      "mean_selected_probability": 0.6896472711829146,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 37
+      "settled_match_count": 39
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.006058773563310665,
+    "brier_improvement_baseline_minus_genome": 0.0057853633804852145,
     "genome": {
-      "accuracy": 0.6216216216216216,
-      "brier_score": 0.23684153784233758,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.027656138270145014,
+      "accuracy": 0.6153846153846154,
+      "brier_score": 0.23784037118406445,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.029360726862820763,
       "confidence_buckets": [
         {
-          "accuracy": 0.5714285714285714,
-          "correct_prediction_count": 8,
+          "accuracy": 0.5625,
+          "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 14,
-          "mean_selected_probability": 0.5456188575070805,
+          "match_count": 16,
+          "mean_selected_probability": 0.5475284522971108,
           "upper_bound": 0.6
         },
         {
@@ -101,29 +101,29 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 23,
-      "log_loss": 0.6661157900536494,
-      "mean_selected_probability": 0.6492777598917666,
+      "correct_prediction_count": 24,
+      "log_loss": 0.6681570002033348,
+      "mean_selected_probability": 0.6447453422474362,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 37
+      "settled_match_count": 39
     },
-    "log_loss_improvement_baseline_minus_genome": 0.02926203587879861,
+    "log_loss_improvement_baseline_minus_genome": 0.027838030883585385,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 37
+    "settled_match_count": 39
   },
   "baseline_match_count": 54,
   "metrics": {
-    "accuracy": 0.6363636363636364,
-    "brier_score": 0.23744468957457593,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.00397099142898516,
+    "accuracy": 0.6304347826086957,
+    "brier_score": 0.23826530254985576,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.006445975098478107,
     "confidence_buckets": [
       {
-        "accuracy": 0.631578947368421,
-        "correct_prediction_count": 12,
+        "accuracy": 0.6190476190476191,
+        "correct_prediction_count": 13,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 19,
-        "mean_selected_probability": 0.5504020799603246,
+        "match_count": 21,
+        "mean_selected_probability": 0.5514014643286101,
         "upper_bound": 0.6
       },
       {
@@ -154,17 +154,17 @@
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 28,
-    "log_loss": 0.6678702795761157,
-    "mean_selected_probability": 0.6403346277926215,
+    "correct_prediction_count": 29,
+    "log_loss": 0.6695245886368287,
+    "mean_selected_probability": 0.6368807577071738,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 44
+    "settled_match_count": 46
   },
   "official_slate_count": 16,
-  "pending_match_count": 16,
+  "pending_match_count": 13,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 45,
+  "settled_match_count": 48,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1017,35 +1017,44 @@
           "match_id": "web:wta:405:2026:LS009",
           "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
           "prediction_record_sha256": "3f2079fa69b36cc9f8f42570c8178a1be0368e55d6313d9b5bac17725fca538c",
+          "result_record_sha256": "25dcc5d9d712fd0bf7cfce72256f9e81b31f18dc47e0f43f0a33a5e48fdebd00",
           "scheduled_start": "2026-10-21T13:00:00+09:00",
           "selected_player": "Tereza Valentova",
           "selected_probability": 0.563499348383124,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-20-run-39503334433/settlements/osaka-2026-r16-ls009-tereza-valentova-lilli-tagger.json",
+          "settlement_record_sha256": "961c4af2d9aaccf95476eb750209c75976e034a95565258a2193669440382252",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
           "match_id": "web:wta:2092:2026:LS015",
           "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
           "prediction_record_sha256": "3ee73c980d80af826baabf492925f6c99b9a75e4aba89e59c350205d1829cd0f",
+          "result_record_sha256": "d9bf0afc9de87f3d8749ccdfa214dd9f1a5ac78e5b4aa53a74497ddfbba0acc8",
           "scheduled_start": "2026-10-21T13:00:00+08:00",
           "selected_player": "Marie Bouzkova",
           "selected_probability": 0.5582918832715228,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-20-run-39503334433/settlements/ningbo-2026-r16-ls015-marie-bouzkova-anastasia-zakharova.json",
+          "settlement_record_sha256": "22ce805c736e27230679481b2c50cbe395c05603a1f7fedd0d6e4b7677eae2e0",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-20-run-39503334433/baselines/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
           "match_id": "web:wta:2092:2026:LS013",
           "prediction_path": "web-shadow/slates/2026-10-20-run-39503334433/predictions/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
           "prediction_record_sha256": "647c2970a96f76407df2cdfa8f3225d284a7f5c0da19ff5985ab241e270ea763",
+          "result_record_sha256": "25bba76294de5951f615e9837591781a4242aefe4f27547a5ac705524249c7ae",
           "scheduled_start": "2026-10-21T19:00:00+08:00",
           "selected_player": "Marta Kostyuk",
           "selected_probability": 0.8373826615362736,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-20-run-39503334433/settlements/ningbo-2026-r16-ls013-ekaterina-alexandrova-marta-kostyuk.json",
+          "settlement_record_sha256": "611d39ed3d8758305fe793ce1cc613b7b587bca8b25b7ba08b42d757c501e01a",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-10-20-run-39503334433/slate-receipt.json",
       "slate_id": "2026-10-20-run-39503334433",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 39503334433
     }
   ]
