@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1023:2026:LS027",
+  "player_a": "Katerina Siniakova",
+  "player_b": "Lanlana Tararudee",
+  "round": "R32",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "scheduled_start": "2026-10-28T13:00:00+08:00",
+  "source_observed_at": "2026-10-27T17:20:22+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Guangzhou Open",
+  "tournament_id": "web:wta:guangzhou:2026",
+  "tournament_level": "I"
+}
