@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.2920433087734497,
+  "match_id": "web:wta:1056:2026:LS011",
+  "matchup_input_sha256": "06b63b696de36a84239641fe0edf42b3429d671a491548c49cabd93434a3d6bd",
+  "p_player_a": 0.5724962949969756,
+  "p_player_b": 0.42750370500302437,
+  "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+  "production_eligible": false,
+  "record_sha256": "97d6696cfb5b6d02f2c0af47f9b89cf7ea124a4afc2b78d8650c99c6ef932f75",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Cristina Bucsa"
+}

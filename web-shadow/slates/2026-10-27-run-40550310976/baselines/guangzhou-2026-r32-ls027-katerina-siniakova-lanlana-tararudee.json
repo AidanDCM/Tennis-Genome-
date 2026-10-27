@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12754752030,
+  "artifact_sha256": "5c4811a0a48c2a0d09a45c3a5d3e932437fba87a52db5b2fc3d61f9cddb1a9c5",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.01655929718219256,
+  "match_id": "web:wta:1023:2026:LS027",
+  "matchup_input_sha256": "c35a34b955897e824ad7a7a85b0b4ff05afa731d296181d5e189e40e9088a441",
+  "p_player_a": 0.4958602703004044,
+  "p_player_b": 0.5041397296995955,
+  "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+  "production_eligible": false,
+  "record_sha256": "db195dbb90ead3181b2aa7b5046783c5f7a4790146afee368fec332a81944340",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Lanlana Tararudee",
+  "slate_id": "2026-10-27-run-40550310976"
+}

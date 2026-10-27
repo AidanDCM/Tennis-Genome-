@@ -1,0 +1,65 @@
+{
+  "baseline_count": 5,
+  "eligible_target_count": 5,
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "baseline_candidate_record_sha256": "da70263f357a135ab87daa89b52178030effe464644a4c8c81b55c62c77aa270",
+      "baseline_path": "baselines/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "baseline_record_sha256": "94384738fc50d1d36130739a934562024f3279f8f682896c42da5d7c6ed3b9b9",
+      "match_id": "web:wta:1056:2026:LS010",
+      "prediction_path": "predictions/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d"
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls011-cristina-bucsa-maya-joint",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "baseline_candidate_record_sha256": "97d6696cfb5b6d02f2c0af47f9b89cf7ea124a4afc2b78d8650c99c6ef932f75",
+      "baseline_path": "baselines/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "baseline_record_sha256": "a12f289f6a706f6fa46bdb95b99b4307e01fc5ed30596f579820615df2474830",
+      "match_id": "web:wta:1056:2026:LS011",
+      "prediction_path": "predictions/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "baseline_candidate_record_sha256": "293831981974925dc79b9a4b785b9d7053ccf5b160e53a27eee010585ad6c98a",
+      "baseline_path": "baselines/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "baseline_record_sha256": "db195dbb90ead3181b2aa7b5046783c5f7a4790146afee368fec332a81944340",
+      "match_id": "web:wta:1023:2026:LS027",
+      "prediction_path": "predictions/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601"
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls012-alexandra-eala-talia-gibson",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+      "baseline_candidate_record_sha256": "57e5e091195923946064d724e1ba6e55b665a82d5d81cd40aaef70b3a494fca4",
+      "baseline_path": "baselines/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+      "baseline_record_sha256": "64d08add3cdf840b4293d25e11b0adfd33fd075d9402a12bc030a0b4f2d07532",
+      "match_id": "web:wta:1056:2026:LS012",
+      "prediction_path": "predictions/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+      "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls011-han-shi-dayana-yastremska",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+      "baseline_candidate_record_sha256": "56141ac67edce6dd917bf4b7b922dd3a7990a1b2c933d65c8e0101568082c4a6",
+      "baseline_path": "baselines/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+      "baseline_record_sha256": "6eab74ad52309d1e82cbeed6421887f8b3275ed19c486426f7476db302f12b83",
+      "match_id": "web:wta:1023:2026:LS011",
+      "prediction_path": "predictions/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+      "prediction_record_sha256": "b5ad0fc9b44214eb9c02d7a00d587d348015d164a29de1458345572e93ac7c6d"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-27-run-40550310976",
+  "workflow_artifact_id": 12754752030,
+  "workflow_artifact_sha256": "5c4811a0a48c2a0d09a45c3a5d3e932437fba87a52db5b2fc3d61f9cddb1a9c5",
+  "workflow_run_id": 40550310976,
+  "workflow_source_sha": "0584caf3379c46d70d12be5a727df9b2059a9dc9"
+}

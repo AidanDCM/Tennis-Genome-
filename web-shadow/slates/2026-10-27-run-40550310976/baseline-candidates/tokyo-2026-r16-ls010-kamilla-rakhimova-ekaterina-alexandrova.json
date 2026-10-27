@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3992479789139176,
+  "match_id": "web:wta:1056:2026:LS010",
+  "matchup_input_sha256": "cd8d379ec119a20e0e50da63dff8486617e101113028882e574f7143d7200858",
+  "p_player_a": 0.59850696556373,
+  "p_player_b": 0.40149303443627005,
+  "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+  "production_eligible": false,
+  "record_sha256": "da70263f357a135ab87daa89b52178030effe464644a4c8c81b55c62c77aa270",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Ekaterina Alexandrova"
+}

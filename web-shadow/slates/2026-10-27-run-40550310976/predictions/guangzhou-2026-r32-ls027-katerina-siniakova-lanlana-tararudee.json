@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-27T17:25:47.114831+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS027",
+    "player_a": "Katerina Siniakova",
+    "player_b": "Lanlana Tararudee",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-28T13:00:00+08:00",
+    "source_observed_at": "2026-10-27T17:20:22+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "c35a34b955897e824ad7a7a85b0b4ff05afa731d296181d5e189e40e9088a441",
+  "model_source_sha": "0584caf3379c46d70d12be5a727df9b2059a9dc9",
+  "p_player_a": 0.4845359131690782,
+  "p_player_b": 0.5154640868309218,
+  "player_a_id": "wta:id:211701",
+  "player_b_id": "wta:id:222290",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Lanlana Tararudee"
+}

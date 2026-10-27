@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.45668393568654453,
+  "match_id": "web:wta:1056:2026:LS012",
+  "matchup_input_sha256": "dc4a5e503d310da8f34607df1f316375b0b48a34dfb172153599a8ac224af697",
+  "p_player_a": 0.3877727806897113,
+  "p_player_b": 0.6122272193102887,
+  "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda",
+  "production_eligible": false,
+  "record_sha256": "57e5e091195923946064d724e1ba6e55b665a82d5d81cd40aaef70b3a494fca4",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Alexandra Eala"
+}
