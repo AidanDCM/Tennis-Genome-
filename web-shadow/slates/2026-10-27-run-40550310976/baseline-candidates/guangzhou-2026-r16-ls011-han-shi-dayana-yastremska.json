@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.8079838899909619,
+  "match_id": "web:wta:1023:2026:LS011",
+  "matchup_input_sha256": "eeaaafc9268e23881a7e24ba383b5b9703ab495d8981039947b46aaf22b2fd8d",
+  "p_player_a": 0.6916797171628505,
+  "p_player_b": 0.3083202828371495,
+  "prediction_record_sha256": "b5ad0fc9b44214eb9c02d7a00d587d348015d164a29de1458345572e93ac7c6d",
+  "production_eligible": false,
+  "record_sha256": "56141ac67edce6dd917bf4b7b922dd3a7990a1b2c933d65c8e0101568082c4a6",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Dayana Yastremska"
+}

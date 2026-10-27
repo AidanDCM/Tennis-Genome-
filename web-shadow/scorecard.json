@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 39
   },
-  "baseline_match_count": 54,
+  "baseline_match_count": 59,
   "metrics": {
     "accuracy": 0.6304347826086957,
     "brier_score": 0.23826530254985576,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 46
   },
-  "official_slate_count": 16,
-  "pending_match_count": 13,
+  "official_slate_count": 17,
+  "pending_match_count": 18,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 48,
@@ -1056,6 +1056,65 @@
       "slate_id": "2026-10-20-run-39503334433",
       "status": "SETTLED",
       "workflow_run_id": 39503334433
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+          "match_id": "web:wta:1056:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+          "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+          "scheduled_start": "2026-10-28T10:30:00+09:00",
+          "selected_player": "Ekaterina Alexandrova",
+          "selected_probability": 0.5353434197542817,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+          "match_id": "web:wta:1056:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+          "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+          "scheduled_start": "2026-10-28T11:30:00+09:00",
+          "selected_player": "Cristina Bucsa",
+          "selected_probability": 0.6207973633677909,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+          "match_id": "web:wta:1023:2026:LS027",
+          "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+          "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+          "scheduled_start": "2026-10-28T13:00:00+08:00",
+          "selected_player": "Lanlana Tararudee",
+          "selected_probability": 0.5154640868309218,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+          "match_id": "web:wta:1056:2026:LS012",
+          "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+          "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda",
+          "scheduled_start": "2026-10-28T17:00:00+09:00",
+          "selected_player": "Alexandra Eala",
+          "selected_probability": 0.5980397180203748,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+          "match_id": "web:wta:1023:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+          "prediction_record_sha256": "b5ad0fc9b44214eb9c02d7a00d587d348015d164a29de1458345572e93ac7c6d",
+          "scheduled_start": "2026-10-28T19:00:00+08:00",
+          "selected_player": "Dayana Yastremska",
+          "selected_probability": 0.6345403618889652,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-27-run-40550310976/slate-receipt.json",
+      "slate_id": "2026-10-27-run-40550310976",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 40550310976
     }
   ]
 }

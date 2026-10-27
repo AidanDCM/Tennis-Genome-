@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12754752030,
+  "artifact_sha256": "5c4811a0a48c2a0d09a45c3a5d3e932437fba87a52db5b2fc3d61f9cddb1a9c5",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.45668393568654453,
+  "match_id": "web:wta:1056:2026:LS012",
+  "matchup_input_sha256": "dc4a5e503d310da8f34607df1f316375b0b48a34dfb172153599a8ac224af697",
+  "p_player_a": 0.3877727806897113,
+  "p_player_b": 0.6122272193102887,
+  "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda",
+  "production_eligible": false,
+  "record_sha256": "64d08add3cdf840b4293d25e11b0adfd33fd075d9402a12bc030a0b4f2d07532",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Alexandra Eala",
+  "slate_id": "2026-10-27-run-40550310976"
+}

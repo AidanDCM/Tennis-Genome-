@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-27T17:25:45.036336+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS010",
+    "player_a": "Ekaterina Alexandrova",
+    "player_b": "Kamilla Rakhimova",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-28T10:30:00+09:00",
+    "source_observed_at": "2026-10-27T17:20:22+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "cd8d379ec119a20e0e50da63dff8486617e101113028882e574f7143d7200858",
+  "model_source_sha": "0584caf3379c46d70d12be5a727df9b2059a9dc9",
+  "p_player_a": 0.5353434197542817,
+  "p_player_b": 0.4646565802457183,
+  "player_a_id": "wta:id:206420",
+  "player_b_id": "wta:id:215872",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Ekaterina Alexandrova"
+}

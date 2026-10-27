@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-27T17:25:46.402754+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS011",
+    "player_a": "Cristina Bucsa",
+    "player_b": "Maya Joint",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-28T11:30:00+09:00",
+    "source_observed_at": "2026-10-27T17:20:22+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "06b63b696de36a84239641fe0edf42b3429d671a491548c49cabd93434a3d6bd",
+  "model_source_sha": "0584caf3379c46d70d12be5a727df9b2059a9dc9",
+  "p_player_a": 0.6207973633677909,
+  "p_player_b": 0.3792026366322091,
+  "player_a_id": "wta:id:213710",
+  "player_b_id": "wta:id:233741",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Cristina Bucsa"
+}

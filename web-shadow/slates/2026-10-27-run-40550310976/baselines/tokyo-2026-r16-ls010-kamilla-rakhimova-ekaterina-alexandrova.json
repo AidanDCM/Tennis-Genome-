@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12754752030,
+  "artifact_sha256": "5c4811a0a48c2a0d09a45c3a5d3e932437fba87a52db5b2fc3d61f9cddb1a9c5",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.3992479789139176,
+  "match_id": "web:wta:1056:2026:LS010",
+  "matchup_input_sha256": "cd8d379ec119a20e0e50da63dff8486617e101113028882e574f7143d7200858",
+  "p_player_a": 0.59850696556373,
+  "p_player_b": 0.40149303443627005,
+  "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+  "production_eligible": false,
+  "record_sha256": "94384738fc50d1d36130739a934562024f3279f8f682896c42da5d7c6ed3b9b9",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Ekaterina Alexandrova",
+  "slate_id": "2026-10-27-run-40550310976"
+}
