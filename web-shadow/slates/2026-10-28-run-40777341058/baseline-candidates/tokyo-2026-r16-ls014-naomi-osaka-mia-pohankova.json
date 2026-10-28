@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 1.571203139665522,
+  "match_id": "web:wta:1056:2026:LS014",
+  "matchup_input_sha256": "2ea65c5b7f222eae6ab1b21cbdcc39a1cf909abcc4888fa866fc4d4c9e3de609",
+  "p_player_a": 0.827955057702544,
+  "p_player_b": 0.17204494229745604,
+  "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+  "production_eligible": false,
+  "record_sha256": "486891133b8dbd92a87a70f0ef199183380c8baa594f0b15cb4091e964fa8ea3",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Naomi Osaka"
+}

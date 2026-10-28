@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12855062635,
+  "artifact_sha256": "d9fd7f2d8495fc1dbbc07e064e0ca39557428cb769398d22cb74d1486894966b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 1.571203139665522,
+  "match_id": "web:wta:1056:2026:LS014",
+  "matchup_input_sha256": "2ea65c5b7f222eae6ab1b21cbdcc39a1cf909abcc4888fa866fc4d4c9e3de609",
+  "p_player_a": 0.827955057702544,
+  "p_player_b": 0.17204494229745604,
+  "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+  "production_eligible": false,
+  "record_sha256": "a43435eb5caaa41013bd2acbce4d9369e7f319f1ce931e41a11865327078c8fe",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Naomi Osaka",
+  "slate_id": "2026-10-28-run-40777341058"
+}

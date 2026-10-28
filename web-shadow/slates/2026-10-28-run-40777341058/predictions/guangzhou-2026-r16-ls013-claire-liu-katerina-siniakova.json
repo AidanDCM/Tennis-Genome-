@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-28T22:07:40.073561+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS013",
+    "player_a": "Katerina Siniakova",
+    "player_b": "Claire Liu",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-29T13:00:00+08:00",
+    "source_observed_at": "2026-10-28T13:05:06+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "8f46f560b2715269cbe89b8519240894945398214e7c154314c9767e60c28942",
+  "model_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1",
+  "p_player_a": 0.5692605120344917,
+  "p_player_b": 0.4307394879655083,
+  "player_a_id": "wta:id:211701",
+  "player_b_id": "wta:id:214906",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Katerina Siniakova"
+}

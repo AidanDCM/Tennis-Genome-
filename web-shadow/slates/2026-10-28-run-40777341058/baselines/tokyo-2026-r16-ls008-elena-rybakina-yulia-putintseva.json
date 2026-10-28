@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12855062635,
+  "artifact_sha256": "d9fd7f2d8495fc1dbbc07e064e0ca39557428cb769398d22cb74d1486894966b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -2.1615012305661447,
+  "match_id": "web:wta:1056:2026:LS008",
+  "matchup_input_sha256": "6e71bc4051b803a6bd808f10789e3a721a7a56ea6e29883baa358a837d709d74",
+  "p_player_a": 0.10326135701799186,
+  "p_player_b": 0.8967386429820081,
+  "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+  "production_eligible": false,
+  "record_sha256": "05af19b3daef19c29e18105b1b9f70cb8137e7b1da1317c5970bafc63947c080",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Elena Rybakina",
+  "slate_id": "2026-10-28-run-40777341058"
+}

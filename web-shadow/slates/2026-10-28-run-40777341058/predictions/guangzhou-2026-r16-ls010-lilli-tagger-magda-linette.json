@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-28T22:07:42.425104+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS010",
+    "player_a": "Magda Linette",
+    "player_b": "Lilli Tagger",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-29T19:00:00+08:00",
+    "source_observed_at": "2026-10-28T13:05:06+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "34bff7727664fe4d86d6809f228ffc93c84cbe797b4f29ce045c585b7ab2d33a",
+  "model_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1",
+  "p_player_a": 0.5033103016734711,
+  "p_player_b": 0.4966896983265289,
+  "player_a_id": "wta:id:202663",
+  "player_b_id": "wta:id:260172",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Magda Linette"
+}

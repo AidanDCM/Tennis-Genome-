@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-28T22:07:38.357716+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS009",
+    "player_a": "Elise Mertens",
+    "player_b": "Leylah Fernandez",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-29T11:30:00+09:00",
+    "source_observed_at": "2026-10-28T13:05:06+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "21ac32662665a129905ecfb52bf3d6a9abf36a627f0c79e5840ff3ce5bae7aae",
+  "model_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1",
+  "p_player_a": 0.5860580482469804,
+  "p_player_b": 0.4139419517530196,
+  "player_a_id": "wta:id:210722",
+  "player_b_id": "wta:id:220367",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elise Mertens"
+}
