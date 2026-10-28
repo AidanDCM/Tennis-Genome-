@@ -1,0 +1,85 @@
+{
+  "baseline_count": 7,
+  "eligible_target_count": 7,
+  "predicted_target_count": 7,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "baseline_candidate_record_sha256": "32ab3a5fef0ea35876406c5fdbcb030acf03c80d91f55ed89c472f0fa428c6f3",
+      "baseline_path": "baselines/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "baseline_record_sha256": "9a96665b5d6b3994c00e186977a2ed807e0356c8816dce0d09bf7448cccb2461",
+      "match_id": "web:wta:1056:2026:LS015",
+      "prediction_path": "predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13"
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "baseline_candidate_record_sha256": "f89a0d9f8e98f58baf27dc761e414f98981af84e66f65b9c9cc18939c5a7d876",
+      "baseline_path": "baselines/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "baseline_record_sha256": "2cc7f4d3d0b274486a723be4590f94fca3f108cf902357f8e0d32805f5e5d0dd",
+      "match_id": "web:wta:1056:2026:LS009",
+      "prediction_path": "predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "baseline_candidate_record_sha256": "41a8be95d5ba69e340e383465c4fbac4a51209266f734a23a0f68d480a83c72a",
+      "baseline_path": "baselines/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "baseline_record_sha256": "57035fe55cc8150ac8311090879bbebfe8d668428c3d5935e134fe8d6eda9021",
+      "match_id": "web:wta:1023:2026:LS009",
+      "prediction_path": "predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "baseline_candidate_record_sha256": "6dbc5f0f654969d3b2325c64eb945f5904a5c5304407626ee2a5723f8a385a1a",
+      "baseline_path": "baselines/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "baseline_record_sha256": "c73161e4ce7ab7a36270af46a8b3cc1d5c84d75324c03969fb4d01bf070474f7",
+      "match_id": "web:wta:1023:2026:LS013",
+      "prediction_path": "predictions/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87"
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "baseline_candidate_record_sha256": "486891133b8dbd92a87a70f0ef199183380c8baa594f0b15cb4091e964fa8ea3",
+      "baseline_path": "baselines/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "baseline_record_sha256": "a43435eb5caaa41013bd2acbce4d9369e7f319f1ce931e41a11865327078c8fe",
+      "match_id": "web:wta:1056:2026:LS014",
+      "prediction_path": "predictions/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4"
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "baseline_candidate_record_sha256": "6a64fb32baa696694ac66ebe56ed608fea0e71fa50f0a1216ced2544deb1e199",
+      "baseline_path": "baselines/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "baseline_record_sha256": "05af19b3daef19c29e18105b1b9f70cb8137e7b1da1317c5970bafc63947c080",
+      "match_id": "web:wta:1056:2026:LS008",
+      "prediction_path": "predictions/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls010-lilli-tagger-magda-linette",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "baseline_candidate_record_sha256": "2e334a72921f4e0d1161e3d26b469919cd3676b281194f06786202330b304024",
+      "baseline_path": "baselines/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "baseline_record_sha256": "8f34820f8d3c4a48d00324512b36c89dc59811d748563198f1dfe8d270519c6d",
+      "match_id": "web:wta:1023:2026:LS010",
+      "prediction_path": "predictions/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "prediction_record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-28-run-40777341058",
+  "workflow_artifact_id": 12855062635,
+  "workflow_artifact_sha256": "d9fd7f2d8495fc1dbbc07e064e0ca39557428cb769398d22cb74d1486894966b",
+  "workflow_run_id": 40777341058,
+  "workflow_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1"
+}

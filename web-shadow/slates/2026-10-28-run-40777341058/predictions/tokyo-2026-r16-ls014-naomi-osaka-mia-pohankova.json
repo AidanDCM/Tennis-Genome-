@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-28T22:07:40.725948+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS014",
+    "player_a": "Naomi Osaka",
+    "player_b": "Mia Pohankova",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-29T14:30:00+09:00",
+    "source_observed_at": "2026-10-28T13:05:06+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "2ea65c5b7f222eae6ab1b21cbdcc39a1cf909abcc4888fa866fc4d4c9e3de609",
+  "model_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1",
+  "p_player_a": 0.7653159756149542,
+  "p_player_b": 0.23468402438504576,
+  "player_a_id": "wta:id:211768",
+  "player_b_id": "wta:id:266376",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Naomi Osaka"
+}

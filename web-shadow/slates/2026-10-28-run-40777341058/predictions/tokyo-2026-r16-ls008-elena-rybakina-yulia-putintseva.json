@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-28T22:07:41.777491+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS008",
+    "player_a": "Yulia Putintseva",
+    "player_b": "Elena Rybakina",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-29T17:00:00+09:00",
+    "source_observed_at": "2026-10-28T13:05:06+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "6e71bc4051b803a6bd808f10789e3a721a7a56ea6e29883baa358a837d709d74",
+  "model_source_sha": "44173cf4bf30dd0e067b1ab06e49c266eab43ef1",
+  "p_player_a": 0.1701176857258795,
+  "p_player_b": 0.8298823142741205,
+  "player_a_id": "wta:id:201709",
+  "player_b_id": "wta:id:214981",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Elena Rybakina"
+}

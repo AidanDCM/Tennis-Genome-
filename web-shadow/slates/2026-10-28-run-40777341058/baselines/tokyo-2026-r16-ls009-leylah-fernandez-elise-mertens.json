@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12855062635,
+  "artifact_sha256": "d9fd7f2d8495fc1dbbc07e064e0ca39557428cb769398d22cb74d1486894966b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.4774838957021296,
+  "match_id": "web:wta:1056:2026:LS009",
+  "matchup_input_sha256": "21ac32662665a129905ecfb52bf3d6a9abf36a627f0c79e5840ff3ce5bae7aae",
+  "p_player_a": 0.6171535576164643,
+  "p_player_b": 0.3828464423835357,
+  "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+  "production_eligible": false,
+  "record_sha256": "2cc7f4d3d0b274486a723be4590f94fca3f108cf902357f8e0d32805f5e5d0dd",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Elise Mertens",
+  "slate_id": "2026-10-28-run-40777341058"
+}

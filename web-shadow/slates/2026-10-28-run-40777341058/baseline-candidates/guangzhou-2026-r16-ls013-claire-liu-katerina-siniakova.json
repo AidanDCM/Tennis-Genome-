@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.44807083468506237,
+  "match_id": "web:wta:1023:2026:LS013",
+  "matchup_input_sha256": "8f46f560b2715269cbe89b8519240894945398214e7c154314c9767e60c28942",
+  "p_player_a": 0.6101804598313525,
+  "p_player_b": 0.3898195401686475,
+  "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+  "production_eligible": false,
+  "record_sha256": "6dbc5f0f654969d3b2325c64eb945f5904a5c5304407626ee2a5723f8a385a1a",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Katerina Siniakova"
+}
