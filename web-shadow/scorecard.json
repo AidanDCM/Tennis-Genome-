@@ -1,17 +1,17 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.6666666666666666,
-      "brier_score": 0.24362573456454967,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.02298060451624795,
+      "accuracy": 0.6190476190476191,
+      "brier_score": 0.24860769311172823,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06122348967604685,
       "confidence_buckets": [
         {
-          "accuracy": 0.6923076923076923,
+          "accuracy": 0.5625,
           "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 13,
-          "mean_selected_probability": 0.5593875289303297,
+          "match_count": 16,
+          "mean_selected_probability": 0.5591988041471617,
           "upper_bound": 0.6
         },
         {
@@ -52,34 +52,34 @@
         }
       ],
       "correct_prediction_count": 26,
-      "log_loss": 0.6959950310869202,
-      "mean_selected_probability": 0.6896472711829146,
+      "log_loss": 0.7049434460953761,
+      "mean_selected_probability": 0.6802711087236659,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 39
+      "settled_match_count": 42
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.0057853633804852145,
+    "brier_improvement_baseline_minus_genome": 0.005430082530072017,
     "genome": {
-      "accuracy": 0.6153846153846154,
-      "brier_score": 0.23784037118406445,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.029360726862820763,
+      "accuracy": 0.5714285714285714,
+      "brier_score": 0.2431776105816562,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06706364803816678,
       "confidence_buckets": [
         {
-          "accuracy": 0.5625,
+          "accuracy": 0.5,
           "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 16,
-          "mean_selected_probability": 0.5475284522971108,
+          "match_count": 18,
+          "mean_selected_probability": 0.5450701524077209,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.6363636363636364,
+          "accuracy": 0.5833333333333334,
           "correct_prediction_count": 7,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 11,
-          "mean_selected_probability": 0.638989399820339,
+          "match_count": 12,
+          "mean_selected_probability": 0.6374733967826266,
           "upper_bound": 0.7
         },
         {
@@ -102,37 +102,37 @@
         }
       ],
       "correct_prediction_count": 24,
-      "log_loss": 0.6681570002033348,
-      "mean_selected_probability": 0.6447453422474362,
+      "log_loss": 0.6790197136422744,
+      "mean_selected_probability": 0.6384922194667382,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 39
+      "settled_match_count": 42
     },
-    "log_loss_improvement_baseline_minus_genome": 0.027838030883585385,
+    "log_loss_improvement_baseline_minus_genome": 0.025923732453101644,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 39
+    "settled_match_count": 42
   },
   "baseline_match_count": 59,
   "metrics": {
-    "accuracy": 0.6304347826086957,
-    "brier_score": 0.23826530254985576,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.006445975098478107,
+    "accuracy": 0.5918367346938775,
+    "brier_score": 0.24281406297029412,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.04016570866291813,
     "confidence_buckets": [
       {
-        "accuracy": 0.6190476190476191,
+        "accuracy": 0.5652173913043478,
         "correct_prediction_count": 13,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 21,
-        "mean_selected_probability": 0.5514014643286101,
+        "match_count": 23,
+        "mean_selected_probability": 0.5491407938037399,
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.6153846153846154,
+        "accuracy": 0.5714285714285714,
         "correct_prediction_count": 8,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 13,
-        "mean_selected_probability": 0.6431811069812826,
+        "match_count": 14,
+        "mean_selected_probability": 0.6415822681517475,
         "upper_bound": 0.7
       },
       {
@@ -155,16 +155,16 @@
       }
     ],
     "correct_prediction_count": 29,
-    "log_loss": 0.6695245886368287,
-    "mean_selected_probability": 0.6368807577071738,
+    "log_loss": 0.6787517559661139,
+    "mean_selected_probability": 0.6320024433567957,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 46
+    "settled_match_count": 49
   },
   "official_slate_count": 17,
-  "pending_match_count": 18,
+  "pending_match_count": 15,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 48,
+  "settled_match_count": 51,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1065,30 +1065,39 @@
           "match_id": "web:wta:1056:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
           "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+          "result_record_sha256": "4fce5ece26f58b30af1061e281c46518a60b093b3ae6d61e2d49ec77271e0a74",
           "scheduled_start": "2026-10-28T10:30:00+09:00",
           "selected_player": "Ekaterina Alexandrova",
           "selected_probability": 0.5353434197542817,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-27-run-40550310976/settlements/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+          "settlement_record_sha256": "8c83bea45435db4ffa799057648bfa60ea7c7ebe1432babb1bbd5d8e75e5be63",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
           "match_id": "web:wta:1056:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
           "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+          "result_record_sha256": "f09af0510f36721431075a10ccbdf194e1df1fc10f0e602ae3b61fff000277c8",
           "scheduled_start": "2026-10-28T11:30:00+09:00",
           "selected_player": "Cristina Bucsa",
           "selected_probability": 0.6207973633677909,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-27-run-40550310976/settlements/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+          "settlement_record_sha256": "0bc103fb1157845d380348f207e3ee71853fd6626e110570a78962ecea6a92e5",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
           "match_id": "web:wta:1023:2026:LS027",
           "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
           "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+          "result_record_sha256": "675562d13b097f4393cbeb072cfbe6a4af192b82df4d7c0a313f7d9fd27dce11",
           "scheduled_start": "2026-10-28T13:00:00+08:00",
           "selected_player": "Lanlana Tararudee",
           "selected_probability": 0.5154640868309218,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-27-run-40550310976/settlements/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+          "settlement_record_sha256": "735b7c995c24bdb7031945a4648426b49c75702530fc24c8792b5afdf8c09d68",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-27-run-40550310976/baselines/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",

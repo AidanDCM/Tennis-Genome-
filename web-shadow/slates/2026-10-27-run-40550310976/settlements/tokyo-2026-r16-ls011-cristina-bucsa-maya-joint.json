@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1056:2026:LS011",
+  "prediction_correct": false,
+  "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+  "production_eligible": false,
+  "record_sha256": "0bc103fb1157845d380348f207e3ee71853fd6626e110570a78962ecea6a92e5",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-28T08:58:21+00:00",
+  "result_record_path": "web-shadow/results/2026-10-28-tokyo-2026-r16-ls011-cristina-bucsa-maya-joint-05c390e97e.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maya Joint"
+}
