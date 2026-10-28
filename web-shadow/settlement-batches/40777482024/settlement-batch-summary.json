@@ -1,0 +1,52 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 3,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 3,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS010",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+      "result_path": "web-shadow/results/2026-10-28-tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova-efa79ef446.json",
+      "result_record_sha256": "4fce5ece26f58b30af1061e281c46518a60b093b3ae6d61e2d49ec77271e0a74",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-27-run-40550310976/settlements/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "settlement_record_sha256": "8c83bea45435db4ffa799057648bfa60ea7c7ebe1432babb1bbd5d8e75e5be63",
+      "slate_id": "2026-10-27-run-40550310976",
+      "winner": "Kamilla Rakhimova"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS011",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+      "result_path": "web-shadow/results/2026-10-28-tokyo-2026-r16-ls011-cristina-bucsa-maya-joint-05c390e97e.json",
+      "result_record_sha256": "f09af0510f36721431075a10ccbdf194e1df1fc10f0e602ae3b61fff000277c8",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-27-run-40550310976/settlements/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "settlement_record_sha256": "0bc103fb1157845d380348f207e3ee71853fd6626e110570a78962ecea6a92e5",
+      "slate_id": "2026-10-27-run-40550310976",
+      "winner": "Maya Joint"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1023:2026:LS027",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+      "result_path": "web-shadow/results/2026-10-28-guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee-7ff9794463.json",
+      "result_record_sha256": "675562d13b097f4393cbeb072cfbe6a4af192b82df4d7c0a313f7d9fd27dce11",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-27-run-40550310976/settlements/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "settlement_record_sha256": "735b7c995c24bdb7031945a4648426b49c75702530fc24c8792b5afdf8c09d68",
+      "slate_id": "2026-10-27-run-40550310976",
+      "winner": "Katerina Siniakova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 3,
+  "slate_count": 1
+}
