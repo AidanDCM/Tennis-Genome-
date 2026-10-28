@@ -1,0 +1,160 @@
+{
+  "excluded_match_count": 94,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 21,
+    "not_upcoming": 35,
+    "unscheduled": 2
+  },
+  "observed_at": "2026-10-28T13:05:06+00:00",
+  "pre_capacity_eligible_count": 7,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS015",
+      "player_a_wta_id": "326007",
+      "player_b_wta_id": "320728",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T10:30:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS015",
+      "year": 2026
+    },
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS009",
+      "player_a_wta_id": "326735",
+      "player_b_wta_id": "317964",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T11:30:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS009",
+      "year": 2026
+    },
+    {
+      "event_id": "1023",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "group_id": 1023,
+      "match_id": "web:wta:1023:2026:LS009",
+      "player_a_wta_id": "320926",
+      "player_b_wta_id": "326907",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T13:00:00+08:00",
+      "slug": "guangzhou",
+      "source_match_id": "LS009",
+      "year": 2026
+    },
+    {
+      "event_id": "1023",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "group_id": 1023,
+      "match_id": "web:wta:1023:2026:LS013",
+      "player_a_wta_id": "323966",
+      "player_b_wta_id": "320301",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T13:00:00+08:00",
+      "slug": "guangzhou",
+      "source_match_id": "LS013",
+      "year": 2026
+    },
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS014",
+      "player_a_wta_id": "319998",
+      "player_b_wta_id": "334183",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T14:30:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS014",
+      "year": 2026
+    },
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS008",
+      "player_a_wta_id": "324166",
+      "player_b_wta_id": "317683",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T17:00:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS008",
+      "year": 2026
+    },
+    {
+      "event_id": "1023",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "group_id": 1023,
+      "match_id": "web:wta:1023:2026:LS010",
+      "player_a_wta_id": "332150",
+      "player_b_wta_id": "315130",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-10-29T19:00:00+08:00",
+      "slug": "guangzhou",
+      "source_match_id": "LS010",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 7,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261028t130506z",
+  "source_match_count": 101,
+  "source_records": [
+    {
+      "group_id": 1023,
+      "matches_sha256": "4a41a513bc5c7f02cb0aae50aa0c0ee41fd8839a2e2625453e869343aa98e650",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 53,
+      "slug": "guangzhou",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "tournament_sha256": "ff859a30cd25c4f546d83a003b0ec7129f48d1f97494edc65feef5e3be91593c",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "c4ecc6469a8af39a0a767a4a2bd71e4b8eb2c114a126ad7ed546f76154ff60fc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 48,
+      "slug": "tokyo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "tournament_sha256": "288a52ad4b587618b20ead01565d09e45aa8cd56082591c76952f7051740e4d5",
+      "year": 2026
+    }
+  ]
+}
