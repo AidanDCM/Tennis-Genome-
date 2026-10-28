@@ -1,0 +1,131 @@
+{
+  "observed_at": "2026-10-28T08:58:21+00:00",
+  "pending_prediction_count": 18,
+  "production_eligible": false,
+  "result_count": 3,
+  "result_paths": [
+    "web-shadow/results/2026-10-28-tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova-efa79ef446.json",
+    "web-shadow/results/2026-10-28-tokyo-2026-r16-ls011-cristina-bucsa-maya-joint-05c390e97e.json",
+    "web-shadow/results/2026-10-28-guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee-7ff9794463.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1056:2026:LS010",
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova.json",
+      "prediction_record_sha256": "efa79ef4467033fd7c5071628b5334218f050ddb04e1b44417b099ce8442791d",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-28-tokyo-2026-r16-ls010-kamilla-rakhimova-ekaterina-alexandrova-efa79ef446.json",
+      "round_identity_conflict": true,
+      "score": "6-4 4-6 7-6(5)",
+      "source_last_updated": "2026-10-28T04:28:33.847+00:00",
+      "source_match_id": "LS010",
+      "source_result_string": "K. Rakhimova d E. Alexandrova 6-4,4-6,7-6(5)",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Kamilla Rakhimova",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1056:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls011-cristina-bucsa-maya-joint.json",
+      "prediction_record_sha256": "05c390e97e81f0d12c3d4359de416038c824dff4a307dafcaec49284dce0a6a9",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-28-tokyo-2026-r16-ls011-cristina-bucsa-maya-joint-05c390e97e.json",
+      "round_identity_conflict": true,
+      "score": "6-1 2-6 6-4",
+      "source_last_updated": "2026-10-28T06:37:16.673+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "M. Joint d C. Bucsa 6-1,2-6,6-4",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Maya Joint",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1023:2026:LS027",
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee.json",
+      "prediction_record_sha256": "7ff9794463371df24323a446f341eb44ac4b8c050c45cc697e6af13426814601",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-10-28-guangzhou-2026-r32-ls027-katerina-siniakova-lanlana-tararudee-7ff9794463.json",
+      "round_identity_conflict": true,
+      "score": "2-6 6-1 6-4",
+      "source_last_updated": "2026-10-28T07:05:21.413+00:00",
+      "source_match_id": "LS027",
+      "source_result_string": "K. Siniakova d [3]L. Tararudee 2-6,6-1,6-4",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Katerina Siniakova",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261028t085821z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "4968eb3a6f6072ccbdfeded0dea05f17c028c00362f4a2b80e1c227121cefc02",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "336951836781f6306c256705feca8b79946146baec06db5fd3134e32df4ad438",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 47,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "21ab3c4cf1b2ce58ef4d4176599fb861378dbf97734a3f89864b1a625279ca4d",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 48,
+      "slug": "tokyo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 2,
+  "unresolved_prediction_count": 13
+}
