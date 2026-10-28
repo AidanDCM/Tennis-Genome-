@@ -1,0 +1,56 @@
+{
+  "index_records": [
+    {
+      "entry_count": 100,
+      "filename": "tournament-index-2026-page-0.json",
+      "page": 0,
+      "sha256": "3f83c5eb3c6b78d7c6eba32d20dc344b66de57e4214d37c2d7208c2dce568437",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=0&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    },
+    {
+      "entry_count": 24,
+      "filename": "tournament-index-2026-page-1.json",
+      "page": 1,
+      "sha256": "6807b381ad7d8ab7507631b1b67f6eaf1735ff7070a1b1b443e0466a83ea2f01",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=1&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    }
+  ],
+  "observed_at": "2026-10-28T13:05:06+00:00",
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-acquisition-v1",
+  "source_policy": {
+    "api_root": "https://api.wtatennis.com/tennis",
+    "index_role": "audit_and_discovery_only",
+    "provider": "WTA",
+    "response_serialization": "provider_bytes_unmodified",
+    "selection_authority": "web-shadow/intake-config.json"
+  },
+  "source_records": [
+    {
+      "group_id": 1023,
+      "matches_filename": "guangzhou-matches.json",
+      "matches_sha256": "4a41a513bc5c7f02cb0aae50aa0c0ee41fd8839a2e2625453e869343aa98e650",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 53,
+      "slug": "guangzhou",
+      "tournament_filename": "guangzhou-tournament.json",
+      "tournament_sha256": "ff859a30cd25c4f546d83a003b0ec7129f48d1f97494edc65feef5e3be91593c",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_filename": "tokyo-matches.json",
+      "matches_sha256": "c4ecc6469a8af39a0a767a4a2bd71e4b8eb2c114a126ad7ed546f76154ff60fc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 48,
+      "slug": "tokyo",
+      "tournament_filename": "tokyo-tournament.json",
+      "tournament_sha256": "288a52ad4b587618b20ead01565d09e45aa8cd56082591c76952f7051740e4d5",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "year": 2026
+    }
+  ]
+}
