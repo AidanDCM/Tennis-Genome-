@@ -2,8 +2,8 @@
   "baseline_comparison": {
     "baseline": {
       "accuracy": 0.6190476190476191,
-      "brier_score": 0.24860769311172823,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06122348967604685,
+      "brier_score": 0.24860769311172828,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06122348967604663,
       "confidence_buckets": [
         {
           "accuracy": 0.5625,
@@ -52,13 +52,13 @@
         }
       ],
       "correct_prediction_count": 26,
-      "log_loss": 0.7049434460953761,
-      "mean_selected_probability": 0.6802711087236659,
+      "log_loss": 0.7049434460953762,
+      "mean_selected_probability": 0.6802711087236657,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
       "settled_match_count": 42
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.005430082530072017,
+    "brier_improvement_baseline_minus_genome": 0.005430082530072072,
     "genome": {
       "accuracy": 0.5714285714285714,
       "brier_score": 0.2431776105816562,
@@ -107,11 +107,11 @@
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
       "settled_match_count": 42
     },
-    "log_loss_improvement_baseline_minus_genome": 0.025923732453101644,
+    "log_loss_improvement_baseline_minus_genome": 0.025923732453101755,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 42
   },
-  "baseline_match_count": 59,
+  "baseline_match_count": 66,
   "metrics": {
     "accuracy": 0.5918367346938775,
     "brier_score": 0.24281406297029412,
@@ -123,7 +123,7 @@
         "label": "0.50-0.60",
         "lower_bound": 0.5,
         "match_count": 23,
-        "mean_selected_probability": 0.5491407938037399,
+        "mean_selected_probability": 0.5491407938037398,
         "upper_bound": 0.6
       },
       {
@@ -132,7 +132,7 @@
         "label": "0.60-0.70",
         "lower_bound": 0.6,
         "match_count": 14,
-        "mean_selected_probability": 0.6415822681517475,
+        "mean_selected_probability": 0.6415822681517473,
         "upper_bound": 0.7
       },
       {
@@ -155,13 +155,13 @@
       }
     ],
     "correct_prediction_count": 29,
-    "log_loss": 0.6787517559661139,
+    "log_loss": 0.678751755966114,
     "mean_selected_probability": 0.6320024433567957,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 49
   },
-  "official_slate_count": 17,
-  "pending_match_count": 15,
+  "official_slate_count": 18,
+  "pending_match_count": 22,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 51,
@@ -1124,6 +1124,85 @@
       "slate_id": "2026-10-27-run-40550310976",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 40550310976
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+          "match_id": "web:wta:1056:2026:LS015",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+          "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+          "scheduled_start": "2026-10-29T10:30:00+09:00",
+          "selected_player": "Kimberly Birrell",
+          "selected_probability": 0.517768520832914,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+          "match_id": "web:wta:1056:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+          "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+          "scheduled_start": "2026-10-29T11:30:00+09:00",
+          "selected_player": "Elise Mertens",
+          "selected_probability": 0.5860580482469804,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+          "match_id": "web:wta:1023:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+          "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+          "scheduled_start": "2026-10-29T13:00:00+08:00",
+          "selected_player": "Zeynep Sonmez",
+          "selected_probability": 0.6185283690438093,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+          "match_id": "web:wta:1023:2026:LS013",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+          "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+          "scheduled_start": "2026-10-29T13:00:00+08:00",
+          "selected_player": "Katerina Siniakova",
+          "selected_probability": 0.5692605120344917,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+          "match_id": "web:wta:1056:2026:LS014",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+          "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+          "scheduled_start": "2026-10-29T14:30:00+09:00",
+          "selected_player": "Naomi Osaka",
+          "selected_probability": 0.7653159756149542,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+          "match_id": "web:wta:1056:2026:LS008",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+          "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+          "scheduled_start": "2026-10-29T17:00:00+09:00",
+          "selected_player": "Elena Rybakina",
+          "selected_probability": 0.8298823142741205,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+          "match_id": "web:wta:1023:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+          "prediction_record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97",
+          "scheduled_start": "2026-10-29T19:00:00+08:00",
+          "selected_player": "Magda Linette",
+          "selected_probability": 0.5033103016734711,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-28-run-40777341058/slate-receipt.json",
+      "slate_id": "2026-10-28-run-40777341058",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 40777341058
     }
   ]
 }

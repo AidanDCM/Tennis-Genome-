@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12855062635,
+  "artifact_sha256": "d9fd7f2d8495fc1dbbc07e064e0ca39557428cb769398d22cb74d1486894966b",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.03616986425011687,
+  "match_id": "web:wta:1056:2026:LS015",
+  "matchup_input_sha256": "9cc0c8e0200fa3599bfd8b8ad66174f925725c35cb960640801f50de40a016d5",
+  "p_player_a": 0.5090414803674559,
+  "p_player_b": 0.4909585196325441,
+  "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+  "production_eligible": false,
+  "record_sha256": "9a96665b5d6b3994c00e186977a2ed807e0356c8816dce0d09bf7448cccb2461",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Kimberly Birrell",
+  "slate_id": "2026-10-28-run-40777341058"
+}

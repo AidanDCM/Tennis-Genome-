@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.03616986425011687,
+  "match_id": "web:wta:1056:2026:LS015",
+  "matchup_input_sha256": "9cc0c8e0200fa3599bfd8b8ad66174f925725c35cb960640801f50de40a016d5",
+  "p_player_a": 0.5090414803674559,
+  "p_player_b": 0.4909585196325441,
+  "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+  "production_eligible": false,
+  "record_sha256": "32ab3a5fef0ea35876406c5fdbcb030acf03c80d91f55ed89c472f0fa428c6f3",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Kimberly Birrell"
+}

@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.4774838957021296,
+  "match_id": "web:wta:1056:2026:LS009",
+  "matchup_input_sha256": "21ac32662665a129905ecfb52bf3d6a9abf36a627f0c79e5840ff3ce5bae7aae",
+  "p_player_a": 0.6171535576164643,
+  "p_player_b": 0.3828464423835357,
+  "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+  "production_eligible": false,
+  "record_sha256": "f89a0d9f8e98f58baf27dc761e414f98981af84e66f65b9c9cc18939c5a7d876",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Elise Mertens"
+}

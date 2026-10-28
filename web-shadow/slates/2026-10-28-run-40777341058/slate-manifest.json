@@ -1,0 +1,163 @@
+{
+  "eligible_target_count": 7,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 7,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "32ab3a5fef0ea35876406c5fdbcb030acf03c80d91f55ed89c472f0fa428c6f3",
+      "baseline_p_player_a": 0.5090414803674559,
+      "baseline_p_player_b": 0.4909585196325441,
+      "baseline_selected_player": "Kimberly Birrell",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "match_id": "web:wta:1056:2026:LS015",
+      "minimum_point_exposure": 7853,
+      "p_player_a": 0.517768520832914,
+      "p_player_b": 0.482231479167086,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell/prediction.json",
+      "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+      "scheduled_start": "2026-10-29T10:30:00+09:00",
+      "selected_player": "Kimberly Birrell",
+      "target_history_match_counts": {
+        "wta:id:214040": 117,
+        "wta:id:219917": 133
+      }
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f89a0d9f8e98f58baf27dc761e414f98981af84e66f65b9c9cc18939c5a7d876",
+      "baseline_p_player_a": 0.6171535576164643,
+      "baseline_p_player_b": 0.3828464423835357,
+      "baseline_selected_player": "Elise Mertens",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "match_id": "web:wta:1056:2026:LS009",
+      "minimum_point_exposure": 19815,
+      "p_player_a": 0.5860580482469804,
+      "p_player_b": 0.4139419517530196,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens/prediction.json",
+      "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+      "scheduled_start": "2026-10-29T11:30:00+09:00",
+      "selected_player": "Elise Mertens",
+      "target_history_match_counts": {
+        "wta:id:210722": 506,
+        "wta:id:220367": 281
+      }
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "41a8be95d5ba69e340e383465c4fbac4a51209266f734a23a0f68d480a83c72a",
+      "baseline_p_player_a": 0.45852512736873013,
+      "baseline_p_player_b": 0.5414748726312699,
+      "baseline_selected_player": "Zeynep Sonmez",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "match_id": "web:wta:1023:2026:LS009",
+      "minimum_point_exposure": 4676,
+      "p_player_a": 0.38147163095619074,
+      "p_player_b": 0.6185283690438093,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez/prediction.json",
+      "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+      "scheduled_start": "2026-10-29T13:00:00+08:00",
+      "selected_player": "Zeynep Sonmez",
+      "target_history_match_counts": {
+        "wta:id:213525": 209,
+        "wta:id:220309": 70
+      }
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "6dbc5f0f654969d3b2325c64eb945f5904a5c5304407626ee2a5723f8a385a1a",
+      "baseline_p_player_a": 0.6101804598313525,
+      "baseline_p_player_b": 0.3898195401686475,
+      "baseline_selected_player": "Katerina Siniakova",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "match_id": "web:wta:1023:2026:LS013",
+      "minimum_point_exposure": 9097,
+      "p_player_a": 0.5692605120344917,
+      "p_player_b": 0.4307394879655083,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova/prediction.json",
+      "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+      "scheduled_start": "2026-10-29T13:00:00+08:00",
+      "selected_player": "Katerina Siniakova",
+      "target_history_match_counts": {
+        "wta:id:211701": 455,
+        "wta:id:214906": 125
+      }
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "486891133b8dbd92a87a70f0ef199183380c8baa594f0b15cb4091e964fa8ea3",
+      "baseline_p_player_a": 0.827955057702544,
+      "baseline_p_player_b": 0.17204494229745604,
+      "baseline_selected_player": "Naomi Osaka",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "match_id": "web:wta:1056:2026:LS014",
+      "minimum_point_exposure": 1507,
+      "p_player_a": 0.7653159756149542,
+      "p_player_b": 0.23468402438504576,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova/prediction.json",
+      "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+      "scheduled_start": "2026-10-29T14:30:00+09:00",
+      "selected_player": "Naomi Osaka",
+      "target_history_match_counts": {
+        "wta:id:211768": 351,
+        "wta:id:266376": 21
+      }
+    },
+    {
+      "artifact_stem": "tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "6a64fb32baa696694ac66ebe56ed608fea0e71fa50f0a1216ced2544deb1e199",
+      "baseline_p_player_a": 0.10326135701799186,
+      "baseline_p_player_b": 0.8967386429820081,
+      "baseline_selected_player": "Elena Rybakina",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "match_id": "web:wta:1056:2026:LS008",
+      "minimum_point_exposure": 28402,
+      "p_player_a": 0.1701176857258795,
+      "p_player_b": 0.8298823142741205,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva/prediction.json",
+      "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+      "scheduled_start": "2026-10-29T17:00:00+09:00",
+      "selected_player": "Elena Rybakina",
+      "target_history_match_counts": {
+        "wta:id:201709": 540,
+        "wta:id:214981": 409
+      }
+    },
+    {
+      "artifact_stem": "guangzhou-2026-r16-ls010-lilli-tagger-magda-linette",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2e334a72921f4e0d1161e3d26b469919cd3676b281194f06786202330b304024",
+      "baseline_p_player_a": 0.6191411701348891,
+      "baseline_p_player_b": 0.3808588298651109,
+      "baseline_selected_player": "Magda Linette",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "match_id": "web:wta:1023:2026:LS010",
+      "minimum_point_exposure": 2377,
+      "p_player_a": 0.5033103016734711,
+      "p_player_b": 0.4966896983265289,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette/prediction.json",
+      "prediction_record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97",
+      "scheduled_start": "2026-10-29T19:00:00+08:00",
+      "selected_player": "Magda Linette",
+      "target_history_match_counts": {
+        "wta:id:202663": 459,
+        "wta:id:260172": 37
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 7,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
