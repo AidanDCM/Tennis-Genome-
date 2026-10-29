@@ -44,6 +44,7 @@ def _summary(tour_category: str = "sr:category:3") -> dict[str, object]:
                         "id": "sr:competitor:20",
                         "qualifier": "home",
                         "statistics": {
+                            "points_won": 98,
                             "service_points_won": 51,
                             "service_points_lost": 40,
                             "first_serve_points_won": 35,
@@ -54,6 +55,7 @@ def _summary(tour_category: str = "sr:category:3") -> dict[str, object]:
                         "id": "sr:competitor:21",
                         "qualifier": "away",
                         "statistics": {
+                            "points_won": 84,
                             "service_points_won": 44,
                             "service_points_lost": 47,
                             "first_serve_points_won": 30,
@@ -106,6 +108,30 @@ def test_impossible_second_serve_wins_are_rejected() -> None:
         first_serve_successful=70,
     )
     with pytest.raises(ValueError, match="second-serve wins exceed second-serve chances"):
+        _convert(summary)
+
+
+def test_closed_match_with_partial_service_stats_is_rejected() -> None:
+    summary = _summary()
+    home = summary["statistics"]["totals"]["competitors"][0]["statistics"]
+    away = summary["statistics"]["totals"]["competitors"][1]["statistics"]
+    # A retained closed Brisbane match reports complete total points but only
+    # 52 of 116 points in its two service-point totals.
+    home["points_won"] = 52
+    away["points_won"] = 64
+    home.update(
+        service_points_won=16,
+        service_points_lost=20,
+        first_serve_points_won=13,
+        second_serve_points_won=3,
+    )
+    away.update(
+        service_points_won=12,
+        service_points_lost=4,
+        first_serve_points_won=10,
+        second_serve_points_won=2,
+    )
+    with pytest.raises(ValueError, match="total points won disagree with total service points"):
         _convert(summary)
 
 
