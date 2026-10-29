@@ -1,0 +1,45 @@
+{
+  "baseline_count": 3,
+  "eligible_target_count": 3,
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "guangzhou-2026-qf-ls006-xinran-sun-claire-liu",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "baseline_candidate_record_sha256": "e7d40dc51c47efb77634bd14c77eb330b183af32e6deec64315e2308eba7c713",
+      "baseline_path": "baselines/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "baseline_record_sha256": "c50e547321917ea062d75b554f57706c9bf3933cdc022eb78f8b5cf1231b14bf",
+      "match_id": "web:wta:1023:2026:LS006",
+      "prediction_path": "predictions/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb"
+    },
+    {
+      "artifact_stem": "tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "baseline_candidate_record_sha256": "2bfa211a132b74cf2b619485a7eb83cb169e06b8518b995a8f59c267d8fc0881",
+      "baseline_path": "baselines/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "baseline_record_sha256": "92d14469ae584283e1e2283164ab5c57d902b46f4607b8b1e28d297f1ba534e2",
+      "match_id": "web:wta:1056:2026:LS006",
+      "prediction_path": "predictions/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28"
+    },
+    {
+      "artifact_stem": "guangzhou-2026-qf-ls005-lilli-tagger-han-shi",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "baseline_candidate_record_sha256": "692ba4f76cdef0e4484671d37635cd8b38c509626bfa4e85b9fb249192053063",
+      "baseline_path": "baselines/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "baseline_record_sha256": "064a92fd8b0adcb492ff49118aae0bf82c270482313e1b222aa805139672c136",
+      "match_id": "web:wta:1023:2026:LS005",
+      "prediction_path": "predictions/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-29-run-40962939169",
+  "workflow_artifact_id": 12936787882,
+  "workflow_artifact_sha256": "eb471fac0c28cfb05d41e20a2faa9754aa87079435905430f7033c400461a304",
+  "workflow_run_id": 40962939169,
+  "workflow_source_sha": "f0d1181a1822839d273b990e601b5765955de34e"
+}

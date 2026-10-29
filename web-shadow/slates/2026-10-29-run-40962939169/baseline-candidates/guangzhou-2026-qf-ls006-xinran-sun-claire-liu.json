@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.5441732544217891,
+  "match_id": "web:wta:1023:2026:LS006",
+  "matchup_input_sha256": "b5f7e1c76b481d71ee7d496528f9cf39a5eee042ad7ba46034ed44b5e4f7c343",
+  "p_player_a": 0.6327826879354113,
+  "p_player_b": 0.36721731206458874,
+  "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+  "production_eligible": false,
+  "record_sha256": "e7d40dc51c47efb77634bd14c77eb330b183af32e6deec64315e2308eba7c713",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Claire Liu"
+}

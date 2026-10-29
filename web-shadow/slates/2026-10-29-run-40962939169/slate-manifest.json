@@ -1,0 +1,79 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "guangzhou-2026-qf-ls006-xinran-sun-claire-liu",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-qf-ls006-xinran-sun-claire-liu/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "e7d40dc51c47efb77634bd14c77eb330b183af32e6deec64315e2308eba7c713",
+      "baseline_p_player_a": 0.6327826879354113,
+      "baseline_p_player_b": 0.36721731206458874,
+      "baseline_selected_player": "Claire Liu",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "match_id": "web:wta:1023:2026:LS006",
+      "minimum_point_exposure": 701,
+      "p_player_a": 0.580764908235798,
+      "p_player_b": 0.41923509176420204,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-qf-ls006-xinran-sun-claire-liu/prediction.json",
+      "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+      "scheduled_start": "2026-10-30T15:30:00+08:00",
+      "selected_player": "Claire Liu",
+      "target_history_match_counts": {
+        "wta:id:214906": 125,
+        "wta:id:270082": 11
+      }
+    },
+    {
+      "artifact_stem": "tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2bfa211a132b74cf2b619485a7eb83cb169e06b8518b995a8f59c267d8fc0881",
+      "baseline_p_player_a": 0.3547373120991621,
+      "baseline_p_player_b": 0.6452626879008379,
+      "baseline_selected_player": "Diana Shnaider",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "match_id": "web:wta:1056:2026:LS006",
+      "minimum_point_exposure": 5113,
+      "p_player_a": 0.42117062224058077,
+      "p_player_b": 0.5788293777594192,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider/prediction.json",
+      "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+      "scheduled_start": "2026-10-30T17:00:00+09:00",
+      "selected_player": "Diana Shnaider",
+      "target_history_match_counts": {
+        "wta:id:223253": 75,
+        "wta:id:223670": 170
+      }
+    },
+    {
+      "artifact_stem": "guangzhou-2026-qf-ls005-lilli-tagger-han-shi",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-qf-ls005-lilli-tagger-han-shi/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "692ba4f76cdef0e4484671d37635cd8b38c509626bfa4e85b9fb249192053063",
+      "baseline_p_player_a": 0.4290509209970038,
+      "baseline_p_player_b": 0.5709490790029962,
+      "baseline_selected_player": "Lilli Tagger",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "match_id": "web:wta:1023:2026:LS005",
+      "minimum_point_exposure": 2377,
+      "p_player_a": 0.429259825623458,
+      "p_player_b": 0.570740174376542,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-qf-ls005-lilli-tagger-han-shi/prediction.json",
+      "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+      "scheduled_start": "2026-10-30T19:00:00+08:00",
+      "selected_player": "Lilli Tagger",
+      "target_history_match_counts": {
+        "wta:id:222559": 40,
+        "wta:id:260172": 37
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

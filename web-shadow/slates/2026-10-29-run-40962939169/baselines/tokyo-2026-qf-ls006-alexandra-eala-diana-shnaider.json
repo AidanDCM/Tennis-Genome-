@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12936787882,
+  "artifact_sha256": "eb471fac0c28cfb05d41e20a2faa9754aa87079435905430f7033c400461a304",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.5982799523003083,
+  "match_id": "web:wta:1056:2026:LS006",
+  "matchup_input_sha256": "8016ab416cc382a360f401850c991eda418f40a4b751822472034f8a550276f7",
+  "p_player_a": 0.3547373120991621,
+  "p_player_b": 0.6452626879008379,
+  "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+  "production_eligible": false,
+  "record_sha256": "92d14469ae584283e1e2283164ab5c57d902b46f4607b8b1e28d297f1ba534e2",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Diana Shnaider",
+  "slate_id": "2026-10-29-run-40962939169"
+}
