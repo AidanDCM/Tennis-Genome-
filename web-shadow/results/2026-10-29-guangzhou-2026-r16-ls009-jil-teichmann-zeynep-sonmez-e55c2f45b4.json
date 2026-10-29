@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+  "match_id": "web:wta:1023:2026:LS009",
+  "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-29T07:40:01+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "4-6 6-3 6-1",
+  "status": "COMPLETED",
+  "winner": "Jil Teichmann"
+}

@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+  "match_id": "web:wta:1056:2026:LS015",
+  "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-29T07:40:01+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-3 6-1",
+  "status": "COMPLETED",
+  "winner": "Alycia Parks"
+}

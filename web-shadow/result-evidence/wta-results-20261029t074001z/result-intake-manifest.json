@@ -1,0 +1,165 @@
+{
+  "observed_at": "2026-10-29T07:40:01+00:00",
+  "pending_prediction_count": 20,
+  "production_eligible": false,
+  "result_count": 5,
+  "result_paths": [
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell-d7caacda21.json",
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens-3a2998fdb6.json",
+    "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez-e55c2f45b4.json",
+    "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova-b2cfed602a.json",
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova-85cebb69f9.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1056:2026:LS015",
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell-d7caacda21.json",
+      "round_identity_conflict": true,
+      "score": "6-3 6-1",
+      "source_last_updated": "2026-10-29T02:50:35.343+00:00",
+      "source_match_id": "LS015",
+      "source_result_string": "A. Parks d K. Birrell 6-3,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Alycia Parks",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1056:2026:LS009",
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens-3a2998fdb6.json",
+      "round_identity_conflict": true,
+      "score": "6-2 7-6(8)",
+      "source_last_updated": "2026-10-29T05:20:33.323+00:00",
+      "source_match_id": "LS009",
+      "source_result_string": "L. Fernandez d [5]E. Mertens 6-2,7-6(8)",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Leylah Fernandez",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1023:2026:LS009",
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez-e55c2f45b4.json",
+      "round_identity_conflict": true,
+      "score": "4-6 6-3 6-1",
+      "source_last_updated": "2026-10-29T07:03:57.25+00:00",
+      "source_match_id": "LS009",
+      "source_result_string": "J. Teichmann d [6]Z. Sonmez 4-6,6-3,6-1",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Jil Teichmann",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1023:2026:LS013",
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova-b2cfed602a.json",
+      "round_identity_conflict": true,
+      "score": "W/O",
+      "source_last_updated": "2026-10-29T04:33:47.51+00:00",
+      "source_match_id": "LS013",
+      "source_result_string": "C. Liu d K. Siniakova  W/O",
+      "source_round": "SF",
+      "status": "WALKOVER",
+      "winner": "Claire Liu",
+      "winner_source": "result_string"
+    },
+    {
+      "match_id": "web:wta:1056:2026:LS014",
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova-85cebb69f9.json",
+      "round_identity_conflict": true,
+      "score": "6-3 7-5",
+      "source_last_updated": "2026-10-29T07:22:12.41+00:00",
+      "source_match_id": "LS014",
+      "source_result_string": "M. Pohankova d [7]N. Osaka 6-3,7-5",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Mia Pohankova",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261029t074001z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "931b146f43fa4f0eca3c79f3118c3acb3aaebf4a045020e89658ca2266a48fe2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "f301b68c5ad6d2fc91e401834bd11a59035ae51c9efadb38e3a4a5be95f06ccd",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "79657fa33a0663546f2f9fea1f420b3232f627ef89ad3290211fe21d4e841e79",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 54,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "6b22540a4a3cd57bbd9170824d9a5e8c95b141eab667bd4134007bf98b32ca29",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 48,
+      "slug": "tokyo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 2,
+  "unresolved_prediction_count": 13
+}
