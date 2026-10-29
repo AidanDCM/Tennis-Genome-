@@ -7,6 +7,14 @@ on:
         description: Optional UTC date to probe (YYYY-MM-DD); blank means today
         required: false
         type: string
+      credential_name:
+        description: Repository secret to test against Sportradar (value is never printed)
+        required: true
+        default: SPORTRADAR_API_KEY
+        type: choice
+        options:
+          - SPORTRADAR_API_KEY
+          - API_TENNIS_API
       sportradar_access_level:
         description: Sportradar API access level
         required: true
@@ -28,7 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
+      SPORTRADAR_API_KEY: ${{ secrets[inputs.credential_name || 'SPORTRADAR_API_KEY'] }}
+      CREDENTIAL_NAME: ${{ inputs.credential_name }}
       SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
       SCHEDULE_DATE: ${{ inputs.schedule_date }}
 
@@ -68,9 +77,9 @@ jobs:
           try:
               with urllib.request.urlopen(request, timeout=30) as response:
                   body = response.read()
-                  print(json.dumps({"provider":"SPORTRADAR","http_status":response.status,"bytes":len(body),"date":schedule_date.isoformat(),"x_max_results":response.headers.get("x-max-results"),"x_result":response.headers.get("x-result")}))
+                  print(json.dumps({"provider":"SPORTRADAR","credential_name":os.environ["CREDENTIAL_NAME"],"http_status":response.status,"bytes":len(body),"date":schedule_date.isoformat(),"x_max_results":response.headers.get("x-max-results"),"x_result":response.headers.get("x-result")}))
           except Exception as exc:
-              print(json.dumps({"provider":"SPORTRADAR","error_type":type(exc).__name__,"error":str(exc)}))
+              print(json.dumps({"provider":"SPORTRADAR","credential_name":os.environ["CREDENTIAL_NAME"],"error_type":type(exc).__name__,"error":str(exc)}))
               raise
           PY
           exit_code=$?
