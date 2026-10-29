@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "b5ad0fc9b44214eb9c02d7a00d587d348015d164a29de1458345572e93ac7c6d",
+  "match_id": "web:wta:1023:2026:LS011",
+  "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-29T01:13:18+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-5 6-4",
+  "status": "COMPLETED",
+  "winner": "Han Shi"
+}
