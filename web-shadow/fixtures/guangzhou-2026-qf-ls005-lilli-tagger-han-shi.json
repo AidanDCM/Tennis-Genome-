@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1023:2026:LS005",
+  "player_a": "Lilli Tagger",
+  "player_b": "Han Shi",
+  "round": "QF",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "scheduled_start": "2026-10-30T19:00:00+08:00",
+  "source_observed_at": "2026-10-29T22:02:29+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Guangzhou Open",
+  "tournament_id": "web:wta:guangzhou:2026",
+  "tournament_level": "I"
+}

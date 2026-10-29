@@ -1,12 +1,8 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
-    "web-shadow/fixtures/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
-    "web-shadow/fixtures/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
-    "web-shadow/fixtures/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
-    "web-shadow/fixtures/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
-    "web-shadow/fixtures/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
-    "web-shadow/fixtures/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json"
+    "web-shadow/fixtures/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+    "web-shadow/fixtures/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+    "web-shadow/fixtures/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261028t130506z"
+  "rerun_reason": "automatic-wta-intake-wta-20261029t220229z"
 }
