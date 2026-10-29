@@ -1,0 +1,114 @@
+{
+  "observed_at": "2026-10-29T01:13:18+00:00",
+  "pending_prediction_count": 22,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls012-alexandra-eala-talia-gibson-6055b04e21.json",
+    "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls011-han-shi-dayana-yastremska-b5ad0fc9b4.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1056:2026:LS012",
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/tokyo-2026-r16-ls012-alexandra-eala-talia-gibson.json",
+      "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls012-alexandra-eala-talia-gibson-6055b04e21.json",
+      "round_identity_conflict": true,
+      "score": "4-6 6-2 6-0",
+      "source_last_updated": "2026-10-28T11:48:12.06+00:00",
+      "source_match_id": "LS012",
+      "source_result_string": "[8]A. Eala d T. Gibson 4-6,6-2,6-0",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Alexandra Eala",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1023:2026:LS011",
+      "prediction_path": "web-shadow/slates/2026-10-27-run-40550310976/predictions/guangzhou-2026-r16-ls011-han-shi-dayana-yastremska.json",
+      "prediction_record_sha256": "b5ad0fc9b44214eb9c02d7a00d587d348015d164a29de1458345572e93ac7c6d",
+      "prediction_round": "R16",
+      "result_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls011-han-shi-dayana-yastremska-b5ad0fc9b4.json",
+      "round_identity_conflict": true,
+      "score": "7-5 6-4",
+      "source_last_updated": "2026-10-28T12:59:19.58+00:00",
+      "source_match_id": "LS011",
+      "source_result_string": "H. Shi d D. Yastremska 7-5,6-4",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Han Shi",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261029t011318z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "f607c1ed2dab2985fdbeb7651ef2d9132755fb51846114d92d3b011b171c8ca0",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "f301b68c5ad6d2fc91e401834bd11a59035ae51c9efadb38e3a4a5be95f06ccd",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "09eaf210e816c33c38515372b5a466a9b1e83fbefb074bf79717f76803343c8a",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 54,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "c4ecc6469a8af39a0a767a4a2bd71e4b8eb2c114a126ad7ed546f76154ff60fc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 48,
+      "slug": "tokyo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 7,
+  "unresolved_prediction_count": 13
+}
