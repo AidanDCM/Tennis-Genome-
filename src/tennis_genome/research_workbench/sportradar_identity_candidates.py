@@ -22,6 +22,7 @@ _ISO_TO_HISTORICAL_IOC = {
     "GRC": "GRE",
     "HRV": "CRO",
     "IDN": "INA",
+    "MCO": "MON",
     "NLD": "NED",
     "PHL": "PHI",
     "PRT": "POR",
