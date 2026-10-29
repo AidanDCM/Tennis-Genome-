@@ -93,6 +93,22 @@ def test_event_date_and_canonical_orientation_are_independent_of_winner() -> Non
     assert row.pre_match.rank_a is None
 
 
+def test_impossible_second_serve_wins_are_rejected() -> None:
+    summary = _summary()
+    home = summary["statistics"]["totals"]["competitors"][0]["statistics"]
+    # A retained 2026 overlap row has this shape: 74 total service points,
+    # 70 first serves in and 12 second-serve points won (only four chances).
+    home.update(
+        service_points_won=50,
+        service_points_lost=24,
+        first_serve_points_won=38,
+        second_serve_points_won=12,
+        first_serve_successful=70,
+    )
+    with pytest.raises(ValueError, match="second-serve wins exceed second-serve chances"):
+        _convert(summary)
+
+
 def test_same_day_and_missing_surface_fail_closed() -> None:
     with pytest.raises(ValueError, match="NOT_PRIOR_TO_CUTOFF"):
         summary_to_historical_match(
