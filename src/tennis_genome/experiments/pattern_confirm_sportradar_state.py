@@ -478,6 +478,9 @@ def _summary_stats(
     home = side("home")
     away = side("away")
 
+    home_points = _optional_nonnegative_int(home.get("points_won"), field="home points_won")
+    away_points = _optional_nonnegative_int(away.get("points_won"), field="away points_won")
+
     def derived_service_points(values: dict[str, object], qualifier: str) -> int | None:
         won = _optional_nonnegative_int(
             values.get("service_points_won"), field=f"{qualifier} service_points_won"
@@ -510,6 +513,17 @@ def _summary_stats(
             return None
         return won + lost
 
+    home_service_points = derived_service_points(home, "home")
+    away_service_points = derived_service_points(away, "away")
+    if (
+        home_points is not None
+        and away_points is not None
+        and home_service_points is not None
+        and away_service_points is not None
+        and home_points + away_points != home_service_points + away_service_points
+    ):
+        raise ValueError("total points won disagree with total service points")
+
     return MatchStats(
         match_id=match_id,
         aces_a=_optional_nonnegative_int(home.get("aces"), field="home aces"),
@@ -520,8 +534,8 @@ def _summary_stats(
         double_faults_b=_optional_nonnegative_int(
             away.get("double_faults"), field="away double_faults"
         ),
-        service_points_a=derived_service_points(home, "home"),
-        service_points_b=derived_service_points(away, "away"),
+        service_points_a=home_service_points,
+        service_points_b=away_service_points,
         first_serves_in_a=_optional_nonnegative_int(
             home.get("first_serve_successful"), field="home first_serve_successful"
         ),
