@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1056:2026:LS012",
+  "prediction_correct": true,
+  "prediction_record_sha256": "6055b04e2165f1cd07ef3d3c30adafa342056ec1c35d69f6e8d2909edc041eda",
+  "production_eligible": false,
+  "record_sha256": "0b39f2fd244971ee278bf1b015bf8e6b4c1266f96f0e5b77f478d59fa0da10ca",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-29T01:13:18+00:00",
+  "result_record_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls012-alexandra-eala-talia-gibson-6055b04e21.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Alexandra Eala"
+}
