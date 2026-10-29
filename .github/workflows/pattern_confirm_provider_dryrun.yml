@@ -7,14 +7,6 @@ on:
         description: Optional UTC date to probe (YYYY-MM-DD); blank means today
         required: false
         type: string
-      credential_name:
-        description: Repository secret to test against Sportradar (value is never printed)
-        required: true
-        default: SPORTRADAR_API_KEY
-        type: choice
-        options:
-          - SPORTRADAR_API_KEY
-          - API_TENNIS_API
       sportradar_access_level:
         description: Sportradar API access level
         required: true
@@ -36,8 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SPORTRADAR_API_KEY: ${{ secrets[inputs.credential_name || 'SPORTRADAR_API_KEY'] }}
-      CREDENTIAL_NAME: ${{ inputs.credential_name }}
+      SPORTRADAR_API_KEY: ${{ secrets.SPORTRADAR_API_KEY }}
       SPORTRADAR_ACCESS_LEVEL: ${{ inputs.sportradar_access_level }}
       SCHEDULE_DATE: ${{ inputs.schedule_date }}
 
@@ -67,8 +58,9 @@ jobs:
           set +e
           mkdir -p provider-dryrun
           python - <<'PY' > provider-dryrun/status.json
-          import json, os, urllib.request
-          from datetime import date
+          import hashlib, json, os, urllib.request
+          from datetime import date, datetime, timezone
+          from pathlib import Path
           access = os.environ.get("SPORTRADAR_ACCESS_LEVEL", "trial")
           selected = os.environ.get("SCHEDULE_DATE", "").strip()
           schedule_date = date.fromisoformat(selected) if selected else date.today()
@@ -77,9 +69,15 @@ jobs:
           try:
               with urllib.request.urlopen(request, timeout=30) as response:
                   body = response.read()
-                  print(json.dumps({"provider":"SPORTRADAR","credential_name":os.environ["CREDENTIAL_NAME"],"http_status":response.status,"bytes":len(body),"date":schedule_date.isoformat(),"x_max_results":response.headers.get("x-max-results"),"x_result":response.headers.get("x-result")}))
+                  observed_at = datetime.now(timezone.utc).isoformat()
+                  # One bounded research sample. Raw source bytes are retained so
+                  # field coverage can be audited offline without another call.
+                  Path("provider-dryrun/schedule.json").write_bytes(body)
+                  selected_headers = {name: response.headers.get(name) for name in ("Date", "Content-Type", "x-max-results", "x-result", "x-offset") if response.headers.get(name) is not None}
+                  Path("provider-dryrun/response-headers.json").write_text(json.dumps(selected_headers, sort_keys=True) + "\n", encoding="utf-8")
+                  print(json.dumps({"schema":"sportradar-one-request-sample-v1","provider":"SPORTRADAR","credential_name":"SPORTRADAR_API_KEY","http_status":response.status,"bytes":len(body),"body_sha256":hashlib.sha256(body).hexdigest(),"observed_at_utc":observed_at,"date":schedule_date.isoformat(),"endpoint":url,"response_headers":selected_headers,"research_only":True,"prospective_eligible":False}, sort_keys=True))
           except Exception as exc:
-              print(json.dumps({"provider":"SPORTRADAR","credential_name":os.environ["CREDENTIAL_NAME"],"error_type":type(exc).__name__,"error":str(exc)}))
+              print(json.dumps({"provider":"SPORTRADAR","credential_name":"SPORTRADAR_API_KEY","error_type":type(exc).__name__,"error":str(exc)}))
               raise
           PY
           exit_code=$?
