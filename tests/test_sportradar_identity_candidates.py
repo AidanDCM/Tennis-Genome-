@@ -23,12 +23,12 @@ def test_report_preserves_ambiguity_and_country_conflict(tmp_path: Path) -> None
         folder.mkdir(parents=True)
         pd.DataFrame(
             {
-                "player_a_id": ["1", "3"],
-                "player_b_id": ["2", "4"],
-                "player_a_name": ["Rafael Nadal", "Same Name"],
-                "player_b_name": ["Other Player", "Same Name"],
-                "ioc_a": ["ESP", "USA"],
-                "ioc_b": ["GER", "CAN"],
+                "player_a_id": ["1", "3", "5"],
+                "player_b_id": ["2", "4", "6"],
+                "player_a_name": ["Rafael Nadal", "Same Name", "Valentin Vacherot"],
+                "player_b_name": ["Other Player", "Same Name", "Another Player"],
+                "ioc_a": ["ESP", "USA", "MON"],
+                "ioc_b": ["GER", "CAN", "USA"],
             }
         ).to_parquet(folder / f"{tour}_pre_match.parquet")
     capture = tmp_path / "capture"
@@ -43,6 +43,7 @@ def test_report_preserves_ambiguity_and_country_conflict(tmp_path: Path) -> None
                 {"id": "sr:competitor:3", "name": "Player, Other", "country_code": "FRA"},
                 {"id": "sr:competitor:4", "name": "Nobody New", "country_code": "USA"},
                 {"id": "sr:competitor:5", "name": "Player, Other", "country_code": "DEU"},
+                {"id": "sr:competitor:6", "name": "Vacherot, Valentin", "country_code": "MCO"},
             ],
         }
     }
@@ -54,7 +55,7 @@ def test_report_preserves_ambiguity_and_country_conflict(tmp_path: Path) -> None
     assert report["counts"] == {
         "AMBIGUOUS_NAME": 1,
         "UNIQUE_NAME_COUNTRY_AGREES": 1,
-        "UNIQUE_NAME_COUNTRY_CODE_CONVENTION": 1,
+        "UNIQUE_NAME_COUNTRY_CODE_CONVENTION": 2,
         "UNIQUE_NAME_COUNTRY_CONFLICT": 1,
         "UNMATCHED": 1,
     }
