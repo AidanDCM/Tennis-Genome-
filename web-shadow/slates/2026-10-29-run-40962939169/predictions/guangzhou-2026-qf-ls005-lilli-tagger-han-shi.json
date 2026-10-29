@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-29T22:05:29.100936+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS005",
+    "player_a": "Han Shi",
+    "player_b": "Lilli Tagger",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-30T19:00:00+08:00",
+    "source_observed_at": "2026-10-29T22:02:29+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "e3c83b73174f044460d220f8e5ff7a038afc20055c0b2ca69e954cbe42d46f9c",
+  "model_source_sha": "f0d1181a1822839d273b990e601b5765955de34e",
+  "p_player_a": 0.429259825623458,
+  "p_player_b": 0.570740174376542,
+  "player_a_id": "wta:id:222559",
+  "player_b_id": "wta:id:260172",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Lilli Tagger"
+}

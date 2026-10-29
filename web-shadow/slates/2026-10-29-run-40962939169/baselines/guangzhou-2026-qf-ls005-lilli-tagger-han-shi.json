@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12936787882,
+  "artifact_sha256": "eb471fac0c28cfb05d41e20a2faa9754aa87079435905430f7033c400461a304",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.285724418203829,
+  "match_id": "web:wta:1023:2026:LS005",
+  "matchup_input_sha256": "e3c83b73174f044460d220f8e5ff7a038afc20055c0b2ca69e954cbe42d46f9c",
+  "p_player_a": 0.4290509209970038,
+  "p_player_b": 0.5709490790029962,
+  "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+  "production_eligible": false,
+  "record_sha256": "064a92fd8b0adcb492ff49118aae0bf82c270482313e1b222aa805139672c136",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Lilli Tagger",
+  "slate_id": "2026-10-29-run-40962939169"
+}

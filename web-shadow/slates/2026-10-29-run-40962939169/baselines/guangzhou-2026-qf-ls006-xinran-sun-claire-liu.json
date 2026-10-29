@@ -1,0 +1,17 @@
+{
+  "artifact_id": 12936787882,
+  "artifact_sha256": "eb471fac0c28cfb05d41e20a2faa9754aa87079435905430f7033c400461a304",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.5441732544217891,
+  "match_id": "web:wta:1023:2026:LS006",
+  "matchup_input_sha256": "b5f7e1c76b481d71ee7d496528f9cf39a5eee042ad7ba46034ed44b5e4f7c343",
+  "p_player_a": 0.6327826879354113,
+  "p_player_b": 0.36721731206458874,
+  "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+  "production_eligible": false,
+  "record_sha256": "c50e547321917ea062d75b554f57706c9bf3933cdc022eb78f8b5cf1231b14bf",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Claire Liu",
+  "slate_id": "2026-10-29-run-40962939169"
+}

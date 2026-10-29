@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 44
   },
-  "baseline_match_count": 66,
+  "baseline_match_count": 69,
   "metrics": {
     "accuracy": 0.5882352941176471,
     "brier_score": 0.2443549534254849,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 51
   },
-  "official_slate_count": 18,
-  "pending_match_count": 20,
+  "official_slate_count": 19,
+  "pending_match_count": 23,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 53,
@@ -1209,6 +1209,45 @@
       "slate_id": "2026-10-28-run-40777341058",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 40777341058
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-29-run-40962939169/baselines/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+          "match_id": "web:wta:1023:2026:LS006",
+          "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+          "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+          "scheduled_start": "2026-10-30T15:30:00+08:00",
+          "selected_player": "Claire Liu",
+          "selected_probability": 0.580764908235798,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-29-run-40962939169/baselines/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+          "match_id": "web:wta:1056:2026:LS006",
+          "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+          "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+          "scheduled_start": "2026-10-30T17:00:00+09:00",
+          "selected_player": "Diana Shnaider",
+          "selected_probability": 0.5788293777594192,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-10-29-run-40962939169/baselines/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+          "match_id": "web:wta:1023:2026:LS005",
+          "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+          "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+          "scheduled_start": "2026-10-30T19:00:00+08:00",
+          "selected_player": "Lilli Tagger",
+          "selected_probability": 0.570740174376542,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-29-run-40962939169/slate-receipt.json",
+      "slate_id": "2026-10-29-run-40962939169",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 40962939169
     }
   ]
 }

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-29T22:05:27.684868+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS006",
+    "player_a": "Claire Liu",
+    "player_b": "Xinran Sun",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-30T15:30:00+08:00",
+    "source_observed_at": "2026-10-29T22:02:29+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "b5f7e1c76b481d71ee7d496528f9cf39a5eee042ad7ba46034ed44b5e4f7c343",
+  "model_source_sha": "f0d1181a1822839d273b990e601b5765955de34e",
+  "p_player_a": 0.580764908235798,
+  "p_player_b": 0.41923509176420204,
+  "player_a_id": "wta:id:214906",
+  "player_b_id": "wta:id:270082",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Claire Liu"
+}

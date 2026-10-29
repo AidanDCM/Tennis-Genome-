@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-29T22:05:28.429957+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS006",
+    "player_a": "Alexandra Eala",
+    "player_b": "Diana Shnaider",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-30T17:00:00+09:00",
+    "source_observed_at": "2026-10-29T22:02:29+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "8016ab416cc382a360f401850c991eda418f40a4b751822472034f8a550276f7",
+  "model_source_sha": "f0d1181a1822839d273b990e601b5765955de34e",
+  "p_player_a": 0.42117062224058077,
+  "p_player_b": 0.5788293777594192,
+  "player_a_id": "wta:id:223253",
+  "player_b_id": "wta:id:223670",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Diana Shnaider"
+}
