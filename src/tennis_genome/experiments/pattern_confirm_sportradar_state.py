@@ -491,10 +491,21 @@ def _summary_stats(
         second = _optional_nonnegative_int(
             values.get("second_serve_points_won"), field=f"{qualifier} second_serve_points_won"
         )
+        first_in = _optional_nonnegative_int(
+            values.get("first_serve_successful"), field=f"{qualifier} first_serve_successful"
+        )
         if won is not None and first is not None and second is not None and won != first + second:
             raise ValueError(
                 f"{qualifier} service_points_won is inconsistent with serve components"
             )
+        if first_in is not None and first is not None and first > first_in:
+            raise ValueError(f"{qualifier} first-serve wins exceed first serves in")
+        if won is not None and lost is not None:
+            total = won + lost
+            if first_in is not None and first_in > total:
+                raise ValueError(f"{qualifier} first serves in exceed service points")
+            if first_in is not None and second is not None and second > total - first_in:
+                raise ValueError(f"{qualifier} second-serve wins exceed second-serve chances")
         if won is None or lost is None:
             return None
         return won + lost
