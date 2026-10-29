@@ -73,7 +73,9 @@ jobs:
                   # One bounded research sample. Raw source bytes are retained so
                   # field coverage can be audited offline without another call.
                   Path("provider-dryrun/schedule.json").write_bytes(body)
-                  print(json.dumps({"schema":"sportradar-one-request-sample-v1","provider":"SPORTRADAR","credential_name":"SPORTRADAR_API_KEY","http_status":response.status,"bytes":len(body),"body_sha256":hashlib.sha256(body).hexdigest(),"observed_at_utc":observed_at,"date":schedule_date.isoformat(),"endpoint":url,"x_max_results":response.headers.get("x-max-results"),"x_result":response.headers.get("x-result"),"research_only":True,"prospective_eligible":False}, sort_keys=True))
+                  selected_headers = {name: response.headers.get(name) for name in ("Date", "Content-Type", "x-max-results", "x-result", "x-offset") if response.headers.get(name) is not None}
+                  Path("provider-dryrun/response-headers.json").write_text(json.dumps(selected_headers, sort_keys=True) + "\n", encoding="utf-8")
+                  print(json.dumps({"schema":"sportradar-one-request-sample-v1","provider":"SPORTRADAR","credential_name":"SPORTRADAR_API_KEY","http_status":response.status,"bytes":len(body),"body_sha256":hashlib.sha256(body).hexdigest(),"observed_at_utc":observed_at,"date":schedule_date.isoformat(),"endpoint":url,"response_headers":selected_headers,"research_only":True,"prospective_eligible":False}, sort_keys=True))
           except Exception as exc:
               print(json.dumps({"provider":"SPORTRADAR","credential_name":"SPORTRADAR_API_KEY","error_type":type(exc).__name__,"error":str(exc)}))
               raise
