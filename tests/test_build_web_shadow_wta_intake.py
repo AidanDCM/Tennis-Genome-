@@ -360,6 +360,40 @@ def test_intake_excludes_unknown_round_without_guessing(tmp_path: Path) -> None:
     assert manifest["exclusion_counts"]["unsupported_round_id"] == 1
 
 
+def test_intake_excludes_explicit_tbd_slot_and_keeps_resolved_match(
+    tmp_path: Path,
+) -> None:
+    unresolved = _match(
+        match_id="LS005",
+        start="2026-09-23T06:00:00+00:00",
+        player_a_id="TBD",
+        first_a="",
+        last_a="",
+    )
+    resolved = _match(
+        match_id="LS006",
+        start="2026-09-23T08:00:00+00:00",
+        player_a_id="303",
+        player_b_id="404",
+    )
+
+    manifest, _ = _run(tmp_path, [unresolved, resolved])
+
+    assert [row["source_match_id"] for row in manifest["selected"]] == ["LS006"]
+    assert manifest["exclusion_counts"]["unresolved_player_slot"] == 1
+
+
+def test_intake_rejects_tbd_with_nonblank_name(tmp_path: Path) -> None:
+    match = _match(
+        match_id="LS005",
+        start="2026-09-23T06:00:00+00:00",
+        player_a_id="TBD",
+    )
+
+    with pytest.raises(ValueError, match="PlayerIDA"):
+        _run(tmp_path, [match])
+
+
 def test_intake_refuses_empty_slate_without_mutation(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     active = repo / "web-shadow/active-slate.json"

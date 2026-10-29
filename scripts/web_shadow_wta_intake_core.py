@@ -271,6 +271,21 @@ def _candidate(
         exclusions["unsupported_round_id"] += 1
         return None
 
+    # Official draws can publish a scheduled slot before its opponent is known.
+    # Count only the explicit TBD/blank-name form as an exclusion; other
+    # malformed player identities still fail closed in _player.
+    for side in ("A", "B"):
+        if match.get(f"PlayerID{side}") != "TBD":
+            continue
+        if all(
+            isinstance(match.get(f"PlayerName{part}{side}"), str)
+            and not match[f"PlayerName{part}{side}"].strip()
+            for part in ("First", "Last")
+        ):
+            exclusions["unresolved_player_slot"] += 1
+            return None
+        raise ValueError(f"PlayerID{side} is TBD with inconsistent name fields")
+
     player_a_id, player_a = _player(match, "A")
     player_b_id, player_b = _player(match, "B")
     if player_a_id == player_b_id or _name_key(player_a) == _name_key(player_b):
