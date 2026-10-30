@@ -1,8 +1,6 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
-    "web-shadow/fixtures/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
-    "web-shadow/fixtures/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json"
+    "web-shadow/fixtures/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261029t220229z"
+  "rerun_reason": "automatic-wta-intake-wta-20261030t130421z"
 }
