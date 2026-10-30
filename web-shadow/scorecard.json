@@ -1,26 +1,26 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.6136363636363636,
-      "brier_score": 0.25159799252888404,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06534757961061599,
+      "accuracy": 0.5625,
+      "brier_score": 0.26435454226980243,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.1118941348163508,
       "confidence_buckets": [
         {
-          "accuracy": 0.5625,
+          "accuracy": 0.5,
           "correct_prediction_count": 9,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 16,
-          "mean_selected_probability": 0.5591988041471617,
+          "match_count": 18,
+          "mean_selected_probability": 0.5554276232974062,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.6153846153846154,
+          "accuracy": 0.5714285714285714,
           "correct_prediction_count": 8,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 13,
-          "mean_selected_probability": 0.6483221201759709,
+          "match_count": 14,
+          "mean_selected_probability": 0.6460957942788633,
           "upper_bound": 0.7
         },
         {
@@ -33,12 +33,12 @@
           "upper_bound": 0.8
         },
         {
-          "accuracy": 0.75,
+          "accuracy": 0.6666666666666666,
           "correct_prediction_count": 6,
           "label": "0.80-0.90",
           "lower_bound": 0.8,
-          "match_count": 8,
-          "mean_selected_probability": 0.8509522492347629,
+          "match_count": 9,
+          "mean_selected_probability": 0.848397005731183,
           "upper_bound": 0.9
         },
         {
@@ -52,43 +52,43 @@
         }
       ],
       "correct_prediction_count": 27,
-      "log_loss": 0.7107930155673828,
-      "mean_selected_probability": 0.6789839432469796,
+      "log_loss": 0.7392947782141884,
+      "mean_selected_probability": 0.6743941348163508,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 44
+      "settled_match_count": 48
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.006650874720136785,
+    "brier_improvement_baseline_minus_genome": 0.006906472550866849,
     "genome": {
-      "accuracy": 0.5681818181818182,
-      "brier_score": 0.24494711780874726,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.06930121130709865,
+      "accuracy": 0.5208333333333334,
+      "brier_score": 0.2574480697189356,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11535258773439572,
       "confidence_buckets": [
         {
-          "accuracy": 0.5263157894736842,
+          "accuracy": 0.47619047619047616,
           "correct_prediction_count": 10,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 19,
-          "mean_selected_probability": 0.5478580242820712,
+          "match_count": 21,
+          "mean_selected_probability": 0.5482442395447261,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.5384615384615384,
+          "accuracy": 0.5,
           "correct_prediction_count": 7,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 13,
-          "mean_selected_probability": 0.6372477787138835,
+          "match_count": 14,
+          "mean_selected_probability": 0.6359106780231638,
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.625,
+          "accuracy": 0.5555555555555556,
           "correct_prediction_count": 5,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 8,
-          "mean_selected_probability": 0.7520791880134188,
+          "match_count": 9,
+          "mean_selected_probability": 0.7535499421913672,
           "upper_bound": 0.8
         },
         {
@@ -102,46 +102,46 @@
         }
       ],
       "correct_prediction_count": 25,
-      "log_loss": 0.6827164890284814,
-      "mean_selected_probability": 0.6374830294889169,
+      "log_loss": 0.7096691691233681,
+      "mean_selected_probability": 0.6361859210677291,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 44
+      "settled_match_count": 48
     },
-    "log_loss_improvement_baseline_minus_genome": 0.02807652653890147,
+    "log_loss_improvement_baseline_minus_genome": 0.02962560909082035,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 44
+    "settled_match_count": 48
   },
   "baseline_match_count": 69,
   "metrics": {
-    "accuracy": 0.5882352941176471,
-    "brier_score": 0.2443549534254849,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.043150976556712184,
+    "accuracy": 0.5454545454545454,
+    "brier_score": 0.2553079415931592,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.08524310396601786,
     "confidence_buckets": [
       {
-        "accuracy": 0.5833333333333334,
+        "accuracy": 0.5384615384615384,
         "correct_prediction_count": 14,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 24,
-        "mean_selected_probability": 0.5511782489794331,
+        "match_count": 26,
+        "mean_selected_probability": 0.5512347901763958,
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.5333333333333333,
+        "accuracy": 0.5,
         "correct_prediction_count": 8,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 15,
-        "mean_selected_probability": 0.6411128077342286,
+        "match_count": 16,
+        "mean_selected_probability": 0.6397012803160773,
         "upper_bound": 0.7
       },
       {
-        "accuracy": 0.625,
+        "accuracy": 0.5555555555555556,
         "correct_prediction_count": 5,
         "label": "0.70-0.80",
         "lower_bound": 0.7,
-        "match_count": 8,
-        "mean_selected_probability": 0.7520791880134188,
+        "match_count": 9,
+        "mean_selected_probability": 0.7535499421913672,
         "upper_bound": 0.8
       },
       {
@@ -155,16 +155,16 @@
       }
     ],
     "correct_prediction_count": 30,
-    "log_loss": 0.681951638953279,
-    "mean_selected_probability": 0.6313862706743593,
+    "log_loss": 0.7055296034051949,
+    "mean_selected_probability": 0.6306976494205633,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 51
+    "settled_match_count": 55
   },
   "official_slate_count": 19,
-  "pending_match_count": 23,
+  "pending_match_count": 18,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 53,
+  "settled_match_count": 58,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1139,50 +1139,65 @@
           "match_id": "web:wta:1056:2026:LS015",
           "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
           "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+          "result_record_sha256": "f97ad6545afcab798e84efcdce66eeeb8a0a519970cf1faf931f9979a409f608",
           "scheduled_start": "2026-10-29T10:30:00+09:00",
           "selected_player": "Kimberly Birrell",
           "selected_probability": 0.517768520832914,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+          "settlement_record_sha256": "536814b9dcfcf5751d5d6d6856850e2fb9d454608abac1990b4f81f5fb24cfb9",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
           "match_id": "web:wta:1056:2026:LS009",
           "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
           "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+          "result_record_sha256": "3cb2677499031dfd4a6190c507f0af0f2a4d259607bc1249f538b9a24a976642",
           "scheduled_start": "2026-10-29T11:30:00+09:00",
           "selected_player": "Elise Mertens",
           "selected_probability": 0.5860580482469804,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+          "settlement_record_sha256": "3ad8a0d9640a2beea7ba3d459ac022bcd6a3aba70d8042e3bd0a492b82692fb6",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
           "match_id": "web:wta:1023:2026:LS009",
           "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
           "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+          "result_record_sha256": "db0906a5a07c2dce792828ab2f510943feac68aaabd6752d28042616f1fa2ff9",
           "scheduled_start": "2026-10-29T13:00:00+08:00",
           "selected_player": "Zeynep Sonmez",
           "selected_probability": 0.6185283690438093,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-28-run-40777341058/settlements/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+          "settlement_record_sha256": "88aa54b45029b828603ead28eec7e20956ddfd4e71b7d976c16ba2e62f8f7c0c",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
           "match_id": "web:wta:1023:2026:LS013",
           "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
           "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+          "result_record_sha256": "6ab0013c8a46efb0af8e95824cf6de1c0906301c265faea3e40ed6cc09746e9b",
           "scheduled_start": "2026-10-29T13:00:00+08:00",
           "selected_player": "Katerina Siniakova",
           "selected_probability": 0.5692605120344917,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-28-run-40777341058/settlements/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+          "settlement_record_sha256": "259258653524b466dbed610065e4e2991186d0234a7983c3d7cc7d5b1a33b85f",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
           "match_id": "web:wta:1056:2026:LS014",
           "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
           "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+          "result_record_sha256": "577028a1bbbc6cf36aef7029b0a6cfe86471bfade7239af30e6bf7fc16a1d042",
           "scheduled_start": "2026-10-29T14:30:00+09:00",
           "selected_player": "Naomi Osaka",
           "selected_probability": 0.7653159756149542,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+          "settlement_record_sha256": "025d0e4e51ccac85c5b5fe0c70cacdb4f15b9bb65318bf598c8c3126112337af",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-28-run-40777341058/baselines/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",

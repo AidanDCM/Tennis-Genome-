@@ -1,0 +1,78 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 4,
+  "excluded_noncompleted_count": 1,
+  "production_eligible": false,
+  "requested_result_count": 5,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS015",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "prediction_record_sha256": "d7caacda21be9a8c02d7c5868d568512b4340b032cba100f10f48303b9efbc13",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell-d7caacda21.json",
+      "result_record_sha256": "f97ad6545afcab798e84efcdce66eeeb8a0a519970cf1faf931f9979a409f608",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell.json",
+      "settlement_record_sha256": "536814b9dcfcf5751d5d6d6856850e2fb9d454608abac1990b4f81f5fb24cfb9",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Alycia Parks"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS009",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens-3a2998fdb6.json",
+      "result_record_sha256": "3cb2677499031dfd4a6190c507f0af0f2a4d259607bc1249f538b9a24a976642",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+      "settlement_record_sha256": "3ad8a0d9640a2beea7ba3d459ac022bcd6a3aba70d8042e3bd0a492b82692fb6",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Leylah Fernandez"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1023:2026:LS009",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "prediction_record_sha256": "e55c2f45b49fe27f78c30d8515a97a88d8abac2970bfce8cd6e12d1bd2286107",
+      "result_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez-e55c2f45b4.json",
+      "result_record_sha256": "db0906a5a07c2dce792828ab2f510943feac68aaabd6752d28042616f1fa2ff9",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez.json",
+      "settlement_record_sha256": "88aa54b45029b828603ead28eec7e20956ddfd4e71b7d976c16ba2e62f8f7c0c",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Jil Teichmann"
+    },
+    {
+      "evaluation_eligible": false,
+      "match_id": "web:wta:1023:2026:LS013",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+      "result_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova-b2cfed602a.json",
+      "result_record_sha256": "6ab0013c8a46efb0af8e95824cf6de1c0906301c265faea3e40ed6cc09746e9b",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova.json",
+      "settlement_record_sha256": "259258653524b466dbed610065e4e2991186d0234a7983c3d7cc7d5b1a33b85f",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Claire Liu"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS014",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+      "result_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova-85cebb69f9.json",
+      "result_record_sha256": "577028a1bbbc6cf36aef7029b0a6cfe86471bfade7239af30e6bf7fc16a1d042",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova.json",
+      "settlement_record_sha256": "025d0e4e51ccac85c5b5fe0c70cacdb4f15b9bb65318bf598c8c3126112337af",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Mia Pohankova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 5,
+  "slate_count": 1
+}

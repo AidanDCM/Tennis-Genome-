@@ -1,0 +1,10 @@
+{
+  "result_paths": [
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls015-alycia-parks-kimberly-birrell-d7caacda21.json",
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens-3a2998fdb6.json",
+    "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls009-jil-teichmann-zeynep-sonmez-e55c2f45b4.json",
+    "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova-b2cfed602a.json",
+    "web-shadow/results/2026-10-29-tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova-85cebb69f9.json"
+  ],
+  "schema_version": "tennis-genome-web-shadow-result-batch-v1"
+}

@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1056:2026:LS014",
+  "prediction_correct": false,
+  "prediction_record_sha256": "85cebb69f9094e4db7b0ac02fb38060f6a35774ead896e0cced74236cdc1c5c4",
+  "production_eligible": false,
+  "record_sha256": "025d0e4e51ccac85c5b5fe0c70cacdb4f15b9bb65318bf598c8c3126112337af",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-29T07:40:01+00:00",
+  "result_record_path": "web-shadow/results/2026-10-29-tokyo-2026-r16-ls014-naomi-osaka-mia-pohankova-85cebb69f9.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Mia Pohankova"
+}
