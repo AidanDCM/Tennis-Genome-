@@ -111,7 +111,7 @@ def test_provider_rejection_retains_redacted_reason_without_second_call(
 
     def provider_get(url: str) -> bytes:
         calls.append(url)
-        return b'{"success":0,"error":"Invalid API key secret-value"}'
+        return b'{"success":0,"error":"1","result":"Invalid API key secret-value"}'
 
     with pytest.raises(ValueError, match="API-Tennis rejected ATP response"):
         capture_api_tennis_filtered_range(
@@ -126,6 +126,7 @@ def test_provider_rejection_retains_redacted_reason_without_second_call(
     diagnostic = (tmp_path / "provider-rejection.json").read_text(encoding="utf-8")
     assert "secret-value" not in diagnostic
     assert "Invalid API key [redacted]" in diagnostic
+    assert json.loads(diagnostic)["reason"] == "Invalid API key [redacted]"
 
 
 def test_serve_return_hash_ignores_score_and_clock_formatting() -> None:
