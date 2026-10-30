@@ -1,9 +1,9 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.56,
-      "brier_score": 0.2616603345071943,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11773596568603462,
+      "accuracy": 0.5576923076923077,
+      "brier_score": 0.2617167156943426,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11855468577188422,
       "confidence_buckets": [
         {
           "accuracy": 0.5,
@@ -15,12 +15,12 @@
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.5333333333333333,
-          "correct_prediction_count": 8,
+          "accuracy": 0.5294117647058824,
+          "correct_prediction_count": 9,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 15,
-          "mean_selected_probability": 0.6442988193359317,
+          "match_count": 17,
+          "mean_selected_probability": 0.6436780979926602,
           "upper_bound": 0.7
         },
         {
@@ -51,26 +51,26 @@
           "upper_bound": 1.0
         }
       ],
-      "correct_prediction_count": 28,
-      "log_loss": 0.7312093335875722,
-      "mean_selected_probability": 0.6777359656860347,
+      "correct_prediction_count": 29,
+      "log_loss": 0.7307762679156643,
+      "mean_selected_probability": 0.6762469934641919,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 50
+      "settled_match_count": 52
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.00886496184166874,
+    "brier_improvement_baseline_minus_genome": 0.008746692522170918,
     "genome": {
-      "accuracy": 0.52,
-      "brier_score": 0.25279537266552554,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11740233654397181,
+      "accuracy": 0.5192307692307693,
+      "brier_score": 0.2529700231721717,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11595598294603471,
       "confidence_buckets": [
         {
-          "accuracy": 0.45454545454545453,
-          "correct_prediction_count": 10,
+          "accuracy": 0.4583333333333333,
+          "correct_prediction_count": 11,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 22,
-          "mean_selected_probability": 0.5462017878233054,
+          "match_count": 24,
+          "mean_selected_probability": 0.5490014007544973,
           "upper_bound": 0.6
         },
         {
@@ -101,29 +101,29 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 26,
-      "log_loss": 0.6990076258702779,
-      "mean_selected_probability": 0.6374023365439718,
+      "correct_prediction_count": 27,
+      "log_loss": 0.6993548511714166,
+      "mean_selected_probability": 0.635186752176804,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 50
+      "settled_match_count": 52
     },
-    "log_loss_improvement_baseline_minus_genome": 0.03220170771729436,
+    "log_loss_improvement_baseline_minus_genome": 0.0314214167442477,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 50
+    "settled_match_count": 52
   },
   "baseline_match_count": 69,
   "metrics": {
-    "accuracy": 0.543859649122807,
-    "brier_score": 0.2513017206033531,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.08809760235225572,
+    "accuracy": 0.5423728813559322,
+    "brier_score": 0.25150628213674203,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.08781623084870849,
     "confidence_buckets": [
       {
-        "accuracy": 0.5185185185185185,
-        "correct_prediction_count": 14,
+        "accuracy": 0.5172413793103449,
+        "correct_prediction_count": 15,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 27,
-        "mean_selected_probability": 0.5494598091207319,
+        "match_count": 29,
+        "mean_selected_probability": 0.5515520390432751,
         "upper_bound": 0.6
       },
       {
@@ -154,17 +154,17 @@
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 31,
-    "log_loss": 0.6963226204013675,
-    "mean_selected_probability": 0.6319572514750628,
+    "correct_prediction_count": 32,
+    "log_loss": 0.6967196666148765,
+    "mean_selected_probability": 0.6301891122046407,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 57
+    "settled_match_count": 59
   },
   "official_slate_count": 19,
-  "pending_match_count": 16,
+  "pending_match_count": 14,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 60,
+  "settled_match_count": 62,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1239,20 +1239,26 @@
           "match_id": "web:wta:1023:2026:LS006",
           "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
           "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+          "result_record_sha256": "666a680d605edff5aad39efd2ac06aecd5ff0540a7cb2197fc599cbd64802286",
           "scheduled_start": "2026-10-30T15:30:00+08:00",
           "selected_player": "Claire Liu",
           "selected_probability": 0.580764908235798,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-29-run-40962939169/settlements/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+          "settlement_record_sha256": "009c8c5d68887413948bad4932fa85abe2930b7787c53969dbffc631ac51c35c",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-29-run-40962939169/baselines/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
           "match_id": "web:wta:1056:2026:LS006",
           "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
           "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+          "result_record_sha256": "4fc3be550ccae0bec4a634b4a11b51a30b3c73f52ac32ed53dbabd5c466b7c45",
           "scheduled_start": "2026-10-30T17:00:00+09:00",
           "selected_player": "Diana Shnaider",
           "selected_probability": 0.5788293777594192,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-10-29-run-40962939169/settlements/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+          "settlement_record_sha256": "75b486950c864791c57bf61239c5041b5e030b5d3f96b1e7c474c462eb44d47f",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-10-29-run-40962939169/baselines/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
