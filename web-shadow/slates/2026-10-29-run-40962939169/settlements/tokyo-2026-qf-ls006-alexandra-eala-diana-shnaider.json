@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1056:2026:LS006",
+  "prediction_correct": true,
+  "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+  "production_eligible": false,
+  "record_sha256": "75b486950c864791c57bf61239c5041b5e030b5d3f96b1e7c474c462eb44d47f",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-30T13:33:14+00:00",
+  "result_record_path": "web-shadow/results/2026-10-30-tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider-61e6d31e2f.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Diana Shnaider"
+}
