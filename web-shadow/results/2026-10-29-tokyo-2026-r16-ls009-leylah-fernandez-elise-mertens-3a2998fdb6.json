@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "3a2998fdb64182719a571497850ca547b8bc12db95fa04e91bb467752027d1c4",
+  "match_id": "web:wta:1056:2026:LS009",
+  "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls009-leylah-fernandez-elise-mertens.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-29T07:40:01+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 7-6(8)",
+  "status": "COMPLETED",
+  "winner": "Leylah Fernandez"
+}
