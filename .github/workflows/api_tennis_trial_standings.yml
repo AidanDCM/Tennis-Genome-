@@ -1,0 +1,95 @@
+name: API-Tennis Trial Standings Snapshot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: api-tennis-trial-standings
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      API_TENNIS_API: ${{ secrets.API_TENNIS_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Resolve snapshot date and prevent duplicate calls
+        id: date
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${API_TENNIS_API:-}"
+          snapshot_date=$(date -u +%F)
+          echo "snapshot_date=${snapshot_date}" >> "$GITHUB_OUTPUT"
+          name="api-tennis-trial-standings-${snapshot_date}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::standings snapshot already retained for this UTC date"
+            exit 1
+          fi
+
+      - name: Capture one ATP and one WTA standing response
+        id: capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S scripts/capture_api_tennis_trial_standings.py \
+            --output-dir api-tennis-trial-standings
+
+      - name: Write GitHub run receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          root = Path("api-tennis-trial-standings")
+          manifest_bytes = (root / "manifest.json").read_bytes()
+          manifest = json.loads(manifest_bytes)
+          for tour in ("atp", "wta"):
+              raw = (root / f"raw-{tour}-standings.json").read_bytes()
+              if hashlib.sha256(raw).hexdigest() != manifest[f"raw_{tour}_sha256"]:
+                  raise SystemExit(f"{tour} standings hash mismatch")
+          receipt = {
+              "schema_version": "tennis-genome-api-tennis-trial-standings-receipt-v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "created_at_utc": datetime.now(UTC).isoformat(),
+              "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+          }
+          (root / "github-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Retain raw standings evidence
+        if: always() && steps.capture.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-trial-standings-${{ steps.date.outputs.snapshot_date }}
+          path: api-tennis-trial-standings/
+          if-no-files-found: error
+          retention-days: 90
