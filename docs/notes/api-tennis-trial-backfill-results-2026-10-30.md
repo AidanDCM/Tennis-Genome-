@@ -61,3 +61,16 @@ verified start-time source for prospective use. October 30 should be captured
 separately after its UTC date finishes. Raw provider responses remain outside
 the public repository pending license review; the Actions artifacts expire on
 2027-01-28, so the local copies need durable retention before then.
+
+## Current standings snapshot
+
+A separate [2026-10-30 standings run](https://github.com/AidanDCM/Tennis-Genome-/actions/runs/41119915519)
+used two additional calls, one per tour. Its raw files and receipt are retained
+locally under ignored `outputs/api-tennis-trial-standings-2026-10-30`. The
+response contained 2,418 unique ATP player keys and 1,658 unique WTA keys;
+every returned place and points value was numeric. The receipt and raw hashes
+were independently rechecked after download. Among October 1–29 finished
+fixtures, both players matched current standings keys in 354/356 ATP and
+294/309 WTA matches. These are *current snapshot* ranks and points, not
+historical ranks or a provider-certified rank-effective date. They cannot be
+retroactively inserted into prior pre-match states.
