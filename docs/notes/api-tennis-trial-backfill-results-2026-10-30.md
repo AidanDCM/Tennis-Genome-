@@ -83,7 +83,7 @@ and [draw](https://github.com/AidanDCM/Tennis-Genome-/actions/runs/41121400377).
 Both raw responses and GitHub receipts were downloaded and hash-verified.
 `get_players` returned 47 unique player keys, each with a full name, birthdate,
 and season-stat list; these keys covered all 47 distinct players in the 42
-retained Tokyo fixtures. `get_draw` returned `source=draw_feed`, an official
+retained Tokyo fixtures. `get_draw` returned `source=draw_feed`, a provider-labeled
 bracket with 27 nonempty seed/entry fields among 56 seed fields, and the
 tournament surface `Hard (Indoor)`. The provider's player-profile fields did
 not include height or handedness. Neither response supplied match duration or
