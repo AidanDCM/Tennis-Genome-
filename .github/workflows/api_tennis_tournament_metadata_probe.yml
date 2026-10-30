@@ -1,0 +1,122 @@
+name: API-Tennis Tournament Metadata Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      method:
+        description: get_players or get_draw
+        required: true
+        type: choice
+        options:
+          - get_players
+          - get_draw
+      tournament_key:
+        description: API-Tennis tournament key
+        required: true
+        type: string
+      season:
+        description: Tournament season (YYYY)
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: api-tennis-tournament-metadata-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      API_TENNIS_API: ${{ secrets.API_TENNIS_KEY }}
+      METHOD: ${{ inputs.method }}
+      TOURNAMENT_KEY: ${{ inputs.tournament_key }}
+      SEASON: ${{ inputs.season }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.16"
+          check-latest: false
+
+      - name: Validate request and prevent duplicate probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${API_TENNIS_API:-}"
+          python -S - <<'PY'
+          import os
+          method = os.environ["METHOD"]
+          key = os.environ["TOURNAMENT_KEY"]
+          season = os.environ["SEASON"]
+          if method not in {"get_players", "get_draw"}:
+              raise SystemExit("unsupported method")
+          if not key.isdecimal() or int(key) <= 0:
+              raise SystemExit("invalid tournament key")
+          if not season.isdecimal() or not 2000 <= int(season) <= 2100:
+              raise SystemExit("invalid season")
+          PY
+          name="api-tennis-metadata-${METHOD}-${TOURNAMENT_KEY}-${SEASON}"
+          count=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${name}&per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          if [ "$count" -gt 0 ]; then
+            echo "::error::metadata probe already retained"
+            exit 1
+          fi
+
+      - name: Capture one metadata response
+        id: capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S scripts/probe_api_tennis_tournament_metadata.py \
+            --method "$METHOD" \
+            --tournament-key "$TOURNAMENT_KEY" \
+            --season "$SEASON" \
+            --output-dir api-tennis-metadata
+
+      - name: Verify and write GitHub receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -S - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+          root = Path("api-tennis-metadata")
+          manifest_bytes = (root / "manifest.json").read_bytes()
+          manifest = json.loads(manifest_bytes)
+          raw = (root / "raw-response.json").read_bytes()
+          if hashlib.sha256(raw).hexdigest() != manifest["raw_sha256"]:
+              raise SystemExit("raw metadata hash mismatch")
+          receipt = {
+              "schema_version": "tennis-genome-api-tennis-metadata-receipt-v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_source_sha": os.environ["GITHUB_SHA"],
+              "created_at_utc": datetime.now(UTC).isoformat(),
+              "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+          }
+          (root / "github-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          PY
+
+      - name: Retain raw metadata evidence
+        if: always() && steps.capture.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-metadata-${{ inputs.method }}-${{ inputs.tournament_key }}-${{ inputs.season }}
+          path: api-tennis-metadata/
+          if-no-files-found: error
+          retention-days: 90
