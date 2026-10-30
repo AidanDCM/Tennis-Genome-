@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-30T22:02:21.559346+00:00",
+  "fixture": {
+    "match_id": "web:wta:1023:2026:LS003",
+    "player_a": "Harriet Dart",
+    "player_b": "Xinran Sun",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "scheduled_start": "2026-10-31T16:30:00+08:00",
+    "source_observed_at": "2026-10-30T21:58:55+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Guangzhou Open",
+    "tournament_id": "web:wta:guangzhou:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "ca364d9102618ef23998319496c45e87ccf99a567fbea8fa35d94ea0232809d6",
+  "model_source_sha": "e104eac0be9d40d6bc0086d71117c67746212104",
+  "p_player_a": 0.5752374491794072,
+  "p_player_b": 0.4247625508205928,
+  "player_a_id": "wta:id:211279",
+  "player_b_id": "wta:id:270082",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Harriet Dart"
+}

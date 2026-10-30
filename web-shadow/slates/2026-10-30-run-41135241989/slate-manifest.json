@@ -1,0 +1,37 @@
+{
+  "eligible_target_count": 1,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "guangzhou-2026-sf-ls003-xinran-sun-harriet-dart",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "5c03fb28dc9ff6ef40a51d44bc3ef85913941111a3034eb3fab6c3802c449dcc",
+      "baseline_p_player_a": 0.5980637516596362,
+      "baseline_p_player_b": 0.4019362483403638,
+      "baseline_selected_player": "Harriet Dart",
+      "fixture_path": "web-shadow/fixtures/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+      "match_id": "web:wta:1023:2026:LS003",
+      "minimum_point_exposure": 701,
+      "p_player_a": 0.5752374491794072,
+      "p_player_b": 0.4247625508205928,
+      "prediction_path": "web-shadow-slate-run/matches/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart/prediction.json",
+      "prediction_record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1",
+      "scheduled_start": "2026-10-31T16:30:00+08:00",
+      "selected_player": "Harriet Dart",
+      "target_history_match_counts": {
+        "wta:id:211279": 157,
+        "wta:id:270082": 11
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 1,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
