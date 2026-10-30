@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+  "match_id": "web:wta:1023:2026:LS006",
+  "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-30T13:33:14+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-5 7-6(2)",
+  "status": "COMPLETED",
+  "winner": "Xinran Sun"
+}
