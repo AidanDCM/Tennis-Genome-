@@ -222,7 +222,7 @@ def capture_api_tennis_filtered_range(
             if not isinstance(payload, dict) or payload.get("success") in {1, "1"}:
                 raise
             reason = "provider did not supply a text reason"
-            for field in ("error", "message", "result"):
+            for field in ("message", "result", "error"):
                 value = payload.get(field)
                 if isinstance(value, str) and value.strip():
                     reason = value.strip()[:500]
@@ -230,6 +230,9 @@ def capture_api_tennis_filtered_range(
             reason = reason.replace(api_key, "[redacted]").replace(
                 quote(api_key, safe=""), "[redacted]"
             )
+            redacted_response = raw.decode("utf-8").replace(
+                api_key, "[redacted]"
+            ).replace(quote(api_key, safe=""), "[redacted]")
             diagnostic = {
                 "schema_version": "tennis-genome-api-tennis-provider-rejection-v1",
                 "tour": tour,
@@ -238,6 +241,7 @@ def capture_api_tennis_filtered_range(
                 "response_sha256": hashlib.sha256(raw).hexdigest(),
                 "response_bytes": len(raw),
                 "reason": reason,
+                "redacted_response": redacted_response[:1000],
                 "validation_error": str(exc),
             }
             (output_dir / "provider-rejection.json").write_text(
