@@ -76,6 +76,7 @@ jobs:
           python -m pip install -e . --no-deps
 
       - name: Capture one ATP and one WTA filtered response
+        id: capture
         shell: bash
         run: |
           set -euo pipefail
@@ -109,10 +110,11 @@ jobs:
           manifest_path = root / "manifest.json"
           audit_path = root / "audit.json"
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-          if manifest["date_start"] != os.environ["DATE_START"]:
-              raise SystemExit("manifest start date differs from request")
-          if manifest["date_stop"] != os.environ["DATE_STOP"]:
-              raise SystemExit("manifest stop date differs from request")
+          audit = json.loads(audit_path.read_text(encoding="utf-8"))
+          if audit["date_start"] != os.environ["DATE_START"]:
+              raise SystemExit("audit start date differs from request")
+          if audit["date_stop"] != os.environ["DATE_STOP"]:
+              raise SystemExit("audit stop date differs from request")
           if manifest["provider_request_count"] != 2:
               raise SystemExit("expected exactly two provider requests")
           if manifest["historical_actual_start_admissible"] is not False:
@@ -145,6 +147,7 @@ jobs:
           PY
 
       - name: Retain raw backfill evidence
+        if: always() && steps.capture.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: api-tennis-trial-backfill-${{ inputs.date_start }}-${{ inputs.date_stop }}
