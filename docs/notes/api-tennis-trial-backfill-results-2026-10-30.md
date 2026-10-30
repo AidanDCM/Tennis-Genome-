@@ -74,3 +74,21 @@ fixtures, both players matched current standings keys in 354/356 ATP and
 294/309 WTA matches. These are *current snapshot* ranks and points, not
 historical ranks or a provider-certified rank-effective date. They cannot be
 retroactively inserted into prior pre-match states.
+
+## Bounded tournament metadata probes
+
+Two further one-call probes used tournament key `3076`, Tokyo WTA 2026:
+[player profiles](https://github.com/AidanDCM/Tennis-Genome-/actions/runs/41121283915)
+and [draw](https://github.com/AidanDCM/Tennis-Genome-/actions/runs/41121400377).
+Both raw responses and GitHub receipts were downloaded and hash-verified.
+`get_players` returned 47 unique player keys, each with a full name, birthdate,
+and season-stat list; these keys covered all 47 distinct players in the 42
+retained Tokyo fixtures. `get_draw` returned `source=draw_feed`, an official
+bracket with 27 nonempty seed/entry fields among 56 seed fields, and the
+tournament surface `Hard (Indoor)`. The provider's player-profile fields did
+not include height or handedness. Neither response supplied match duration or
+verified actual start. These results show that one profile call and one draw
+call per tournament can fill identity, birthdate, surface, indoor context, and
+seed gaps, subject to source identity and T0 checks. Season aggregates captured
+after a match cannot be used as that match's pre-match state. The probes remain
+research-only; their data is not admitted into the frozen production path.
