@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1023:2026:LS006",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "prediction_record_sha256": "97b2db512dccd10e4838f906d5d5340143269c2325a172e6a5fde19d269270cb",
+      "result_path": "web-shadow/results/2026-10-30-guangzhou-2026-qf-ls006-xinran-sun-claire-liu-97b2db512d.json",
+      "result_record_sha256": "666a680d605edff5aad39efd2ac06aecd5ff0540a7cb2197fc599cbd64802286",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-29-run-40962939169/settlements/guangzhou-2026-qf-ls006-xinran-sun-claire-liu.json",
+      "settlement_record_sha256": "009c8c5d68887413948bad4932fa85abe2930b7787c53969dbffc631ac51c35c",
+      "slate_id": "2026-10-29-run-40962939169",
+      "winner": "Xinran Sun"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS006",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "prediction_record_sha256": "61e6d31e2f7fb0cd11e329fca1039517d61bf62e0e4beed0f8759f35c8700a28",
+      "result_path": "web-shadow/results/2026-10-30-tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider-61e6d31e2f.json",
+      "result_record_sha256": "4fc3be550ccae0bec4a634b4a11b51a30b3c73f52ac32ed53dbabd5c466b7c45",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-29-run-40962939169/settlements/tokyo-2026-qf-ls006-alexandra-eala-diana-shnaider.json",
+      "settlement_record_sha256": "75b486950c864791c57bf61239c5041b5e030b5d3f96b1e7c474c462eb44d47f",
+      "slate_id": "2026-10-29-run-40962939169",
+      "winner": "Diana Shnaider"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
