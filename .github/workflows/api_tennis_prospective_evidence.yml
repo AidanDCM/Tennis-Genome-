@@ -27,7 +27,7 @@ jobs:
     env:
       PYTHONPATH: src
       GH_TOKEN: ${{ github.token }}
-      API_TENNIS_API: ${{ secrets.API_TENNIS_API }}
+      API_TENNIS_API: ${{ secrets.API_TENNIS_KEY }}
       PREDICTION_ARTIFACT_ID: ${{ inputs.prediction_artifact_id }}
       HISTORY_ARTIFACT_ID: ${{ inputs.history_artifact_id }}
     steps:

@@ -23,7 +23,7 @@ jobs:
     env:
       PYTHONPATH: src
       GH_TOKEN: ${{ github.token }}
-      API_TENNIS_API: ${{ secrets.API_TENNIS_API }}
+      API_TENNIS_API: ${{ secrets.API_TENNIS_KEY }}
       SCHEDULE_DATE: ${{ inputs.schedule_date }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
