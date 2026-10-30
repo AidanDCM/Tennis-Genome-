@@ -85,6 +85,15 @@ jobs:
             --output-dir api-tennis-filtered-range \
             | tee filtered-range-summary.json
 
+      - name: Retain sanitized provider rejection if capture failed
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: api-tennis-trial-rejection-${{ github.run_id }}
+          path: api-tennis-filtered-range/provider-rejection.json
+          if-no-files-found: ignore
+          retention-days: 90
+
       - name: Verify raw evidence and write run receipt
         shell: bash
         run: |

@@ -7,7 +7,7 @@ from datetime import date
 from pathlib import Path
 from typing import Literal, Self
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 from pydantic import field_validator, model_validator
@@ -206,13 +206,45 @@ def capture_api_tennis_filtered_range(
             }
         )
         raw = provider_get(f"{_BASE_URL}?{query}")
-        rows = _parse_filtered_payload(
-            raw,
-            expected_event_type_key=event_type_key,
-            expected_event_type_name=event_type_name,
-            date_start=date_start,
-            date_stop=date_stop,
-        )
+        try:
+            rows = _parse_filtered_payload(
+                raw,
+                expected_event_type_key=event_type_key,
+                expected_event_type_name=event_type_name,
+                date_start=date_start,
+                date_stop=date_stop,
+            )
+        except ValueError as exc:
+            try:
+                payload = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                payload = None
+            if not isinstance(payload, dict) or payload.get("success") in {1, "1"}:
+                raise
+            reason = "provider did not supply a text reason"
+            for field in ("error", "message", "result"):
+                value = payload.get(field)
+                if isinstance(value, str) and value.strip():
+                    reason = value.strip()[:500]
+                    break
+            reason = reason.replace(api_key, "[redacted]").replace(
+                quote(api_key, safe=""), "[redacted]"
+            )
+            diagnostic = {
+                "schema_version": "tennis-genome-api-tennis-provider-rejection-v1",
+                "tour": tour,
+                "date_start": date_start,
+                "date_stop": date_stop,
+                "response_sha256": hashlib.sha256(raw).hexdigest(),
+                "response_bytes": len(raw),
+                "reason": reason,
+                "validation_error": str(exc),
+            }
+            (output_dir / "provider-rejection.json").write_text(
+                json.dumps(diagnostic, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            raise ValueError(f"API-Tennis rejected {tour} response: {reason}") from None
         retained[tour] = raw
         rows_by_tour[tour] = rows
 
