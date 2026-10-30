@@ -1,0 +1,25 @@
+{
+  "baseline_count": 1,
+  "eligible_target_count": 1,
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova",
+      "baseline_candidate_path": "baseline-candidates/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "baseline_candidate_record_sha256": "77dda955b8d2f3e6e6824a7ceb09abffde9f2044f4afb75f2797c10c29a1f5c9",
+      "baseline_path": "baselines/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "baseline_record_sha256": "b99dfdde33c8337f73441fe0f58692b208e880016b0530e2aacff977bed48f07",
+      "match_id": "web:wta:1056:2026:LS002",
+      "prediction_path": "predictions/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-30-run-41085443556",
+  "workflow_artifact_id": 12991462402,
+  "workflow_artifact_sha256": "1913d8127981c5f80ace78f48d3c33e8fce8fe24ff36ad6f3cbba59baa7ebaad",
+  "workflow_run_id": 41085443556,
+  "workflow_source_sha": "caef3587ef44713e7ca2da2438362d343315d464"
+}

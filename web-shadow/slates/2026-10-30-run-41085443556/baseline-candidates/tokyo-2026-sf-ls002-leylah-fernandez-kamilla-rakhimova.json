@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.6663766893466455,
+  "match_id": "web:wta:1056:2026:LS002",
+  "matchup_input_sha256": "7e09890752d812a3410f02150f6ed004115f9bec7a313ffe72974d3141dcee54",
+  "p_player_a": 0.3393086348231017,
+  "p_player_b": 0.6606913651768983,
+  "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+  "production_eligible": false,
+  "record_sha256": "77dda955b8d2f3e6e6824a7ceb09abffde9f2044f4afb75f2797c10c29a1f5c9",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Leylah Fernandez"
+}

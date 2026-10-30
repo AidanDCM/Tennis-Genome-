@@ -1,0 +1,37 @@
+{
+  "eligible_target_count": 1,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "77dda955b8d2f3e6e6824a7ceb09abffde9f2044f4afb75f2797c10c29a1f5c9",
+      "baseline_p_player_a": 0.3393086348231017,
+      "baseline_p_player_b": 0.6606913651768983,
+      "baseline_selected_player": "Leylah Fernandez",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "match_id": "web:wta:1056:2026:LS002",
+      "minimum_point_exposure": 10466,
+      "p_player_a": 0.3592069420501549,
+      "p_player_b": 0.6407930579498451,
+      "prediction_path": "web-shadow-slate-run/matches/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova/prediction.json",
+      "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+      "scheduled_start": "2026-10-31T12:00:00+09:00",
+      "selected_player": "Leylah Fernandez",
+      "target_history_match_counts": {
+        "wta:id:215872": 145,
+        "wta:id:220367": 281
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 1,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

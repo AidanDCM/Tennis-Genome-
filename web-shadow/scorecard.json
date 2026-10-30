@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 52
   },
-  "baseline_match_count": 69,
+  "baseline_match_count": 70,
   "metrics": {
     "accuracy": 0.5423728813559322,
     "brier_score": 0.25150628213674203,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 59
   },
-  "official_slate_count": 19,
-  "pending_match_count": 14,
+  "official_slate_count": 20,
+  "pending_match_count": 15,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 62,
@@ -1275,6 +1275,25 @@
       "slate_id": "2026-10-29-run-40962939169",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 40962939169
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-30-run-41085443556/baselines/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+          "match_id": "web:wta:1056:2026:LS002",
+          "prediction_path": "web-shadow/slates/2026-10-30-run-41085443556/predictions/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+          "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+          "scheduled_start": "2026-10-31T12:00:00+09:00",
+          "selected_player": "Leylah Fernandez",
+          "selected_probability": 0.6407930579498451,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-30-run-41085443556/slate-receipt.json",
+      "slate_id": "2026-10-30-run-41085443556",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41085443556
     }
   ]
 }

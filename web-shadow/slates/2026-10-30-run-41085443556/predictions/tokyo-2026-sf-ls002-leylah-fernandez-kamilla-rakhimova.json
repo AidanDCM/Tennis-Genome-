@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-10-30T15:58:28.920078+00:00",
+  "fixture": {
+    "match_id": "web:wta:1056:2026:LS002",
+    "player_a": "Kamilla Rakhimova",
+    "player_b": "Leylah Fernandez",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "scheduled_start": "2026-10-31T12:00:00+09:00",
+    "source_observed_at": "2026-10-30T13:04:21+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Toray Pan Pacific Open Tennis",
+    "tournament_id": "web:wta:tokyo:2026",
+    "tournament_level": "P"
+  },
+  "input_manifest_sha256": "7e09890752d812a3410f02150f6ed004115f9bec7a313ffe72974d3141dcee54",
+  "model_source_sha": "caef3587ef44713e7ca2da2438362d343315d464",
+  "p_player_a": 0.3592069420501549,
+  "p_player_b": 0.6407930579498451,
+  "player_a_id": "wta:id:215872",
+  "player_b_id": "wta:id:220367",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Leylah Fernandez"
+}
