@@ -1,0 +1,25 @@
+{
+  "baseline_count": 1,
+  "eligible_target_count": 1,
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "guangzhou-2026-sf-ls003-xinran-sun-harriet-dart",
+      "baseline_candidate_path": "baseline-candidates/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+      "baseline_candidate_record_sha256": "5c03fb28dc9ff6ef40a51d44bc3ef85913941111a3034eb3fab6c3802c449dcc",
+      "baseline_path": "baselines/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+      "baseline_record_sha256": "ef4a0faae0fd664fc8c44912b3539988b590c28dc47840208af0f63b7c34be44",
+      "match_id": "web:wta:1023:2026:LS003",
+      "prediction_path": "predictions/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+      "prediction_record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-10-30-run-41135241989",
+  "workflow_artifact_id": 13017260466,
+  "workflow_artifact_sha256": "21e3fa8480b12f325145a02b272b6416bb3712ca833d4ee20cff9168a6e34640",
+  "workflow_run_id": 41135241989,
+  "workflow_source_sha": "e104eac0be9d40d6bc0086d71117c67746212104"
+}

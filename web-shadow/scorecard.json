@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 52
   },
-  "baseline_match_count": 70,
+  "baseline_match_count": 71,
   "metrics": {
     "accuracy": 0.5423728813559322,
     "brier_score": 0.25150628213674203,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 59
   },
-  "official_slate_count": 20,
-  "pending_match_count": 15,
+  "official_slate_count": 21,
+  "pending_match_count": 16,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 62,
@@ -1294,6 +1294,25 @@
       "slate_id": "2026-10-30-run-41085443556",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 41085443556
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-10-30-run-41135241989/baselines/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+          "match_id": "web:wta:1023:2026:LS003",
+          "prediction_path": "web-shadow/slates/2026-10-30-run-41135241989/predictions/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+          "prediction_record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1",
+          "scheduled_start": "2026-10-31T16:30:00+08:00",
+          "selected_player": "Harriet Dart",
+          "selected_probability": 0.5752374491794072,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-10-30-run-41135241989/slate-receipt.json",
+      "slate_id": "2026-10-30-run-41135241989",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41135241989
     }
   ]
 }
