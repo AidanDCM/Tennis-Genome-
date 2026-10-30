@@ -1,0 +1,26 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1023:2026:LS005",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-29-run-40962939169/predictions/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+      "result_path": "web-shadow/results/2026-10-30-guangzhou-2026-qf-ls005-lilli-tagger-han-shi-3f4be9cbde.json",
+      "result_record_sha256": "f3821acba4149ffcb0cc5703a35e1fff2bfea4af3797adb6ffe646a0041fca1c",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-29-run-40962939169/settlements/guangzhou-2026-qf-ls005-lilli-tagger-han-shi.json",
+      "settlement_record_sha256": "3d39288a7163a8b20e52fccf596068e3de1cb451ed3cf132f30a7a0d7ead4129",
+      "slate_id": "2026-10-29-run-40962939169",
+      "winner": "Lilli Tagger"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}

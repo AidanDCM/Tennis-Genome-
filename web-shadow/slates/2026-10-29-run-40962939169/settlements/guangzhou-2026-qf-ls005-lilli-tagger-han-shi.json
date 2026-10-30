@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1023:2026:LS005",
+  "prediction_correct": true,
+  "prediction_record_sha256": "3f4be9cbde4226bbb3fe20a465899fb4819dfec21b6075715b93753d5487efb2",
+  "production_eligible": false,
+  "record_sha256": "3d39288a7163a8b20e52fccf596068e3de1cb451ed3cf132f30a7a0d7ead4129",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-30T18:52:04+00:00",
+  "result_record_path": "web-shadow/results/2026-10-30-guangzhou-2026-qf-ls005-lilli-tagger-han-shi-3f4be9cbde.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Lilli Tagger"
+}
