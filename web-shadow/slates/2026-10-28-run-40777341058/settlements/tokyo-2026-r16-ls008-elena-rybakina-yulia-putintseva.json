@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1056:2026:LS008",
+  "prediction_correct": true,
+  "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+  "production_eligible": false,
+  "record_sha256": "51872e5de75c7aad1d2a67a1340205c56de259afcc5deaf8b1edac2d31259828",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-30T02:04:02+00:00",
+  "result_record_path": "web-shadow/results/2026-10-30-tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva-a1e02f95df.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Elena Rybakina"
+}
