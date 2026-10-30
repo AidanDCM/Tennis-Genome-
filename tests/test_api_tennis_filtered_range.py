@@ -104,6 +104,30 @@ def test_filtered_capture_spends_exactly_two_requests_and_filters(tmp_path: Path
     assert api_key.encode() not in retained
 
 
+def test_provider_rejection_retains_redacted_reason_without_second_call(
+    tmp_path: Path,
+) -> None:
+    calls: list[str] = []
+
+    def provider_get(url: str) -> bytes:
+        calls.append(url)
+        return b'{"success":0,"error":"Invalid API key secret-value"}'
+
+    with pytest.raises(ValueError, match="API-Tennis rejected ATP response"):
+        capture_api_tennis_filtered_range(
+            date_start="2026-09-10",
+            date_stop="2026-09-16",
+            api_key="secret-value",
+            output_dir=tmp_path,
+            provider_get=provider_get,
+        )
+
+    assert len(calls) == 1
+    diagnostic = (tmp_path / "provider-rejection.json").read_text(encoding="utf-8")
+    assert "secret-value" not in diagnostic
+    assert "Invalid API key [redacted]" in diagnostic
+
+
 def test_serve_return_hash_ignores_score_and_clock_formatting() -> None:
     base = _fixture(
         event_key=1,
