@@ -1,0 +1,77 @@
+{
+  "excluded_match_count": 119,
+  "exclusion_counts": {
+    "not_main_draw": 36,
+    "not_singles": 28,
+    "not_upcoming": 52,
+    "unresolved_player_slot": 1,
+    "unscheduled": 2
+  },
+  "observed_at": "2026-10-30T13:04:21+00:00",
+  "pre_capacity_eligible_count": 1,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1056",
+      "fixture_path": "web-shadow/fixtures/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "group_id": 1056,
+      "match_id": "web:wta:1056:2026:LS002",
+      "player_a_wta_id": "326735",
+      "player_b_wta_id": "325936",
+      "round": "SF",
+      "round_id": 2,
+      "scheduled_start": "2026-10-31T12:00:00+09:00",
+      "slug": "tokyo",
+      "source_match_id": "LS002",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 1,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261030t130421z",
+  "source_match_count": 120,
+  "source_records": [
+    {
+      "group_id": 1023,
+      "matches_sha256": "93f56066101ad4425fb9e0f53c8a91ed7924e5fd2ea9e92c363beaa531e11065",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 62,
+      "slug": "guangzhou",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "tournament_sha256": "04d5533bd7d8955e8c1baac192e12773ffd54eae6761c270ff420af5867b42a3",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "93ee6a119b59af2b5327bb429be59daeba01ee14b6e308dc814e061c2684d5a2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 58,
+      "slug": "tokyo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "tournament_sha256": "288a52ad4b587618b20ead01565d09e45aa8cd56082591c76952f7051740e4d5",
+      "year": 2026
+    }
+  ]
+}
