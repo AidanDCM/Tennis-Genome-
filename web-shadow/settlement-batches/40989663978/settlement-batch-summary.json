@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS008",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "prediction_record_sha256": "a1e02f95dfcf158fb3a68460627ab3ed4728770abc5b17906c684b516ac8c503",
+      "result_path": "web-shadow/results/2026-10-30-tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva-a1e02f95df.json",
+      "result_record_sha256": "9f5d714a7ba766a102f9b524961a7be50181c0d325bf2ad15cd30437e13afb6b",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/tokyo-2026-r16-ls008-elena-rybakina-yulia-putintseva.json",
+      "settlement_record_sha256": "51872e5de75c7aad1d2a67a1340205c56de259afcc5deaf8b1edac2d31259828",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Elena Rybakina"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1023:2026:LS010",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "prediction_record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97",
+      "result_path": "web-shadow/results/2026-10-30-guangzhou-2026-r16-ls010-lilli-tagger-magda-linette-fa7fd798e5.json",
+      "result_record_sha256": "a6a98a87a757c5c6c1a36234c35a3915a69e3aa0f55ece040fc6ae7a2f40e7bf",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-28-run-40777341058/settlements/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+      "settlement_record_sha256": "2aa2c27835da870203cf6ec97f513c0cb141a8b105aeac1c8b740ad7f86a0980",
+      "slate_id": "2026-10-28-run-40777341058",
+      "winner": "Lilli Tagger"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
