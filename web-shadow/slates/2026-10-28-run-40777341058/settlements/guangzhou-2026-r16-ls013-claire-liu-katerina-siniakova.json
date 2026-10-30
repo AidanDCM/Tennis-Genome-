@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1023:2026:LS013",
+  "prediction_correct": false,
+  "prediction_record_sha256": "b2cfed602a41d6fc414af19c4f1de94d80d7ddcc8c06798006d8fcce1fa50d87",
+  "production_eligible": false,
+  "record_sha256": "259258653524b466dbed610065e4e2991186d0234a7983c3d7cc7d5b1a33b85f",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-10-29T07:40:01+00:00",
+  "result_record_path": "web-shadow/results/2026-10-29-guangzhou-2026-r16-ls013-claire-liu-katerina-siniakova-b2cfed602a.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "WALKOVER",
+  "winner": "Claire Liu"
+}
