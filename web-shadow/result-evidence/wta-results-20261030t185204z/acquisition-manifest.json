@@ -1,0 +1,128 @@
+{
+  "index_records": [
+    {
+      "entry_count": 100,
+      "filename": "tournament-index-2026-page-0.json",
+      "page": 0,
+      "sha256": "3f83c5eb3c6b78d7c6eba32d20dc344b66de57e4214d37c2d7208c2dce568437",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=0&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    },
+    {
+      "entry_count": 24,
+      "filename": "tournament-index-2026-page-1.json",
+      "page": 1,
+      "sha256": "90d31b0d0d9993e2ced9c8e2370274bc40839e03b2f1efbc07b537952f94fb9e",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/?page=1&pageSize=100&excludeLevels=ITF&from=2026-01-01&to=2026-12-31",
+      "year": 2026
+    }
+  ],
+  "observed_at": "2026-10-30T18:52:04+00:00",
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-acquisition-v1",
+  "source_policy": {
+    "api_root": "https://api.wtatennis.com/tennis",
+    "index_role": "audit_and_discovery_only",
+    "provider": "WTA",
+    "response_serialization": "provider_bytes_unmodified",
+    "selection_authority": "web-shadow/intake-config.json"
+  },
+  "source_records": [
+    {
+      "group_id": 405,
+      "matches_filename": "osaka-matches.json",
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "tournament_filename": "osaka-tournament.json",
+      "tournament_sha256": "496ebc52e4ff83ec7084203d5b94a3c80cf3c968098f4569031d77e6a06e63f1",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_filename": "beijing-matches.json",
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "tournament_filename": "beijing-tournament.json",
+      "tournament_sha256": "3ca8919c0fbf261dda5f996559106755635ea295aa7f7364d0ab09467e3b6732",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_filename": "guangzhou-matches.json",
+      "matches_sha256": "11d9309fd08dd974f6d043e457fae4d6bed203d289e8e75baa1294a778c63cbe",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 62,
+      "slug": "guangzhou",
+      "tournament_filename": "guangzhou-tournament.json",
+      "tournament_sha256": "ff859a30cd25c4f546d83a003b0ec7129f48d1f97494edc65feef5e3be91593c",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_filename": "seoul-matches.json",
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "tournament_filename": "seoul-tournament.json",
+      "tournament_sha256": "6a7c1f6b45c931ccf78ede89b36e75aa35b0e448a1089d8e0a500c055254db4c",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_filename": "tokyo-matches.json",
+      "matches_sha256": "93ee6a119b59af2b5327bb429be59daeba01ee14b6e308dc814e061c2684d5a2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 58,
+      "slug": "tokyo",
+      "tournament_filename": "tokyo-tournament.json",
+      "tournament_sha256": "288a52ad4b587618b20ead01565d09e45aa8cd56082591c76952f7051740e4d5",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_filename": "wuhan-matches.json",
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "tournament_filename": "wuhan-tournament.json",
+      "tournament_sha256": "6abe796f7b02e60de68ed85c65431c78a5a9dce2ebcdd98cc37da11dc8a1d999",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 1152,
+      "matches_filename": "singapore-matches.json",
+      "matches_sha256": "a024924f7959f9b70dc301b9ac72f342f82f865fa37f159bfd7a5f064fdbfd3b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "tournament_filename": "singapore-tournament.json",
+      "tournament_sha256": "32e30f859ea35026428f32d648ea9f4f8455e6f513783e917011d9c11a837160",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_filename": "ningbo-matches.json",
+      "matches_sha256": "4968eb3a6f6072ccbdfeded0dea05f17c028c00362f4a2b80e1c227121cefc02",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "tournament_filename": "ningbo-tournament.json",
+      "tournament_sha256": "8910acc712b5ab6658e82e8ef04e6313019a0bc0c8eb2e7cbec387a7b1093bee",
+      "tournament_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026",
+      "year": 2026
+    }
+  ]
+}
