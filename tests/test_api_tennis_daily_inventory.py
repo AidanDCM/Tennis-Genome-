@@ -109,7 +109,7 @@ def test_daily_inventory_workflow_freezes_single_call_and_retention_contract() -
         encoding="utf-8"
     )
 
-    assert "API_TENNIS_API: ${{ secrets.API_TENNIS_API }}" in text
+    assert "API_TENNIS_API: ${{ secrets.API_TENNIS_KEY }}" in text
     assert "provider_request_count" in text
     assert "did not use exactly one provider request" in text
     assert "query_event_type_filter" in text
