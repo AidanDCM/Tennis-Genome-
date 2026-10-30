@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "fa7fd798e5bb3aa1b2f5e32b99a86f5b8d76d572b394660099a750a2f7c3ee97",
+  "match_id": "web:wta:1023:2026:LS010",
+  "prediction_path": "web-shadow/slates/2026-10-28-run-40777341058/predictions/guangzhou-2026-r16-ls010-lilli-tagger-magda-linette.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-10-30T02:04:02+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-2 6-2",
+  "status": "COMPLETED",
+  "winner": "Lilli Tagger"
+}
