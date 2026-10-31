@@ -1,0 +1,97 @@
+{
+  "observed_at": "2026-10-31T09:57:05+00:00",
+  "pending_prediction_count": 15,
+  "production_eligible": false,
+  "result_count": 1,
+  "result_paths": [
+    "web-shadow/results/2026-10-31-tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova-c34187c8a3.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1056:2026:LS002",
+      "prediction_path": "web-shadow/slates/2026-10-30-run-41085443556/predictions/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+      "prediction_round": "SF",
+      "result_path": "web-shadow/results/2026-10-31-tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova-c34187c8a3.json",
+      "round_identity_conflict": false,
+      "score": "7-5 6-3",
+      "source_last_updated": "2026-10-31T05:02:53.54+00:00",
+      "source_match_id": "LS002",
+      "source_result_string": "L. Fernandez d K. Rakhimova 7-5,6-3",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Leylah Fernandez",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261031t095705z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "57ae18a34df4ae9a8f542694dc3c9dcc3bd736c259022f3c3bb4b71102615ccc",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "f301b68c5ad6d2fc91e401834bd11a59035ae51c9efadb38e3a4a5be95f06ccd",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "773fcc88f3caf728088844268fcf2b914056ceae0e7f3ea34632e6efd827a840",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 62,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "3de8b8e3ac3b2dd1577bd83ebb77ffc5c910644682e7ca3c1cedf929187f77b6",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 60,
+      "slug": "tokyo",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 1,
+  "unresolved_prediction_count": 13
+}
