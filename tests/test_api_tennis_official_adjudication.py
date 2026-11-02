@@ -92,3 +92,7 @@ def test_official_adjudication_rejects_wrong_identity_and_duplicate_stats() -> N
     row, reference = _case()
     reference["official_url"] = "https://www.tennistv.com/videos/example"
     assert adjudicate_row(row, reference)["official_point_agreement"] is True
+
+    row, reference = _case()
+    reference["official_url"] = "https://www.usopen.org/en_US/scores/stats/1211.html"
+    assert adjudicate_row(row, reference)["official_point_agreement"] is True

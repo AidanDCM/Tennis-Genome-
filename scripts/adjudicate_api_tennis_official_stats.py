@@ -36,6 +36,7 @@ def adjudicate_row(row: dict[str, Any], reference: dict[str, Any]) -> dict[str, 
         "www.wtatennis.com",
         "nationalbankopen.com",
         "www.tennistv.com",
+        "www.usopen.org",
     }:
         raise ValueError("reference must link to an approved official match page")
 
