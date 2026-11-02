@@ -174,8 +174,39 @@ jobs:
             exit 1
           fi
 
-      - name: Freeze bound evidence transactionally
+      - name: Skip fully repeated prediction slate
         if: steps.guard.outputs.skip != 'true'
+        id: replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          classification="$(python -m scripts.classify_web_shadow_bound_replay \
+            --artifact-zip "${RUNNER_TEMP}/web-shadow-bound-evidence.zip" \
+            --scorecard web-shadow/scorecard.json \
+            --run-id "${SOURCE_RUN_ID}" \
+            --source-sha "${SOURCE_HEAD_SHA}")"
+          status="$(jq -r '.status' <<<"${classification}")"
+          if [ "${status}" = "FULLY_REPEATED" ]; then
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            {
+              echo "## Web Shadow repeat run"
+              echo
+              echo "The verified artifact repeats match IDs already frozen in the scorecard."
+              echo "The original pre-start predictions remain authoritative; no second slate was frozen."
+              echo
+              echo '```json'
+              echo "${classification}" | jq .
+              echo '```'
+            } >> "${GITHUB_STEP_SUMMARY}"
+          elif [ "${status}" = "NEW" ]; then
+            echo "skip=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "unsupported repeat classification: ${status}" >&2
+            exit 1
+          fi
+
+      - name: Freeze bound evidence transactionally
+        if: steps.guard.outputs.skip != 'true' && steps.replay.outputs.skip != 'true'
         id: freeze
         shell: bash
         env:
@@ -210,7 +241,7 @@ jobs:
           echo "slate_id=${slate_id}" >> "${GITHUB_OUTPUT}"
 
       - name: Verify mutation scope
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.skip != 'true' && steps.replay.outputs.skip != 'true'
         shell: bash
         env:
           SLATE_ID: ${{ steps.freeze.outputs.slate_id }}
@@ -250,7 +281,7 @@ jobs:
           PY
 
       - name: Run full repository checks
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.skip != 'true' && steps.replay.outputs.skip != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -258,7 +289,7 @@ jobs:
           pytest
 
       - name: Create audited freeze pull request
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.skip != 'true' && steps.replay.outputs.skip != 'true'
         shell: bash
         env:
           BRANCH: ${{ steps.guard.outputs.branch }}
