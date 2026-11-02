@@ -30,6 +30,13 @@ def _stats(
     if second_won < 0 or second_won > second_total:
         raise ValueError("test helper produced invalid second-serve count")
 
+    opponent_service_won = return_total - return_won
+    opponent_first_won = (
+        min(24, opponent_service_won - 10)
+        if opponent_service_won >= 30
+        else min(24, max(0, opponent_service_won - 8))
+    )
+    first_return_won = 24 - opponent_first_won
     return ApiTennisPlayerMatchStats(
         player_key=player_key,
         aces=5,
@@ -41,9 +48,9 @@ def _stats(
         second_serve_points_total=second_total,
         break_points_saved=3,
         break_points_faced=5,
-        first_return_points_won=return_won // 2,
+        first_return_points_won=first_return_won,
         first_return_points_total=24,
-        second_return_points_won=return_won - return_won // 2,
+        second_return_points_won=return_won - first_return_won,
         second_return_points_total=16,
         break_points_converted=2,
         break_point_opportunities=5,

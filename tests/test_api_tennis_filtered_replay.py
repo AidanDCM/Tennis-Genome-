@@ -43,9 +43,9 @@ def _statistics(player_a: int, player_b: int) -> list[dict[str, object]]:
                 "stat_total": 24,
             },
             "Break Points Saved": {"stat_won": 3, "stat_total": 5},
-            "1st return points won": {"stat_won": 14 if better else 12, "stat_total": 36},
+            "1st return points won": {"stat_won": 14 if better else 11, "stat_total": 36},
             "2nd return points won": {
-                "stat_won": return_won - (14 if better else 12),
+                "stat_won": return_won - (14 if better else 11),
                 "stat_total": 24,
             },
             "Break Points Converted": {"stat_won": 2, "stat_total": 5},

@@ -20,21 +20,21 @@ def _player(*, player_key: int, service_total: int, return_total: int) -> ApiTen
         first_serve_points_won=20,
         first_serve_points_total=30,
         second_serve_points_won=8,
-        second_serve_points_total=14,
+        second_serve_points_total=service_total - 30,
         break_points_saved=3,
         break_points_faced=5,
         first_return_points_won=10,
-        first_return_points_total=28,
-        second_return_points_won=7,
-        second_return_points_total=16,
+        first_return_points_total=30,
+        second_return_points_won=return_total - 30 - 8,
+        second_return_points_total=return_total - 30,
         break_points_converted=2,
         break_point_opportunities=5,
         service_points_won=28,
         service_points_total=service_total,
-        return_points_won=17,
+        return_points_won=return_total - 28,
         return_points_total=return_total,
-        total_points_won=45,
-        total_points_total=88,
+        total_points_won=return_total,
+        total_points_total=service_total + return_total,
         service_games_won=8,
         service_games_total=10,
         return_games_won=2,
@@ -121,3 +121,25 @@ def test_bridge_rejects_service_wins_above_total() -> None:
 
     with pytest.raises(ValueError, match="player A service-points-won"):
         api_tennis_enrichment_to_match_stats(record)
+
+
+@pytest.mark.parametrize(
+    ("updates", "reason"),
+    [
+        ({"service_points_won": 27}, "A_SERVICE_WINS_SPLIT_MISMATCH"),
+        ({"first_serve_points_total": 31}, "A_SERVICE_TOTAL_SPLIT_MISMATCH"),
+        ({"total_points_won": 1}, "A_TOTAL_POINTS_WINS_MISMATCH"),
+        # Aggregate service wins stay at 28; opponent split counts expose the conflict.
+        (
+            {"first_serve_points_won": 19, "second_serve_points_won": 9},
+            "A_FIRST_SERVE_RETURN_WINS_MISMATCH",
+        ),
+    ],
+)
+def test_bridge_rejects_incompatible_provider_point_fields(updates, reason) -> None:
+    record = _record()
+    invalid = record.model_copy(
+        update={"player_a_stats": record.player_a_stats.model_copy(update=updates)}
+    )
+    with pytest.raises(ValueError, match=reason):
+        api_tennis_enrichment_to_match_stats(invalid)

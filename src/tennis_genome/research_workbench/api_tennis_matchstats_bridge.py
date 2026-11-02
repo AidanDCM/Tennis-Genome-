@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from tennis_genome.data.canonical import MatchStats
 
-from .api_tennis_enrichment import ApiTennisMatchEnrichment
+from .api_tennis_enrichment import ApiTennisMatchEnrichment, api_tennis_point_count_issues
 
 
 def _match_id(record: ApiTennisMatchEnrichment) -> str:
@@ -31,6 +31,10 @@ def api_tennis_enrichment_to_match_stats(
         raise ValueError("player A service-points-won counts exceed service total")
     if b.first_serve_points_won + b.second_serve_points_won > b.service_points_total:
         raise ValueError("player B service-points-won counts exceed service total")
+
+    issues = api_tennis_point_count_issues(record)
+    if issues:
+        raise ValueError("inconsistent API-Tennis point counts: " + ", ".join(issues))
 
     return MatchStats(
         match_id=_match_id(record),
