@@ -1,0 +1,12 @@
+[
+  {
+    "event_key": 12159171,
+    "event_date": "2026-09-03",
+    "tour_event_type": "Atp Singles",
+    "official_url": "https://www.usopen.org/en_US/scores/stats/1211.html",
+    "players": [
+      {"provider_player_key": 902, "provider_player_name": "J. Mensik", "official_service_points_won": 70, "official_service_points_total": 91},
+      {"provider_player_key": 416, "provider_player_name": "J. Rodionov", "official_service_points_won": 70, "official_service_points_total": 112}
+    ]
+  }
+]
