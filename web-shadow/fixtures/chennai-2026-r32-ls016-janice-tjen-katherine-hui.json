@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1148:2026:LS016",
+  "player_a": "Janice Tjen",
+  "player_b": "Katherine Hui",
+  "round": "R32",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "scheduled_start": "2026-11-03T12:30:00+05:30",
+  "source_observed_at": "2026-11-02T17:46:05+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Chennai Open",
+  "tournament_id": "web:wta:chennai:2026",
+  "tournament_level": "I"
+}
