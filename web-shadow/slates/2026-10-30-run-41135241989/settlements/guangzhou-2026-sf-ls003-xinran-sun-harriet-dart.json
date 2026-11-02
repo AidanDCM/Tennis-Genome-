@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1023:2026:LS003",
+  "prediction_correct": true,
+  "prediction_record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1",
+  "production_eligible": false,
+  "record_sha256": "98a4fa2dd5ba3f8d2c6f9e47892ecb20ce178264f881ebb6d1fef00f4391703c",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-02T18:01:14+00:00",
+  "result_record_path": "web-shadow/results/2026-11-02-guangzhou-2026-sf-ls003-xinran-sun-harriet-dart-4956c537e6.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Harriet Dart"
+}
