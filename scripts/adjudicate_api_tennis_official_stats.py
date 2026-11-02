@@ -32,8 +32,12 @@ def adjudicate_row(row: dict[str, Any], reference: dict[str, Any]) -> dict[str, 
     if row.get("event_type_type") != reference["tour_event_type"]:
         raise ValueError("reference tour mismatch")
     official_url = urlparse(str(reference["official_url"]))
-    if official_url.scheme != "https" or official_url.hostname != "www.wtatennis.com":
-        raise ValueError("reference must link to an official WTA match page")
+    if official_url.scheme != "https" or official_url.hostname not in {
+        "www.wtatennis.com",
+        "nationalbankopen.com",
+        "www.tennistv.com",
+    }:
+        raise ValueError("reference must link to an approved official match page")
 
     players = reference["players"]
     if not isinstance(players, list) or len(players) != 2:
