@@ -106,6 +106,21 @@ def test_open_once_burns_before_release_and_registers_exposure(tmp_path: Path) -
         )
 
 
+def test_protected_storage_preserves_exact_binary_bytes(tmp_path: Path) -> None:
+    content = b"LF\nCRLF\r\nEOF\x1aNUL\x00\xff"
+    reference = _reference(content)
+    path = write_protected_dataset(
+        vault_root=tmp_path / "vault", reference=reference, content=content
+    )
+    assert path.read_bytes() == content
+    opened, _ = _vault(tmp_path).open_once(
+        reference=reference, authorization=_authorization(), exposure_graph=ExposureGraph()
+    )
+    assert opened == content
+    raw_claim = next((tmp_path / "audit").glob("*.burn.json")).read_bytes()
+    assert raw_claim.endswith(b"\n")
+    assert b"\r\n" not in raw_claim
+
 def test_bad_capability_does_not_consume_holdout(tmp_path: Path) -> None:
     content = b'{"outcomes":[1,0]}\n'
     reference = _reference(content)
