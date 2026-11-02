@@ -1,0 +1,113 @@
+{
+  "observed_at": "2026-11-02T18:01:14+00:00",
+  "pending_prediction_count": 21,
+  "production_eligible": false,
+  "result_count": 1,
+  "result_paths": [
+    "web-shadow/results/2026-11-02-guangzhou-2026-sf-ls003-xinran-sun-harriet-dart-4956c537e6.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1023:2026:LS003",
+      "prediction_path": "web-shadow/slates/2026-10-30-run-41135241989/predictions/guangzhou-2026-sf-ls003-xinran-sun-harriet-dart.json",
+      "prediction_record_sha256": "4956c537e68d7dbef596a94ecbcceb57d842d257ade9c736cb3f0cd0f2be5cb1",
+      "prediction_round": "SF",
+      "result_path": "web-shadow/results/2026-11-02-guangzhou-2026-sf-ls003-xinran-sun-harriet-dart-4956c537e6.json",
+      "round_identity_conflict": false,
+      "score": "5-7 7-6(1) 6-0",
+      "source_last_updated": "2026-10-31T11:09:54.853+00:00",
+      "source_match_id": "LS003",
+      "source_result_string": "H. Dart d X. Sun 5-7,7-6(1),6-0",
+      "source_round": "SF",
+      "status": "COMPLETED",
+      "winner": "Harriet Dart",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261102t180114z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "f607c1ed2dab2985fdbeb7651ef2d9132755fb51846114d92d3b011b171c8ca0",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "f301b68c5ad6d2fc91e401834bd11a59035ae51c9efadb38e3a4a5be95f06ccd",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "ecffe3d2111a9815aa685f66fc99f96c44702edf2e173ffd2d69cabe5d5ab8b2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 64,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "092e6a5bffd75c3cdd2bee963c60252d675ce7b6fc28daa2639c90abed72bfd5",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 60,
+      "slug": "tokyo",
+      "year": 2026
+    },
+    {
+      "group_id": 1074,
+      "matches_sha256": "b2395daaeb5cd91214e37f94e2c35be5daa47100698f532e9420372743407b0b",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "raw_match_count": 34,
+      "slug": "hong-kong",
+      "year": 2026
+    },
+    {
+      "group_id": 1148,
+      "matches_sha256": "bb713d0dba69f7bd13fe599f4b427262c2f5b915958d40224991bb17a4fa50ea",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+      "raw_match_count": 28,
+      "slug": "chennai",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 7,
+  "unresolved_prediction_count": 13
+}
