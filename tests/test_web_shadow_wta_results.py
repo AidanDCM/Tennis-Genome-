@@ -14,6 +14,18 @@ from scripts.web_shadow_wta_result_core import (
 )
 
 
+def test_every_intake_tournament_can_be_settled() -> None:
+    root = Path(__file__).resolve().parents[1] / "web-shadow"
+    intake = json.loads((root / "intake-config.json").read_text(encoding="utf-8"))
+    results = json.loads((root / "result-config.json").read_text(encoding="utf-8"))
+    configured_results = {
+        (row["group_id"], row["year"], row["tournament_id"])
+        for row in results["tournaments"]
+    }
+    for row in intake["tournaments"]:
+        assert (row["group_id"], row["year"], row["tournament_id"]) in configured_results
+
+
 def _write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
