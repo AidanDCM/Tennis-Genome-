@@ -103,11 +103,16 @@ def adjudicate_row(row: dict[str, Any], reference: dict[str, Any]) -> dict[str, 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--capture-dir", type=Path, required=True)
+    parser.add_argument("--capture-dir", type=Path, action="append", required=True)
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    capture, rows = verify_capture(args.capture_dir)
+    captures = []
+    rows = []
+    for root in args.capture_dir:
+        capture, retained_rows = verify_capture(root)
+        captures.append(capture)
+        rows.extend(retained_rows)
     raw_reference = args.reference.read_bytes()
     references = json.loads(raw_reference)
     if not isinstance(references, list) or not references:
@@ -128,7 +133,7 @@ def main() -> None:
         cases.append(adjudicate_row(by_id[key], reference))
     result = {
         "schema_version": "api-tennis-official-point-adjudication-v1",
-        "capture": capture,
+        "captures": captures,
         "reference_sha256": hashlib.sha256(raw_reference).hexdigest(),
         "case_count": len(cases),
         "exact_agreement_count": sum(case["official_point_agreement"] for case in cases),
