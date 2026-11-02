@@ -189,16 +189,19 @@ class ProtectedDataVault:
             + "\n"
         ).encode("utf-8")
         try:
-            fd = os.open(claim_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            fd = os.open(
+                claim_path,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0),
+                0o600,
+            )
         except FileExistsError as exc:
             raise PermissionError(
                 "protected population was already opened or claimed; access is irreversible"
             ) from exc
-        try:
-            os.write(fd, encoded_receipt)
-            os.fsync(fd)
-        finally:
-            os.close(fd)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(encoded_receipt)
+            handle.flush()
+            os.fsync(handle.fileno())
 
         dataset_path = self._dataset_path(reference.dataset_id)
         content = dataset_path.read_bytes()
@@ -235,12 +238,13 @@ def write_protected_dataset(
     digest = hashlib.sha256(reference.dataset_id.encode("utf-8")).hexdigest()
     path = vault_root / f"{digest}.holdout"
     try:
-        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        fd = os.open(
+            path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o600
+        )
     except FileExistsError as exc:
         raise FileExistsError("protected dataset already staged; replacement is forbidden") from exc
-    try:
-        os.write(fd, content)
-        os.fsync(fd)
-    finally:
-        os.close(fd)
+    with os.fdopen(fd, "wb") as handle:
+        handle.write(content)
+        handle.flush()
+        os.fsync(handle.fileno())
     return path
