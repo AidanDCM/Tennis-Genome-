@@ -1,0 +1,42 @@
+[
+  {
+    "event_key": 12124358,
+    "event_date": "2026-05-06",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://www.wtatennis.com/tournaments/709/rome/2026/scores/LS122",
+    "players": [
+      {"provider_player_key": 517, "provider_player_name": "Ka. Pliskova", "official_service_points_won": 63, "official_service_points_total": 110},
+      {"provider_player_key": 154, "provider_player_name": "J. Bouzas Maneiro", "official_service_points_won": 50, "official_service_points_total": 86}
+    ]
+  },
+  {
+    "event_key": 12131131,
+    "event_date": "2026-05-28",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://www.wtatennis.com/tournaments/903/roland-garros/2026/scores/LS71563892",
+    "players": [
+      {"provider_player_key": 2176, "provider_player_name": "C. Gauff", "official_service_points_won": 30, "official_service_points_total": 54},
+      {"provider_player_key": 510, "provider_player_name": "M. Sherif", "official_service_points_won": 27, "official_service_points_total": 68}
+    ]
+  },
+  {
+    "event_key": 12137621,
+    "event_date": "2026-06-18",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://www.wtatennis.com/tournaments/2012/berlin/2026/scores/LS014",
+    "players": [
+      {"provider_player_key": 2816, "provider_player_name": "E. Svitolina", "official_service_points_won": 41, "official_service_points_total": 64},
+      {"provider_player_key": 2088, "provider_player_name": "E. Lys", "official_service_points_won": 23, "official_service_points_total": 47}
+    ]
+  },
+  {
+    "event_key": 12143078,
+    "event_date": "2026-07-06",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://www.wtatennis.com/tournaments/904/wimbledon/2026/scores/LS72320406",
+    "players": [
+      {"provider_player_key": 196, "provider_player_name": "A. Krueger", "official_service_points_won": 40, "official_service_points_total": 74},
+      {"provider_player_key": 1828, "provider_player_name": "M. Kostyuk", "official_service_points_won": 38, "official_service_points_total": 58}
+    ]
+  }
+]
