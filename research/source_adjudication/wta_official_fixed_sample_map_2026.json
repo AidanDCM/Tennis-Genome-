@@ -1,0 +1,9 @@
+[
+  {"event_key": 12134195, "tournament_id": 1111, "match_id": "RS026", "slug": "queens"},
+  {"event_key": 12148323, "tournament_id": 1082, "match_id": "LS010", "slug": "prague"},
+  {"event_key": 12154189, "tournament_id": 1017, "match_id": "LS073", "slug": "cincinnati"},
+  {"event_key": 12169822, "tournament_id": 1075, "match_id": "RS011", "slug": "wuhan"},
+  {"event_key": 12171119, "tournament_id": 1075, "match_id": "LS010", "slug": "wuhan"},
+  {"event_key": 12176188, "tournament_id": 1148, "match_id": "RS007", "slug": "chennai"},
+  {"event_key": 12176065, "tournament_id": 1074, "match_id": "RS004", "slug": "hong-kong"}
+]
