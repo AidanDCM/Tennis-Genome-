@@ -22,6 +22,22 @@
       "display_name": "Toray Pan Pacific Open Tennis",
       "tournament_id": "web:wta:tokyo:2026",
       "tournament_level": "P"
+    },
+    {
+      "group_id": 1074,
+      "year": 2026,
+      "slug": "hong-kong",
+      "display_name": "Prudential Hong Kong Tennis Open",
+      "tournament_id": "web:wta:hong-kong:2026",
+      "tournament_level": "I"
+    },
+    {
+      "group_id": 1148,
+      "year": 2026,
+      "slug": "chennai",
+      "display_name": "Chennai Open",
+      "tournament_id": "web:wta:chennai:2026",
+      "tournament_level": "I"
     }
   ]
 }
