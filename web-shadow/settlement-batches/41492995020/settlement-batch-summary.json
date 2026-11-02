@@ -1,0 +1,26 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1056:2026:LS002",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-10-30-run-41085443556/predictions/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "prediction_record_sha256": "c34187c8a398667e27516e1e9957576a58aba4da1a05ac058be84314c5f73e24",
+      "result_path": "web-shadow/results/2026-10-31-tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova-c34187c8a3.json",
+      "result_record_sha256": "25e94834093030aa0307381fef194806f888fa7097ad03cf1b310e9783bdee8a",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-10-30-run-41085443556/settlements/tokyo-2026-sf-ls002-leylah-fernandez-kamilla-rakhimova.json",
+      "settlement_record_sha256": "81ec0a7da6e5702ac1ea30f0af6034cea50f14e6a40d6974ce575c31f79a2f7f",
+      "slate_id": "2026-10-30-run-41085443556",
+      "winner": "Leylah Fernandez"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
