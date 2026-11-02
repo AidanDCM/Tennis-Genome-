@@ -40,3 +40,45 @@ them. Its local output has SHA-256
 `3b1f1be7da23faac669d65f40ff9b733531d2d25a449144d4ac451beaaa66cb8`.
 Neither script makes provider calls, updates player state, changes a frozen
 forecast, or establishes an official-source license for automated reuse.
+
+## Continuation: four more exact-count comparisons
+
+The next checks cover two WTA and two ATP selections. Exact point totals
+agree in all four:
+
+| Selected match | Official service points won/played | API-Tennis | Source |
+| --- | --- | --- | --- |
+| [Kalinskaya–Shnaider, Toronto](https://nationalbankopen.com/matches-players/results/2026/kalinskaya_vs_shnaider) | 27/54, 34/55 | 27/54, 34/55 | Official tournament |
+| [Bartunkova–Maria, US Open](https://www.wtatennis.com/tournaments/us-open/scores/LS73992538) | 60/91, 48/84 | 60/91, 48/84 | WTA |
+| [Mochizuki–Marozsan, Montreal](https://nationalbankopen.com/matches-players/results/2026/mochizuki_vs_marozsan) | 29/56, 38/60 | 29/56, 38/60 | Official tournament |
+| [Sinner–Medvedev, Rome](https://www.tennistv.com/videos/4504507/rome-2026-sf-sinner-medvedev) | 63/92, 59/104 | 63/92, 59/104 | ATP's official Tennis TV service |
+
+The tournament source is the National Bank Open's own site; Tennis TV is
+[identified by ATP as its official video service](https://www.atptour.com/apps).
+These identities and point counts are corroborated, but we have **not**
+established whether these sites independently collect points or share an
+upstream feed with API-Tennis. The ATP Tour Stats Centre was inaccessible
+(HTTP 403) to this audit. Source corroboration must not be confused with
+independent measurement.
+
+The selected-sample progress is now **8 exact agreements, 0 observed
+disagreements, 20 unresolved of 28**. This is not an accuracy estimate:
+the unresolved matches remain in the denominator, and examples with accessible
+exact statistics may differ systematically from those without them. The
+post-match point comparisons leave T0 feature chronology, canonical identity,
+surface/duration, and actual-start evidence unapproved.
+
+The Sinner–Medvedev match is also a timing warning: ATP lists a Friday May 15
+semifinal [resumed on Saturday after rain](https://www.atptour.com/en/news/sinner-medvedev-rome-2026-sf-saturday),
+while the retained API row carries `event_date=2026-05-16`. The comparison
+reference's `event_date` binds the retained provider row; it is **not** an
+officially verified actual-start date.
+
+The additional reference files are
+`research/source_adjudication/fixed_sample_next_three.json` and
+`research/source_adjudication/atp_fixed_sample_sinner_medvedev.json`. Their
+local adjudication outputs are bound to verified retained captures and have
+SHA-256 digests
+`f44f1228fe9fcbecfff56c870981c5b3b38e249b92893376f6de0d082b00835d`
+and
+`be419bc94d47827005145fef70b698bc7e2b45b6dae3d64decb51d8700f9fc02`.

@@ -1,0 +1,32 @@
+[
+  {
+    "event_key": 12152572,
+    "event_date": "2026-08-06",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://nationalbankopen.com/matches-players/results/2026/kalinskaya_vs_shnaider",
+    "players": [
+      {"provider_player_key": 1820, "provider_player_name": "A. Kalinskaya", "official_service_points_won": 27, "official_service_points_total": 54},
+      {"provider_player_key": 7403, "provider_player_name": "D. Shnaider", "official_service_points_won": 34, "official_service_points_total": 55}
+    ]
+  },
+  {
+    "event_key": 12160077,
+    "event_date": "2026-09-03",
+    "tour_event_type": "Wta Singles",
+    "official_url": "https://www.wtatennis.com/tournaments/905/us-open/2026/scores/LS73992538",
+    "players": [
+      {"provider_player_key": 9196, "provider_player_name": "N. Bartunkova", "official_service_points_won": 60, "official_service_points_total": 91},
+      {"provider_player_key": 2414, "provider_player_name": "T. Maria", "official_service_points_won": 48, "official_service_points_total": 84}
+    ]
+  },
+  {
+    "event_key": 12151676,
+    "event_date": "2026-08-04",
+    "tour_event_type": "Atp Singles",
+    "official_url": "https://nationalbankopen.com/matches-players/results/2026/mochizuki_vs_marozsan",
+    "players": [
+      {"provider_player_key": 1880, "provider_player_name": "S. Mochizuki", "official_service_points_won": 29, "official_service_points_total": 56},
+      {"provider_player_key": 10148, "provider_player_name": "F. Marozsan", "official_service_points_won": 38, "official_service_points_total": 60}
+    ]
+  }
+]
