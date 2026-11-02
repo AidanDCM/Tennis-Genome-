@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-02T17:49:05.958683+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS017",
+    "player_a": "Jil Teichmann",
+    "player_b": "Joanna Garland",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-03T11:00:00+05:30",
+    "source_observed_at": "2026-11-02T17:46:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "e68d6fb4f2c8596056ec59849c8dbb79186e0bde7645b13ab621e80cea7e48f0",
+  "model_source_sha": "e8dcaf08f1c2c447150bba47a07ac6a51074ba9f",
+  "p_player_a": 0.6084534691023241,
+  "p_player_b": 0.3915465308976759,
+  "player_a_id": "wta:id:213525",
+  "player_b_id": "wta:id:220466",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Jil Teichmann"
+}

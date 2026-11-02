@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13164874241,
+  "artifact_sha256": "d0066c01e5a3dc0dad2226e8a58cc1019c3486d570247bba6a8a3c45a4362904",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7648745442438182,
+  "match_id": "web:wta:1148:2026:LS017",
+  "matchup_input_sha256": "e68d6fb4f2c8596056ec59849c8dbb79186e0bde7645b13ab621e80cea7e48f0",
+  "p_player_a": 0.6824111132677876,
+  "p_player_b": 0.3175888867322124,
+  "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+  "production_eligible": false,
+  "record_sha256": "86d67065e73e73ad9bd014b1ba7044f00be299aa7f4d18364cbc866e5c90c8bd",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Jil Teichmann",
+  "slate_id": "2026-11-02-run-41494524336"
+}

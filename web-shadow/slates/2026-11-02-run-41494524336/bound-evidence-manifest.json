@@ -1,0 +1,85 @@
+{
+  "baseline_count": 7,
+  "eligible_target_count": 8,
+  "predicted_target_count": 7,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-r32-ls017-jil-teichmann-joanna-garland",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "baseline_candidate_record_sha256": "f6f43c7caecf512c470dcf0a73d5158e3014de41fc1993fcea9d24007cd689bd",
+      "baseline_path": "baselines/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "baseline_record_sha256": "86d67065e73e73ad9bd014b1ba7044f00be299aa7f4d18364cbc866e5c90c8bd",
+      "match_id": "web:wta:1148:2026:LS017",
+      "prediction_path": "predictions/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd"
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls020-panna-udvardy-robin-montgomery",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "baseline_candidate_record_sha256": "5917a946912fcfd48ba940a68b5f23a3bbbe7c00137546440652338a680d7802",
+      "baseline_path": "baselines/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "baseline_record_sha256": "d23ca4c626c45bc10fd03f590ab31c175c98b6eeee49be3a96d1556bc97b196a",
+      "match_id": "web:wta:1148:2026:LS020",
+      "prediction_path": "predictions/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543"
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "baseline_candidate_record_sha256": "1109ddc313f43631aa6362ca6e620d7b92b1f415fcf283305c9a132a119f1d5c",
+      "baseline_path": "baselines/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "baseline_record_sha256": "25b36d30dda033d54a840cb0e42c5ebb41167f151f4ca208a82ea4dc89c24575",
+      "match_id": "web:wta:1074:2026:LS021",
+      "prediction_path": "predictions/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "prediction_record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b"
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "baseline_candidate_record_sha256": "bf9eb2022d6a18c74f18a01b21a57ba4cfc8b93e36ffc1802491343aed8ba946",
+      "baseline_path": "baselines/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "baseline_record_sha256": "542854f98f5af567c39946c6721553ad1aff3f002bd186efb7ec6b35c9bbcfef",
+      "match_id": "web:wta:1074:2026:LS024",
+      "prediction_path": "predictions/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b"
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls016-janice-tjen-katherine-hui",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "baseline_candidate_record_sha256": "f80b51653c7c07dc2a4365ec1de2e9ebe7855d9385df72368596d89e10232b6b",
+      "baseline_path": "baselines/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "baseline_record_sha256": "73af860715c230ed71f8596520344646efb9711c6bf7f0ea73414fa8e8e08c72",
+      "match_id": "web:wta:1148:2026:LS016",
+      "prediction_path": "predictions/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136"
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "baseline_candidate_record_sha256": "2f3fd732c0761e13b9dcb47b717dd181238dc331043734bc0a292abc6c7cb4b6",
+      "baseline_path": "baselines/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "baseline_record_sha256": "1e3afcde8fd2a8d5023e5d6cfceb94070c35cb4d7bd078e89438ab76663227c5",
+      "match_id": "web:wta:1148:2026:LS019",
+      "prediction_path": "predictions/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980"
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "baseline_candidate_record_sha256": "96b54dd76277b756970884b98db31b96973b14231cc0d5419b7138bb79ddebc5",
+      "baseline_path": "baselines/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "baseline_record_sha256": "72698bcdd96272ccea2fa796a72b9334d324607ab1df3a63ab5dad62ed2c884a",
+      "match_id": "web:wta:1074:2026:LS031",
+      "prediction_path": "predictions/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "prediction_record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 1,
+  "slate_id": "2026-11-02-run-41494524336",
+  "workflow_artifact_id": 13164874241,
+  "workflow_artifact_sha256": "d0066c01e5a3dc0dad2226e8a58cc1019c3486d570247bba6a8a3c45a4362904",
+  "workflow_run_id": 41494524336,
+  "workflow_source_sha": "e8dcaf08f1c2c447150bba47a07ac6a51074ba9f"
+}

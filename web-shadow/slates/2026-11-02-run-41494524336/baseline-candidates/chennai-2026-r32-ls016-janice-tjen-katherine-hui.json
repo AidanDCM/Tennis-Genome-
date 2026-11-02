@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.641211390681895,
+  "match_id": "web:wta:1148:2026:LS016",
+  "matchup_input_sha256": "dbec65d49dfdd9773e538edfd95150df90c715331363dd14566d701dfb4e197c",
+  "p_player_a": 0.6550272457661065,
+  "p_player_b": 0.3449727542338935,
+  "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136",
+  "production_eligible": false,
+  "record_sha256": "f80b51653c7c07dc2a4365ec1de2e9ebe7855d9385df72368596d89e10232b6b",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Janice Tjen"
+}

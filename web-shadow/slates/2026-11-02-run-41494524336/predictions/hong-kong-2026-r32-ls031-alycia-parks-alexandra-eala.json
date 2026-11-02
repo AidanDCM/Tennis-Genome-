@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-02T17:49:10.776588+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS031",
+    "player_a": "Alycia Parks",
+    "player_b": "Alexandra Eala",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-03T18:30:00+08:00",
+    "source_observed_at": "2026-11-02T17:46:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "912674da651623eafbadb90034609abb2dc0f907aacf061829efd7bfd3af8ec3",
+  "model_source_sha": "e8dcaf08f1c2c447150bba47a07ac6a51074ba9f",
+  "p_player_a": 0.3448675883388977,
+  "p_player_b": 0.6551324116611024,
+  "player_a_id": "wta:id:219917",
+  "player_b_id": "wta:id:223253",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alexandra Eala"
+}

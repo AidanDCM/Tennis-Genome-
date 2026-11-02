@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 54
   },
-  "baseline_match_count": 71,
+  "baseline_match_count": 78,
   "metrics": {
     "accuracy": 0.5573770491803278,
     "brier_score": 0.24839613559309975,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 61
   },
-  "official_slate_count": 21,
-  "pending_match_count": 14,
+  "official_slate_count": 22,
+  "pending_match_count": 21,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 64,
@@ -1319,6 +1319,85 @@
       "slate_id": "2026-10-30-run-41135241989",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 41135241989
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+          "match_id": "web:wta:1148:2026:LS017",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+          "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+          "scheduled_start": "2026-11-03T11:00:00+05:30",
+          "selected_player": "Jil Teichmann",
+          "selected_probability": 0.6084534691023241,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+          "match_id": "web:wta:1148:2026:LS020",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+          "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+          "scheduled_start": "2026-11-03T11:00:00+05:30",
+          "selected_player": "Panna Udvardy",
+          "selected_probability": 0.6317889363224749,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+          "match_id": "web:wta:1074:2026:LS021",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+          "prediction_record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b",
+          "scheduled_start": "2026-11-03T14:00:00+08:00",
+          "selected_player": "Dayana Yastremska",
+          "selected_probability": 0.5224017602272348,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+          "match_id": "web:wta:1074:2026:LS024",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+          "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b",
+          "scheduled_start": "2026-11-03T14:00:00+08:00",
+          "selected_player": "Talia Gibson",
+          "selected_probability": 0.5355135584156168,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+          "match_id": "web:wta:1148:2026:LS016",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+          "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136",
+          "scheduled_start": "2026-11-03T12:30:00+05:30",
+          "selected_player": "Janice Tjen",
+          "selected_probability": 0.6158446463000369,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+          "match_id": "web:wta:1148:2026:LS019",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+          "prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980",
+          "scheduled_start": "2026-11-03T12:30:00+05:30",
+          "selected_player": "Polina Kudermetova",
+          "selected_probability": 0.7202752061124803,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-02-run-41494524336/baselines/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+          "match_id": "web:wta:1074:2026:LS031",
+          "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+          "prediction_record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb",
+          "scheduled_start": "2026-11-03T18:30:00+08:00",
+          "selected_player": "Alexandra Eala",
+          "selected_probability": 0.6551324116611024,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-02-run-41494524336/slate-receipt.json",
+      "slate_id": "2026-11-02-run-41494524336",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41494524336
     }
   ]
 }

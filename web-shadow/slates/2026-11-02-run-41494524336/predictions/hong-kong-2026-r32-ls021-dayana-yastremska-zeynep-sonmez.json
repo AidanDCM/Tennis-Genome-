@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-02T17:49:07.729625+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS021",
+    "player_a": "Dayana Yastremska",
+    "player_b": "Zeynep Sonmez",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-03T14:00:00+08:00",
+    "source_observed_at": "2026-11-02T17:46:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "0b81c9dc65ee1e543d1c894ab5cf0e876f37563093c797db30ff782e8194d52d",
+  "model_source_sha": "e8dcaf08f1c2c447150bba47a07ac6a51074ba9f",
+  "p_player_a": 0.5224017602272348,
+  "p_player_b": 0.47759823977276517,
+  "player_a_id": "wta:id:215035",
+  "player_b_id": "wta:id:220309",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Dayana Yastremska"
+}

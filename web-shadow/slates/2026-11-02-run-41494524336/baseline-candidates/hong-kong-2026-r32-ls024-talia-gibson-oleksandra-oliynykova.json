@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.019328580714204496,
+  "match_id": "web:wta:1074:2026:LS024",
+  "matchup_input_sha256": "47cd81b4a4768648b0842fbb227a5dd9fbe4c9f86e443333681e56c683db86fc",
+  "p_player_a": 0.5048319947457877,
+  "p_player_b": 0.49516800525421234,
+  "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b",
+  "production_eligible": false,
+  "record_sha256": "bf9eb2022d6a18c74f18a01b21a57ba4cfc8b93e36ffc1802491343aed8ba946",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Oleksandra Oliynykova"
+}

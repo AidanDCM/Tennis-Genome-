@@ -1,0 +1,170 @@
+{
+  "eligible_target_count": 8,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 7,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-r32-ls017-jil-teichmann-joanna-garland",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls017-jil-teichmann-joanna-garland/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f6f43c7caecf512c470dcf0a73d5158e3014de41fc1993fcea9d24007cd689bd",
+      "baseline_p_player_a": 0.6824111132677876,
+      "baseline_p_player_b": 0.3175888867322124,
+      "baseline_selected_player": "Jil Teichmann",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "match_id": "web:wta:1148:2026:LS017",
+      "minimum_point_exposure": 1450,
+      "p_player_a": 0.6084534691023241,
+      "p_player_b": 0.3915465308976759,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls017-jil-teichmann-joanna-garland/prediction.json",
+      "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+      "scheduled_start": "2026-11-03T11:00:00+05:30",
+      "selected_player": "Jil Teichmann",
+      "target_history_match_counts": {
+        "wta:id:213525": 209,
+        "wta:id:220466": 21
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls020-panna-udvardy-robin-montgomery",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "5917a946912fcfd48ba940a68b5f23a3bbbe7c00137546440652338a680d7802",
+      "baseline_p_player_a": 0.6095935183215521,
+      "baseline_p_player_b": 0.39040648167844794,
+      "baseline_selected_player": "Panna Udvardy",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "match_id": "web:wta:1148:2026:LS020",
+      "minimum_point_exposure": 3298,
+      "p_player_a": 0.6317889363224749,
+      "p_player_b": 0.3682110636775251,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery/prediction.json",
+      "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+      "scheduled_start": "2026-11-03T11:00:00+05:30",
+      "selected_player": "Panna Udvardy",
+      "target_history_match_counts": {
+        "wta:id:215910": 72,
+        "wta:id:221905": 46
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "1109ddc313f43631aa6362ca6e620d7b92b1f415fcf283305c9a132a119f1d5c",
+      "baseline_p_player_a": 0.5587822981135964,
+      "baseline_p_player_b": 0.44121770188640363,
+      "baseline_selected_player": "Dayana Yastremska",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "match_id": "web:wta:1074:2026:LS021",
+      "minimum_point_exposure": 4676,
+      "p_player_a": 0.5224017602272348,
+      "p_player_b": 0.47759823977276517,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez/prediction.json",
+      "prediction_record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b",
+      "scheduled_start": "2026-11-03T14:00:00+08:00",
+      "selected_player": "Dayana Yastremska",
+      "target_history_match_counts": {
+        "wta:id:215035": 283,
+        "wta:id:220309": 70
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "bf9eb2022d6a18c74f18a01b21a57ba4cfc8b93e36ffc1802491343aed8ba946",
+      "baseline_p_player_a": 0.5048319947457877,
+      "baseline_p_player_b": 0.49516800525421234,
+      "baseline_selected_player": "Oleksandra Oliynykova",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "match_id": "web:wta:1074:2026:LS024",
+      "minimum_point_exposure": 1592,
+      "p_player_a": 0.4644864415843832,
+      "p_player_b": 0.5355135584156168,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova/prediction.json",
+      "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b",
+      "scheduled_start": "2026-11-03T14:00:00+08:00",
+      "selected_player": "Talia Gibson",
+      "target_history_match_counts": {
+        "wta:id:220716": 25,
+        "wta:id:221883": 50
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls016-janice-tjen-katherine-hui",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls016-janice-tjen-katherine-hui/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "f80b51653c7c07dc2a4365ec1de2e9ebe7855d9385df72368596d89e10232b6b",
+      "baseline_p_player_a": 0.6550272457661065,
+      "baseline_p_player_b": 0.3449727542338935,
+      "baseline_selected_player": "Janice Tjen",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "match_id": "web:wta:1148:2026:LS016",
+      "minimum_point_exposure": 448,
+      "p_player_a": 0.6158446463000369,
+      "p_player_b": 0.3841553536999631,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls016-janice-tjen-katherine-hui/prediction.json",
+      "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136",
+      "scheduled_start": "2026-11-03T12:30:00+05:30",
+      "selected_player": "Janice Tjen",
+      "target_history_match_counts": {
+        "wta:id:222145": 37,
+        "wta:id:222866": 6
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2f3fd732c0761e13b9dcb47b717dd181238dc331043734bc0a292abc6c7cb4b6",
+      "baseline_p_player_a": 0.27381806686318716,
+      "baseline_p_player_b": 0.7261819331368129,
+      "baseline_selected_player": "Polina Kudermetova",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "match_id": "web:wta:1148:2026:LS019",
+      "minimum_point_exposure": 1457,
+      "p_player_a": 0.2797247938875197,
+      "p_player_b": 0.7202752061124803,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova/prediction.json",
+      "prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980",
+      "scheduled_start": "2026-11-03T12:30:00+05:30",
+      "selected_player": "Polina Kudermetova",
+      "target_history_match_counts": {
+        "wta:id:215077": 23,
+        "wta:id:221236": 80
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "96b54dd76277b756970884b98db31b96973b14231cc0d5419b7138bb79ddebc5",
+      "baseline_p_player_a": 0.360181395812496,
+      "baseline_p_player_b": 0.639818604187504,
+      "baseline_selected_player": "Alexandra Eala",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "match_id": "web:wta:1074:2026:LS031",
+      "minimum_point_exposure": 5113,
+      "p_player_a": 0.3448675883388977,
+      "p_player_b": 0.6551324116611024,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala/prediction.json",
+      "prediction_record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb",
+      "scheduled_start": "2026-11-03T18:30:00+08:00",
+      "selected_player": "Alexandra Eala",
+      "target_history_match_counts": {
+        "wta:id:219917": 133,
+        "wta:id:223253": 75
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 7,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 1,
+  "skipped_targets": [
+    {
+      "artifact_stem": "chennai-2026-r32-ls018-oksana-selekhmeteva-teodora-kostovic",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r32-ls018-oksana-selekhmeteva-teodora-kostovic.json",
+      "reason": "player name is ambiguous in pinned WTA registry: Teodora Kostovic (267020, 267439)",
+      "reason_type": "ValueError"
+    }
+  ]
+}
