@@ -472,6 +472,13 @@ def test_matchup_input_rejects_noncanonical_player_order() -> None:
         )
 
 
+def test_direct_matchup_input_requires_exact_integer_best_of() -> None:
+    _, _, wta_input = _calculator_and_inputs()
+    for invalid in (3.0, 5.0, True):
+        with pytest.raises(ValueError, match="best_of must be integer 3 or 5"):
+            replace(wta_input, best_of=invalid)
+
+
 def test_calculator_rejects_pre_freeze_information_cutoff() -> None:
     calculator, atp_input, _ = _calculator_and_inputs()
     invalid = replace(

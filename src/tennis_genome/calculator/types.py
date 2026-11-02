@@ -77,7 +77,7 @@ class MatchupInput:
             raise ValueError("source manifest hashes must be lowercase SHA-256 hex")
         if len(set(self.source_manifest_hashes)) != len(self.source_manifest_hashes):
             raise ValueError("source manifest hashes must be unique")
-        if isinstance(self.best_of, bool) or self.best_of not in (3, 5):
+        if type(self.best_of) is not int or self.best_of not in (3, 5):
             raise ValueError("best_of must be integer 3 or 5")
 
         _reject_nonfinite_state(self.foundational, path="foundational")
