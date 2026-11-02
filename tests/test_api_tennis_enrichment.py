@@ -230,3 +230,20 @@ def test_invalid_won_total_pair_is_excluded() -> None:
 
     assert batch.admitted_records == ()
     assert dict(batch.exclusion_counts) == {"MISSING_OR_INVALID_ENRICHMENT": 1}
+
+
+def test_internally_conflicting_totals_are_retained_as_an_exclusion() -> None:
+    row = _finished_row()
+    for stat in row["statistics"]:
+        if stat["player_key"] == 11 and stat["stat_name"] == "Service Points Won":
+            stat["stat_won"] = 31  # Split counts still report 32 wins.
+    batch = build_api_tennis_enrichment_batch(_payload([row]), requested_date="2026-09-16")
+    assert batch.admitted_records == ()
+    assert dict(batch.exclusion_counts) == {"INCONSISTENT_POINT_COUNTS": 1}
+
+
+def test_duplicate_match_statistic_is_rejected_instead_of_last_value_winning() -> None:
+    row = _finished_row()
+    row["statistics"].append(dict(row["statistics"][0]))
+    with pytest.raises(ValueError, match="duplicate match statistic"):
+        parse_api_tennis_match_enrichment(row)

@@ -124,6 +124,106 @@ class ApiTennisEnrichmentBatch(WorkbenchRecord):
     exclusion_counts: tuple[tuple[str, int], ...]
 
 
+def api_tennis_point_count_issues(record: ApiTennisMatchEnrichment) -> tuple[str, ...]:
+    """Check exact point identities before raw evidence can update model state.
+
+    Internally consistent counts still require independent source qualification.
+    This check neither chooses a preferred total nor repairs provider evidence.
+    """
+
+    issues: list[str] = []
+    a, b = record.player_a_stats, record.player_b_stats
+    if record.player_a_key == record.player_b_key:
+        issues.append("DUPLICATE_PLAYER_IDENTITY")
+    for label, player in (("A", a), ("B", b)):
+        for prefix in (
+            "first_serve_points",
+            "second_serve_points",
+            "first_return_points",
+            "second_return_points",
+            "service_points",
+            "return_points",
+            "total_points",
+        ):
+            won, total = getattr(player, prefix + "_won"), getattr(player, prefix + "_total")
+            if type(won) is not int or type(total) is not int or not 0 <= won <= total:
+                issues.append(f"{label}_{prefix.upper()}_INVALID_RANGE")
+    if issues:
+        return tuple(issues)
+    for label, player, opponent, expected_key in (
+        ("A", a, b, record.player_a_key),
+        ("B", b, a, record.player_b_key),
+    ):
+        if player.player_key != expected_key:
+            issues.append(f"{label}_STAT_PLAYER_IDENTITY_MISMATCH")
+        checks = (
+            (
+                "SERVICE_TOTAL_SPLIT_MISMATCH",
+                player.service_points_total,
+                player.first_serve_points_total + player.second_serve_points_total,
+            ),
+            (
+                "SERVICE_WINS_SPLIT_MISMATCH",
+                player.service_points_won,
+                player.first_serve_points_won + player.second_serve_points_won,
+            ),
+            (
+                "RETURN_TOTAL_SPLIT_MISMATCH",
+                player.return_points_total,
+                player.first_return_points_total + player.second_return_points_total,
+            ),
+            (
+                "RETURN_WINS_SPLIT_MISMATCH",
+                player.return_points_won,
+                player.first_return_points_won + player.second_return_points_won,
+            ),
+            (
+                "SERVICE_RETURN_TOTAL_MISMATCH",
+                player.service_points_total,
+                opponent.return_points_total,
+            ),
+            (
+                "SERVICE_RETURN_WINS_MISMATCH",
+                player.service_points_total,
+                player.service_points_won + opponent.return_points_won,
+            ),
+            (
+                "FIRST_SERVE_RETURN_TOTAL_MISMATCH",
+                player.first_serve_points_total,
+                opponent.first_return_points_total,
+            ),
+            (
+                "SECOND_SERVE_RETURN_TOTAL_MISMATCH",
+                player.second_serve_points_total,
+                opponent.second_return_points_total,
+            ),
+            (
+                "FIRST_SERVE_RETURN_WINS_MISMATCH",
+                player.first_serve_points_total,
+                player.first_serve_points_won + opponent.first_return_points_won,
+            ),
+            (
+                "SECOND_SERVE_RETURN_WINS_MISMATCH",
+                player.second_serve_points_total,
+                player.second_serve_points_won + opponent.second_return_points_won,
+            ),
+            (
+                "TOTAL_POINTS_DENOMINATOR_MISMATCH",
+                player.total_points_total,
+                player.service_points_total + player.return_points_total,
+            ),
+            (
+                "TOTAL_POINTS_WINS_MISMATCH",
+                player.total_points_won,
+                player.service_points_won + player.return_points_won,
+            ),
+        )
+        for name, observed, expected in checks:
+            if observed != expected:
+                issues.append(f"{label}_{name}")
+    return tuple(issues)
+
+
 def _require_int(value: object, *, field: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError(f"{field} must be an integer")
@@ -164,6 +264,8 @@ def _stat_lookup(statistics: list[object], *, player_key: int) -> dict[str, dict
             continue
         name = item.get("stat_name")
         if isinstance(name, str):
+            if name in result:
+                raise ValueError(f"duplicate match statistic for player {player_key}: {name}")
             result[name] = item
     missing = [name for name in _REQUIRED_STAT_NAMES if name not in result]
     if missing:
@@ -190,9 +292,7 @@ def _plain_int(stats: dict[str, dict[str, object]], name: str) -> int:
     return value
 
 
-def _build_player_stats(
-    statistics: list[object], *, player_key: int
-) -> ApiTennisPlayerMatchStats:
+def _build_player_stats(statistics: list[object], *, player_key: int) -> ApiTennisPlayerMatchStats:
     stats = _stat_lookup(statistics, player_key=player_key)
     first_serve_won, first_serve_total = _won_total(stats, "1st serve points won")
     second_serve_won, second_serve_total = _won_total(stats, "2nd serve points won")
@@ -336,6 +436,9 @@ def build_api_tennis_enrichment_batch(
             continue
         if record.event_date != requested_date:
             exclusions["DATE_MISMATCH"] += 1
+            continue
+        if api_tennis_point_count_issues(record):
+            exclusions["INCONSISTENT_POINT_COUNTS"] += 1
             continue
         if record.event_key in seen_event_keys:
             raise ValueError("duplicate API-Tennis event_key in one response")

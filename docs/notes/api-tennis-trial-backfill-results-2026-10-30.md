@@ -31,6 +31,12 @@ The overlap window adds 910 fixtures and 874 finished rows; 873 finished rows
 have exact point counts. It supplies a direct source-comparison sample, not new
 prospective forecasts.
 
+**November 2 admission update:** exact-count availability is not point-count
+consistency. The [point-consistency audit](api-tennis-point-consistency-2026-11-02.md)
+reproduced incompatible service aggregates/splits accepted by the former bridge,
+added a rejection gate, and measured downstream component sensitivity. Do not
+interpret the availability counts above as approval for production player state.
+
 ## Source-comparison warning
 
 An offline diagnostic joined overlap records to the locally retained pinned
