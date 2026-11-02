@@ -79,3 +79,8 @@ def test_official_adjudication_rejects_wrong_identity_and_duplicate_stats() -> N
     row["statistics"].append(dict(row["statistics"][0]))
     with pytest.raises(ValueError, match="duplicated"):
         adjudicate_row(row, reference)
+
+    row, reference = _case()
+    reference["official_url"] = "https://www.wtatennis.com.evil.test/match"
+    with pytest.raises(ValueError, match="official WTA"):
+        adjudicate_row(row, reference)

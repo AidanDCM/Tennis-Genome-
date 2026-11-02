@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from scripts.audit_api_tennis_retained_history import verify_capture
 from tennis_genome.research_workbench.api_tennis_enrichment import (
@@ -30,7 +31,8 @@ def adjudicate_row(row: dict[str, Any], reference: dict[str, Any]) -> dict[str, 
         raise ValueError("reference event is not marked Finished")
     if row.get("event_type_type") != reference["tour_event_type"]:
         raise ValueError("reference tour mismatch")
-    if not str(reference["official_url"]).startswith("https://www.wtatennis.com/"):
+    official_url = urlparse(str(reference["official_url"]))
+    if official_url.scheme != "https" or official_url.hostname != "www.wtatennis.com":
         raise ValueError("reference must link to an official WTA match page")
 
     players = reference["players"]
@@ -105,8 +107,6 @@ def main() -> None:
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.output.exists():
-        raise ValueError("adjudication output already exists")
     capture, rows = verify_capture(args.capture_dir)
     raw_reference = args.reference.read_bytes()
     references = json.loads(raw_reference)
@@ -137,7 +137,8 @@ def main() -> None:
             "curated post-match source comparison; no production admission or pre-match evidence"
         ),
     }
-    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    with args.output.open("x", encoding="utf-8", newline="\n") as output:
+        output.write(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(
         json.dumps(
             {"case_count": len(cases), "exact_agreement_count": result["exact_agreement_count"]}
