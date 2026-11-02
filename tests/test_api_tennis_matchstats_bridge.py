@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import pytest
 
 from tennis_genome.research_workbench.api_tennis_enrichment import (
     ApiTennisMatchEnrichment,
     ApiTennisPlayerMatchStats,
+)
+from tennis_genome.research_workbench.api_tennis_history_bridge import (
+    build_candidate_historical_match,
 )
 from tennis_genome.research_workbench.api_tennis_matchstats_bridge import (
     api_tennis_enrichment_to_match_stats,
@@ -143,3 +148,57 @@ def test_bridge_rejects_incompatible_provider_point_fields(updates, reason) -> N
     )
     with pytest.raises(ValueError, match=reason):
         api_tennis_enrichment_to_match_stats(invalid)
+
+
+def _candidate(**updates):
+    options = {
+        "reviewed_player_ids": {11: "wta:id:900", 22: "wta:id:100"},
+        "reviewed_surface": "Hard",
+        "reviewed_tournament_level": "I",
+        "source_observed_at": datetime(2026, 9, 17, tzinfo=UTC),
+        "target_cutoff_at": datetime(2026, 9, 18, tzinfo=UTC),
+        "source_manifest_sha256": "b" * 64,
+    }
+    options.update(updates)
+    return build_candidate_historical_match(_record(), **options)
+
+
+def test_candidate_history_requires_explicit_context_and_reorients_every_field() -> None:
+    evidence = _candidate()
+    match = evidence.match
+
+    assert match.pre_match.player_a_id == "wta:id:100"
+    assert match.pre_match.player_b_id == "wta:id:900"
+    assert match.pre_match.surface == "Hard"
+    assert match.outcome.a_won is False
+    assert match.stats is not None
+    assert match.stats.service_points_a == 46
+    assert match.stats.service_points_b == 44
+    assert match.stats.first_serve_points_won_a == 20
+    assert match.stats.first_serve_points_won_b == 20
+    assert match.stats.duration_minutes is None
+    assert evidence.raw_match_sha256 == "a" * 64
+
+
+def test_candidate_history_rejects_unknown_surface_and_missing_identity() -> None:
+    with pytest.raises(ValueError, match="surface"):
+        _candidate(reviewed_surface="Unknown")
+    with pytest.raises(ValueError, match="crosswalks"):
+        _candidate(reviewed_player_ids={11: "wta:id:900"})
+
+
+def test_candidate_history_rejects_late_or_same_date_evidence() -> None:
+    with pytest.raises(ValueError, match="observed before"):
+        _candidate(source_observed_at=datetime(2026, 9, 18, tzinfo=UTC))
+    with pytest.raises(ValueError, match="finished match before"):
+        _candidate(source_observed_at=datetime(2026, 9, 15, tzinfo=UTC))
+    with pytest.raises(ValueError, match="precede target"):
+        build_candidate_historical_match(
+            _record().model_copy(update={"event_date": "2026-09-18"}),
+            reviewed_player_ids={11: "wta:id:900", 22: "wta:id:100"},
+            reviewed_surface="Hard",
+            reviewed_tournament_level="I",
+            source_observed_at=datetime(2026, 9, 18, tzinfo=UTC),
+            target_cutoff_at=datetime(2026, 9, 18, 12, tzinfo=UTC),
+            source_manifest_sha256="b" * 64,
+        )
