@@ -5,6 +5,8 @@ import json
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from scripts.propose_api_tennis_player_crosswalk import propose
 from tennis_genome.independent.production import PINNED_SOURCE_COMMIT
 
@@ -15,7 +17,9 @@ def _write_json(path: Path, value: object) -> bytes:
     return raw
 
 
-def _inputs(root: Path, *, draw_identity: bool = True) -> tuple[Path, Path, Path]:
+def _inputs(
+    root: Path, *, draw_identity: bool = True, second_birthdate: str = "04.03.2000"
+) -> tuple[Path, Path, Path]:
     archive = root / "archive.zip"
     with zipfile.ZipFile(archive, "w") as source:
         prefix = f"tennis-sackmann-archive-{PINNED_SOURCE_COMMIT}"
@@ -41,7 +45,7 @@ def _inputs(root: Path, *, draw_identity: bool = True) -> tuple[Path, Path, Path
                 {
                     "player_key": 22,
                     "player_full_name": "Bella Sample",
-                    "player_bday": "04.03.2000",
+                    "player_bday": second_birthdate,
                 },
             ],
         },
@@ -93,3 +97,22 @@ def test_fixture_draw_conflict_cannot_propose_identity(tmp_path: Path) -> None:
 
     assert result["status_counts"] == {"FIXTURE_DRAW_ID_CONFLICT": 1}
     assert result["matches"][0]["canonical_player_ids"] is None
+
+
+def test_birthdate_mismatch_cannot_propose_identity(tmp_path: Path) -> None:
+    archive, retained, slate = _inputs(tmp_path, second_birthdate="04.03.2001")
+
+    result = propose(archive=archive, retained_root=retained, slate_report=slate)
+
+    assert result["status_counts"] == {"NO_EXACT_REGISTRY_MATCH": 1}
+    assert result["matches"][0]["canonical_player_ids"] is None
+
+
+def test_tampered_profile_is_rejected(tmp_path: Path) -> None:
+    archive, retained, slate = _inputs(tmp_path)
+    raw = retained / "api-tennis-metadata-get_players-77-2026"
+    raw = raw / raw.name / "raw-response.json"
+    raw.write_bytes(raw.read_bytes() + b" ")
+
+    with pytest.raises(ValueError, match="raw response hash mismatch"):
+        propose(archive=archive, retained_root=retained, slate_report=slate)

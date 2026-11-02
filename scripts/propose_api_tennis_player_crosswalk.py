@@ -64,7 +64,8 @@ def _verified_metadata(root: Path, name: str) -> tuple[object, dict[str, object]
     directory = root / name / name
     manifest_raw = (directory / "manifest.json").read_bytes()
     manifest = json.loads(manifest_raw)
-    receipt = json.loads((directory / "github-receipt.json").read_bytes())
+    receipt_raw = (directory / "github-receipt.json").read_bytes()
+    receipt = json.loads(receipt_raw)
     raw = (directory / "raw-response.json").read_bytes()
     if _sha(manifest_raw) != receipt["manifest_sha256"]:
         raise ValueError(f"{name}: manifest receipt mismatch")
@@ -75,7 +76,13 @@ def _verified_metadata(root: Path, name: str) -> tuple[object, dict[str, object]
     payload = json.loads(raw)
     if payload.get("success") not in (1, "1") or not isinstance(payload.get("result"), list):
         raise ValueError(f"{name}: invalid provider response")
-    return payload["result"], receipt
+    evidence = {
+        "workflow_run_id": int(receipt["workflow_run_id"]),
+        "raw_sha256": manifest["raw_sha256"],
+        "manifest_sha256": _sha(manifest_raw),
+        "receipt_sha256": _sha(receipt_raw),
+    }
+    return payload["result"], evidence
 
 
 def propose(*, archive: Path, retained_root: Path, slate_report: Path) -> dict[str, object]:
@@ -92,7 +99,7 @@ def propose(*, archive: Path, retained_root: Path, slate_report: Path) -> dict[s
     season = schedule_date.year
     registry = _registry(archive)
     profiles: dict[tuple[str, int], dict[str, object]] = {}
-    source_runs: dict[str, int] = {}
+    profile_sources: dict[str, dict[str, object]] = {}
     tournament_tours: dict[int, str] = {}
     for match in slate["matches"]:
         key = int(match["tournament_key"])
@@ -102,8 +109,8 @@ def propose(*, archive: Path, retained_root: Path, slate_report: Path) -> dict[s
         tournament_tours[key] = tour
     for tournament_key, tour in sorted(tournament_tours.items()):
         name = f"api-tennis-metadata-get_players-{tournament_key}-{season}"
-        player_rows, receipt = _verified_metadata(retained_root, name)
-        source_runs[name] = int(receipt["workflow_run_id"])
+        player_rows, evidence = _verified_metadata(retained_root, name)
+        profile_sources[name] = evidence
         for profile in player_rows:
             player_key = int(profile["player_key"])
             profile_key = (tour, player_key)
@@ -173,7 +180,7 @@ def propose(*, archive: Path, retained_root: Path, slate_report: Path) -> dict[s
         "schedule_date": schedule_date.isoformat(),
         "pinned_archive_sha256": _sha(archive.read_bytes()),
         "slate_report_sha256": _sha(slate_raw),
-        "profile_source_run_ids": source_runs,
+        "profile_sources": profile_sources,
         "match_count": len(results),
         "status_counts": dict(sorted(statuses.items())),
         "production_admitted": False,
