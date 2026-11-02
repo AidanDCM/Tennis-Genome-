@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-02T17:49:07.078042+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS020",
+    "player_a": "Panna Udvardy",
+    "player_b": "Robin Montgomery",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-03T11:00:00+05:30",
+    "source_observed_at": "2026-11-02T17:46:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "7bda7251c81f5ee1f9365454373ade13e97547017a02b9e625d425ad6260321e",
+  "model_source_sha": "e8dcaf08f1c2c447150bba47a07ac6a51074ba9f",
+  "p_player_a": 0.6317889363224749,
+  "p_player_b": 0.3682110636775251,
+  "player_a_id": "wta:id:215910",
+  "player_b_id": "wta:id:221905",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Panna Udvardy"
+}

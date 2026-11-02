@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7648745442438182,
+  "match_id": "web:wta:1148:2026:LS017",
+  "matchup_input_sha256": "e68d6fb4f2c8596056ec59849c8dbb79186e0bde7645b13ab621e80cea7e48f0",
+  "p_player_a": 0.6824111132677876,
+  "p_player_b": 0.3175888867322124,
+  "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+  "production_eligible": false,
+  "record_sha256": "f6f43c7caecf512c470dcf0a73d5158e3014de41fc1993fcea9d24007cd689bd",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Jil Teichmann"
+}

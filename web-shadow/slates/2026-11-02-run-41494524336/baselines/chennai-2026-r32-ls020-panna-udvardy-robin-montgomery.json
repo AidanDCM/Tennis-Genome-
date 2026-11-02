@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13164874241,
+  "artifact_sha256": "d0066c01e5a3dc0dad2226e8a58cc1019c3486d570247bba6a8a3c45a4362904",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.44560391458021625,
+  "match_id": "web:wta:1148:2026:LS020",
+  "matchup_input_sha256": "7bda7251c81f5ee1f9365454373ade13e97547017a02b9e625d425ad6260321e",
+  "p_player_a": 0.6095935183215521,
+  "p_player_b": 0.39040648167844794,
+  "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+  "production_eligible": false,
+  "record_sha256": "d23ca4c626c45bc10fd03f590ab31c175c98b6eeee49be3a96d1556bc97b196a",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Panna Udvardy",
+  "slate_id": "2026-11-02-run-41494524336"
+}

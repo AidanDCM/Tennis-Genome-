@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13164874241,
+  "artifact_sha256": "d0066c01e5a3dc0dad2226e8a58cc1019c3486d570247bba6a8a3c45a4362904",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.019328580714204496,
+  "match_id": "web:wta:1074:2026:LS024",
+  "matchup_input_sha256": "47cd81b4a4768648b0842fbb227a5dd9fbe4c9f86e443333681e56c683db86fc",
+  "p_player_a": 0.5048319947457877,
+  "p_player_b": 0.49516800525421234,
+  "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b",
+  "production_eligible": false,
+  "record_sha256": "542854f98f5af567c39946c6721553ad1aff3f002bd186efb7ec6b35c9bbcfef",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Oleksandra Oliynykova",
+  "slate_id": "2026-11-02-run-41494524336"
+}
