@@ -1,0 +1,39 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 2,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS016",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls016-janice-tjen-katherine-hui-5c4f3b538d.json",
+      "result_record_sha256": "f98c98b6509066f3b4881c081b719f48d0ef8e6b223902f4fffb72f2f1000655",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "settlement_record_sha256": "c9dbf75110ff8dbada6133194c0daca2c9ac3ba433aa150cc35fdc4dc36b37f0",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Janice Tjen"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS019",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova-a09a6a8767.json",
+      "result_record_sha256": "c060e424cbc155054139b7456b0ea2149c4bc9981e1171928797379ba088b318",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "settlement_record_sha256": "cdc417680a5c86d6a9cee1ce14110a8bf94e895eb43ec73272b6279c19c2e450",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Polina Kudermetova"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
