@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-03T23:09:28.342137+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS010",
+    "player_a": "Robin Montgomery",
+    "player_b": "Jeline Vandromme",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-04T15:00:00+05:30",
+    "source_observed_at": "2026-11-03T23:05:16+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "cab7063b3b13c3b8939b99de996c1dfd510f06ca2e99385bb972011701047558",
+  "model_source_sha": "54381d7dc7b352a5c72ea5d2764b325b446ab86b",
+  "p_player_a": 0.30073490399311287,
+  "p_player_b": 0.6992650960068871,
+  "player_a_id": "wta:id:221905",
+  "player_b_id": "wta:id:259871",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Jeline Vandromme"
+}

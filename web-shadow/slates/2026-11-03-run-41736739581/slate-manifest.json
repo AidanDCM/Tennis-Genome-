@@ -1,0 +1,79 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "cf990257ba03da1f12e74f20d1fc976540d6762b6ee19e432872d17f98977b85",
+      "baseline_p_player_a": 0.6929606950959599,
+      "baseline_p_player_b": 0.3070393049040401,
+      "baseline_selected_player": "Polina Kudermetova",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "match_id": "web:wta:1148:2026:LS009",
+      "minimum_point_exposure": 3085,
+      "p_player_a": 0.6292369189321323,
+      "p_player_b": 0.3707630810678677,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova/prediction.json",
+      "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+      "scheduled_start": "2026-11-04T15:00:00+05:30",
+      "selected_player": "Polina Kudermetova",
+      "target_history_match_counts": {
+        "wta:id:221236": 80,
+        "wta:id:221407": 41
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "0247c7d733074576e9c7f28d4beb551db3aa8f5bbc94fab00edb995ffd842b50",
+      "baseline_p_player_a": 0.30041825584153437,
+      "baseline_p_player_b": 0.6995817441584656,
+      "baseline_selected_player": "Jeline Vandromme",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "match_id": "web:wta:1148:2026:LS010",
+      "minimum_point_exposure": 2203,
+      "p_player_a": 0.30073490399311287,
+      "p_player_b": 0.6992650960068871,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme/prediction.json",
+      "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+      "scheduled_start": "2026-11-04T15:00:00+05:30",
+      "selected_player": "Jeline Vandromme",
+      "target_history_match_counts": {
+        "wta:id:221905": 46,
+        "wta:id:259871": 32
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "a60e61947ebd33a13b71b96adaee6bc27fbcb9475814cd8422466ef5aad377c3",
+      "baseline_p_player_a": 0.7143128262389563,
+      "baseline_p_player_b": 0.2856871737610437,
+      "baseline_selected_player": "Weronika Falkowska",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "match_id": "web:wta:1148:2026:LS011",
+      "minimum_point_exposure": 199,
+      "p_player_a": 0.7561614097527696,
+      "p_player_b": 0.24383859024723042,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi/prediction.json",
+      "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+      "scheduled_start": "2026-11-04T17:00:00+05:30",
+      "selected_player": "Weronika Falkowska",
+      "target_history_match_counts": {
+        "wta:id:216579": 29,
+        "wta:id:266722": 4
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 61
   },
-  "baseline_match_count": 81,
+  "baseline_match_count": 84,
   "metrics": {
     "accuracy": 0.5588235294117647,
     "brier_score": 0.24730048425701223,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 68
   },
-  "official_slate_count": 23,
-  "pending_match_count": 17,
+  "official_slate_count": 24,
+  "pending_match_count": 20,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 71,
@@ -1458,6 +1458,45 @@
       "slate_id": "2026-11-03-run-41677777257",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 41677777257
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41736739581/baselines/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+          "match_id": "web:wta:1148:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+          "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+          "scheduled_start": "2026-11-04T15:00:00+05:30",
+          "selected_player": "Polina Kudermetova",
+          "selected_probability": 0.6292369189321323,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41736739581/baselines/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+          "match_id": "web:wta:1148:2026:LS010",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+          "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+          "scheduled_start": "2026-11-04T15:00:00+05:30",
+          "selected_player": "Jeline Vandromme",
+          "selected_probability": 0.6992650960068871,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41736739581/baselines/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+          "match_id": "web:wta:1148:2026:LS011",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+          "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+          "scheduled_start": "2026-11-04T17:00:00+05:30",
+          "selected_player": "Weronika Falkowska",
+          "selected_probability": 0.7561614097527696,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-03-run-41736739581/slate-receipt.json",
+      "slate_id": "2026-11-03-run-41736739581",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41736739581
     }
   ]
 }

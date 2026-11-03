@@ -1,0 +1,45 @@
+{
+  "baseline_count": 3,
+  "eligible_target_count": 3,
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "baseline_candidate_record_sha256": "cf990257ba03da1f12e74f20d1fc976540d6762b6ee19e432872d17f98977b85",
+      "baseline_path": "baselines/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "baseline_record_sha256": "92318128fe450bcb10a292e127eeee96ef13639ad807bc946ea91ca08340199a",
+      "match_id": "web:wta:1148:2026:LS009",
+      "prediction_path": "predictions/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae"
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "baseline_candidate_record_sha256": "0247c7d733074576e9c7f28d4beb551db3aa8f5bbc94fab00edb995ffd842b50",
+      "baseline_path": "baselines/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "baseline_record_sha256": "e75e105d99e7ccf73e155d249e7c7c1f99a5759a39f9eb64f50ae43d170c5271",
+      "match_id": "web:wta:1148:2026:LS010",
+      "prediction_path": "predictions/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d"
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "baseline_candidate_record_sha256": "a60e61947ebd33a13b71b96adaee6bc27fbcb9475814cd8422466ef5aad377c3",
+      "baseline_path": "baselines/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "baseline_record_sha256": "70461ebb945256e498521edda8782501c5748dc60324082312575e7f81c8cb3f",
+      "match_id": "web:wta:1148:2026:LS011",
+      "prediction_path": "predictions/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-11-03-run-41736739581",
+  "workflow_artifact_id": 13278803494,
+  "workflow_artifact_sha256": "81754cd03f3412ac0b84ebace6217a3b293372326547054bcc1cbfa2be1dfddf",
+  "workflow_run_id": 41736739581,
+  "workflow_source_sha": "54381d7dc7b352a5c72ea5d2764b325b446ab86b"
+}

@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.9164235842272174,
+  "match_id": "web:wta:1148:2026:LS011",
+  "matchup_input_sha256": "e997fd537029f74b23dd6c0590fb727544e05e8f1a511e5051d1588581e87e8e",
+  "p_player_a": 0.7143128262389563,
+  "p_player_b": 0.2856871737610437,
+  "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+  "production_eligible": false,
+  "record_sha256": "a60e61947ebd33a13b71b96adaee6bc27fbcb9475814cd8422466ef5aad377c3",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Weronika Falkowska"
+}
