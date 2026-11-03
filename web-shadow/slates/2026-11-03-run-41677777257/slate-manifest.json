@@ -1,0 +1,79 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "502ea82e54d33e4fba3b7e6b410229ffcf7d2a6e4f28683cd0945a4808339519",
+      "baseline_p_player_a": 0.321026668003365,
+      "baseline_p_player_b": 0.678973331996635,
+      "baseline_selected_player": "Leylah Fernandez",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin.json",
+      "match_id": "web:wta:1074:2026:LS020",
+      "minimum_point_exposure": 19815,
+      "p_player_a": 0.32319505642565105,
+      "p_player_b": 0.676804943574349,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin/prediction.json",
+      "prediction_record_sha256": "acafa5294de9f230cb7ab656a04ea54074501295be52a0b15e5a22b7e1017800",
+      "scheduled_start": "2026-11-04T14:00:00+08:00",
+      "selected_player": "Leylah Fernandez",
+      "target_history_match_counts": {
+        "wta:id:213550": 324,
+        "wta:id:220367": 281
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "75bb2a4c3a3c81279a6ce832990732f1b28d9af26c295cb71abe4fe62b070602",
+      "baseline_p_player_a": 0.5342698948880198,
+      "baseline_p_player_b": 0.4657301051119802,
+      "baseline_selected_player": "Alina Charaeva",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+      "match_id": "web:wta:1074:2026:LS029",
+      "minimum_point_exposure": 2407,
+      "p_player_a": 0.5682383314171998,
+      "p_player_b": 0.4317616685828002,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva/prediction.json",
+      "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+      "scheduled_start": "2026-11-04T14:00:00+08:00",
+      "selected_player": "Alina Charaeva",
+      "target_history_match_counts": {
+        "wta:id:221406": 34,
+        "wta:id:222045": 51
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r16-ls013-maya-joint-maria-sakkari",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "c10ebb77b01b4906de7d8972d28616749dc48d8563f2d852c97b864382df4652",
+      "baseline_p_player_a": 0.6866910954751386,
+      "baseline_p_player_b": 0.3133089045248614,
+      "baseline_selected_player": "Maria Sakkari",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+      "match_id": "web:wta:1074:2026:LS013",
+      "minimum_point_exposure": 4459,
+      "p_player_a": 0.6243727045296659,
+      "p_player_b": 0.37562729547033413,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari/prediction.json",
+      "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+      "scheduled_start": "2026-11-04T18:30:00+08:00",
+      "selected_player": "Maria Sakkari",
+      "target_history_match_counts": {
+        "wta:id:206289": 477,
+        "wta:id:233741": 71
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}

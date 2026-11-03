@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13251985560,
+  "artifact_sha256": "9a96d3af2ef7fdf7cc2006eddbdf789fca24ae37b36be8a3d8b34b3a81d43325",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.7490576538060922,
+  "match_id": "web:wta:1074:2026:LS020",
+  "matchup_input_sha256": "7c40397fa615af8ddac08436b4c1daa547610a25df4e85b4e9b96366e43e4183",
+  "p_player_a": 0.321026668003365,
+  "p_player_b": 0.678973331996635,
+  "prediction_record_sha256": "acafa5294de9f230cb7ab656a04ea54074501295be52a0b15e5a22b7e1017800",
+  "production_eligible": false,
+  "record_sha256": "279f3d7d09e6e8ef09a292fb565f585b73e742c1ccbe92f5cd25f32e2ea854bd",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Leylah Fernandez",
+  "slate_id": "2026-11-03-run-41677777257"
+}
