@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1148:2026:LS011",
+  "player_a": "Weronika Falkowska",
+  "player_b": "Maaya Rajeshwaran Revathi",
+  "round": "R16",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "scheduled_start": "2026-11-04T17:00:00+05:30",
+  "source_observed_at": "2026-11-03T23:05:16+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Chennai Open",
+  "tournament_id": "web:wta:chennai:2026",
+  "tournament_level": "I"
+}
