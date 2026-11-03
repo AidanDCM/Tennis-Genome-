@@ -1,0 +1,65 @@
+{
+  "accuracy": 0.25,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 4,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 4,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS017",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls017-jil-teichmann-joanna-garland-993344fc91.json",
+      "result_record_sha256": "f6be33ebd6b45e40f6a7d7ce8455b58901eb0e84aee107b9ce6559cdd243e549",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/chennai-2026-r32-ls017-jil-teichmann-joanna-garland.json",
+      "settlement_record_sha256": "f9a8202123da1d7a49bb90079a3af6890359addefbc2ae95b7bbb1f57b7e11c2",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Joanna Garland"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS020",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls020-panna-udvardy-robin-montgomery-ce8b27f20f.json",
+      "result_record_sha256": "bf844b996a4083864222f4c46890af4fd3314effffc2ad753c32c12cbd677443",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/chennai-2026-r32-ls020-panna-udvardy-robin-montgomery.json",
+      "settlement_record_sha256": "0273bc78e7215309da0c06d01fb58490eece52a269c60ad1c605e50bb8070a21",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Robin Montgomery"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS021",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "prediction_record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b",
+      "result_path": "web-shadow/results/2026-11-03-hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez-1609510603.json",
+      "result_record_sha256": "1333e5e8dd8b237a09a9f0aac61da42cbb11236af630f337004b629111a3149b",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez.json",
+      "settlement_record_sha256": "d8ae1ebe7413534d2526ae99be7ba94ebd75141c769b2a29e2b9b1201392727d",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Zeynep Sonmez"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS024",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "prediction_record_sha256": "cdb3710b48e75251eeeeec6cfee39d2ec5c3012663727aaee79d3b247c1c378b",
+      "result_path": "web-shadow/results/2026-11-03-hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova-cdb3710b48.json",
+      "result_record_sha256": "a3a3c240b883b26995df8c685871dfbd80aab63bb982f8c65496aac1419dd313",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-02-run-41494524336/settlements/hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova.json",
+      "settlement_record_sha256": "c6d8d165283175bfbc292abf2e922756d4db55f34861a76bf3d25c5985503644",
+      "slate_id": "2026-11-02-run-41494524336",
+      "winner": "Talia Gibson"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 4,
+  "slate_count": 1
+}

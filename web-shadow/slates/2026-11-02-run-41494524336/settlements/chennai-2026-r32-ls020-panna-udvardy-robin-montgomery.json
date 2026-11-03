@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1148:2026:LS020",
+  "prediction_correct": false,
+  "prediction_record_sha256": "ce8b27f20f0df2bbbcc086fdc26f00766a92c8f7f4477a8dfd8911f03c902543",
+  "production_eligible": false,
+  "record_sha256": "0273bc78e7215309da0c06d01fb58490eece52a269c60ad1c605e50bb8070a21",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-03T11:19:43+00:00",
+  "result_record_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls020-panna-udvardy-robin-montgomery-ce8b27f20f.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Robin Montgomery"
+}

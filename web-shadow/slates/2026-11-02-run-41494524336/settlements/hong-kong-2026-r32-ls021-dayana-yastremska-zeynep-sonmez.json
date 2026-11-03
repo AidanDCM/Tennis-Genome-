@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1074:2026:LS021",
+  "prediction_correct": false,
+  "prediction_record_sha256": "16095106035aacc16039822ad2c3a2057a52f054f39818c9685a4cf56a3c425b",
+  "production_eligible": false,
+  "record_sha256": "d8ae1ebe7413534d2526ae99be7ba94ebd75141c769b2a29e2b9b1201392727d",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-03T11:19:43+00:00",
+  "result_record_path": "web-shadow/results/2026-11-03-hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez-1609510603.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Zeynep Sonmez"
+}
