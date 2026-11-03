@@ -307,6 +307,7 @@ jobs:
           pending_count="$(jq -r '.pending_prediction_count' "${SUMMARY_PATH}")"
           unresolved="$(jq -r '.unresolved_prediction_count' "${SUMMARY_PATH}")"
           unfinished="$(jq -r '.unfinished_prediction_count' "${SUMMARY_PATH}")"
+          identity_conflicts="$(jq -r '.identity_conflict_count' "${SUMMARY_PATH}")"
           body="${RUNNER_TEMP}/wta-result-pr.md"
           cat > "${body}" <<EOF
           Automated **non-production** WTA Web Shadow result proposal.
@@ -317,6 +318,7 @@ jobs:
           - Finished official WTA results captured: ${result_count}
           - Pending predictions not resolved in current provider rows: ${unresolved}
           - Matched predictions not yet finished: ${unfinished}
+          - MatchID player identity conflicts held out: ${identity_conflicts}
           - Result source: official WTA API retained byte-for-byte with SHA-256 provenance
           - Settlement contract: dry-run passed before publication
           - Auto-merge: disabled
