@@ -1,0 +1,14 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 3,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-slate-receipt-v1",
+  "scorecard_eligible": true,
+  "skipped_target_count": 0,
+  "slate_id": "2026-11-03-run-41736739581",
+  "workflow_artifact_id": 13278803494,
+  "workflow_artifact_sha256": "81754cd03f3412ac0b84ebace6217a3b293372326547054bcc1cbfa2be1dfddf",
+  "workflow_run_id": 41736739581,
+  "workflow_source_sha": "54381d7dc7b352a5c72ea5d2764b325b446ab86b"
+}

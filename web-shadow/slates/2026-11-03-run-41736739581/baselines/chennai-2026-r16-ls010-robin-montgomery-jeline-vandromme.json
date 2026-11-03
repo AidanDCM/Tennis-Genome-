@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13278803494,
+  "artifact_sha256": "81754cd03f3412ac0b84ebace6217a3b293372326547054bcc1cbfa2be1dfddf",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.8453069582995759,
+  "match_id": "web:wta:1148:2026:LS010",
+  "matchup_input_sha256": "cab7063b3b13c3b8939b99de996c1dfd510f06ca2e99385bb972011701047558",
+  "p_player_a": 0.30041825584153437,
+  "p_player_b": 0.6995817441584656,
+  "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+  "production_eligible": false,
+  "record_sha256": "e75e105d99e7ccf73e155d249e7c7c1f99a5759a39f9eb64f50ae43d170c5271",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Jeline Vandromme",
+  "slate_id": "2026-11-03-run-41736739581"
+}

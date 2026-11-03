@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13278803494,
+  "artifact_sha256": "81754cd03f3412ac0b84ebace6217a3b293372326547054bcc1cbfa2be1dfddf",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.9164235842272174,
+  "match_id": "web:wta:1148:2026:LS011",
+  "matchup_input_sha256": "e997fd537029f74b23dd6c0590fb727544e05e8f1a511e5051d1588581e87e8e",
+  "p_player_a": 0.7143128262389563,
+  "p_player_b": 0.2856871737610437,
+  "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+  "production_eligible": false,
+  "record_sha256": "70461ebb945256e498521edda8782501c5748dc60324082312575e7f81c8cb3f",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Weronika Falkowska",
+  "slate_id": "2026-11-03-run-41736739581"
+}

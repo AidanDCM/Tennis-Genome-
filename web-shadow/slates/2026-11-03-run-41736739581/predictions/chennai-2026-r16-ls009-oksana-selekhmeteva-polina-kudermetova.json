@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-03T23:09:27.593788+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS009",
+    "player_a": "Polina Kudermetova",
+    "player_b": "Oksana Selekhmeteva",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-04T15:00:00+05:30",
+    "source_observed_at": "2026-11-03T23:05:16+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "3983d2f19d9f42ff17e74bd34dc0854d1ab5234aef81c4368646256c6b634fe0",
+  "model_source_sha": "54381d7dc7b352a5c72ea5d2764b325b446ab86b",
+  "p_player_a": 0.6292369189321323,
+  "p_player_b": 0.3707630810678677,
+  "player_a_id": "wta:id:221236",
+  "player_b_id": "wta:id:221407",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Polina Kudermetova"
+}
