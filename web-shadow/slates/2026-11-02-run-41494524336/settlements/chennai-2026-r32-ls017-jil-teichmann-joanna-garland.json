@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1148:2026:LS017",
+  "prediction_correct": false,
+  "prediction_record_sha256": "993344fc91aa5b91fa68bd3544e16db6780ac637bb61c7455a693e16049399cd",
+  "production_eligible": false,
+  "record_sha256": "f9a8202123da1d7a49bb90079a3af6890359addefbc2ae95b7bbb1f57b7e11c2",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-03T11:19:43+00:00",
+  "result_record_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls017-jil-teichmann-joanna-garland-993344fc91.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Joanna Garland"
+}
