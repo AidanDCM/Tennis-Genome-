@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.7846949291431665,
+  "match_id": "web:wta:1074:2026:LS013",
+  "matchup_input_sha256": "52a27127674bb65152bd3005bfd0aea55a440fa9018c341c39996a283a7c9072",
+  "p_player_a": 0.6866910954751386,
+  "p_player_b": 0.3133089045248614,
+  "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+  "production_eligible": false,
+  "record_sha256": "c10ebb77b01b4906de7d8972d28616749dc48d8563f2d852c97b864382df4652",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Maria Sakkari"
+}

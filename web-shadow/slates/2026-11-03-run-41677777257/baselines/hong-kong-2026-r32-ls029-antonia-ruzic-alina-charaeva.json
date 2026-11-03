@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13251985560,
+  "artifact_sha256": "9a96d3af2ef7fdf7cc2006eddbdf789fca24ae37b36be8a3d8b34b3a81d43325",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.13729483965616657,
+  "match_id": "web:wta:1074:2026:LS029",
+  "matchup_input_sha256": "bc7e04c9183ce6148e426f38cf4dfb1c40ccf8322cea648c3ffc7936f0a692c1",
+  "p_player_a": 0.5342698948880198,
+  "p_player_b": 0.4657301051119802,
+  "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+  "production_eligible": false,
+  "record_sha256": "7cfcd07edb3fadfd3d34baa5393fed738c33280d06e3670c25d5da229eb7fadb",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Alina Charaeva",
+  "slate_id": "2026-11-03-run-41677777257"
+}

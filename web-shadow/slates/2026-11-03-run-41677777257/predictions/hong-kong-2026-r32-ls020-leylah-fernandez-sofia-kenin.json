@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-03T16:48:21.484963+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS020",
+    "player_a": "Sofia Kenin",
+    "player_b": "Leylah Fernandez",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-04T14:00:00+08:00",
+    "source_observed_at": "2026-11-03T14:25:28+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "7c40397fa615af8ddac08436b4c1daa547610a25df4e85b4e9b96366e43e4183",
+  "model_source_sha": "b360c8a72b930db5ab04a52ff4b4c39a0826430c",
+  "p_player_a": 0.32319505642565105,
+  "p_player_b": 0.676804943574349,
+  "player_a_id": "wta:id:213550",
+  "player_b_id": "wta:id:220367",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "acafa5294de9f230cb7ab656a04ea54074501295be52a0b15e5a22b7e1017800",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Leylah Fernandez"
+}

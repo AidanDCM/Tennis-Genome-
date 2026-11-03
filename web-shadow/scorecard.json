@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 59
   },
-  "baseline_match_count": 78,
+  "baseline_match_count": 81,
   "metrics": {
     "accuracy": 0.5454545454545454,
     "brier_score": 0.25137290353613745,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 66
   },
-  "official_slate_count": 22,
-  "pending_match_count": 16,
+  "official_slate_count": 23,
+  "pending_match_count": 19,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 69,
@@ -1413,6 +1413,45 @@
       "slate_id": "2026-11-02-run-41494524336",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 41494524336
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41677777257/baselines/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin.json",
+          "match_id": "web:wta:1074:2026:LS020",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin.json",
+          "prediction_record_sha256": "acafa5294de9f230cb7ab656a04ea54074501295be52a0b15e5a22b7e1017800",
+          "scheduled_start": "2026-11-04T14:00:00+08:00",
+          "selected_player": "Leylah Fernandez",
+          "selected_probability": 0.676804943574349,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41677777257/baselines/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+          "match_id": "web:wta:1074:2026:LS029",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+          "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+          "scheduled_start": "2026-11-04T14:00:00+08:00",
+          "selected_player": "Alina Charaeva",
+          "selected_probability": 0.5682383314171998,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-03-run-41677777257/baselines/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+          "match_id": "web:wta:1074:2026:LS013",
+          "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+          "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+          "scheduled_start": "2026-11-04T18:30:00+08:00",
+          "selected_player": "Maria Sakkari",
+          "selected_probability": 0.6243727045296659,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-03-run-41677777257/slate-receipt.json",
+      "slate_id": "2026-11-03-run-41677777257",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41677777257
     }
   ]
 }

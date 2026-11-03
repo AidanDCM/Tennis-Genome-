@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-03T16:48:22.047673+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS029",
+    "player_a": "Alina Charaeva",
+    "player_b": "Antonia Ruzic",
+    "round": "R32",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-04T14:00:00+08:00",
+    "source_observed_at": "2026-11-03T14:25:28+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "bc7e04c9183ce6148e426f38cf4dfb1c40ccf8322cea648c3ffc7936f0a692c1",
+  "model_source_sha": "b360c8a72b930db5ab04a52ff4b4c39a0826430c",
+  "p_player_a": 0.5682383314171998,
+  "p_player_b": 0.4317616685828002,
+  "player_a_id": "wta:id:221406",
+  "player_b_id": "wta:id:222045",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alina Charaeva"
+}

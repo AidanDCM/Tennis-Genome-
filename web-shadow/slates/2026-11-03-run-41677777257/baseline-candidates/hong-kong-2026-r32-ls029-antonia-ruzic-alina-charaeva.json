@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.13729483965616657,
+  "match_id": "web:wta:1074:2026:LS029",
+  "matchup_input_sha256": "bc7e04c9183ce6148e426f38cf4dfb1c40ccf8322cea648c3ffc7936f0a692c1",
+  "p_player_a": 0.5342698948880198,
+  "p_player_b": 0.4657301051119802,
+  "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+  "production_eligible": false,
+  "record_sha256": "75bb2a4c3a3c81279a6ce832990732f1b28d9af26c295cb71abe4fe62b070602",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Alina Charaeva"
+}
