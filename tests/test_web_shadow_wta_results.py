@@ -304,17 +304,12 @@ def test_retirement_code_four_rejects_missing_or_conflicting_evidence(
 
 
 def test_retirement_code_four_still_checks_player_identity(tmp_path: Path) -> None:
-    with pytest.raises(ValueError, match="player identity mismatch"):
-        _build(
-            tmp_path,
-            rows=[
-                _row(
-                    player_a="Gamma Three",
-                    winner="4",
-                    result="G. Three d B. Two Ret'd",
-                )
-            ],
-        )
+    _, summary, _ = _build(
+        tmp_path,
+        rows=[_row(player_a="Gamma Three", winner="4", result="G. Three d B. Two Ret'd")],
+    )
+    assert summary["result_count"] == 0
+    assert summary["identity_conflict_count"] == 1
 
 
 def test_unrelated_qualifying_round_does_not_block_result(
@@ -372,8 +367,60 @@ def test_unfinished_official_match_produces_no_repository_mutation(
 
 
 def test_official_match_id_player_mismatch_fails_closed(tmp_path: Path) -> None:
-    with pytest.raises(ValueError, match="player identity mismatch"):
-        _build(tmp_path, rows=[_row(player_a="Gamma Three")])
+    repo_root, summary, _ = _build(tmp_path, rows=[_row(player_a="Gamma Three")])
+    assert summary["result_count"] == 0
+    assert summary["identity_conflict_count"] == 1
+    assert summary["identity_conflicts"][0]["source_players"] == ["Gamma Three", "Beta Two"]
+    assert not (repo_root / "web-shadow/active-results.json").exists()
+
+
+def test_identity_conflict_does_not_block_unrelated_finished_match(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    config = _config(repo_root)
+    prediction_path, prediction = _prediction(repo_root)
+    scorecard_path = _scorecard(
+        repo_root, prediction_path=prediction_path, prediction=prediction
+    )
+    second_path = repo_root / "web-shadow/slates/test-slate/predictions/second.json"
+    second = dict(prediction)
+    second["fixture"] = dict(prediction["fixture"])
+    second["fixture"]["match_id"] = "web:wta:1024:2026:LS002"
+    second["fixture"]["player_a"] = "Delta Four"
+    second["fixture"]["player_b"] = "Epsilon Five"
+    second["selected_player"] = "Delta Four"
+    second.pop("record_sha256")
+    second["record_sha256"] = _canonical_sha256(second)
+    _write_json(second_path, second)
+    scorecard = json.loads(scorecard_path.read_text(encoding="utf-8"))
+    entry = dict(scorecard["slates"][0]["predictions"][0])
+    entry.update(
+        match_id=second["fixture"]["match_id"],
+        prediction_path=second_path.relative_to(repo_root).as_posix(),
+        prediction_record_sha256=second["record_sha256"],
+        selected_player="Delta Four",
+    )
+    scorecard["slates"][0]["predictions"].append(entry)
+    _write_json(scorecard_path, scorecard)
+    source_root, acquisition, _ = _sources(
+        tmp_path,
+        rows=[
+            _row(player_a="Gamma Three"),
+            _row(match_id="LS002", player_a="Delta Four", player_b="Epsilon Five"),
+        ],
+    )
+    summary = build_wta_web_shadow_results(
+        config_path=config,
+        scorecard_path=scorecard_path,
+        acquisition_manifest_path=acquisition,
+        source_root=source_root,
+        repo_root=repo_root,
+        observed_at="2026-09-22T15:00:00+00:00",
+        snapshot_id="wta-results-20260922t150000z",
+    )
+    assert summary["result_count"] == 1
+    assert summary["identity_conflict_count"] == 1
+    assert summary["identity_conflicts"][0]["match_id"] == "web:wta:1024:2026:LS001"
+    assert "LS002" in summary["results"][0]["match_id"]
 
 
 def test_legacy_identity_ambiguity_fails_closed(tmp_path: Path) -> None:
@@ -469,8 +516,9 @@ def test_official_textual_alias_preserves_identity_and_round_evidence(
 
 @pytest.mark.parametrize("alias", ["Q", "S", "F"])
 def test_textual_alias_does_not_relax_player_identity(tmp_path: Path, alias: str) -> None:
-    with pytest.raises(ValueError, match="player identity mismatch"):
-        _build(tmp_path, rows=[_row(round_id=alias, player_a="Gamma Three")])
+    _, summary, _ = _build(tmp_path, rows=[_row(round_id=alias, player_a="Gamma Three")])
+    assert summary["result_count"] == 0
+    assert summary["identity_conflict_count"] == 1
 
 
 @pytest.mark.parametrize("alias", ["Q", "S", "F"])
@@ -505,6 +553,7 @@ def test_result_event_id_rejects_different_or_nondecimal_ids(
 def test_padded_event_id_still_rejects_player_mismatch(tmp_path: Path) -> None:
     row = _row(player_a="Gamma Three")
     row["EventID"] = "01024"
-    with pytest.raises(ValueError, match="player identity mismatch"):
-        _build(tmp_path, rows=[row])
+    _, summary, _ = _build(tmp_path, rows=[row])
+    assert summary["result_count"] == 0
+    assert summary["identity_conflict_count"] == 1
 

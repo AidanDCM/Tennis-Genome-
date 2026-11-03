@@ -29,6 +29,12 @@ _ROUND_ID_MAP = {
 }
 
 
+class WtaPlayerIdentityConflict(ValueError):
+    def __init__(self, source_players: tuple[str, str]) -> None:
+        super().__init__("official WTA MatchID player identity mismatch")
+        self.source_players = source_players
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -472,7 +478,9 @@ def _match_row(
             raise ValueError("official WTA MatchID is not unique in retained source")
         match = matches[0]
         if match["player_pair"] != pending["player_pair"]:
-            raise ValueError("official WTA MatchID player identity mismatch")
+            raise WtaPlayerIdentityConflict(
+                (match["player_a"], match["player_b"])
+            )
         # WTA has changed RoundID values for already-issued MatchIDs. Exact
         # event, MatchID, and player-pair identity remain mandatory; retain the
         # round discrepancy in evidence instead of blocking all results.
@@ -586,6 +594,7 @@ def build_wta_web_shadow_results(
     completed: list[tuple[dict[str, Any], dict[str, Any]]] = []
     unresolved = 0
     unfinished = 0
+    identity_conflicts: list[dict[str, Any]] = []
     for item in sorted(
         pending,
         key=lambda row: (
@@ -598,7 +607,22 @@ def build_wta_web_shadow_results(
         source = source_by_identity[
             (int(tournament["group_id"]), int(tournament["year"]))
         ]
-        match = _match_row(item, source["matches"])
+        try:
+            match = _match_row(item, source["matches"])
+        except WtaPlayerIdentityConflict as exc:
+            identity_conflicts.append(
+                {
+                    "match_id": item["match_id"],
+                    "prediction_path": item["prediction_path"],
+                    "prediction_record_sha256": item["prediction_sha256"],
+                    "predicted_players": [item["player_a"], item["player_b"]],
+                    "source_players": list(exc.source_players),
+                    "matches_source_url": source["matches_source_url"],
+                    "matches_sha256": source["matches_sha256"],
+                    "reason": "official_match_id_player_identity_mismatch",
+                }
+            )
+            continue
         if match is None:
             unresolved += 1
             continue
@@ -623,6 +647,8 @@ def build_wta_web_shadow_results(
             "result_count": 0,
             "unresolved_prediction_count": unresolved,
             "unfinished_prediction_count": unfinished,
+            "identity_conflict_count": len(identity_conflicts),
+            "identity_conflicts": identity_conflicts,
             "result_paths": [],
             "results": [],
         }
@@ -679,6 +705,8 @@ def build_wta_web_shadow_results(
             "result_count": len(result_paths),
             "unresolved_prediction_count": unresolved,
             "unfinished_prediction_count": unfinished,
+            "identity_conflict_count": len(identity_conflicts),
+            "identity_conflicts": identity_conflicts,
             "source_records": source_records,
             "result_paths": result_paths,
             "results": evidence_rows,

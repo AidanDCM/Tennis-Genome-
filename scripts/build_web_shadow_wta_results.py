@@ -62,6 +62,7 @@ def main() -> None:
                 "pending_prediction_count": summary["pending_prediction_count"],
                 "unresolved_prediction_count": summary["unresolved_prediction_count"],
                 "unfinished_prediction_count": summary["unfinished_prediction_count"],
+                "identity_conflict_count": summary["identity_conflict_count"],
                 "snapshot_id": summary["snapshot_id"],
             },
             sort_keys=True,
