@@ -1,0 +1,149 @@
+{
+  "identity_conflict_count": 1,
+  "identity_conflicts": [
+    {
+      "match_id": "web:wta:1074:2026:LS031",
+      "matches_sha256": "8d2fba9af76ea570fbdb3b0dd3e6b5b362554e37e980ce0d30231e051e516b41",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "predicted_players": [
+        "Alycia Parks",
+        "Alexandra Eala"
+      ],
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "prediction_record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb",
+      "reason": "official_match_id_player_identity_mismatch",
+      "source_players": [
+        "Emerson Jones",
+        "Alexandra Eala"
+      ]
+    }
+  ],
+  "observed_at": "2026-11-03T17:10:52+00:00",
+  "pending_prediction_count": 19,
+  "production_eligible": false,
+  "result_count": 2,
+  "result_paths": [
+    "web-shadow/results/2026-11-03-chennai-2026-r32-ls016-janice-tjen-katherine-hui-5c4f3b538d.json",
+    "web-shadow/results/2026-11-03-chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova-a09a6a8767.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1148:2026:LS016",
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls016-janice-tjen-katherine-hui.json",
+      "prediction_record_sha256": "5c4f3b538d9b66cbf45ecb95d05b21061ed8d0df517138961a8b37962e6b0136",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls016-janice-tjen-katherine-hui-5c4f3b538d.json",
+      "round_identity_conflict": true,
+      "score": "6-1 6-2",
+      "source_last_updated": "2026-11-03T12:11:44.727+00:00",
+      "source_match_id": "LS016",
+      "source_result_string": "[1]J. Tjen d K. Hui 6-1,6-2",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Janice Tjen",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1148:2026:LS019",
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+      "prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980",
+      "prediction_round": "R32",
+      "result_path": "web-shadow/results/2026-11-03-chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova-a09a6a8767.json",
+      "round_identity_conflict": true,
+      "score": "6-3 4-6 6-1",
+      "source_last_updated": "2026-11-03T12:44:20.317+00:00",
+      "source_match_id": "LS019",
+      "source_result_string": "[6]P. Kudermetova d V. Morvayova 6-3,4-6,6-1",
+      "source_round": "F",
+      "status": "COMPLETED",
+      "winner": "Polina Kudermetova",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261103t171052z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "09157ce56266e6e6d1fa85f1723c4b28136fdf4db4a2643f3902bab32ef62be4",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "931b146f43fa4f0eca3c79f3118c3acb3aaebf4a045020e89658ca2266a48fe2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "4968eb3a6f6072ccbdfeded0dea05f17c028c00362f4a2b80e1c227121cefc02",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "ecffe3d2111a9815aa685f66fc99f96c44702edf2e173ffd2d69cabe5d5ab8b2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 64,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "092e6a5bffd75c3cdd2bee963c60252d675ce7b6fc28daa2639c90abed72bfd5",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 60,
+      "slug": "tokyo",
+      "year": 2026
+    },
+    {
+      "group_id": 1074,
+      "matches_sha256": "8d2fba9af76ea570fbdb3b0dd3e6b5b362554e37e980ce0d30231e051e516b41",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "raw_match_count": 42,
+      "slug": "hong-kong",
+      "year": 2026
+    },
+    {
+      "group_id": 1148,
+      "matches_sha256": "108ec5b1aa8a8fe7c09fb863a9a372125aa98bebc6cfd1b5c768cbcd8054a695",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+      "raw_match_count": 39,
+      "slug": "chennai",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 3,
+  "unresolved_prediction_count": 13
+}

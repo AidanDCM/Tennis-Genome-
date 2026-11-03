@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "a09a6a8767fce53821c08625a41e47d00fe770832595bdc85db314375524a980",
+  "match_id": "web:wta:1148:2026:LS019",
+  "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/chennai-2026-r32-ls019-viktoria-morvayova-polina-kudermetova.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-03T17:10:52+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-3 4-6 6-1",
+  "status": "COMPLETED",
+  "winner": "Polina Kudermetova"
+}
