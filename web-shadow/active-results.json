@@ -1,6 +1,9 @@
 {
   "result_paths": [
-    "web-shadow/results/2026-11-02-guangzhou-2026-sf-ls003-xinran-sun-harriet-dart-4956c537e6.json"
+    "web-shadow/results/2026-11-03-chennai-2026-r32-ls017-jil-teichmann-joanna-garland-993344fc91.json",
+    "web-shadow/results/2026-11-03-chennai-2026-r32-ls020-panna-udvardy-robin-montgomery-ce8b27f20f.json",
+    "web-shadow/results/2026-11-03-hong-kong-2026-r32-ls021-dayana-yastremska-zeynep-sonmez-1609510603.json",
+    "web-shadow/results/2026-11-03-hong-kong-2026-r32-ls024-talia-gibson-oleksandra-oliynykova-cdb3710b48.json"
   ],
   "schema_version": "tennis-genome-web-shadow-result-batch-v1"
 }
