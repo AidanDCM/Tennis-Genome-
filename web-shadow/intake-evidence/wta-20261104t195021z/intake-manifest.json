@@ -1,0 +1,152 @@
+{
+  "excluded_match_count": 214,
+  "exclusion_counts": {
+    "not_main_draw": 60,
+    "not_singles": 53,
+    "not_upcoming": 97,
+    "unscheduled": 4
+  },
+  "observed_at": "2026-11-04T19:50:21+00:00",
+  "pre_capacity_eligible_count": 5,
+  "production_eligible": false,
+  "schema_version": "tennis-genome-web-shadow-wta-intake-v1",
+  "selected": [
+    {
+      "event_id": "1074",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+      "group_id": 1074,
+      "match_id": "web:wta:1074:2026:LS009",
+      "player_a_wta_id": "330905",
+      "player_b_wta_id": "332168",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-11-05T14:00:00+08:00",
+      "slug": "hong-kong",
+      "source_match_id": "LS009",
+      "year": 2026
+    },
+    {
+      "event_id": "1074",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+      "group_id": 1074,
+      "match_id": "web:wta:1074:2026:LS014",
+      "player_a_wta_id": "326376",
+      "player_b_wta_id": "329505",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-11-05T14:00:00+08:00",
+      "slug": "hong-kong",
+      "source_match_id": "LS014",
+      "year": 2026
+    },
+    {
+      "event_id": "1148",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+      "group_id": 1148,
+      "match_id": "web:wta:1148:2026:LS012",
+      "player_a_wta_id": "324750",
+      "player_b_wta_id": "324203",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-11-05T15:00:00+05:30",
+      "slug": "chennai",
+      "source_match_id": "LS012",
+      "year": 2026
+    },
+    {
+      "event_id": "1148",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+      "group_id": 1148,
+      "match_id": "web:wta:1148:2026:LS013",
+      "player_a_wta_id": "327241",
+      "player_b_wta_id": "315130",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-11-05T15:00:00+05:30",
+      "slug": "chennai",
+      "source_match_id": "LS013",
+      "year": 2026
+    },
+    {
+      "event_id": "1074",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+      "group_id": 1074,
+      "match_id": "web:wta:1074:2026:LS015",
+      "player_a_wta_id": "330808",
+      "player_b_wta_id": "330332",
+      "round": "R16",
+      "round_id": 4,
+      "scheduled_start": "2026-11-05T18:30:00+08:00",
+      "slug": "hong-kong",
+      "source_match_id": "LS015",
+      "year": 2026
+    }
+  ],
+  "selected_match_count": 5,
+  "selection_rule": {
+    "draw_level_type": "M",
+    "draw_match_type": "S",
+    "match_state": "U",
+    "maximum_horizon_hours": 48.0,
+    "maximum_matches_per_slate": 8,
+    "minimum_lead_hours": 8.0,
+    "round_id_map": {
+      "1": "F",
+      "2": "SF",
+      "3": "QF",
+      "4": "R16",
+      "5": "R32",
+      "6": "R64",
+      "7": "R128"
+    },
+    "sort_order": [
+      "scheduled_start",
+      "group_id",
+      "source_match_id"
+    ]
+  },
+  "snapshot_id": "wta-20261104t195021z",
+  "source_match_count": 219,
+  "source_records": [
+    {
+      "group_id": 1023,
+      "matches_sha256": "e348447c0826aa488fa2e5cb5869ed7fc99a5f3f22900478cbfbd496fbe2b596",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 64,
+      "slug": "guangzhou",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026",
+      "tournament_sha256": "99c684cf65ae024fd5497eb138726273fcf659f2bc7983bc3f8235a5b1e7a05e",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "092e6a5bffd75c3cdd2bee963c60252d675ce7b6fc28daa2639c90abed72bfd5",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 60,
+      "slug": "tokyo",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026",
+      "tournament_sha256": "95648a556fb3f24ed28d849607ffe0c837721cc80c3600a336d1589a86a7ec99",
+      "year": 2026
+    },
+    {
+      "group_id": 1074,
+      "matches_sha256": "84fe61cf5e1a634891a69625c2df9041f86356c8769abffe41beccd9a1dbc568",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "raw_match_count": 50,
+      "slug": "hong-kong",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026",
+      "tournament_sha256": "da5c16e6ccd3e0180dbb865c58ae0c43f42c7733138ec81803560f5f38181f43",
+      "year": 2026
+    },
+    {
+      "group_id": 1148,
+      "matches_sha256": "a1ef06c37ddc36c3f2685f16b86bbd307dc27578bc094c8853da1f02e42f836d",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+      "raw_match_count": 45,
+      "slug": "chennai",
+      "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026",
+      "tournament_sha256": "066a1e75e51642657670de8184dd233f22628e7520deb0241c792656bfabf4cd",
+      "year": 2026
+    }
+  ]
+}
