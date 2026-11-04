@@ -1,0 +1,65 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 2,
+  "evaluation_eligible_count": 4,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 4,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS029",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+      "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+      "result_path": "web-shadow/results/2026-11-04-hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva-1ff8f0ca35.json",
+      "result_record_sha256": "961552b3e92b6ad6cb1dcb6561b5b260d5b0afd417976209ff208e8df09bb1b1",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-03-run-41677777257/settlements/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+      "settlement_record_sha256": "8bb3f016977e8715174122cb4b046d1fbfb55e30112ca86cfbf1918ae6c43c30",
+      "slate_id": "2026-11-03-run-41677777257",
+      "winner": "Antonia Ruzic"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS009",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+      "result_path": "web-shadow/results/2026-11-04-chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova-674dd920f0.json",
+      "result_record_sha256": "f6c2cc12ea1dc4935f1f44370ace8c691ba47a78cdf2872c48a38a5fd43ec342",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+      "settlement_record_sha256": "1dca877a0aa8ff7d683301afab2a8d527b86504e9e795dccdf8fb00cbb3bcc0c",
+      "slate_id": "2026-11-03-run-41736739581",
+      "winner": "Polina Kudermetova"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS010",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+      "result_path": "web-shadow/results/2026-11-04-chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme-e0266e16a3.json",
+      "result_record_sha256": "4a54c2ac5c196bdc9beb291f2dee9721f2394b6fbf2e21d9c61bbdf323ae7838",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+      "settlement_record_sha256": "79142179fa7af2e6ee5dfc34c1c38a6c6902265d0570aa185113f2b6cacba410",
+      "slate_id": "2026-11-03-run-41736739581",
+      "winner": "Robin Montgomery"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS013",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+      "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+      "result_path": "web-shadow/results/2026-11-04-hong-kong-2026-r16-ls013-maya-joint-maria-sakkari-0b25f099b1.json",
+      "result_record_sha256": "824327f4555c137038da56b7e3cf37d2334627e979808b90804fdc351b8ff79c",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-03-run-41677777257/settlements/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+      "settlement_record_sha256": "db6f3daf72569199a61cb19ffcfa23af19ce107c99d78a22803a43fe71924731",
+      "slate_id": "2026-11-03-run-41677777257",
+      "winner": "Maria Sakkari"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 4,
+  "slate_count": 2
+}
