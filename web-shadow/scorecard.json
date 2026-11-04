@@ -1,26 +1,26 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.5573770491803278,
-      "brier_score": 0.256859044687036,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11035042556277308,
+      "accuracy": 0.5538461538461539,
+      "brier_score": 0.2559337887332797,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11299814444533451,
       "confidence_buckets": [
         {
-          "accuracy": 0.5,
+          "accuracy": 0.4782608695652174,
           "correct_prediction_count": 11,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 22,
-          "mean_selected_probability": 0.5559238337670604,
+          "match_count": 23,
+          "mean_selected_probability": 0.5549823581636238,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.5238095238095238,
-          "correct_prediction_count": 11,
+          "accuracy": 0.5416666666666666,
+          "correct_prediction_count": 13,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 21,
-          "mean_selected_probability": 0.6452500432575032,
+          "match_count": 24,
+          "mean_selected_probability": 0.6512285184640472,
           "upper_bound": 0.7
         },
         {
@@ -51,35 +51,35 @@
           "upper_bound": 1.0
         }
       ],
-      "correct_prediction_count": 34,
-      "log_loss": 0.7187052479539575,
-      "mean_selected_probability": 0.6677274747431009,
+      "correct_prediction_count": 36,
+      "log_loss": 0.7161600219934534,
+      "mean_selected_probability": 0.6668442982914884,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 61
+      "settled_match_count": 65
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.008793413730282224,
+    "brier_improvement_baseline_minus_genome": 0.00635792578662428,
     "genome": {
-      "accuracy": 0.5409836065573771,
-      "brier_score": 0.2480656309567538,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.08935671100294684,
+      "accuracy": 0.5384615384615384,
+      "brier_score": 0.24957586294665543,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.09187496033947151,
       "confidence_buckets": [
         {
-          "accuracy": 0.5,
+          "accuracy": 0.4827586206896552,
           "correct_prediction_count": 14,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 28,
-          "mean_selected_probability": 0.5492830914395264,
+          "match_count": 29,
+          "mean_selected_probability": 0.5499367204042738,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.5,
-          "correct_prediction_count": 9,
+          "accuracy": 0.5238095238095238,
+          "correct_prediction_count": 11,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 18,
-          "mean_selected_probability": 0.6333127556666097,
+          "match_count": 21,
+          "mean_selected_probability": 0.6358335391175076,
           "upper_bound": 0.7
         },
         {
@@ -101,38 +101,38 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 33,
-      "log_loss": 0.6891547764287679,
-      "mean_selected_probability": 0.6303403175603239,
+      "correct_prediction_count": 35,
+      "log_loss": 0.6925246808876351,
+      "mean_selected_probability": 0.63033649880101,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 61
+      "settled_match_count": 65
     },
-    "log_loss_improvement_baseline_minus_genome": 0.029550471525189637,
+    "log_loss_improvement_baseline_minus_genome": 0.02363534110581833,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 61
+    "settled_match_count": 65
   },
   "baseline_match_count": 84,
   "metrics": {
-    "accuracy": 0.5588235294117647,
-    "brier_score": 0.24730048425701223,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.067679498206761,
+    "accuracy": 0.5555555555555556,
+    "brier_score": 0.24870639628677013,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.07115720734646713,
     "confidence_buckets": [
       {
-        "accuracy": 0.5454545454545454,
+        "accuracy": 0.5294117647058824,
         "correct_prediction_count": 18,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 33,
-        "mean_selected_probability": 0.5514818810440539,
+        "match_count": 34,
+        "mean_selected_probability": 0.5519747178197347,
         "upper_bound": 0.6
       },
       {
-        "accuracy": 0.5,
-        "correct_prediction_count": 10,
+        "accuracy": 0.5217391304347826,
+        "correct_prediction_count": 12,
         "label": "0.60-0.70",
         "lower_bound": 0.6,
-        "match_count": 20,
-        "mean_selected_probability": 0.6366050297365959,
+        "match_count": 23,
+        "mean_selected_probability": 0.6384771875739392,
         "upper_bound": 0.7
       },
       {
@@ -154,17 +154,17 @@
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 38,
-    "log_loss": 0.6879183739929249,
-    "mean_selected_probability": 0.6265030276185257,
+    "correct_prediction_count": 40,
+    "log_loss": 0.691029337875838,
+    "mean_selected_probability": 0.6267127629020227,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 68
+    "settled_match_count": 72
   },
   "official_slate_count": 24,
-  "pending_match_count": 20,
+  "pending_match_count": 16,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 71,
+  "settled_match_count": 75,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1438,20 +1438,26 @@
           "match_id": "web:wta:1074:2026:LS029",
           "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
           "prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+          "result_record_sha256": "961552b3e92b6ad6cb1dcb6561b5b260d5b0afd417976209ff208e8df09bb1b1",
           "scheduled_start": "2026-11-04T14:00:00+08:00",
           "selected_player": "Alina Charaeva",
           "selected_probability": 0.5682383314171998,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-03-run-41677777257/settlements/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+          "settlement_record_sha256": "8bb3f016977e8715174122cb4b046d1fbfb55e30112ca86cfbf1918ae6c43c30",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-03-run-41677777257/baselines/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
           "match_id": "web:wta:1074:2026:LS013",
           "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
           "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+          "result_record_sha256": "824327f4555c137038da56b7e3cf37d2334627e979808b90804fdc351b8ff79c",
           "scheduled_start": "2026-11-04T18:30:00+08:00",
           "selected_player": "Maria Sakkari",
           "selected_probability": 0.6243727045296659,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-03-run-41677777257/settlements/hong-kong-2026-r16-ls013-maya-joint-maria-sakkari.json",
+          "settlement_record_sha256": "db6f3daf72569199a61cb19ffcfa23af19ce107c99d78a22803a43fe71924731",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-11-03-run-41677777257/slate-receipt.json",
@@ -1467,20 +1473,26 @@
           "match_id": "web:wta:1148:2026:LS009",
           "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
           "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+          "result_record_sha256": "f6c2cc12ea1dc4935f1f44370ace8c691ba47a78cdf2872c48a38a5fd43ec342",
           "scheduled_start": "2026-11-04T15:00:00+05:30",
           "selected_player": "Polina Kudermetova",
           "selected_probability": 0.6292369189321323,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova.json",
+          "settlement_record_sha256": "1dca877a0aa8ff7d683301afab2a8d527b86504e9e795dccdf8fb00cbb3bcc0c",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-03-run-41736739581/baselines/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
           "match_id": "web:wta:1148:2026:LS010",
           "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
           "prediction_record_sha256": "e0266e16a30ba344d3fe15fc683da5c10c1e1b3f7fd1b4ad53b7cc610fdb874d",
+          "result_record_sha256": "4a54c2ac5c196bdc9beb291f2dee9721f2394b6fbf2e21d9c61bbdf323ae7838",
           "scheduled_start": "2026-11-04T15:00:00+05:30",
           "selected_player": "Jeline Vandromme",
           "selected_probability": 0.6992650960068871,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls010-robin-montgomery-jeline-vandromme.json",
+          "settlement_record_sha256": "79142179fa7af2e6ee5dfc34c1c38a6c6902265d0570aa185113f2b6cacba410",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-03-run-41736739581/baselines/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",

@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1074:2026:LS013",
+  "prediction_correct": true,
+  "prediction_record_sha256": "0b25f099b1c271969dbcfe3e6dcc0bdd873057f8b4ceb9a5323e9229d23f16ee",
+  "production_eligible": false,
+  "record_sha256": "db6f3daf72569199a61cb19ffcfa23af19ce107c99d78a22803a43fe71924731",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-04T15:45:58+00:00",
+  "result_record_path": "web-shadow/results/2026-11-04-hong-kong-2026-r16-ls013-maya-joint-maria-sakkari-0b25f099b1.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maria Sakkari"
+}

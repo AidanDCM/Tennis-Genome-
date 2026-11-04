@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1148:2026:LS009",
+  "prediction_correct": true,
+  "prediction_record_sha256": "674dd920f087b1123c3487cfa7ecf5bbd73f63a7aa64d82e5f4722ab74c2b9ae",
+  "production_eligible": false,
+  "record_sha256": "1dca877a0aa8ff7d683301afab2a8d527b86504e9e795dccdf8fb00cbb3bcc0c",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-04T15:45:58+00:00",
+  "result_record_path": "web-shadow/results/2026-11-04-chennai-2026-r16-ls009-oksana-selekhmeteva-polina-kudermetova-674dd920f0.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Polina Kudermetova"
+}
