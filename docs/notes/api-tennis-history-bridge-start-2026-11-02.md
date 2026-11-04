@@ -29,8 +29,9 @@ person. The local candidate file is
 and remains outside the public repository with the raw provider files.
 
 `api_tennis_history_bridge.build_candidate_historical_match` accepts only an
-explicit reviewed player-ID map and surface, a point-consistent enrichment
-record, source observation before the target cutoff, and a historical event
+explicit reviewed player-ID map, surface and best-of match format, a
+point-consistent enrichment record, source observation before the target
+cutoff, and a historical event
 date strictly before the target's UTC date. It orients outcome and every stat
 field to canonical A/B IDs. Missing rankings, demographics and duration remain
 unknown rather than invented. It retains raw-match and source-manifest hashes

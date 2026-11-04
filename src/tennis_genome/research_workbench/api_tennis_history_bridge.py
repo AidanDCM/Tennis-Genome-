@@ -52,6 +52,7 @@ def build_candidate_historical_match(
     reviewed_player_ids: Mapping[int, str],
     reviewed_surface: Surface,
     reviewed_tournament_level: str | None,
+    reviewed_best_of: int,
     source_observed_at: datetime,
     target_cutoff_at: datetime,
     source_manifest_sha256: str,
@@ -74,6 +75,10 @@ def build_candidate_historical_match(
         raise ValueError("historical match must precede target calendar date")
     if reviewed_surface not in {"Hard", "Clay", "Grass", "Carpet"}:
         raise ValueError("reviewed historical surface is required")
+    if type(reviewed_best_of) is not int or reviewed_best_of not in {3, 5}:
+        raise ValueError("reviewed best_of must be exactly 3 or 5")
+    if record.tour == "WTA" and reviewed_best_of != 3:
+        raise ValueError("WTA historical best_of must be 3")
     if len(source_manifest_sha256) != 64 or any(
         ch not in "0123456789abcdef" for ch in source_manifest_sha256
     ):
@@ -101,7 +106,7 @@ def build_candidate_historical_match(
         tournament_level=reviewed_tournament_level,
         surface=reviewed_surface,
         round=record.tournament_round or None,
-        best_of=3,
+        best_of=reviewed_best_of,
         player_a_id=id_b if reverse else id_a,
         player_b_id=id_a if reverse else id_b,
         player_a_name=record.player_b_name if reverse else record.player_a_name,
