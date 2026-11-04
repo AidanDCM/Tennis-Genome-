@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "1ff8f0ca35cc5a93953ede4cff73b343bf4f6756d8ca2f4904e216297551d309",
+  "match_id": "web:wta:1074:2026:LS029",
+  "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls029-antonia-ruzic-alina-charaeva.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-04T15:45:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-6(5) 6-4",
+  "status": "COMPLETED",
+  "winner": "Antonia Ruzic"
+}
