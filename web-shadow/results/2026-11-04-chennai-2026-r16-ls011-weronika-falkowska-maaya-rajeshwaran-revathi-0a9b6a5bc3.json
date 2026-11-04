@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+  "match_id": "web:wta:1148:2026:LS011",
+  "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-04T22:12:17+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-4 6-3",
+  "status": "COMPLETED",
+  "winner": "Maaya Rajeshwaran Revathi"
+}
