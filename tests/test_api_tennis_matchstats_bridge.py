@@ -155,6 +155,7 @@ def _candidate(**updates):
         "reviewed_player_ids": {11: "wta:id:900", 22: "wta:id:100"},
         "reviewed_surface": "Hard",
         "reviewed_tournament_level": "I",
+        "reviewed_best_of": 3,
         "source_observed_at": datetime(2026, 9, 17, tzinfo=UTC),
         "target_cutoff_at": datetime(2026, 9, 18, tzinfo=UTC),
         "source_manifest_sha256": "b" * 64,
@@ -170,6 +171,7 @@ def test_candidate_history_requires_explicit_context_and_reorients_every_field()
     assert match.pre_match.player_a_id == "wta:id:100"
     assert match.pre_match.player_b_id == "wta:id:900"
     assert match.pre_match.surface == "Hard"
+    assert match.pre_match.best_of == 3
     assert match.outcome.a_won is False
     assert match.stats is not None
     assert match.stats.service_points_a == 46
@@ -185,6 +187,25 @@ def test_candidate_history_rejects_unknown_surface_and_missing_identity() -> Non
         _candidate(reviewed_surface="Unknown")
     with pytest.raises(ValueError, match="crosswalks"):
         _candidate(reviewed_player_ids={11: "wta:id:900"})
+    with pytest.raises(ValueError, match="WTA historical best_of"):
+        _candidate(reviewed_best_of=5)
+    with pytest.raises(ValueError, match="reviewed best_of"):
+        _candidate(reviewed_best_of=3.5)
+
+
+def test_candidate_history_preserves_reviewed_atp_grand_slam_format() -> None:
+    record = _record().model_copy(update={"tour": "ATP"})
+    evidence = build_candidate_historical_match(
+        record,
+        reviewed_player_ids={11: "atp:id:900", 22: "atp:id:100"},
+        reviewed_surface="Grass",
+        reviewed_tournament_level="G",
+        reviewed_best_of=5,
+        source_observed_at=datetime(2026, 9, 17, tzinfo=UTC),
+        target_cutoff_at=datetime(2026, 9, 18, tzinfo=UTC),
+        source_manifest_sha256="b" * 64,
+    )
+    assert evidence.match.pre_match.best_of == 5
 
 
 def test_candidate_history_rejects_late_or_same_date_evidence() -> None:
@@ -198,6 +219,7 @@ def test_candidate_history_rejects_late_or_same_date_evidence() -> None:
             reviewed_player_ids={11: "wta:id:900", 22: "wta:id:100"},
             reviewed_surface="Hard",
             reviewed_tournament_level="I",
+            reviewed_best_of=3,
             source_observed_at=datetime(2026, 9, 18, tzinfo=UTC),
             target_cutoff_at=datetime(2026, 9, 18, 12, tzinfo=UTC),
             source_manifest_sha256="b" * 64,
