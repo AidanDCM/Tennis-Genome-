@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.1280905800457175,
+  "match_id": "web:wta:1074:2026:LS009",
+  "matchup_input_sha256": "84765b511a2965ed877f4c88f95d18162714bd95bffd6ab7bdf3d75a195f7e5d",
+  "p_player_a": 0.24451364970839878,
+  "p_player_b": 0.7554863502916012,
+  "prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+  "production_eligible": false,
+  "record_sha256": "0a495323a1bac8fca366eada720147adafa09938773bda639744b91b500b9b91",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Alexandra Shubladze"
+}

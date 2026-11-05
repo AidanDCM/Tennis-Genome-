@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13380816388,
+  "artifact_sha256": "f2dd544f44420efb3ab1e816aabbf8948578754859ae8f202503332c6a35b614",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -1.1280905800457175,
+  "match_id": "web:wta:1074:2026:LS009",
+  "matchup_input_sha256": "84765b511a2965ed877f4c88f95d18162714bd95bffd6ab7bdf3d75a195f7e5d",
+  "p_player_a": 0.24451364970839878,
+  "p_player_b": 0.7554863502916012,
+  "prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+  "production_eligible": false,
+  "record_sha256": "6822783be53063e22338a118a750183259a08f0d498cae44ebf65685ebfc8ee3",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Alexandra Shubladze",
+  "slate_id": "2026-11-05-run-41950108294"
+}

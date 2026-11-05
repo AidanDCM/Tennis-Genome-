@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 65
   },
-  "baseline_match_count": 84,
+  "baseline_match_count": 89,
   "metrics": {
     "accuracy": 0.5555555555555556,
     "brier_score": 0.24870639628677013,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 72
   },
-  "official_slate_count": 24,
-  "pending_match_count": 16,
+  "official_slate_count": 25,
+  "pending_match_count": 21,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 75,
@@ -1509,6 +1509,65 @@
       "slate_id": "2026-11-03-run-41736739581",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 41736739581
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-05-run-41950108294/baselines/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+          "match_id": "web:wta:1074:2026:LS009",
+          "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+          "prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+          "scheduled_start": "2026-11-05T14:00:00+08:00",
+          "selected_player": "Alexandra Shubladze",
+          "selected_probability": 0.7691586711424283,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-05-run-41950108294/baselines/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+          "match_id": "web:wta:1074:2026:LS014",
+          "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+          "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+          "scheduled_start": "2026-11-05T14:00:00+08:00",
+          "selected_player": "Xin Yu Wang",
+          "selected_probability": 0.5065804836870498,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-05-run-41950108294/baselines/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+          "match_id": "web:wta:1148:2026:LS012",
+          "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+          "prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+          "scheduled_start": "2026-11-05T15:00:00+05:30",
+          "selected_player": "Zhibek Kulambayeva",
+          "selected_probability": 0.5060938616868016,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-05-run-41950108294/baselines/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+          "match_id": "web:wta:1148:2026:LS013",
+          "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+          "prediction_record_sha256": "c8a8de485fd263dbf56222e8acdba67af5d8bea748018fde7629989b63ca27c6",
+          "scheduled_start": "2026-11-05T15:00:00+05:30",
+          "selected_player": "Magda Linette",
+          "selected_probability": 0.5011373563106344,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-05-run-41950108294/baselines/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+          "match_id": "web:wta:1074:2026:LS015",
+          "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+          "prediction_record_sha256": "8d62053d3832b626b7954f1a80a84a1fa54c6661d47b2bcdf434daa72a3dd905",
+          "scheduled_start": "2026-11-05T18:30:00+08:00",
+          "selected_player": "Alexandra Eala",
+          "selected_probability": 0.5139303763450783,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-05-run-41950108294/slate-receipt.json",
+      "slate_id": "2026-11-05-run-41950108294",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 41950108294
     }
   ]
 }

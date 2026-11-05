@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T01:41:35.023620+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS014",
+    "player_a": "Xin Yu Wang",
+    "player_b": "Antonia Ruzic",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-05T14:00:00+08:00",
+    "source_observed_at": "2026-11-04T19:50:21+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "70419d2d62040084bd755438ad4328111544bcfc7ac6fa4b88c18a42f36b5c92",
+  "model_source_sha": "e0a97770816ecdcf662d0336b8356cbdc5418456",
+  "p_player_a": 0.5065804836870498,
+  "p_player_b": 0.4934195163129502,
+  "player_a_id": "wta:id:216133",
+  "player_b_id": "wta:id:222045",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Xin Yu Wang"
+}

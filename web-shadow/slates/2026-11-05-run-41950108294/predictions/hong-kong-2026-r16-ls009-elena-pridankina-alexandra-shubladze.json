@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T01:41:34.192811+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS009",
+    "player_a": "Elena Pridankina",
+    "player_b": "Alexandra Shubladze",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-05T14:00:00+08:00",
+    "source_observed_at": "2026-11-04T19:50:21+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "84765b511a2965ed877f4c88f95d18162714bd95bffd6ab7bdf3d75a195f7e5d",
+  "model_source_sha": "e0a97770816ecdcf662d0336b8356cbdc5418456",
+  "p_player_a": 0.23084132885757164,
+  "p_player_b": 0.7691586711424283,
+  "player_a_id": "wta:id:239389",
+  "player_b_id": "wta:id:260168",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alexandra Shubladze"
+}
