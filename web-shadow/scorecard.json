@@ -1,9 +1,9 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.5538461538461539,
-      "brier_score": 0.2559337887332797,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11299814444533451,
+      "accuracy": 0.5454545454545454,
+      "brier_score": 0.25978695577867683,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.12210897295735912,
       "confidence_buckets": [
         {
           "accuracy": 0.4782608695652174,
@@ -11,7 +11,7 @@
           "label": "0.50-0.60",
           "lower_bound": 0.5,
           "match_count": 23,
-          "mean_selected_probability": 0.5549823581636238,
+          "mean_selected_probability": 0.554982358163624,
           "upper_bound": 0.6
         },
         {
@@ -24,12 +24,12 @@
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.6666666666666666,
+          "accuracy": 0.5714285714285714,
           "correct_prediction_count": 4,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 6,
-          "mean_selected_probability": 0.7627075928022072,
+          "match_count": 7,
+          "mean_selected_probability": 0.7557940547217429,
           "upper_bound": 0.8
         },
         {
@@ -52,17 +52,17 @@
         }
       ],
       "correct_prediction_count": 36,
-      "log_loss": 0.7161600219934534,
-      "mean_selected_probability": 0.6668442982914884,
+      "log_loss": 0.7242918074910409,
+      "mean_selected_probability": 0.6675635184119045,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 65
+      "settled_match_count": 66
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.00635792578662428,
+    "brier_improvement_baseline_minus_genome": 0.005329210791829908,
     "genome": {
-      "accuracy": 0.5384615384615384,
-      "brier_score": 0.24957586294665543,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.09187496033947151,
+      "accuracy": 0.5303030303030303,
+      "brier_score": 0.2544577449868469,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.10193990654270346,
       "confidence_buckets": [
         {
           "accuracy": 0.4827586206896552,
@@ -70,7 +70,7 @@
           "label": "0.50-0.60",
           "lower_bound": 0.5,
           "match_count": 29,
-          "mean_selected_probability": 0.5499367204042738,
+          "mean_selected_probability": 0.5499367204042737,
           "upper_bound": 0.6
         },
         {
@@ -83,12 +83,12 @@
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.6,
+          "accuracy": 0.5454545454545454,
           "correct_prediction_count": 6,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 10,
-          "mean_selected_probability": 0.7502224685834784,
+          "match_count": 11,
+          "mean_selected_probability": 0.7507623723261413,
           "upper_bound": 0.8
         },
         {
@@ -97,25 +97,25 @@
           "label": "0.80-0.90",
           "lower_bound": 0.8,
           "match_count": 5,
-          "mean_selected_probability": 0.8337957046078553,
+          "mean_selected_probability": 0.8337957046078556,
           "upper_bound": 0.9
         }
       ],
       "correct_prediction_count": 35,
-      "log_loss": 0.6925246808876351,
-      "mean_selected_probability": 0.63033649880101,
+      "log_loss": 0.7034144400858069,
+      "mean_selected_probability": 0.6322429368457337,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 65
+      "settled_match_count": 66
     },
-    "log_loss_improvement_baseline_minus_genome": 0.02363534110581833,
+    "log_loss_improvement_baseline_minus_genome": 0.02087736740523405,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 65
+    "settled_match_count": 66
   },
   "baseline_match_count": 89,
   "metrics": {
-    "accuracy": 0.5555555555555556,
-    "brier_score": 0.24870639628677013,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.07115720734646713,
+    "accuracy": 0.547945205479452,
+    "brier_score": 0.25313206315406506,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.08054082655751249,
     "confidence_buckets": [
       {
         "accuracy": 0.5294117647058824,
@@ -123,7 +123,7 @@
         "label": "0.50-0.60",
         "lower_bound": 0.5,
         "match_count": 34,
-        "mean_selected_probability": 0.5519747178197347,
+        "mean_selected_probability": 0.5519747178197346,
         "upper_bound": 0.6
       },
       {
@@ -136,12 +136,12 @@
         "upper_bound": 0.7
       },
       {
-        "accuracy": 0.6,
+        "accuracy": 0.5454545454545454,
         "correct_prediction_count": 6,
         "label": "0.70-0.80",
         "lower_bound": 0.7,
-        "match_count": 10,
-        "mean_selected_probability": 0.7502224685834784,
+        "match_count": 11,
+        "mean_selected_probability": 0.7507623723261413,
         "upper_bound": 0.8
       },
       {
@@ -150,21 +150,21 @@
         "label": "0.80-0.90",
         "lower_bound": 0.8,
         "match_count": 5,
-        "mean_selected_probability": 0.8337957046078553,
+        "mean_selected_probability": 0.8337957046078556,
         "upper_bound": 0.9
       }
     ],
     "correct_prediction_count": 40,
-    "log_loss": 0.691029337875838,
-    "mean_selected_probability": 0.6267127629020227,
+    "log_loss": 0.7008953577401004,
+    "mean_selected_probability": 0.6284860320369645,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 72
+    "settled_match_count": 73
   },
   "official_slate_count": 25,
-  "pending_match_count": 21,
+  "pending_match_count": 20,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 75,
+  "settled_match_count": 76,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1499,15 +1499,18 @@
           "match_id": "web:wta:1148:2026:LS011",
           "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
           "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+          "result_record_sha256": "aa777bb6488ff071f8f8bcd5c6a76bb425dc2d0f463f34663b8aff94fabcbdee",
           "scheduled_start": "2026-11-04T17:00:00+05:30",
           "selected_player": "Weronika Falkowska",
           "selected_probability": 0.7561614097527696,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+          "settlement_record_sha256": "d5a81e847046d9177b0fcbdd3da951662eb589b2001cacda0f137674dee2c82d",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-11-03-run-41736739581/slate-receipt.json",
       "slate_id": "2026-11-03-run-41736739581",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 41736739581
     },
     {

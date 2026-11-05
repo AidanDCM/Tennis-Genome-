@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS011",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41736739581/predictions/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "prediction_record_sha256": "0a9b6a5bc3aab46b6aa25dab2bd12c197c2ca399d90c11bad69a2eab588987ba",
+      "result_path": "web-shadow/results/2026-11-04-chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi-0a9b6a5bc3.json",
+      "result_record_sha256": "aa777bb6488ff071f8f8bcd5c6a76bb425dc2d0f463f34663b8aff94fabcbdee",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-03-run-41736739581/settlements/chennai-2026-r16-ls011-weronika-falkowska-maaya-rajeshwaran-revathi.json",
+      "settlement_record_sha256": "d5a81e847046d9177b0fcbdd3da951662eb589b2001cacda0f137674dee2c82d",
+      "slate_id": "2026-11-03-run-41736739581",
+      "winner": "Maaya Rajeshwaran Revathi"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
