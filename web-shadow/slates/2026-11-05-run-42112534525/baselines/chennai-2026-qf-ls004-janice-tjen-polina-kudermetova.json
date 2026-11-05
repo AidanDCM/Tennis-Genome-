@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13453982699,
+  "artifact_sha256": "44287d2e83c9b8c5dbeb6211ba0f3c35dad38f6f7fb86db22b24c6e8a632d249",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.4951165936502047,
+  "match_id": "web:wta:1148:2026:LS004",
+  "matchup_input_sha256": "2b67b03f43e5652b71a4fcfda62492e67e54b7f46e948fb740130bb166bbe258",
+  "p_player_a": 0.6213110281568249,
+  "p_player_b": 0.37868897184317507,
+  "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+  "production_eligible": false,
+  "record_sha256": "fd594f3dda54c993d6139813b9ebd8186305eba7a6ccd53536522a6e0e99ad8b",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Polina Kudermetova",
+  "slate_id": "2026-11-05-run-42112534525"
+}

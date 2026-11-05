@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T21:26:39.511271+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS004",
+    "player_a": "Polina Kudermetova",
+    "player_b": "Janice Tjen",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-06T15:00:00+05:30",
+    "source_observed_at": "2026-11-05T20:02:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "2b67b03f43e5652b71a4fcfda62492e67e54b7f46e948fb740130bb166bbe258",
+  "model_source_sha": "39bfe3c2fe335d2073868777a82e8d93bbc70bfa",
+  "p_player_a": 0.5671465025576735,
+  "p_player_b": 0.4328534974423265,
+  "player_a_id": "wta:id:221236",
+  "player_b_id": "wta:id:222145",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Polina Kudermetova"
+}

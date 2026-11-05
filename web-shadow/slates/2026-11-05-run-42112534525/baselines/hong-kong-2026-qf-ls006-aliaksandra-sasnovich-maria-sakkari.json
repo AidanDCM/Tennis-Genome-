@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13453982699,
+  "artifact_sha256": "44287d2e83c9b8c5dbeb6211ba0f3c35dad38f6f7fb86db22b24c6e8a632d249",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.2756032032085647,
+  "match_id": "web:wta:1074:2026:LS006",
+  "matchup_input_sha256": "4e086d878e1108ddf54d1bf95d0d6d88fb70bafef4bd13787e702adb5e09882a",
+  "p_player_a": 0.4315320373458891,
+  "p_player_b": 0.5684679626541109,
+  "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+  "production_eligible": false,
+  "record_sha256": "4c727aa10188660cb4b8dcda5455aedc27e2cd31c050e722f68816e4b0bf2f04",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Maria Sakkari",
+  "slate_id": "2026-11-05-run-42112534525"
+}

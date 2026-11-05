@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.4951165936502047,
+  "match_id": "web:wta:1148:2026:LS004",
+  "matchup_input_sha256": "2b67b03f43e5652b71a4fcfda62492e67e54b7f46e948fb740130bb166bbe258",
+  "p_player_a": 0.6213110281568249,
+  "p_player_b": 0.37868897184317507,
+  "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+  "production_eligible": false,
+  "record_sha256": "58207989acb3ba456892966aae584530977b69379798902b0210fa46f0d501a6",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Polina Kudermetova"
+}

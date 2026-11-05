@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13453982699,
+  "artifact_sha256": "44287d2e83c9b8c5dbeb6211ba0f3c35dad38f6f7fb86db22b24c6e8a632d249",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.23734895509121628,
+  "match_id": "web:wta:1074:2026:LS005",
+  "matchup_input_sha256": "35ebc3cb1d689da520208e485ce744b252640288eb876d81845f7de71e1e5637",
+  "p_player_a": 0.44093976213106356,
+  "p_player_b": 0.5590602378689364,
+  "prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+  "production_eligible": false,
+  "record_sha256": "7feff338bf65f0804a1d8e6b11c8a9d620e5bf7bf3ce1efd397b1323342b735b",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Zeynep Sonmez",
+  "slate_id": "2026-11-05-run-42112534525"
+}

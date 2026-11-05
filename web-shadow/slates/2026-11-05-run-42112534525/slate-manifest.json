@@ -1,0 +1,100 @@
+{
+  "eligible_target_count": 4,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 4,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "c0cdccb7afaa561bf894c1ccad8ffe76fb1fbd05655224db4b921a968c96fb2b",
+      "baseline_p_player_a": 0.44093976213106356,
+      "baseline_p_player_b": 0.5590602378689364,
+      "baseline_selected_player": "Zeynep Sonmez",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+      "match_id": "web:wta:1074:2026:LS005",
+      "minimum_point_exposure": 4676,
+      "p_player_a": 0.4226554059992081,
+      "p_player_b": 0.577344594000792,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu/prediction.json",
+      "prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+      "scheduled_start": "2026-11-06T14:00:00+08:00",
+      "selected_player": "Zeynep Sonmez",
+      "target_history_match_counts": {
+        "wta:id:214906": 125,
+        "wta:id:220309": 70
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "910664ec2d1b4a0ef8ade21ab57fb0ff0f9e56d2916983b42e829ad87b2ac1d1",
+      "baseline_p_player_a": 0.7279307135680985,
+      "baseline_p_player_b": 0.27206928643190154,
+      "baseline_selected_player": "Sorana Cirstea",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+      "match_id": "web:wta:1074:2026:LS004",
+      "minimum_point_exposure": 2790,
+      "p_player_a": 0.548826253474722,
+      "p_player_b": 0.451173746525278,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze/prediction.json",
+      "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+      "scheduled_start": "2026-11-06T16:30:00+08:00",
+      "selected_player": "Sorana Cirstea",
+      "target_history_match_counts": {
+        "wta:id:201514": 709,
+        "wta:id:260168": 46
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-qf-ls004-janice-tjen-polina-kudermetova",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "58207989acb3ba456892966aae584530977b69379798902b0210fa46f0d501a6",
+      "baseline_p_player_a": 0.6213110281568249,
+      "baseline_p_player_b": 0.37868897184317507,
+      "baseline_selected_player": "Polina Kudermetova",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+      "match_id": "web:wta:1148:2026:LS004",
+      "minimum_point_exposure": 2357,
+      "p_player_a": 0.5671465025576735,
+      "p_player_b": 0.4328534974423265,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova/prediction.json",
+      "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+      "scheduled_start": "2026-11-06T15:00:00+05:30",
+      "selected_player": "Polina Kudermetova",
+      "target_history_match_counts": {
+        "wta:id:221236": 80,
+        "wta:id:222145": 37
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "832bfa268e086508a0effa3713d818e25abdcf0a836763f85887bdde5befd24c",
+      "baseline_p_player_a": 0.4315320373458891,
+      "baseline_p_player_b": 0.5684679626541109,
+      "baseline_selected_player": "Maria Sakkari",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+      "match_id": "web:wta:1074:2026:LS006",
+      "minimum_point_exposure": 25730,
+      "p_player_a": 0.4453532809806807,
+      "p_player_b": 0.5546467190193193,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari/prediction.json",
+      "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+      "scheduled_start": "2026-11-06T18:30:00+08:00",
+      "selected_player": "Maria Sakkari",
+      "target_history_match_counts": {
+        "wta:id:205925": 370,
+        "wta:id:206289": 477
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 4,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
