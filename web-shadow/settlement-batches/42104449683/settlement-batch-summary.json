@@ -1,0 +1,52 @@
+{
+  "accuracy": 0.6666666666666666,
+  "correct_prediction_count": 2,
+  "evaluation_eligible_count": 3,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 3,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS009",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+      "prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+      "result_path": "web-shadow/results/2026-11-05-hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze-5683fd0b4e.json",
+      "result_record_sha256": "01bc7fe01786395bae0d01ff92ea93c7cdc46173c89efae4d8a30233e40e67c6",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-05-run-41950108294/settlements/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+      "settlement_record_sha256": "3651b0dc0ac31de9760e6c1c0abdf9a93b3dff9ee1b355a0b2b2234f71f2bb9c",
+      "slate_id": "2026-11-05-run-41950108294",
+      "winner": "Alexandra Shubladze"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS014",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+      "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+      "result_path": "web-shadow/results/2026-11-05-hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic-740df1f518.json",
+      "result_record_sha256": "25e279b0c0abbd2322c4d4e5348a9ecda459c65b83b2cc4037fef14ca95ed486",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-05-run-41950108294/settlements/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+      "settlement_record_sha256": "2c2466407b5da3c81a3366e0f962212a27508b0d7fac7a73cbf74f10555adce8",
+      "slate_id": "2026-11-05-run-41950108294",
+      "winner": "Antonia Ruzic"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS013",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+      "prediction_record_sha256": "c8a8de485fd263dbf56222e8acdba67af5d8bea748018fde7629989b63ca27c6",
+      "result_path": "web-shadow/results/2026-11-05-chennai-2026-r16-ls013-moyuka-uchijima-magda-linette-c8a8de485f.json",
+      "result_record_sha256": "58eabf8ddf3c235b909f2d88ecb7b148887ebcd65116ac2ef479e0261038a3fa",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-05-run-41950108294/settlements/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+      "settlement_record_sha256": "331014122acdbc90d07caa8fea2085c8c09f74bc07c856995fef6212726b5e7f",
+      "slate_id": "2026-11-05-run-41950108294",
+      "winner": "Magda Linette"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 3,
+  "slate_count": 1
+}

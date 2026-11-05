@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1074:2026:LS014",
+  "prediction_correct": false,
+  "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+  "production_eligible": false,
+  "record_sha256": "2c2466407b5da3c81a3366e0f962212a27508b0d7fac7a73cbf74f10555adce8",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-05T11:29:28+00:00",
+  "result_record_path": "web-shadow/results/2026-11-05-hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic-740df1f518.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Antonia Ruzic"
+}
