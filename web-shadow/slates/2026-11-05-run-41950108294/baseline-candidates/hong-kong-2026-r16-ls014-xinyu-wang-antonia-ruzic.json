@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.009068472540375431,
+  "match_id": "web:wta:1074:2026:LS014",
+  "matchup_input_sha256": "70419d2d62040084bd755438ad4328111544bcfc7ac6fa4b88c18a42f36b5c92",
+  "p_player_a": 0.5022671025984354,
+  "p_player_b": 0.49773289740156457,
+  "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+  "production_eligible": false,
+  "record_sha256": "2abc0803f0b4458210f2509d1d6b2cab74083207111c0c6f6a3c2c9aad5d49de",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Xin Yu Wang"
+}

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T01:41:35.498478+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS012",
+    "player_a": "Zhibek Kulambayeva",
+    "player_b": "Mai Hontama",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-05T15:00:00+05:30",
+    "source_observed_at": "2026-11-04T19:50:21+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "09bb0c511ad72fae8da59baa7c63b534b2b27389519c344986a69904f9473196",
+  "model_source_sha": "e0a97770816ecdcf662d0336b8356cbdc5418456",
+  "p_player_a": 0.5060938616868016,
+  "p_player_b": 0.4939061383131984,
+  "player_a_id": "wta:id:214992",
+  "player_b_id": "wta:id:215988",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Zhibek Kulambayeva"
+}

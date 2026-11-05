@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T01:41:35.964783+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS013",
+    "player_a": "Magda Linette",
+    "player_b": "Moyuka Uchijima",
+    "round": "R16",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-05T15:00:00+05:30",
+    "source_observed_at": "2026-11-04T19:50:21+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "d142f5506c44d3b268eb75f65e706dc2a7b94d6b0719d7d69729ea6eeeef9003",
+  "model_source_sha": "e0a97770816ecdcf662d0336b8356cbdc5418456",
+  "p_player_a": 0.5011373563106344,
+  "p_player_b": 0.4988626436893656,
+  "player_a_id": "wta:id:202663",
+  "player_b_id": "wta:id:220416",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "c8a8de485fd263dbf56222e8acdba67af5d8bea748018fde7629989b63ca27c6",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Magda Linette"
+}

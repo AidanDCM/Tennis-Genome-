@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13380816388,
+  "artifact_sha256": "f2dd544f44420efb3ab1e816aabbf8948578754859ae8f202503332c6a35b614",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.00636334728458971,
+  "match_id": "web:wta:1148:2026:LS012",
+  "matchup_input_sha256": "09bb0c511ad72fae8da59baa7c63b534b2b27389519c344986a69904f9473196",
+  "p_player_a": 0.5015908314531304,
+  "p_player_b": 0.49840916854686956,
+  "prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+  "production_eligible": false,
+  "record_sha256": "2693abd7828fd0d30d2282d96d440268ff21b655697fc5b161a101de077af73d",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Zhibek Kulambayeva",
+  "slate_id": "2026-11-05-run-41950108294"
+}

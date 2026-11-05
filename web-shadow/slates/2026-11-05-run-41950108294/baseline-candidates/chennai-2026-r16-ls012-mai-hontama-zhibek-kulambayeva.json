@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.00636334728458971,
+  "match_id": "web:wta:1148:2026:LS012",
+  "matchup_input_sha256": "09bb0c511ad72fae8da59baa7c63b534b2b27389519c344986a69904f9473196",
+  "p_player_a": 0.5015908314531304,
+  "p_player_b": 0.49840916854686956,
+  "prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+  "production_eligible": false,
+  "record_sha256": "aaf8b60781ddeb6f8b7d71a637f1975c42fb4b3da79bcc50b96f04031ab6690c",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Zhibek Kulambayeva"
+}

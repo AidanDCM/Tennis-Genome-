@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13380816388,
+  "artifact_sha256": "f2dd544f44420efb3ab1e816aabbf8948578754859ae8f202503332c6a35b614",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.009068472540375431,
+  "match_id": "web:wta:1074:2026:LS014",
+  "matchup_input_sha256": "70419d2d62040084bd755438ad4328111544bcfc7ac6fa4b88c18a42f36b5c92",
+  "p_player_a": 0.5022671025984354,
+  "p_player_b": 0.49773289740156457,
+  "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+  "production_eligible": false,
+  "record_sha256": "882f7d753bb65a91cbdf0c1d5b38e002e38c1612269deb4824d884a16ed77b1a",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Xin Yu Wang",
+  "slate_id": "2026-11-05-run-41950108294"
+}

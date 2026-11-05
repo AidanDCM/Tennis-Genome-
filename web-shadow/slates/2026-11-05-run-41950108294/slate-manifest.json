@@ -1,0 +1,121 @@
+{
+  "eligible_target_count": 5,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 5,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "0a495323a1bac8fca366eada720147adafa09938773bda639744b91b500b9b91",
+      "baseline_p_player_a": 0.24451364970839878,
+      "baseline_p_player_b": 0.7554863502916012,
+      "baseline_selected_player": "Alexandra Shubladze",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+      "match_id": "web:wta:1074:2026:LS009",
+      "minimum_point_exposure": 2254,
+      "p_player_a": 0.23084132885757164,
+      "p_player_b": 0.7691586711424283,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze/prediction.json",
+      "prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+      "scheduled_start": "2026-11-05T14:00:00+08:00",
+      "selected_player": "Alexandra Shubladze",
+      "target_history_match_counts": {
+        "wta:id:239389": 34,
+        "wta:id:260168": 46
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "2abc0803f0b4458210f2509d1d6b2cab74083207111c0c6f6a3c2c9aad5d49de",
+      "baseline_p_player_a": 0.5022671025984354,
+      "baseline_p_player_b": 0.49773289740156457,
+      "baseline_selected_player": "Xin Yu Wang",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
+      "match_id": "web:wta:1074:2026:LS014",
+      "minimum_point_exposure": 3170,
+      "p_player_a": 0.5065804836870498,
+      "p_player_b": 0.4934195163129502,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic/prediction.json",
+      "prediction_record_sha256": "740df1f5180306de6ef76d6eb89e00229a3d54fcf22ab31239c83435cb9997b5",
+      "scheduled_start": "2026-11-05T14:00:00+08:00",
+      "selected_player": "Xin Yu Wang",
+      "target_history_match_counts": {
+        "wta:id:216133": 221,
+        "wta:id:222045": 51
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "aaf8b60781ddeb6f8b7d71a637f1975c42fb4b3da79bcc50b96f04031ab6690c",
+      "baseline_p_player_a": 0.5015908314531304,
+      "baseline_p_player_b": 0.49840916854686956,
+      "baseline_selected_player": "Zhibek Kulambayeva",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+      "match_id": "web:wta:1148:2026:LS012",
+      "minimum_point_exposure": 1264,
+      "p_player_a": 0.5060938616868016,
+      "p_player_b": 0.4939061383131984,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva/prediction.json",
+      "prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+      "scheduled_start": "2026-11-05T15:00:00+05:30",
+      "selected_player": "Zhibek Kulambayeva",
+      "target_history_match_counts": {
+        "wta:id:214992": 20,
+        "wta:id:215988": 75
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-r16-ls013-moyuka-uchijima-magda-linette",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "16111367f9102412636f0bc4a1bf8e577e2c0624dafbdb16bae2e7464dbd8c13",
+      "baseline_p_player_a": 0.6405108325037203,
+      "baseline_p_player_b": 0.3594891674962797,
+      "baseline_selected_player": "Magda Linette",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
+      "match_id": "web:wta:1148:2026:LS013",
+      "minimum_point_exposure": 7556,
+      "p_player_a": 0.5011373563106344,
+      "p_player_b": 0.4988626436893656,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette/prediction.json",
+      "prediction_record_sha256": "c8a8de485fd263dbf56222e8acdba67af5d8bea748018fde7629989b63ca27c6",
+      "scheduled_start": "2026-11-05T15:00:00+05:30",
+      "selected_player": "Magda Linette",
+      "target_history_match_counts": {
+        "wta:id:202663": 459,
+        "wta:id:220416": 116
+      }
+    },
+    {
+      "artifact_stem": "hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "87c9399956a35a91c321ac669753875371654acc83a1b06b5abb3e980c09f631",
+      "baseline_p_player_a": 0.5550054129128695,
+      "baseline_p_player_b": 0.44499458708713047,
+      "baseline_selected_player": "Alexandra Eala",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+      "match_id": "web:wta:1074:2026:LS015",
+      "minimum_point_exposure": 2544,
+      "p_player_a": 0.5139303763450783,
+      "p_player_b": 0.4860696236549217,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala/prediction.json",
+      "prediction_record_sha256": "8d62053d3832b626b7954f1a80a84a1fa54c6661d47b2bcdf434daa72a3dd905",
+      "scheduled_start": "2026-11-05T18:30:00+08:00",
+      "selected_player": "Alexandra Eala",
+      "target_history_match_counts": {
+        "wta:id:223253": 75,
+        "wta:id:238184": 36
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 5,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
