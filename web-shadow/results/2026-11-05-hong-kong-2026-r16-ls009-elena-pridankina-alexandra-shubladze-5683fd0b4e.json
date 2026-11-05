@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "5683fd0b4e32240a7e8cbdd8bdab106f26cf6f3547b9e5335103676105980ce4",
+  "match_id": "web:wta:1074:2026:LS009",
+  "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-05T11:29:28+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-7(6) 6-1 6-3",
+  "status": "COMPLETED",
+  "winner": "Alexandra Shubladze"
+}
