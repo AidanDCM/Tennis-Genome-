@@ -19,7 +19,7 @@ from tennis_genome.data.canonical import (
     Surface,
 )
 
-from .api_tennis_enrichment import ApiTennisMatchEnrichment
+from .api_tennis_enrichment import ApiTennisMatchEnrichment, ApiTennisMatchOutcomeOnly
 from .api_tennis_matchstats_bridge import api_tennis_enrichment_to_match_stats
 
 
@@ -46,8 +46,8 @@ def _reverse_stats(stats: MatchStats) -> MatchStats:
     return MatchStats(**oriented)
 
 
-def build_candidate_historical_match(
-    record: ApiTennisMatchEnrichment,
+def _build_candidate_historical_match(
+    record: ApiTennisMatchEnrichment | ApiTennisMatchOutcomeOnly,
     *,
     reviewed_player_ids: Mapping[int, str],
     reviewed_surface: Surface,
@@ -56,8 +56,9 @@ def build_candidate_historical_match(
     source_observed_at: datetime,
     target_cutoff_at: datetime,
     source_manifest_sha256: str,
+    include_point_stats: bool,
 ) -> CandidateHistoryEvidence:
-    """Convert one point-consistent prior match with explicit context.
+    """Convert one prior match with explicit reviewed context.
 
     Source observation before the target does not establish that the provider's
     historical event date is an actual-start date. Same-date targets are refused.
@@ -93,7 +94,13 @@ def build_candidate_historical_match(
     if not id_a.startswith(prefix) or not id_b.startswith(prefix) or id_a == id_b:
         raise ValueError("reviewed player IDs must be distinct and match the tour")
 
-    stats = api_tennis_enrichment_to_match_stats(record)
+    stats = (
+        api_tennis_enrichment_to_match_stats(record)
+        if include_point_stats and isinstance(record, ApiTennisMatchEnrichment)
+        else None
+    )
+    if include_point_stats and stats is None:
+        raise ValueError("point statistics require a complete enrichment record")
     reverse = id_a > id_b
     match_id = f"api-tennis:{record.event_key}"
     pre_match = PreMatchState(
@@ -127,9 +134,59 @@ def build_candidate_historical_match(
         match=HistoricalMatch(
             pre_match=pre_match,
             outcome=outcome,
-            stats=_reverse_stats(stats) if reverse else stats,
+            stats=_reverse_stats(stats) if reverse and stats is not None else stats,
         ),
         raw_match_sha256=record.raw_match_sha256,
         source_observed_at=source_observed_at,
         source_manifest_sha256=source_manifest_sha256,
+    )
+
+
+def build_candidate_historical_match(
+    record: ApiTennisMatchEnrichment,
+    *,
+    reviewed_player_ids: Mapping[int, str],
+    reviewed_surface: Surface,
+    reviewed_tournament_level: str | None,
+    reviewed_best_of: int,
+    source_observed_at: datetime,
+    target_cutoff_at: datetime,
+    source_manifest_sha256: str,
+) -> CandidateHistoryEvidence:
+    """Convert a point-consistent match; source approval remains separate."""
+    return _build_candidate_historical_match(
+        record,
+        reviewed_player_ids=reviewed_player_ids,
+        reviewed_surface=reviewed_surface,
+        reviewed_tournament_level=reviewed_tournament_level,
+        reviewed_best_of=reviewed_best_of,
+        source_observed_at=source_observed_at,
+        target_cutoff_at=target_cutoff_at,
+        source_manifest_sha256=source_manifest_sha256,
+        include_point_stats=True,
+    )
+
+
+def build_candidate_historical_outcome(
+    record: ApiTennisMatchOutcomeOnly,
+    *,
+    reviewed_player_ids: Mapping[int, str],
+    reviewed_surface: Surface,
+    reviewed_tournament_level: str | None,
+    reviewed_best_of: int,
+    source_observed_at: datetime,
+    target_cutoff_at: datetime,
+    source_manifest_sha256: str,
+) -> CandidateHistoryEvidence:
+    """Keep a reviewed winner without admitting any provider point counts."""
+    return _build_candidate_historical_match(
+        record,
+        reviewed_player_ids=reviewed_player_ids,
+        reviewed_surface=reviewed_surface,
+        reviewed_tournament_level=reviewed_tournament_level,
+        reviewed_best_of=reviewed_best_of,
+        source_observed_at=source_observed_at,
+        target_cutoff_at=target_cutoff_at,
+        source_manifest_sha256=source_manifest_sha256,
+        include_point_stats=False,
     )

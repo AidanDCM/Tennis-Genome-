@@ -116,6 +116,38 @@ class ApiTennisMatchEnrichment(WorkbenchRecord):
         return value
 
 
+class ApiTennisMatchOutcomeOnly(WorkbenchRecord):
+    """Normal finished result, with no authority to update point-based state."""
+
+    source_id: Literal["API-TENNIS-HISTORICAL-ENRICHMENT-001"] = SOURCE_ID
+    event_key: int
+    tour: Literal["ATP", "WTA"]
+    event_date: str
+    player_a_name: str
+    player_a_key: int
+    player_b_name: str
+    player_b_key: int
+    winner_side: Literal["A", "B"]
+    tournament_name: str
+    tournament_key: int
+    tournament_round: str
+    raw_match_sha256: str
+
+    @field_validator("event_date")
+    @classmethod
+    def _date(cls, value: str) -> str:
+        if date.fromisoformat(value).isoformat() != value:
+            raise ValueError("event_date must be canonical YYYY-MM-DD")
+        return value
+
+    @field_validator("raw_match_sha256")
+    @classmethod
+    def _sha(cls, value: str) -> str:
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("raw_match_sha256 must be lowercase SHA-256")
+        return value
+
+
 class ApiTennisEnrichmentBatch(WorkbenchRecord):
     source_id: Literal["API-TENNIS-HISTORICAL-ENRICHMENT-001"] = SOURCE_ID
     requested_date: str
@@ -350,6 +382,53 @@ def _canonical_match_sha(row: dict[str, object]) -> str:
         allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def parse_api_tennis_match_outcome_only(
+    row: dict[str, object],
+) -> ApiTennisMatchOutcomeOnly:
+    """Retain a winner even when point statistics are absent or contradictory.
+
+    The caller must independently verify the raw response and review identity,
+    tournament context, and source quality before using this candidate.
+    """
+    event_type = row.get("event_type_type")
+    if event_type not in _ALLOWED_TYPES:
+        raise ValueError("match is not ATP/WTA singles")
+    if row.get("event_status") != "Finished":
+        raise ValueError("match is not a normal finished match")
+    winner = row.get("event_winner")
+    if winner not in {"First Player", "Second Player"}:
+        raise ValueError("finished match is missing an unambiguous winner")
+    player_a_key = _require_int(row.get("first_player_key"), field="first_player_key")
+    player_b_key = _require_int(row.get("second_player_key"), field="second_player_key")
+    event_key = _require_int(row.get("event_key"), field="event_key")
+    tournament_key = _require_int(row.get("tournament_key"), field="tournament_key")
+    if min(player_a_key, player_b_key, event_key, tournament_key) <= 0:
+        raise ValueError("provider identity keys must be positive")
+    if player_a_key == player_b_key:
+        raise ValueError("provider player keys must differ")
+    name_a = row.get("event_first_player")
+    name_b = row.get("event_second_player")
+    tournament_name = row.get("tournament_name")
+    if any(not isinstance(value, str) or not value.strip() for value in (
+        name_a, name_b, tournament_name,
+    )):
+        raise ValueError("provider player and tournament names are required")
+    return ApiTennisMatchOutcomeOnly(
+        event_key=event_key,
+        tour=_ALLOWED_TYPES[str(event_type)],
+        event_date=str(row.get("event_date", "")),
+        player_a_name=name_a,
+        player_a_key=player_a_key,
+        player_b_name=name_b,
+        player_b_key=player_b_key,
+        winner_side="A" if winner == "First Player" else "B",
+        tournament_name=tournament_name,
+        tournament_key=tournament_key,
+        tournament_round=str(row.get("tournament_round", "")),
+        raw_match_sha256=_canonical_match_sha(row),
+    )
 
 
 def parse_api_tennis_match_enrichment(

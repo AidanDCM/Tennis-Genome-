@@ -7,9 +7,11 @@ import pytest
 from tennis_genome.research_workbench.api_tennis_enrichment import (
     ApiTennisMatchEnrichment,
     ApiTennisPlayerMatchStats,
+    parse_api_tennis_match_outcome_only,
 )
 from tennis_genome.research_workbench.api_tennis_history_bridge import (
     build_candidate_historical_match,
+    build_candidate_historical_outcome,
 )
 from tennis_genome.research_workbench.api_tennis_matchstats_bridge import (
     api_tennis_enrichment_to_match_stats,
@@ -223,4 +225,85 @@ def test_candidate_history_rejects_late_or_same_date_evidence() -> None:
             source_observed_at=datetime(2026, 9, 18, tzinfo=UTC),
             target_cutoff_at=datetime(2026, 9, 18, 12, tzinfo=UTC),
             source_manifest_sha256="b" * 64,
+        )
+
+
+def _outcome_row() -> dict[str, object]:
+    return {
+        "event_key": 12345,
+        "event_type_type": "Wta Singles",
+        "event_status": "Finished",
+        "event_winner": "Second Player",
+        "event_date": "2026-09-16",
+        "event_first_player": "Player A",
+        "first_player_key": 11,
+        "event_second_player": "Player B",
+        "second_player_key": 22,
+        "tournament_name": "Test Open",
+        "tournament_key": 99,
+        "tournament_round": "Round of 16",
+        "statistics": [{"stat_name": "Service Points Won", "stat_won": 999}],
+    }
+
+
+def test_outcome_only_keeps_winner_but_quarantines_bad_point_counts() -> None:
+    record = parse_api_tennis_match_outcome_only(_outcome_row())
+    evidence = build_candidate_historical_outcome(
+        record,
+        reviewed_player_ids={11: "wta:id:900", 22: "wta:id:100"},
+        reviewed_surface="Hard",
+        reviewed_tournament_level="I",
+        reviewed_best_of=3,
+        source_observed_at=datetime(2026, 9, 17, tzinfo=UTC),
+        target_cutoff_at=datetime(2026, 9, 18, tzinfo=UTC),
+        source_manifest_sha256="b" * 64,
+    )
+    assert evidence.match.stats is None
+    assert evidence.match.pre_match.player_a_id == "wta:id:100"
+    assert evidence.match.outcome.a_won is True
+    assert evidence.raw_match_sha256 == record.raw_match_sha256
+
+
+@pytest.mark.parametrize("status", ["Retired", "Walk Over", "Cancelled", "Not Started"])
+def test_outcome_only_rejects_non_normal_result(status: str) -> None:
+    row = _outcome_row()
+    row["event_status"] = status
+    with pytest.raises(ValueError, match="normal finished"):
+        parse_api_tennis_match_outcome_only(row)
+
+
+def test_outcome_only_rejects_missing_winner_and_duplicate_identity() -> None:
+    row = _outcome_row()
+    row["event_winner"] = None
+    with pytest.raises(ValueError, match="unambiguous winner"):
+        parse_api_tennis_match_outcome_only(row)
+    row = _outcome_row()
+    row["second_player_key"] = 11
+    with pytest.raises(ValueError, match="player keys must differ"):
+        parse_api_tennis_match_outcome_only(row)
+
+
+def test_outcome_only_still_requires_prior_source_and_reviewed_context() -> None:
+    record = parse_api_tennis_match_outcome_only(_outcome_row())
+    args = {
+        "reviewed_player_ids": {11: "wta:id:900", 22: "wta:id:100"},
+        "reviewed_surface": "Hard",
+        "reviewed_tournament_level": "I",
+        "reviewed_best_of": 3,
+        "source_observed_at": datetime(2026, 9, 17, tzinfo=UTC),
+        "target_cutoff_at": datetime(2026, 9, 18, tzinfo=UTC),
+        "source_manifest_sha256": "b" * 64,
+    }
+    with pytest.raises(ValueError, match="precede target"):
+        build_candidate_historical_outcome(
+            record.model_copy(update={"event_date": "2026-09-18"}),
+            **{
+                **args,
+                "source_observed_at": datetime(2026, 9, 18, 8, tzinfo=UTC),
+                "target_cutoff_at": datetime(2026, 9, 18, 12, tzinfo=UTC),
+            },
+        )
+    with pytest.raises(ValueError, match="crosswalks"):
+        build_candidate_historical_outcome(
+            record, **{**args, "reviewed_player_ids": {11: "wta:id:900"}}
         )
