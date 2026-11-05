@@ -1,10 +1,9 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/hong-kong-2026-r16-ls009-elena-pridankina-alexandra-shubladze.json",
-    "web-shadow/fixtures/hong-kong-2026-r16-ls014-xinyu-wang-antonia-ruzic.json",
-    "web-shadow/fixtures/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
-    "web-shadow/fixtures/chennai-2026-r16-ls013-moyuka-uchijima-magda-linette.json",
-    "web-shadow/fixtures/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json"
+    "web-shadow/fixtures/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+    "web-shadow/fixtures/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+    "web-shadow/fixtures/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+    "web-shadow/fixtures/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261104t195021z"
+  "rerun_reason": "automatic-wta-intake-wta-20261105t200205z"
 }
