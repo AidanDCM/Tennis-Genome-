@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T21:26:37.636534+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS005",
+    "player_a": "Claire Liu",
+    "player_b": "Zeynep Sonmez",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-06T14:00:00+08:00",
+    "source_observed_at": "2026-11-05T20:02:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "35ebc3cb1d689da520208e485ce744b252640288eb876d81845f7de71e1e5637",
+  "model_source_sha": "39bfe3c2fe335d2073868777a82e8d93bbc70bfa",
+  "p_player_a": 0.4226554059992081,
+  "p_player_b": 0.577344594000792,
+  "player_a_id": "wta:id:214906",
+  "player_b_id": "wta:id:220309",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Zeynep Sonmez"
+}

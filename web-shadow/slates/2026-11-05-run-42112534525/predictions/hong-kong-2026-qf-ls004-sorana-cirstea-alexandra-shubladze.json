@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T21:26:38.400909+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS004",
+    "player_a": "Sorana Cirstea",
+    "player_b": "Alexandra Shubladze",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-06T16:30:00+08:00",
+    "source_observed_at": "2026-11-05T20:02:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "c3d4fefcc47a9622b5c38eeb65ba7a0f2dce93e65404d1b9096f5edc9d77f0fa",
+  "model_source_sha": "39bfe3c2fe335d2073868777a82e8d93bbc70bfa",
+  "p_player_a": 0.548826253474722,
+  "p_player_b": 0.451173746525278,
+  "player_a_id": "wta:id:201514",
+  "player_b_id": "wta:id:260168",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Sorana Cirstea"
+}

@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-05T21:26:40.209318+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS006",
+    "player_a": "Aliaksandra Sasnovich",
+    "player_b": "Maria Sakkari",
+    "round": "QF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-06T18:30:00+08:00",
+    "source_observed_at": "2026-11-05T20:02:05+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "4e086d878e1108ddf54d1bf95d0d6d88fb70bafef4bd13787e702adb5e09882a",
+  "model_source_sha": "39bfe3c2fe335d2073868777a82e8d93bbc70bfa",
+  "p_player_a": 0.4453532809806807,
+  "p_player_b": 0.5546467190193193,
+  "player_a_id": "wta:id:205925",
+  "player_b_id": "wta:id:206289",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Maria Sakkari"
+}

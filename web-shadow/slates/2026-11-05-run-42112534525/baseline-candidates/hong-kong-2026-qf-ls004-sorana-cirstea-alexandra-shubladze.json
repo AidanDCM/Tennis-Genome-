@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.9841491066102014,
+  "match_id": "web:wta:1074:2026:LS004",
+  "matchup_input_sha256": "c3d4fefcc47a9622b5c38eeb65ba7a0f2dce93e65404d1b9096f5edc9d77f0fa",
+  "p_player_a": 0.7279307135680985,
+  "p_player_b": 0.27206928643190154,
+  "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+  "production_eligible": false,
+  "record_sha256": "910664ec2d1b4a0ef8ade21ab57fb0ff0f9e56d2916983b42e829ad87b2ac1d1",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Sorana Cirstea"
+}

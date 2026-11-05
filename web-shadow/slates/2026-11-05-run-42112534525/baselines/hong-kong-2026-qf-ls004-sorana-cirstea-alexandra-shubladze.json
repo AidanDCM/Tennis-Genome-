@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13453982699,
+  "artifact_sha256": "44287d2e83c9b8c5dbeb6211ba0f3c35dad38f6f7fb86db22b24c6e8a632d249",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.9841491066102014,
+  "match_id": "web:wta:1074:2026:LS004",
+  "matchup_input_sha256": "c3d4fefcc47a9622b5c38eeb65ba7a0f2dce93e65404d1b9096f5edc9d77f0fa",
+  "p_player_a": 0.7279307135680985,
+  "p_player_b": 0.27206928643190154,
+  "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+  "production_eligible": false,
+  "record_sha256": "0fb46e47aaba107e9c4bfc645b641804ea27043859315d2ca6a6608358137533",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Sorana Cirstea",
+  "slate_id": "2026-11-05-run-42112534525"
+}

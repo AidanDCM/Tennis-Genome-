@@ -1,0 +1,55 @@
+{
+  "baseline_count": 4,
+  "eligible_target_count": 4,
+  "predicted_target_count": 4,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+      "baseline_candidate_record_sha256": "c0cdccb7afaa561bf894c1ccad8ffe76fb1fbd05655224db4b921a968c96fb2b",
+      "baseline_path": "baselines/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+      "baseline_record_sha256": "7feff338bf65f0804a1d8e6b11c8a9d620e5bf7bf3ce1efd397b1323342b735b",
+      "match_id": "web:wta:1074:2026:LS005",
+      "prediction_path": "predictions/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+      "prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5"
+    },
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+      "baseline_candidate_record_sha256": "910664ec2d1b4a0ef8ade21ab57fb0ff0f9e56d2916983b42e829ad87b2ac1d1",
+      "baseline_path": "baselines/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+      "baseline_record_sha256": "0fb46e47aaba107e9c4bfc645b641804ea27043859315d2ca6a6608358137533",
+      "match_id": "web:wta:1074:2026:LS004",
+      "prediction_path": "predictions/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+      "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1"
+    },
+    {
+      "artifact_stem": "chennai-2026-qf-ls004-janice-tjen-polina-kudermetova",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+      "baseline_candidate_record_sha256": "58207989acb3ba456892966aae584530977b69379798902b0210fa46f0d501a6",
+      "baseline_path": "baselines/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+      "baseline_record_sha256": "fd594f3dda54c993d6139813b9ebd8186305eba7a6ccd53536522a6e0e99ad8b",
+      "match_id": "web:wta:1148:2026:LS004",
+      "prediction_path": "predictions/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+      "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598"
+    },
+    {
+      "artifact_stem": "hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari",
+      "baseline_candidate_path": "baseline-candidates/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+      "baseline_candidate_record_sha256": "832bfa268e086508a0effa3713d818e25abdcf0a836763f85887bdde5befd24c",
+      "baseline_path": "baselines/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+      "baseline_record_sha256": "4c727aa10188660cb4b8dcda5455aedc27e2cd31c050e722f68816e4b0bf2f04",
+      "match_id": "web:wta:1074:2026:LS006",
+      "prediction_path": "predictions/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+      "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-11-05-run-42112534525",
+  "workflow_artifact_id": 13453982699,
+  "workflow_artifact_sha256": "44287d2e83c9b8c5dbeb6211ba0f3c35dad38f6f7fb86db22b24c6e8a632d249",
+  "workflow_run_id": 42112534525,
+  "workflow_source_sha": "39bfe3c2fe335d2073868777a82e8d93bbc70bfa"
+}
