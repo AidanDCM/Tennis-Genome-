@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "8d62053d3832b626b7954f1a80a84a1fa54c6661d47b2bcdf434daa72a3dd905",
+  "match_id": "web:wta:1074:2026:LS015",
+  "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-06T00:32:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-4 7-6(7)",
+  "status": "COMPLETED",
+  "winner": "Alexandra Eala"
+}

@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+  "match_id": "web:wta:1148:2026:LS012",
+  "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-06T00:32:58+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "4-6 6-4 7-5",
+  "status": "COMPLETED",
+  "winner": "Mai Hontama"
+}
