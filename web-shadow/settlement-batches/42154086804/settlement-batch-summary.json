@@ -1,0 +1,39 @@
+{
+  "accuracy": 0.5,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS012",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+      "prediction_record_sha256": "6e4f92a354e8368c990613ca2894f611900cbf2fa9a6ff581359a4aabbba8bc9",
+      "result_path": "web-shadow/results/2026-11-06-chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva-6e4f92a354.json",
+      "result_record_sha256": "45f99aae721701c8448aaa700f049df6f1495926655ef3659c2d91ddb1c2aa79",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-05-run-41950108294/settlements/chennai-2026-r16-ls012-mai-hontama-zhibek-kulambayeva.json",
+      "settlement_record_sha256": "0c1493a4f008d84757c9eb16f1c270f5f75231190cebe332ad5e96f59ccaed5f",
+      "slate_id": "2026-11-05-run-41950108294",
+      "winner": "Mai Hontama"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS015",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-05-run-41950108294/predictions/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+      "prediction_record_sha256": "8d62053d3832b626b7954f1a80a84a1fa54c6661d47b2bcdf434daa72a3dd905",
+      "result_path": "web-shadow/results/2026-11-06-hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala-8d62053d38.json",
+      "result_record_sha256": "e556fff44deadd86b19553ff2de7c8041169f262a86a92da82304b17e672114f",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-05-run-41950108294/settlements/hong-kong-2026-r16-ls015-tereza-valentova-alexandra-eala.json",
+      "settlement_record_sha256": "713ad99d401f5081940c2a331c0ef3552640260a59c140899c2bbe43c30b62cc",
+      "slate_id": "2026-11-05-run-41950108294",
+      "winner": "Alexandra Eala"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
