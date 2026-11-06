@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+  "match_id": "web:wta:1074:2026:LS005",
+  "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-06T15:22:46+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "6-1 6-4",
+  "status": "COMPLETED",
+  "winner": "Claire Liu"
+}

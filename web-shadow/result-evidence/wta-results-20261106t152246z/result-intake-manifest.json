@@ -1,0 +1,199 @@
+{
+  "identity_conflict_count": 2,
+  "identity_conflicts": [
+    {
+      "match_id": "web:wta:1074:2026:LS031",
+      "matches_sha256": "7401432ff102ee0670498f24a6a9a41850372de2371746985726565e21c336f1",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "predicted_players": [
+        "Alycia Parks",
+        "Alexandra Eala"
+      ],
+      "prediction_path": "web-shadow/slates/2026-11-02-run-41494524336/predictions/hong-kong-2026-r32-ls031-alycia-parks-alexandra-eala.json",
+      "prediction_record_sha256": "31f68ecdcf09809eea97b95b257c1a7d671ab63e6ef1a016bfacd770d51c69cb",
+      "reason": "official_match_id_player_identity_mismatch",
+      "source_players": [
+        "Emerson Jones",
+        "Alexandra Eala"
+      ]
+    },
+    {
+      "match_id": "web:wta:1074:2026:LS020",
+      "matches_sha256": "7401432ff102ee0670498f24a6a9a41850372de2371746985726565e21c336f1",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "predicted_players": [
+        "Sofia Kenin",
+        "Leylah Fernandez"
+      ],
+      "prediction_path": "web-shadow/slates/2026-11-03-run-41677777257/predictions/hong-kong-2026-r32-ls020-leylah-fernandez-sofia-kenin.json",
+      "prediction_record_sha256": "acafa5294de9f230cb7ab656a04ea54074501295be52a0b15e5a22b7e1017800",
+      "reason": "official_match_id_player_identity_mismatch",
+      "source_players": [
+        "Mika Stojsavljevic",
+        "Sofia Kenin"
+      ]
+    }
+  ],
+  "observed_at": "2026-11-06T15:22:46+00:00",
+  "pending_prediction_count": 19,
+  "production_eligible": false,
+  "result_count": 4,
+  "result_paths": [
+    "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu-580c5236b8.json",
+    "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze-e552781dc6.json",
+    "web-shadow/results/2026-11-06-chennai-2026-qf-ls004-janice-tjen-polina-kudermetova-94666a2d1c.json",
+    "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari-1a5c1d1ff8.json"
+  ],
+  "results": [
+    {
+      "match_id": "web:wta:1074:2026:LS005",
+      "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+      "prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu-580c5236b8.json",
+      "round_identity_conflict": false,
+      "score": "6-1 6-4",
+      "source_last_updated": "2026-11-06T07:38:42.173+00:00",
+      "source_match_id": "LS005",
+      "source_result_string": "C. Liu d Z. Sonmez 6-1,6-4",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Claire Liu",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1074:2026:LS004",
+      "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+      "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze-e552781dc6.json",
+      "round_identity_conflict": false,
+      "score": "6-2 6-3",
+      "source_last_updated": "2026-11-06T10:25:36.967+00:00",
+      "source_match_id": "LS004",
+      "source_result_string": "A. Shubladze d [1]S. Cirstea 6-2,6-3",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Alexandra Shubladze",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1148:2026:LS004",
+      "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+      "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-11-06-chennai-2026-qf-ls004-janice-tjen-polina-kudermetova-94666a2d1c.json",
+      "round_identity_conflict": false,
+      "score": "5-7 6-4 6-2",
+      "source_last_updated": "2026-11-06T12:04:10.233+00:00",
+      "source_match_id": "LS004",
+      "source_result_string": "[1]J. Tjen d [6]P. Kudermetova 5-7,6-4,6-2",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Janice Tjen",
+      "winner_source": "winner_code"
+    },
+    {
+      "match_id": "web:wta:1074:2026:LS006",
+      "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+      "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+      "prediction_round": "QF",
+      "result_path": "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari-1a5c1d1ff8.json",
+      "round_identity_conflict": false,
+      "score": "6-2 6-3",
+      "source_last_updated": "2026-11-06T12:09:47.477+00:00",
+      "source_match_id": "LS006",
+      "source_result_string": "[4]M. Sakkari d A. Sasnovich 6-2,6-3",
+      "source_round": "QF",
+      "status": "COMPLETED",
+      "winner": "Maria Sakkari",
+      "winner_source": "winner_code"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-wta-result-intake-v1",
+  "snapshot_id": "wta-results-20261106t152246z",
+  "source_records": [
+    {
+      "group_id": 1152,
+      "matches_sha256": "0b0ffb70b17a299c0691d23be692206976771b223b794d9d5e51c92f16e1d234",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1152/2026/matches",
+      "raw_match_count": 53,
+      "slug": "singapore",
+      "year": 2026
+    },
+    {
+      "group_id": 1024,
+      "matches_sha256": "ab6f4f0e1a16d3488a1c9db5081b19a953643ddb53ac1310aa7e925135abf7c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1024/2026/matches",
+      "raw_match_count": 58,
+      "slug": "seoul",
+      "year": 2026
+    },
+    {
+      "group_id": 1020,
+      "matches_sha256": "02e3772d42dc2042498565f892f379dbdaef96b7cef0faee9638a637a81d3b87",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1020/2026/matches",
+      "raw_match_count": 162,
+      "slug": "beijing",
+      "year": 2026
+    },
+    {
+      "group_id": 1075,
+      "matches_sha256": "e0b879ec01c88bf5850dae741e01f70ffc265ef8b064a62b09d81a8484504604",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1075/2026/matches",
+      "raw_match_count": 106,
+      "slug": "wuhan",
+      "year": 2026
+    },
+    {
+      "group_id": 405,
+      "matches_sha256": "a5928267d006bdbdb00e847b7425685283390f7708bddb62f86b386de6619768",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/405/2026/matches",
+      "raw_match_count": 64,
+      "slug": "osaka",
+      "year": 2026
+    },
+    {
+      "group_id": 2092,
+      "matches_sha256": "4968eb3a6f6072ccbdfeded0dea05f17c028c00362f4a2b80e1c227121cefc02",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/2092/2026/matches",
+      "raw_match_count": 59,
+      "slug": "ningbo",
+      "year": 2026
+    },
+    {
+      "group_id": 1023,
+      "matches_sha256": "e348447c0826aa488fa2e5cb5869ed7fc99a5f3f22900478cbfbd496fbe2b596",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1023/2026/matches",
+      "raw_match_count": 64,
+      "slug": "guangzhou",
+      "year": 2026
+    },
+    {
+      "group_id": 1056,
+      "matches_sha256": "22c4a2b8dada0fdad5b4c9268999840956a9468e686fc62c6ba9465d02cde05f",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1056/2026/matches",
+      "raw_match_count": 60,
+      "slug": "tokyo",
+      "year": 2026
+    },
+    {
+      "group_id": 1074,
+      "matches_sha256": "7401432ff102ee0670498f24a6a9a41850372de2371746985726565e21c336f1",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+      "raw_match_count": 59,
+      "slug": "hong-kong",
+      "year": 2026
+    },
+    {
+      "group_id": 1148,
+      "matches_sha256": "2293a74196c11b638c548531ab4e80ebfe8ac75dbd29de21826f2aaea3f945c2",
+      "matches_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+      "raw_match_count": 54,
+      "slug": "chennai",
+      "year": 2026
+    }
+  ],
+  "unfinished_prediction_count": 0,
+  "unresolved_prediction_count": 13
+}
