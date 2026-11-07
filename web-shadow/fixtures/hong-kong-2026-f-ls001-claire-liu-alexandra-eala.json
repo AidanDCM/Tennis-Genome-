@@ -1,0 +1,15 @@
+{
+  "match_id": "web:wta:1074:2026:LS001",
+  "player_a": "Claire Liu",
+  "player_b": "Alexandra Eala",
+  "round": "F",
+  "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "scheduled_start": "2026-11-08T16:00:00+08:00",
+  "source_observed_at": "2026-11-07T13:13:14+00:00",
+  "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "surface": "Hard",
+  "tour": "WTA",
+  "tournament": "Prudential Hong Kong Tennis Open",
+  "tournament_id": "web:wta:hong-kong:2026",
+  "tournament_level": "I"
+}

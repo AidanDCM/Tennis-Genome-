@@ -1,8 +1,6 @@
 {
   "fixture_paths": [
-    "web-shadow/fixtures/hong-kong-2026-sf-ls002-alexandra-shubladze-claire-liu.json",
-    "web-shadow/fixtures/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
-    "web-shadow/fixtures/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json"
+    "web-shadow/fixtures/hong-kong-2026-f-ls001-claire-liu-alexandra-eala.json"
   ],
-  "rerun_reason": "automatic-wta-intake-wta-20261106t192837z"
+  "rerun_reason": "automatic-wta-intake-wta-20261107t131314z"
 }
