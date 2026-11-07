@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1074:2026:LS006",
+  "prediction_correct": true,
+  "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+  "production_eligible": false,
+  "record_sha256": "258b80f4eb4cc5b422c3c027dcc8ad53f61966ccf0a831b8114c95a5677b8c78",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-06T15:22:46+00:00",
+  "result_record_path": "web-shadow/results/2026-11-06-hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari-1a5c1d1ff8.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Maria Sakkari"
+}

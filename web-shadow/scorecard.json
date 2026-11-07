@@ -1,35 +1,35 @@
 {
   "baseline_comparison": {
     "baseline": {
-      "accuracy": 0.5492957746478874,
-      "brier_score": 0.254040059928463,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.11287398232317547,
+      "accuracy": 0.5333333333333333,
+      "brier_score": 0.25935364028277186,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.12654430249591242,
       "confidence_buckets": [
         {
-          "accuracy": 0.46153846153846156,
-          "correct_prediction_count": 12,
+          "accuracy": 0.4642857142857143,
+          "correct_prediction_count": 13,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 26,
-          "mean_selected_probability": 0.5509022147972226,
+          "match_count": 28,
+          "mean_selected_probability": 0.5518209209018154,
           "upper_bound": 0.6
         },
         {
-          "accuracy": 0.56,
+          "accuracy": 0.5384615384615384,
           "correct_prediction_count": 14,
           "label": "0.60-0.70",
           "lower_bound": 0.6,
-          "match_count": 25,
-          "mean_selected_probability": 0.6507998110256341,
+          "match_count": 26,
+          "mean_selected_probability": 0.6496656270691414,
           "upper_bound": 0.7
         },
         {
-          "accuracy": 0.625,
+          "accuracy": 0.5555555555555556,
           "correct_prediction_count": 5,
           "label": "0.70-0.80",
           "lower_bound": 0.7,
-          "match_count": 8,
-          "mean_selected_probability": 0.7557555916679751,
+          "match_count": 9,
+          "mean_selected_probability": 0.7526639385457666,
           "upper_bound": 0.8
         },
         {
@@ -51,26 +51,26 @@
           "upper_bound": 1.0
         }
       ],
-      "correct_prediction_count": 39,
-      "log_loss": 0.711435846882015,
-      "mean_selected_probability": 0.6621697569710628,
+      "correct_prediction_count": 40,
+      "log_loss": 0.7222445471737182,
+      "mean_selected_probability": 0.6598776358292457,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 71
+      "settled_match_count": 75
     },
     "baseline_name": "overall_elo_v1",
-    "brier_improvement_baseline_minus_genome": 0.00269666150819442,
+    "brier_improvement_baseline_minus_genome": 0.006021466618668314,
     "genome": {
-      "accuracy": 0.5352112676056338,
-      "brier_score": 0.2513433984202686,
-      "calibration_gap_accuracy_minus_mean_selected_probability": -0.09190048705620302,
+      "accuracy": 0.52,
+      "brier_score": 0.25333217366410354,
+      "calibration_gap_accuracy_minus_mean_selected_probability": -0.10363864866723893,
       "confidence_buckets": [
         {
-          "accuracy": 0.48484848484848486,
-          "correct_prediction_count": 16,
+          "accuracy": 0.4594594594594595,
+          "correct_prediction_count": 17,
           "label": "0.50-0.60",
           "lower_bound": 0.5,
-          "match_count": 33,
-          "mean_selected_probability": 0.5447244536288941,
+          "match_count": 37,
+          "mean_selected_probability": 0.5465911091569193,
           "upper_bound": 0.6
         },
         {
@@ -101,29 +101,29 @@
           "upper_bound": 0.9
         }
       ],
-      "correct_prediction_count": 38,
-      "log_loss": 0.6965656179533053,
-      "mean_selected_probability": 0.6271117546618368,
+      "correct_prediction_count": 39,
+      "log_loss": 0.7005338610343503,
+      "mean_selected_probability": 0.623638648667239,
       "schema_version": "tennis-genome-web-shadow-metrics-v1",
-      "settled_match_count": 71
+      "settled_match_count": 75
     },
-    "log_loss_improvement_baseline_minus_genome": 0.014870228928709706,
+    "log_loss_improvement_baseline_minus_genome": 0.021710686139367885,
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
-    "settled_match_count": 71
+    "settled_match_count": 75
   },
   "baseline_match_count": 95,
   "metrics": {
-    "accuracy": 0.5512820512820513,
-    "brier_score": 0.25038218883274255,
-    "calibration_gap_accuracy_minus_mean_selected_probability": -0.07277411651115895,
+    "accuracy": 0.5365853658536586,
+    "brier_score": 0.25224807885271483,
+    "calibration_gap_accuracy_minus_mean_selected_probability": -0.08444323362101103,
     "confidence_buckets": [
       {
-        "accuracy": 0.5263157894736842,
-        "correct_prediction_count": 20,
+        "accuracy": 0.5,
+        "correct_prediction_count": 21,
         "label": "0.50-0.60",
         "lower_bound": 0.5,
-        "match_count": 38,
-        "mean_selected_probability": 0.5472337495763301,
+        "match_count": 42,
+        "mean_selected_probability": 0.5486392036417393,
         "upper_bound": 0.6
       },
       {
@@ -154,17 +154,17 @@
         "upper_bound": 0.9
       }
     ],
-    "correct_prediction_count": 43,
-    "log_loss": 0.6948226531288298,
-    "mean_selected_probability": 0.6240561677932103,
+    "correct_prediction_count": 44,
+    "log_loss": 0.6985371664261015,
+    "mean_selected_probability": 0.6210285994746696,
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
-    "settled_match_count": 78
+    "settled_match_count": 82
   },
   "official_slate_count": 27,
-  "pending_match_count": 21,
+  "pending_match_count": 17,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
-  "settled_match_count": 81,
+  "settled_match_count": 85,
   "slates": [
     {
       "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
@@ -1595,45 +1595,57 @@
           "match_id": "web:wta:1074:2026:LS005",
           "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
           "prediction_record_sha256": "580c5236b8b494cdf1231f0f80c04b62e2a4a78c01e694e6d9916a1898d14ab5",
+          "result_record_sha256": "9bfb397b8b67cbcedd961617852253a76c3b3b6da293ecada56c6c22975ae01a",
           "scheduled_start": "2026-11-06T14:00:00+08:00",
           "selected_player": "Zeynep Sonmez",
           "selected_probability": 0.577344594000792,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-05-run-42112534525/settlements/hong-kong-2026-qf-ls005-zeynep-sonmez-claire-liu.json",
+          "settlement_record_sha256": "4add31e13a0327ad1ffc7b8ab0df019db5dbe8574600488111a332f7b9553b3d",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-05-run-42112534525/baselines/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
           "match_id": "web:wta:1074:2026:LS004",
           "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
           "prediction_record_sha256": "e552781dc6ad21af46bf30741569ba021f6e844df204d3b42c341179313f5db1",
+          "result_record_sha256": "4a5b62d5dab21edff59a7d4849e6c00bc6ea5a98c5cfb6597117da622618ee17",
           "scheduled_start": "2026-11-06T16:30:00+08:00",
           "selected_player": "Sorana Cirstea",
           "selected_probability": 0.548826253474722,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-05-run-42112534525/settlements/hong-kong-2026-qf-ls004-sorana-cirstea-alexandra-shubladze.json",
+          "settlement_record_sha256": "90587c56c5a2ca9110bb76a00c055bb918dfa9933bd182fe4da6d72535475a9c",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-05-run-42112534525/baselines/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
           "match_id": "web:wta:1148:2026:LS004",
           "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
           "prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+          "result_record_sha256": "fbea34a98cfb45b47dcdce8c0a841e46901bf44c272154b582fdea0ddb73b8da",
           "scheduled_start": "2026-11-06T15:00:00+05:30",
           "selected_player": "Polina Kudermetova",
           "selected_probability": 0.5671465025576735,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-05-run-42112534525/settlements/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+          "settlement_record_sha256": "465363dd8f70d2aa7830ecaf88544061318286a496819be1fc120dab91167d83",
+          "status": "SETTLED"
         },
         {
           "baseline_path": "web-shadow/slates/2026-11-05-run-42112534525/baselines/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
           "match_id": "web:wta:1074:2026:LS006",
           "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
           "prediction_record_sha256": "1a5c1d1ff87f46058de8e177c10260e152f216a4fb747c830df0dcce378a5961",
+          "result_record_sha256": "8b9ca37e852ae3719f2e9fa427fe98e5f35bae97cca6199e685133cd8c192ef1",
           "scheduled_start": "2026-11-06T18:30:00+08:00",
           "selected_player": "Maria Sakkari",
           "selected_probability": 0.5546467190193193,
-          "status": "PENDING"
+          "settlement_path": "web-shadow/slates/2026-11-05-run-42112534525/settlements/hong-kong-2026-qf-ls006-aliaksandra-sasnovich-maria-sakkari.json",
+          "settlement_record_sha256": "258b80f4eb4cc5b422c3c027dcc8ad53f61966ccf0a831b8114c95a5677b8c78",
+          "status": "SETTLED"
         }
       ],
       "receipt_path": "web-shadow/slates/2026-11-05-run-42112534525/slate-receipt.json",
       "slate_id": "2026-11-05-run-42112534525",
-      "status": "PENDING_SETTLEMENT",
+      "status": "SETTLED",
       "workflow_run_id": 42112534525
     },
     {
