@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 75
   },
-  "baseline_match_count": 93,
+  "baseline_match_count": 95,
   "metrics": {
     "accuracy": 0.5365853658536586,
     "brier_score": 0.25224807885271483,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 82
   },
-  "official_slate_count": 26,
-  "pending_match_count": 15,
+  "official_slate_count": 27,
+  "pending_match_count": 17,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 85,
@@ -1647,6 +1647,35 @@
       "slate_id": "2026-11-05-run-42112534525",
       "status": "SETTLED",
       "workflow_run_id": 42112534525
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-07-run-42349455381/baselines/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+          "match_id": "web:wta:1074:2026:LS003",
+          "prediction_path": "web-shadow/slates/2026-11-07-run-42349455381/predictions/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+          "prediction_record_sha256": "8892260f7cbc695593719d10f2c4fab7fc275529180410c9769cdd6d5a32d661",
+          "scheduled_start": "2026-11-07T16:00:00+08:00",
+          "selected_player": "Alexandra Eala",
+          "selected_probability": 0.5701637070463826,
+          "status": "PENDING"
+        },
+        {
+          "baseline_path": "web-shadow/slates/2026-11-07-run-42349455381/baselines/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json",
+          "match_id": "web:wta:1148:2026:LS002",
+          "prediction_path": "web-shadow/slates/2026-11-07-run-42349455381/predictions/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json",
+          "prediction_record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+          "scheduled_start": "2026-11-07T18:00:00+05:30",
+          "selected_player": "Janice Tjen",
+          "selected_probability": 0.6329334412375903,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-07-run-42349455381/slate-receipt.json",
+      "slate_id": "2026-11-07-run-42349455381",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 42349455381
     }
   ]
 }

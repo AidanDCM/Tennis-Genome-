@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-07T07:01:44.442750+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS003",
+    "player_a": "Maria Sakkari",
+    "player_b": "Alexandra Eala",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-07T16:00:00+08:00",
+    "source_observed_at": "2026-11-06T19:28:37+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "e03c9d869c0f35eadb3bf8955741c09a5247db5cf818ee887ffce7cd99bdbbd3",
+  "model_source_sha": "b57e3e585e671e40946e99f644360961b424016a",
+  "p_player_a": 0.42983629295361736,
+  "p_player_b": 0.5701637070463826,
+  "player_a_id": "wta:id:206289",
+  "player_b_id": "wta:id:223253",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "8892260f7cbc695593719d10f2c4fab7fc275529180410c9769cdd6d5a32d661",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alexandra Eala"
+}
