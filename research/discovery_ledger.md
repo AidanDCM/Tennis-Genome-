@@ -55,6 +55,7 @@ Program-wide counts of tested/promoted/rejected ideas must be reported periodica
 | Uncertainty / OOD | ATP/WTA | abstention/confidence | Historical diagnostics; no market edge claim |
 | MARKET-HIST-001 | ATP/WTA | market data gate | Preregistered; blocked until licensed Betfair historical files are supplied |
 | MARKET-EDGE-001 | ATP/WTA | market incrementality | Preregistered; blocked on MARKET-HIST-001 |
+| SIMPLE-LOGIT-CHALLENGER-001 | ATP/WTA | exploratory complete-model challenger | Motivated after partial-2026 holdout exposure; BASE/RANK arms implemented for research, no forward result or promotion claim; RANK historical T0 unverified |
 
 ## Multiplicity policy going forward
 
