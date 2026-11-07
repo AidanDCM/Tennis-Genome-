@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "8892260f7cbc695593719d10f2c4fab7fc275529180410c9769cdd6d5a32d661",
+  "match_id": "web:wta:1074:2026:LS003",
+  "prediction_path": "web-shadow/slates/2026-11-07-run-42349455381/predictions/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-07T15:07:55+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "7-5 3-6 6-4",
+  "status": "COMPLETED",
+  "winner": "Alexandra Eala"
+}
