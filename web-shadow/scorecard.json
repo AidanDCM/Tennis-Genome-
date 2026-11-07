@@ -111,7 +111,7 @@
     "schema_version": "tennis-genome-web-shadow-baseline-comparison-v1",
     "settled_match_count": 77
   },
-  "baseline_match_count": 96,
+  "baseline_match_count": 97,
   "metrics": {
     "accuracy": 0.5476190476190477,
     "brier_score": 0.25004570908600476,
@@ -160,8 +160,8 @@
     "schema_version": "tennis-genome-web-shadow-metrics-v1",
     "settled_match_count": 84
   },
-  "official_slate_count": 28,
-  "pending_match_count": 16,
+  "official_slate_count": 29,
+  "pending_match_count": 17,
   "production_eligible": false,
   "schema_version": "tennis-genome-web-shadow-scorecard-v1",
   "settled_match_count": 87,
@@ -1701,6 +1701,25 @@
       "slate_id": "2026-11-07-run-42376160764",
       "status": "PENDING_SETTLEMENT",
       "workflow_run_id": 42376160764
+    },
+    {
+      "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+      "predictions": [
+        {
+          "baseline_path": "web-shadow/slates/2026-11-07-run-42418376306/baselines/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+          "match_id": "web:wta:1148:2026:LS001",
+          "prediction_path": "web-shadow/slates/2026-11-07-run-42418376306/predictions/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+          "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929",
+          "scheduled_start": "2026-11-08T18:30:00+05:30",
+          "selected_player": "Magda Linette",
+          "selected_probability": 0.510573822024917,
+          "status": "PENDING"
+        }
+      ],
+      "receipt_path": "web-shadow/slates/2026-11-07-run-42418376306/slate-receipt.json",
+      "slate_id": "2026-11-07-run-42418376306",
+      "status": "PENDING_SETTLEMENT",
+      "workflow_run_id": 42418376306
     }
   ]
 }

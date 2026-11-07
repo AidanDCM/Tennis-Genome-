@@ -1,0 +1,37 @@
+{
+  "eligible_target_count": 1,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-f-ls001-janice-tjen-magda-linette",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-f-ls001-janice-tjen-magda-linette/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "1d8e225153a0472d17542ac75bd93bc8a6939be827c7d7cb972ee696c09674b8",
+      "baseline_p_player_a": 0.6673229277006597,
+      "baseline_p_player_b": 0.3326770722993403,
+      "baseline_selected_player": "Magda Linette",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "match_id": "web:wta:1148:2026:LS001",
+      "minimum_point_exposure": 2357,
+      "p_player_a": 0.510573822024917,
+      "p_player_b": 0.48942617797508303,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-f-ls001-janice-tjen-magda-linette/prediction.json",
+      "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929",
+      "scheduled_start": "2026-11-08T18:30:00+05:30",
+      "selected_player": "Magda Linette",
+      "target_history_match_counts": {
+        "wta:id:202663": 459,
+        "wta:id:222145": 37
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 1,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
