@@ -54,7 +54,10 @@ jobs:
           [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
           [[ "${SOURCE_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]
           source="$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")"
-          test "$(jq -r .name <<<"${source}")" = "WTA Web Shadow Slate"
+          # GitHub's run-name changes .name and .display_title. The workflow
+          # path is the stable identity for both push and dispatched runs.
+          test "$(jq -r .path <<<"${source}")" = \
+            ".github/workflows/wta_web_shadow_slate.yml"
           test "$(jq -r .conclusion <<<"${source}")" = "success"
           test "$(jq -r .head_branch <<<"${source}")" = "main"
           test "$(jq -r .head_sha <<<"${source}")" = "${SOURCE_HEAD_SHA}"
