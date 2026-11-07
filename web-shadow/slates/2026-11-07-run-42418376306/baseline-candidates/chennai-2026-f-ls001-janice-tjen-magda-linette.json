@@ -1,0 +1,14 @@
+{
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": 0.696101811618235,
+  "match_id": "web:wta:1148:2026:LS001",
+  "matchup_input_sha256": "f4c08e5056d3663558a59c1ea12ae4588fd68e4553ff046295aaa60ae4060266",
+  "p_player_a": 0.6673229277006597,
+  "p_player_b": 0.3326770722993403,
+  "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929",
+  "production_eligible": false,
+  "record_sha256": "1d8e225153a0472d17542ac75bd93bc8a6939be827c7d7cb972ee696c09674b8",
+  "record_type": "WEB_SHADOW_BASELINE_CANDIDATE",
+  "schema_version": "tennis-genome-web-shadow-baseline-candidate-v1",
+  "selected_player": "Magda Linette"
+}

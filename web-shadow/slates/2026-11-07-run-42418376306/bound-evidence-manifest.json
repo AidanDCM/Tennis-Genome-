@@ -1,0 +1,25 @@
+{
+  "baseline_count": 1,
+  "eligible_target_count": 1,
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "chennai-2026-f-ls001-janice-tjen-magda-linette",
+      "baseline_candidate_path": "baseline-candidates/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "baseline_candidate_record_sha256": "1d8e225153a0472d17542ac75bd93bc8a6939be827c7d7cb972ee696c09674b8",
+      "baseline_path": "baselines/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "baseline_record_sha256": "50fc7119164ac5f55ad2d6135a917c9a0205d4aebd69c1e397730e7aeae39647",
+      "match_id": "web:wta:1148:2026:LS001",
+      "prediction_path": "predictions/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-bound-evidence-v1",
+  "skipped_target_count": 0,
+  "slate_id": "2026-11-07-run-42418376306",
+  "workflow_artifact_id": 13592119282,
+  "workflow_artifact_sha256": "e29eb650e8c495f19f9989c6e5e2e623e26f93b24fe47fac4e40c83b554a2628",
+  "workflow_run_id": 42418376306,
+  "workflow_source_sha": "06866531ba46fda6334c1e0be9c0bb9c826a0112"
+}
