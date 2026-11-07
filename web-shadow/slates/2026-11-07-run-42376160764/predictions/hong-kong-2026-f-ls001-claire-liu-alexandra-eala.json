@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-07T13:17:08.074501+00:00",
+  "fixture": {
+    "match_id": "web:wta:1074:2026:LS001",
+    "player_a": "Claire Liu",
+    "player_b": "Alexandra Eala",
+    "round": "F",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "scheduled_start": "2026-11-08T16:00:00+08:00",
+    "source_observed_at": "2026-11-07T13:13:14+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Prudential Hong Kong Tennis Open",
+    "tournament_id": "web:wta:hong-kong:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "40566bfcbc80b4660b1138483cacc13bb13c59b79fe64e59e95b2f9eecd9c3b5",
+  "model_source_sha": "0c84fa971950749da9657d02bb4907aac4ab878a",
+  "p_player_a": 0.3914357777299823,
+  "p_player_b": 0.6085642222700177,
+  "player_a_id": "wta:id:214906",
+  "player_b_id": "wta:id:223253",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "257608990b38b6a576ccc6c8586f535ce4244d1d70865064a8659c1cd407967a",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Alexandra Eala"
+}

@@ -1,0 +1,37 @@
+{
+  "eligible_target_count": 1,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 1,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-f-ls001-claire-liu-alexandra-eala",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-f-ls001-claire-liu-alexandra-eala/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "61a61ab9d5962ab70e1bb8676501d054517a49a997e5bf415fb54e37d7c9e3aa",
+      "baseline_p_player_a": 0.36360646488399306,
+      "baseline_p_player_b": 0.6363935351160069,
+      "baseline_selected_player": "Alexandra Eala",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-f-ls001-claire-liu-alexandra-eala.json",
+      "match_id": "web:wta:1074:2026:LS001",
+      "minimum_point_exposure": 5113,
+      "p_player_a": 0.3914357777299823,
+      "p_player_b": 0.6085642222700177,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-f-ls001-claire-liu-alexandra-eala/prediction.json",
+      "prediction_record_sha256": "257608990b38b6a576ccc6c8586f535ce4244d1d70865064a8659c1cd407967a",
+      "scheduled_start": "2026-11-08T16:00:00+08:00",
+      "selected_player": "Alexandra Eala",
+      "target_history_match_counts": {
+        "wta:id:214906": 125,
+        "wta:id:223253": 75
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 1,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 0,
+  "skipped_targets": []
+}
