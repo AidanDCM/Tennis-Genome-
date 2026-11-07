@@ -1,0 +1,23 @@
+{
+  "research_only": true,
+  "source_files_sha256": {
+    "atp_matches_2010.csv": "135a4a1e2ab69c33318b6e5ad59efc67cc5358629b15bf28fb2f905d48f7aeb0",
+    "atp_matches_2011.csv": "8e91e4b680f0b4e9605a3c71b4c676b55e2a102de8544a7d3b2fbaca5977575a",
+    "atp_matches_2012.csv": "03f03612691af370c9c47939dde4202d9858e05ea044367388115e627d4d13f3",
+    "atp_matches_2013.csv": "9e1e3b124ac22c1b840118f78475a910cb2ea68684289581f70b54a022f2832c",
+    "atp_matches_2014.csv": "7c102ee3b0da1fee59edc6a5f280eb0784ac0bad69988583f65791dcb7084177",
+    "atp_matches_2015.csv": "20c1f723df86b367f3ec205bbda3d8a7163fa6d4e46dcfda15095e24965bc5ed",
+    "atp_matches_2016.csv": "86dda3871cb79d3226a047774c8fc97b86267cfe96709dea832a347dfbf81684",
+    "atp_matches_2017.csv": "4bb295788c37487b120cd39171d413cef0ebc6f4c2d9fa40b7261f5143f3719f",
+    "atp_matches_2018.csv": "0363dc6012190f337fcf34b4ca443634f192c4670cc6c14c94342a54b9adf7eb",
+    "atp_matches_2019.csv": "7f1a21451ff622bb0c6a09690898db46d51e59dcdf08086d369753822e1d5478",
+    "atp_matches_2020.csv": "985a917b72d5efb7dd5ef9df8ecc58c637ed6b88561ccad364653af71ac12da0",
+    "atp_matches_2021.csv": "b9b1d31a4b0b9273b8f338cbb1347c5a847ad2361334ec760a286f5990fba347",
+    "atp_matches_2022.csv": "7190042565ab8400e74f44fda60700acb36ddf3c82d393f331a07589e05b5f52",
+    "atp_matches_2023.csv": "9b9671aa7c8156e74c2e4466675b7ed4e762bb8a58b7237a30daefd84ffceff5",
+    "atp_matches_2024.csv": "73aec32247a0db68d8aa8fd8003eefea132905177f1cb145502d9215b53311be",
+    "atp_matches_2025.csv": "78c356ef9328b89ae58a17564d61c02cdad2a3a007f6b8af5cfc17992b11bb2d"
+  },
+  "tour": "ATP",
+  "upstream_commit": "83733587353df8a41f2fd4f516147d5aa83f5a8d"
+}
