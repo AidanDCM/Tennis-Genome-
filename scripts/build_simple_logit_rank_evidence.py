@@ -137,7 +137,7 @@ def build_evidence(
             raise ValueError("existing ranking evidence differs")
     else:
         temporary = output_path.with_name(output_path.name + ".tmp")
-        temporary.write_text(data, encoding="utf-8")
+        temporary.write_text(data, encoding="utf-8", newline="\n")
         temporary.replace(output_path)
     return result
 

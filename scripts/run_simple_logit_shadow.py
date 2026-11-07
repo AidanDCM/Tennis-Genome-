@@ -176,7 +176,7 @@ def run_shadow(
             raise ValueError("existing immutable challenger prediction differs")
     else:
         temporary = output_path.with_name(output_path.name + ".tmp")
-        temporary.write_text(data, encoding="utf-8")
+        temporary.write_text(data, encoding="utf-8", newline="\n")
         temporary.replace(output_path)
     return record
 

@@ -36,7 +36,7 @@ def _write_once(path: Path, value: object) -> None:
             raise ValueError(f"existing frozen artifact differs: {path}")
         return
     temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(data, encoding="utf-8")
+    temporary.write_text(data, encoding="utf-8", newline="\n")
     temporary.replace(path)
 
 
