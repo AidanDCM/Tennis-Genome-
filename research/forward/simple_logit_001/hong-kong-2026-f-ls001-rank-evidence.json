@@ -1,0 +1,39 @@
+{
+  "match_id": "web:wta:1074:2026:LS001",
+  "observed_at_utc": "2026-11-02T19:51:38.186270+00:00",
+  "player_a_id": "wta:id:214906",
+  "player_b_id": "wta:id:223253",
+  "players": [
+    {
+      "api_tennis_player_key": 509,
+      "birthdate": "2000-05-25",
+      "canonical_player_id": "wta:id:214906",
+      "country": "USA",
+      "player_name": "Claire Liu",
+      "rank": 109,
+      "rank_points": 691
+    },
+    {
+      "api_tennis_player_key": 3490,
+      "birthdate": "2005-05-23",
+      "canonical_player_id": "wta:id:223253",
+      "country": "Philippines",
+      "player_name": "Alexandra Eala",
+      "rank": 19,
+      "rank_points": 2241
+    }
+  ],
+  "production_eligible": false,
+  "profile_artifact_id": 13174552258,
+  "profile_manifest_sha256": "f4b69e872eeca787815284d0c3e050ef8afc4846c2cee770fbb5383ff573a45b",
+  "profile_observed_at_utc": "2026-11-02T19:53:44.768558+00:00",
+  "profile_raw_sha256": "35d52f2826e4672b52bc705fba5f15950f85ee5c66a452fc88fdbc988cbbed95",
+  "profile_run_id": 41514115221,
+  "ranking_effective_date_claimed": false,
+  "record_sha256": "47d36b89b8648d689a2076b0d51865082c3540458ec9dcba335d8e8cd18066d4",
+  "schema_version": "simple-logit-retained-ranking-evidence-v1",
+  "standings_artifact_id": 13174306885,
+  "standings_manifest_sha256": "03ba9a5bf382b5ade6d62b1a852d5cb54c77d34a52725dd48b9ec75d41a9e00b",
+  "standings_raw_sha256": "c4921964fb9610c384be29276060db5fe55db2cef41ddaeb599abc8609f5c562",
+  "standings_run_id": 41513797254
+}

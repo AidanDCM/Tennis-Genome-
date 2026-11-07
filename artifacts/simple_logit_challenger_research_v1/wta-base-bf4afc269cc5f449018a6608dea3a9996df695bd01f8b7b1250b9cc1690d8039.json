@@ -1,0 +1,63 @@
+{
+  "payload": {
+    "c": 0.5,
+    "coefficients": [
+      0.18002092878213696,
+      0.4870073476649978,
+      0.09672472593612097,
+      0.03954121875911598,
+      0.098788206673442,
+      -0.1153310653704656,
+      -0.037450381573350504,
+      -0.06034888198272117,
+      0.03772259837519105,
+      0.0036649095041821744,
+      0.0,
+      0.1332278204992655,
+      0.07550925174218359,
+      0.02476086848282383
+    ],
+    "feature_names": [
+      "elo_logit",
+      "serve_return_edge",
+      "form_result_30_diff",
+      "form_point_30_diff",
+      "minutes_14_diff",
+      "event_gap_days_diff",
+      "age_diff",
+      "age_curve_diff",
+      "height_diff",
+      "left_hand_diff",
+      "best_of_five_elo",
+      "surface_hard_elo",
+      "surface_clay_elo",
+      "surface_grass_elo"
+    ],
+    "historical_target_t0_verified": false,
+    "include_rank": false,
+    "production_eligible": false,
+    "scale": [
+      0.9572949959734752,
+      0.06720532658280196,
+      0.28187278394525206,
+      0.04588825272128382,
+      2.460489095897216,
+      158.67583413982172,
+      4.098388819721826,
+      34.911985933661704,
+      8.13221088750596,
+      0.3988305237780996,
+      1.0,
+      0.7561389780707108,
+      0.4893049646871485,
+      0.3406858268683912
+    ],
+    "schema_version": "simple-logit-challenger-research-v1",
+    "source_manifest_sha256": "d3dd4e11276a0e157e881166d35fe739b3871dc14a477afeb146346327c49d99",
+    "tour": "WTA",
+    "training_end": "2025-11-01",
+    "training_population_sha256": "364abc6651070ca1e20675a7758cd2b46407c971425778e55bda160b8f8b284d",
+    "training_rows": 41145
+  },
+  "semantic_sha256": "bf4afc269cc5f449018a6608dea3a9996df695bd01f8b7b1250b9cc1690d8039"
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import fields, replace
 from datetime import date
 
@@ -57,9 +58,7 @@ def test_training_is_chronological_and_player_symmetric(include_rank: bool) -> N
     model = SimpleLogitChallenger(include_rank=include_rank).fit(training)
     target = _example("future", date(2025, 1, 1), 0.7, None)
     probability = model.predict_probability_a(target)
-    flipped_values = {
-        name: -getattr(target.snapshot, name) for name in BASE_FEATURES
-    }
+    flipped_values = {name: -getattr(target.snapshot, name) for name in BASE_FEATURES}
     swapped = ChallengerExample(
         snapshot=replace(target.snapshot, **flipped_values),
         state=replace(
@@ -100,3 +99,35 @@ def test_unfitted_and_unlabeled_training_are_rejected() -> None:
         model.predict_probability_a(target)
     with pytest.raises(ValueError, match="labeled"):
         model.fit([target])
+
+
+@pytest.mark.parametrize("include_rank", [False, True])
+def test_frozen_artifact_round_trip_and_tamper_rejection(include_rank: bool) -> None:
+    training = [
+        _example("one", date(2024, 1, 1), 1.0, True),
+        _example("two", date(2024, 1, 2), -1.0, False),
+    ]
+    fitted = SimpleLogitChallenger(include_rank=include_rank).fit(training)
+    frozen = fitted.freeze(
+        tour="WTA",
+        training_population_sha256="a" * 64,
+        source_manifest_sha256="b" * 64,
+    )
+    record = frozen.sealed_record()
+    restored = type(frozen).from_sealed_record(record)
+    target = _example("future", date(2025, 1, 1), 0.7, None)
+    assert restored.predict_probability_a(target) == pytest.approx(
+        fitted.predict_probability_a(target), abs=1e-12
+    )
+    tampered = deepcopy(record)
+    tampered["payload"]["coefficients"][0] += 0.1
+    with pytest.raises(ValueError, match="hash mismatch"):
+        type(frozen).from_sealed_record(tampered)
+    with pytest.raises(ValueError, match="after frozen training"):
+        restored.predict_probability_a(training[0])
+    with pytest.raises(ValueError, match="training tour"):
+        fitted.freeze(
+            tour="ATP",
+            training_population_sha256="a" * 64,
+            source_manifest_sha256="b" * 64,
+        )
