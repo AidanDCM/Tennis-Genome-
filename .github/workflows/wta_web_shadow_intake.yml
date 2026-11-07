@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -16,7 +17,7 @@ concurrency:
 jobs:
   acquire-and-propose:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 55
 
     steps:
       - uses: actions/checkout@v4
@@ -234,7 +235,8 @@ jobs:
           echo "selected=true" >> "${GITHUB_OUTPUT}"
           echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
 
-      - name: Open scientific review PR
+      - name: Open paper-only intake PR
+        id: publish
         if: >-
           steps.commit.outputs.selected == 'true'
         shell: bash
@@ -258,11 +260,12 @@ jobs:
           - Deterministically selected unseen matches: ${selected_count}
           - Tournament index role: audit/discovery only
           - Selection authority: \`web-shadow/intake-config.json\`
-          - Auto-merge: disabled
+          - Merge policy: automatic only after the source, fixture, full-test,
+            exact-head CI, and pre-start gates pass; otherwise the PR remains for review
 
           The official provider bytes, their SHA-256 values, the frozen
           selection manifest, and generated fixtures are retained in this PR.
-          Merging this PR is the review gate that allows the existing
+          Merging this PR allows the existing
           \`WTA Web Shadow Slate\` workflow to run on \`main\`.
           EOF
 
@@ -296,3 +299,130 @@ jobs:
           fi
 
           echo "${pr_output}"
+          echo "pr_number=$(gh pr view "${BRANCH_NAME}" --json number --jq .number)" >> "${GITHUB_OUTPUT}"
+          echo "head_sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
+
+      - name: Run CI on the exact intake commit
+        if: steps.publish.outputs.pr_number != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.commit.outputs.branch }}
+          HEAD_SHA: ${{ steps.publish.outputs.head_sha }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+        run: |
+          set -euo pipefail
+          gh workflow run ci.yml \
+            --ref "${BRANCH_NAME}" \
+            -f intake_snapshot_id="${SNAPSHOT_ID}"
+          ci_run_id=""
+          for attempt in {1..30}; do
+            ci_run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?event=workflow_dispatch&per_page=30" \
+              --jq ".workflow_runs[] | select(.display_title == \"CI ${SNAPSHOT_ID}\" and .head_sha == \"${HEAD_SHA}\") | .id" \
+              | head -n 1)"
+            [ -n "${ci_run_id}" ] && break
+            sleep 4
+          done
+          if [ -z "${ci_run_id}" ]; then
+            echo "::error::exact-head CI dispatch did not create an identifiable run"
+            exit 1
+          fi
+          gh run watch "${ci_run_id}" --exit-status
+
+      - name: Merge validated intake while predictions are still possible
+        if: success() && steps.publish.outputs.pr_number != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.publish.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.publish.outputs.head_sha }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+        run: |
+          set -euo pipefail
+          pr_state="$(gh pr view "${PR_NUMBER}" --json state,headRefOid,baseRefName)"
+          test "$(jq -r .state <<<"${pr_state}")" = "OPEN"
+          test "$(jq -r .headRefOid <<<"${pr_state}")" = "${HEAD_SHA}"
+          test "$(jq -r .baseRefName <<<"${pr_state}")" = "main"
+
+          python -S - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime, timedelta
+          from pathlib import Path
+
+          root = Path('web-shadow')
+          manifest = json.loads((root / 'intake-evidence' / os.environ['SNAPSHOT_ID'] / 'intake-manifest.json').read_text())
+          slate = json.loads((root / 'active-slate.json').read_text())
+          selected = manifest['selected']
+          paths = slate['fixture_paths']
+          if (manifest['production_eligible'] is not False
+                  or len(selected) != manifest['selected_match_count']
+                  or not selected
+                  or paths != [item['fixture_path'] for item in selected]
+                  or len(set(paths)) != len(paths)):
+              raise SystemExit('intake selection and active slate disagree')
+          cutoff = datetime.now(UTC) + timedelta(minutes=10)
+          future = 0
+          for item in selected:
+              path = Path(item['fixture_path'])
+              if path.parts[:2] != ('web-shadow', 'fixtures') or '..' in path.parts:
+                  raise SystemExit('fixture path escapes the paper-only lane')
+              fixture = json.loads(path.read_text())
+              if (fixture['match_id'] != item['match_id']
+                      or fixture['scheduled_start'] != item['scheduled_start']
+                      or fixture['tour'] != 'WTA'):
+                  raise SystemExit('frozen fixture differs from intake selection')
+              scheduled = datetime.fromisoformat(fixture['scheduled_start'])
+              observed = datetime.fromisoformat(fixture['source_observed_at'])
+              if observed >= scheduled:
+                  raise SystemExit('official fixture observation was not pre-start')
+              future += scheduled > cutoff
+          if not future:
+              raise SystemExit('no fixture has ten minutes of pre-start runway')
+          print(f'{future} of {len(selected)} fixtures retain pre-start runway')
+          PY
+
+          # The intake job has already run Ruff and the full test suite on
+          # these exact generated files. The slate runner independently skips
+          # fixtures whose scheduled start has passed at prediction time.
+          gh pr merge "${PR_NUMBER}" --squash --delete-branch
+
+      - name: Run the merged slate and request its evidence freeze
+        if: steps.publish.outputs.pr_number != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.publish.outputs.pr_number }}
+          SNAPSHOT_ID: ${{ steps.stamp.outputs.snapshot_id }}
+        run: |
+          set -euo pipefail
+          merged_sha="$(gh pr view "${PR_NUMBER}" --json mergeCommit --jq .mergeCommit.oid)"
+          [[ "${merged_sha}" =~ ^[0-9a-f]{40}$ ]]
+
+          # GITHUB_TOKEN merges do not reliably produce a push-triggered
+          # downstream workflow. Dispatch both stages explicitly.
+          gh workflow run wta_web_shadow_slate.yml \
+            --ref main \
+            -f slate_path=web-shadow/active-slate.json \
+            -f intake_snapshot_id="${SNAPSHOT_ID}"
+
+          source_run_id=""
+          for attempt in {1..30}; do
+            source_run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/wta_web_shadow_slate.yml/runs?event=workflow_dispatch&branch=main&per_page=30" \
+              --jq ".workflow_runs[] | select(.display_title == \"WTA Web Shadow Slate ${SNAPSHOT_ID}\" and .head_sha == \"${merged_sha}\") | .id" \
+              | head -n 1)"
+            [ -n "${source_run_id}" ] && break
+            sleep 4
+          done
+          if [ -z "${source_run_id}" ]; then
+            echo "::error::slate dispatch did not create an identifiable run"
+            exit 1
+          fi
+          gh run watch "${source_run_id}" --exit-status
+          gh workflow run wta_web_shadow_auto_freeze.yml \
+            --ref main \
+            -f source_run_id="${source_run_id}" \
+            -f source_head_sha="${merged_sha}"
+          echo "Dispatched evidence freeze for slate run ${source_run_id}." >> "${GITHUB_STEP_SUMMARY}"

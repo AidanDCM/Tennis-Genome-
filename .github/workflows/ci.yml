@@ -1,6 +1,13 @@
 name: CI
+run-name: CI ${{ inputs.intake_snapshot_id || github.sha }}
 
 on:
+  workflow_dispatch:
+    inputs:
+      intake_snapshot_id:
+        description: "Paper-only intake snapshot under test"
+        required: false
+        type: string
   push:
     branches:
       - main

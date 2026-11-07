@@ -1,4 +1,5 @@
 name: WTA Web Shadow Slate
+run-name: WTA Web Shadow Slate ${{ inputs.intake_snapshot_id || github.sha }}
 
 on:
   push:
@@ -23,6 +24,10 @@ on:
       - "artifacts/tge_independent_v1_production/**"
   workflow_dispatch:
     inputs:
+      intake_snapshot_id:
+        description: "Official paper-only intake snapshot to run"
+        required: false
+        type: string
       slate_path:
         description: "Repository path under web-shadow/"
         required: true
@@ -55,6 +60,7 @@ jobs:
         shell: bash
         env:
           DISPATCH_SLATE_PATH: ${{ inputs.slate_path }}
+          INTAKE_SNAPSHOT_ID: ${{ inputs.intake_snapshot_id }}
         run: |
           set -euo pipefail
           if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
@@ -67,6 +73,11 @@ jobs:
             *) echo "slate_path must be under web-shadow/" >&2; exit 1 ;;
           esac
           test -f "${SLATE_PATH}"
+          if [ -n "${INTAKE_SNAPSHOT_ID}" ]; then
+            test "${SLATE_PATH}" = "web-shadow/active-slate.json"
+            test "$(jq -r .rerun_reason "${SLATE_PATH}")" = \
+              "automatic-wta-intake-${INTAKE_SNAPSHOT_ID}"
+          fi
           echo "SLATE_PATH=${SLATE_PATH}" >> "${GITHUB_ENV}"
 
       - uses: actions/setup-python@v5
