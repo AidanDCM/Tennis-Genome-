@@ -30,6 +30,8 @@ def test_auto_freeze_has_minimum_write_permissions() -> None:
 
 def test_auto_freeze_resolves_and_verifies_exact_bound_artifact() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
+    assert 'jq -r .path <<<"${source}"' in text
+    assert 'jq -r .name <<<"${source}"' not in text
     assert 'artifact_name="web-shadow-bound-evidence-${SOURCE_RUN_ID}"' in text
     assert "actions/runs/${SOURCE_RUN_ID}/artifacts?per_page=100" in text
     assert "expected exactly one live bound artifact" in text
