@@ -1,6 +1,16 @@
 name: WTA Web Shadow Auto Freeze
 
 on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful main-branch WTA Web Shadow Slate run ID"
+        required: true
+        type: string
+      source_head_sha:
+        description: "Exact source commit for the slate run"
+        required: true
+        type: string
   workflow_run:
     workflows:
       - "WTA Web Shadow Slate"
@@ -17,15 +27,16 @@ permissions:
 jobs:
   freeze-pr:
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.head_repository.full_name == github.repository
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
-      SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id || github.event.workflow_run.id }}
+      SOURCE_HEAD_SHA: ${{ inputs.source_head_sha || github.event.workflow_run.head_sha }}
       REPO: ${{ github.repository }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,6 +46,21 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Verify source run identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${SOURCE_RUN_ID}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${SOURCE_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]
+          source="$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")"
+          test "$(jq -r .name <<<"${source}")" = "WTA Web Shadow Slate"
+          test "$(jq -r .conclusion <<<"${source}")" = "success"
+          test "$(jq -r .head_branch <<<"${source}")" = "main"
+          test "$(jq -r .head_sha <<<"${source}")" = "${SOURCE_HEAD_SHA}"
+          test "$(jq -r .head_repository.full_name <<<"${source}")" = "${REPO}"
+          event="$(jq -r .event <<<"${source}")"
+          test "${event}" = "push" || test "${event}" = "workflow_dispatch"
 
       - name: Guard idempotency
         id: guard
@@ -314,7 +340,7 @@ jobs:
           cat > "${body}" <<EOF
           ## Automated Web Shadow freeze
 
-          This PR was generated from a successful **push-triggered main-branch** Web Shadow run.
+          This PR was generated from a successful **main-branch** Web Shadow run.
 
           - Slate: \`${SLATE_ID}\`
           - Source workflow run: \`${SOURCE_RUN_ID}\`
