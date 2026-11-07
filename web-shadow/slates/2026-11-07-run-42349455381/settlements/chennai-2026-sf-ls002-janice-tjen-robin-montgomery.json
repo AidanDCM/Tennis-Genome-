@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1148:2026:LS002",
+  "prediction_correct": true,
+  "prediction_record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+  "production_eligible": false,
+  "record_sha256": "7b06bfc8bebc3a8c860e3e943d4c31a1b36e00898f5780de59aa096701703c95",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-07T15:07:55+00:00",
+  "result_record_path": "web-shadow/results/2026-11-07-chennai-2026-sf-ls002-janice-tjen-robin-montgomery-d44cfa98db.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Janice Tjen"
+}

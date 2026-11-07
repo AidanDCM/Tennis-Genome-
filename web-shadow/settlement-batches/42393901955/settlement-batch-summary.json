@@ -1,0 +1,39 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 2,
+  "evaluation_eligible_count": 2,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 2,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS003",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-07-run-42349455381/predictions/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+      "prediction_record_sha256": "8892260f7cbc695593719d10f2c4fab7fc275529180410c9769cdd6d5a32d661",
+      "result_path": "web-shadow/results/2026-11-07-hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala-8892260f7c.json",
+      "result_record_sha256": "f96709f6ea7917626aea7588656f546c8966ded4476a7dceb64ac3c3364dc8dc",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-07-run-42349455381/settlements/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+      "settlement_record_sha256": "1f0e559fb339bfa9ec1822509912e5631f26df843158fccc6e6bc4abc66f37f8",
+      "slate_id": "2026-11-07-run-42349455381",
+      "winner": "Alexandra Eala"
+    },
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS002",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-07-run-42349455381/predictions/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json",
+      "prediction_record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+      "result_path": "web-shadow/results/2026-11-07-chennai-2026-sf-ls002-janice-tjen-robin-montgomery-d44cfa98db.json",
+      "result_record_sha256": "e20b9f88f3b93847ab7a43a247a32a6dd92e24395b2b305ef850a4d918c0bbec",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-07-run-42349455381/settlements/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json",
+      "settlement_record_sha256": "7b06bfc8bebc3a8c860e3e943d4c31a1b36e00898f5780de59aa096701703c95",
+      "slate_id": "2026-11-07-run-42349455381",
+      "winner": "Janice Tjen"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 2,
+  "slate_count": 1
+}
