@@ -1,0 +1,12 @@
+{
+  "expected_prediction_record_sha256": "94666a2d1c20856f00ca4fd0d5d9d0083196ecf47f11ea25855ab14a28001598",
+  "match_id": "web:wta:1148:2026:LS004",
+  "prediction_path": "web-shadow/slates/2026-11-05-run-42112534525/predictions/chennai-2026-qf-ls004-janice-tjen-polina-kudermetova.json",
+  "production_eligible": false,
+  "result_observed_at": "2026-11-07T01:11:44+00:00",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-public-result-v1",
+  "score": "5-7 6-4 6-2",
+  "status": "COMPLETED",
+  "winner": "Janice Tjen"
+}
