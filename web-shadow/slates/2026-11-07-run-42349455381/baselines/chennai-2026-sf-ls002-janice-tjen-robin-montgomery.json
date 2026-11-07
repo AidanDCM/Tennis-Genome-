@@ -1,0 +1,17 @@
+{
+  "artifact_id": 13565052311,
+  "artifact_sha256": "c2ddfbecb0c2680ca0446e32e4259359a456d4165a1f305930d2c43ca725b132",
+  "baseline_name": "overall_elo_v1",
+  "elo_logit": -0.34194145368695644,
+  "match_id": "web:wta:1148:2026:LS002",
+  "matchup_input_sha256": "106239df552990ef2150bc51279834e2fc09119d07c835ab43794f32ff0d1ebc",
+  "p_player_a": 0.4153379519721337,
+  "p_player_b": 0.5846620480278664,
+  "prediction_record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+  "production_eligible": false,
+  "record_sha256": "ae86b6096ce00b87cb1578fbacab0d077bfc393175b56e3e9b2859fc566b923d",
+  "record_type": "WEB_SHADOW_BASELINE",
+  "schema_version": "tennis-genome-web-shadow-baseline-v1",
+  "selected_player": "Janice Tjen",
+  "slate_id": "2026-11-07-run-42349455381"
+}

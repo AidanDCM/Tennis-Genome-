@@ -1,0 +1,65 @@
+{
+  "eligible_target_count": 3,
+  "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
+  "predicted_target_count": 2,
+  "production_eligible": false,
+  "results": [
+    {
+      "artifact_stem": "hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "ec3bd74ea0c499f32f007194eb719df6b83e9739103cf932f0f9c1ef701be33f",
+      "baseline_p_player_a": 0.48072807580963983,
+      "baseline_p_player_b": 0.5192719241903602,
+      "baseline_selected_player": "Alexandra Eala",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala.json",
+      "match_id": "web:wta:1074:2026:LS003",
+      "minimum_point_exposure": 5113,
+      "p_player_a": 0.42983629295361736,
+      "p_player_b": 0.5701637070463826,
+      "prediction_path": "web-shadow-slate-run/matches/hong-kong-2026-sf-ls003-maria-sakkari-alexandra-eala/prediction.json",
+      "prediction_record_sha256": "8892260f7cbc695593719d10f2c4fab7fc275529180410c9769cdd6d5a32d661",
+      "scheduled_start": "2026-11-07T16:00:00+08:00",
+      "selected_player": "Alexandra Eala",
+      "target_history_match_counts": {
+        "wta:id:206289": 477,
+        "wta:id:223253": 75
+      }
+    },
+    {
+      "artifact_stem": "chennai-2026-sf-ls002-janice-tjen-robin-montgomery",
+      "baseline_candidate_path": "web-shadow-slate-run/matches/chennai-2026-sf-ls002-janice-tjen-robin-montgomery/baseline-candidate.json",
+      "baseline_candidate_record_sha256": "3f8537f988b01013c8d79423fadad23f7ffcc7664dc44abf415e11e7fe91afc7",
+      "baseline_p_player_a": 0.4153379519721337,
+      "baseline_p_player_b": 0.5846620480278664,
+      "baseline_selected_player": "Janice Tjen",
+      "fixture_path": "web-shadow/fixtures/chennai-2026-sf-ls002-janice-tjen-robin-montgomery.json",
+      "match_id": "web:wta:1148:2026:LS002",
+      "minimum_point_exposure": 2357,
+      "p_player_a": 0.3670665587624097,
+      "p_player_b": 0.6329334412375903,
+      "prediction_path": "web-shadow-slate-run/matches/chennai-2026-sf-ls002-janice-tjen-robin-montgomery/prediction.json",
+      "prediction_record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+      "scheduled_start": "2026-11-07T18:00:00+05:30",
+      "selected_player": "Janice Tjen",
+      "target_history_match_counts": {
+        "wta:id:221905": 46,
+        "wta:id:222145": 37
+      }
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-slate-v2",
+  "shared_calculator_load_count": 1,
+  "shared_feature_date_pass_count": 1,
+  "shared_feature_target_count": 3,
+  "shared_history_load_count": 1,
+  "shared_history_match_count": 78974,
+  "skipped_target_count": 1,
+  "skipped_targets": [
+    {
+      "artifact_stem": "hong-kong-2026-sf-ls002-alexandra-shubladze-claire-liu",
+      "fixture_path": "web-shadow/fixtures/hong-kong-2026-sf-ls002-alexandra-shubladze-claire-liu.json",
+      "reason": "prediction must be committed before scheduled start",
+      "reason_type": "ValueError"
+    }
+  ]
+}

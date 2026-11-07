@@ -1,0 +1,31 @@
+{
+  "calculator_assessment_status": "DIAGNOSTIC_ONLY_NO_HARD_PASS",
+  "committed_at": "2026-11-07T07:01:44.917557+00:00",
+  "fixture": {
+    "match_id": "web:wta:1148:2026:LS002",
+    "player_a": "Robin Montgomery",
+    "player_b": "Janice Tjen",
+    "round": "SF",
+    "schedule_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "scheduled_start": "2026-11-07T18:00:00+05:30",
+    "source_observed_at": "2026-11-06T19:28:37+00:00",
+    "source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+    "surface": "Hard",
+    "tour": "WTA",
+    "tournament": "Chennai Open",
+    "tournament_id": "web:wta:chennai:2026",
+    "tournament_level": "I"
+  },
+  "input_manifest_sha256": "106239df552990ef2150bc51279834e2fc09119d07c835ab43794f32ff0d1ebc",
+  "model_source_sha": "b57e3e585e671e40946e99f644360961b424016a",
+  "p_player_a": 0.3670665587624097,
+  "p_player_b": 0.6329334412375903,
+  "player_a_id": "wta:id:221905",
+  "player_b_id": "wta:id:222145",
+  "production_bundle_sha256": "7a5874325d57d4fa670e5515607a2ec6a02ecedc9fdfb87338367e8e4556a2f1",
+  "production_eligible": false,
+  "record_sha256": "d44cfa98dbeb701e0be6ade291006b1dfb02166c14da3be869ec9ca7493d20d2",
+  "record_type": "WEB_SHADOW_PREDICTION",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "selected_player": "Janice Tjen"
+}
