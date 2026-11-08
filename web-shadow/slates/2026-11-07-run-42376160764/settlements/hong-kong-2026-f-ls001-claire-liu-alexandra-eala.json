@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1074:2026:LS001",
+  "prediction_correct": false,
+  "prediction_record_sha256": "257608990b38b6a576ccc6c8586f535ce4244d1d70865064a8659c1cd407967a",
+  "production_eligible": false,
+  "record_sha256": "41771495e1f5702c08749b7b9923e5503a3ae86891f57477ff1f1d62a976e22f",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-08T10:45:27+00:00",
+  "result_record_path": "web-shadow/results/2026-11-08-hong-kong-2026-f-ls001-claire-liu-alexandra-eala-257608990b.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1074/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Claire Liu"
+}
