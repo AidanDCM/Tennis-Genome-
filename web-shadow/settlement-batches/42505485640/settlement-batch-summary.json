@@ -1,0 +1,26 @@
+{
+  "accuracy": 0.0,
+  "correct_prediction_count": 0,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1074:2026:LS001",
+      "prediction_correct": false,
+      "prediction_path": "web-shadow/slates/2026-11-07-run-42376160764/predictions/hong-kong-2026-f-ls001-claire-liu-alexandra-eala.json",
+      "prediction_record_sha256": "257608990b38b6a576ccc6c8586f535ce4244d1d70865064a8659c1cd407967a",
+      "result_path": "web-shadow/results/2026-11-08-hong-kong-2026-f-ls001-claire-liu-alexandra-eala-257608990b.json",
+      "result_record_sha256": "0818137ae07042ef6bc93741e689970c3895256816e96628fdf300cae711a9cd",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-07-run-42376160764/settlements/hong-kong-2026-f-ls001-claire-liu-alexandra-eala.json",
+      "settlement_record_sha256": "41771495e1f5702c08749b7b9923e5503a3ae86891f57477ff1f1d62a976e22f",
+      "slate_id": "2026-11-07-run-42376160764",
+      "winner": "Claire Liu"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
