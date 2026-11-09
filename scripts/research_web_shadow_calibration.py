@@ -126,7 +126,10 @@ def experiment(rows: list[dict], min_train: int = 30) -> dict:
     n = len(tests)
     challenger = {
         "n": n,
-        "accuracy": sum((p >= 0.5) == bool(y) for p, y in zip(challenger_probs, outcomes, strict=True))/n,
+        "accuracy": sum(
+            (p >= 0.5) == bool(y)
+            for p, y in zip(challenger_probs, outcomes, strict=True)
+        ) / n,
         "brier": sum((p-y)**2 for p, y in zip(challenger_probs, outcomes, strict=True))/n,
         "log_loss": -sum(
             y * math.log(p) + (1 - y) * math.log1p(-p)
