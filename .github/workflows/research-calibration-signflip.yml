@@ -1,0 +1,21 @@
+name: Research-only WTA calibration sign-flip
+on:
+  push:
+    branches:
+      - research/2026-11-09-calibration-audit
+    paths:
+      - scripts/research_calibration_signflip_real.py
+      - .github/workflows/research-calibration-signflip.yml
+  workflow_dispatch:
+jobs:
+  sensitivity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Execute real-data read-only sign-flip sensitivity
+        run: python scripts/research_calibration_signflip_real.py --repo-root .
