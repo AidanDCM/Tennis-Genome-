@@ -73,6 +73,62 @@ def paired_improvements(rows: list[dict], slopes: list[float]) -> dict:
             "log_loss": paired_interval(log_diffs)}
 
 
+
+def cluster_paired_interval(differences: list[float], cluster_keys: list[str]) -> dict:
+    """Descriptive cluster-robust mean interval; clusters are UTC start dates.
+
+    This is not a causal, independent or multiple-testing-adjusted interval.
+    """
+    if len(differences) != len(cluster_keys) or len(differences) < 2:
+        raise ValueError("cluster differences and keys must align with at least two rows")
+    if not all(math.isfinite(d) for d in differences):
+        raise ValueError("nonfinite paired difference")
+    clusters: dict[str, list[float]] = {}
+    for difference, key in zip(differences, cluster_keys, strict=True):
+        if not key:
+            raise ValueError("empty cluster key")
+        clusters.setdefault(key, []).append(difference)
+    count = len(clusters)
+    if count < 3:
+        raise ValueError("at least three independent date clusters required")
+    n = len(differences)
+    mean = sum(differences) / n
+    # Cluster sandwich estimate for an intercept-only regression, CR1.
+    # Unequal cluster sizes are accounted for by subtracting n_g * mean.
+    residual_sums = [
+        sum(values) - len(values) * mean for values in clusters.values()
+    ]
+    variance = count / (count - 1) * sum(x * x for x in residual_sums) / (n * n)
+    margin = 1.96 * math.sqrt(variance)
+    return {
+        "n": n, "cluster_count": count, "mean": mean,
+        "ci95_cluster_normal": [mean - margin, mean + margin],
+        "method": "UTC start-date CR1 normal approximation; descriptive only",
+    }
+
+
+def cluster_paired_improvements(rows: list[dict], slopes: list[float]) -> dict:
+    """Paired losses grouped by UTC start date; no bootstrap randomness."""
+    if len(rows) != len(slopes):
+        raise ValueError("paired rows/slopes mismatch")
+    keys = [r["start"].astimezone(UTC).date().isoformat() for r in rows]
+    brier = []
+    log_loss = []
+    for row, slope in zip(rows, slopes, strict=True):
+        y = int(row["correct"])
+        raw = adjusted(row["p"], 1.0)
+        candidate = adjusted(row["p"], slope)
+        brier.append((raw - y) ** 2 - (candidate - y) ** 2)
+        log_loss.append(
+            math.log(candidate / raw) if y
+            else math.log1p(-candidate) - math.log1p(-raw)
+        )
+    return {
+        "brier": cluster_paired_interval(brier, keys),
+        "log_loss": cluster_paired_interval(log_loss, keys),
+    }
+
+
 def read_rows(root: Path) -> tuple[list[dict], dict]:
     sc = json.loads((root / "web-shadow/scorecard.json").read_text())
     if sc["production_eligible"] is not False:
@@ -173,6 +229,8 @@ def experiment(rows: list[dict], min_train: int = 30) -> dict:
     fixed_half = score(test_rows, 0.5)
     intervals = paired_improvements(test_rows, chosen_slopes)
     half_intervals = paired_improvements(test_rows, [0.5] * n)
+    cluster_intervals = cluster_paired_improvements(test_rows, chosen_slopes)
+    half_cluster_intervals = cluster_paired_improvements(test_rows, [0.5] * n)
     return {"evaluated_n": n, "min_train": min_train, "slope_grid": list(slopes),
             "baseline": baseline, "challenger": challenger,
             "paired_brier_improvement": baseline["brier"] - challenger["brier"],
@@ -180,6 +238,8 @@ def experiment(rows: list[dict], min_train: int = 30) -> dict:
             "paired_uncertainty": intervals,
             "fixed_half_control": fixed_half,
             "fixed_half_paired_uncertainty": half_intervals,
+            "date_cluster_paired_uncertainty": cluster_intervals,
+            "fixed_half_date_cluster_paired_uncertainty": half_cluster_intervals,
             "uncertainty_caveat": (
                 "Descriptive unadjusted normal 95% intervals; repeated time-correlated "
                 "matches and exploratory model selection may invalidate coverage."
