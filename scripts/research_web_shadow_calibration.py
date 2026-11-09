@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -33,9 +33,12 @@ def score(rows: list[dict], slope: float) -> dict:
     n = len(rows)
     return {
         "n": n,
-        "accuracy": sum((p >= 0.5) == bool(y) for p, y in zip(probs, outcomes)) / n,
-        "brier": sum((p-y)**2 for p, y in zip(probs, outcomes)) / n,
-        "log_loss": -sum(y*math.log(p)+(1-y)*math.log1p(-p) for p, y in zip(probs, outcomes)) / n,
+        "accuracy": sum((p >= 0.5) == bool(y) for p, y in zip(probs, outcomes, strict=True)) / n,
+        "brier": sum((p-y)**2 for p, y in zip(probs, outcomes, strict=True)) / n,
+        "log_loss": -sum(
+            y * math.log(p) + (1 - y) * math.log1p(-p)
+            for p, y in zip(probs, outcomes, strict=True)
+        ) / n,
         "mean_selected_probability": sum(probs) / n,
     }
 
@@ -59,7 +62,8 @@ def read_rows(root: Path) -> tuple[list[dict], dict]:
             if path.is_absolute() or ".." in path.parts or path.parts[0] != "web-shadow":
                 raise ValueError(f"unsafe settlement path: {path}")
             settlement = json.loads((root / path).read_text())
-            if settlement["match_id"] != mid or settlement["record_sha256"] != entry["settlement_record_sha256"]:
+            if (settlement["match_id"] != mid or
+                    settlement["record_sha256"] != entry["settlement_record_sha256"]):
                 raise ValueError(f"settlement mismatch: {mid}")
             status = settlement["status"]
             statuses[status] = statuses.get(status, 0) + 1
@@ -83,8 +87,8 @@ def read_rows(root: Path) -> tuple[list[dict], dict]:
             p = float(entry["selected_probability"])
             if not 0.5 <= p < 1:
                 raise ValueError(f"invalid selected probability: {mid}")
-            rows.append({"id": mid, "start": start.astimezone(timezone.utc),
-                         "observed": observed.astimezone(timezone.utc),
+            rows.append({"id": mid, "start": start.astimezone(UTC),
+                         "observed": observed.astimezone(UTC),
                          "p": p, "correct": correct})
     rows.sort(key=lambda x: (x["start"], x["id"]))
     if len(rows) != sc["metrics"]["settled_match_count"]:
@@ -122,9 +126,12 @@ def experiment(rows: list[dict], min_train: int = 30) -> dict:
     n = len(tests)
     challenger = {
         "n": n,
-        "accuracy": sum((p >= 0.5) == bool(y) for p, y in zip(challenger_probs, outcomes))/n,
-        "brier": sum((p-y)**2 for p, y in zip(challenger_probs, outcomes))/n,
-        "log_loss": -sum(y*math.log(p)+(1-y)*math.log1p(-p) for p, y in zip(challenger_probs, outcomes))/n,
+        "accuracy": sum((p >= 0.5) == bool(y) for p, y in zip(challenger_probs, outcomes, strict=True))/n,
+        "brier": sum((p-y)**2 for p, y in zip(challenger_probs, outcomes, strict=True))/n,
+        "log_loss": -sum(
+            y * math.log(p) + (1 - y) * math.log1p(-p)
+            for p, y in zip(challenger_probs, outcomes, strict=True)
+        ) / n,
     }
     if abs(challenger["accuracy"] - baseline["accuracy"]) > 1e-12:
         raise AssertionError("positive slope must preserve winner accuracy")
