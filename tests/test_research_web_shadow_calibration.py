@@ -47,3 +47,40 @@ def test_experiment_never_uses_unobserved_results() -> None:
     ]
     with pytest.raises(ValueError, match="no causally eligible"):
         _module.experiment(rows, min_train=2)
+
+
+def test_cluster_interval_zero_differences() -> None:
+    result = _module.cluster_paired_interval(
+        [0.0, 0.0, 0.0, 0.0], ["2026-01-01", "2026-01-01", "2026-01-02", "2026-01-03"]
+    )
+    assert result["cluster_count"] == 3
+    assert result["ci95_cluster_normal"] == [0.0, 0.0]
+
+
+def test_cluster_interval_rejects_insufficient_clusters() -> None:
+    with pytest.raises(ValueError, match="three independent"):
+        _module.cluster_paired_interval([0.1, -0.1], ["a", "b"])
+    with pytest.raises(ValueError, match="align"):
+        _module.cluster_paired_interval([0.1, 0.2, 0.3], ["a"])
+
+
+def test_cluster_interval_unequal_clusters_mean_and_finite() -> None:
+    result = _module.cluster_paired_interval(
+        [1.0, 1.0, -1.0, 0.0], ["a", "a", "b", "c"]
+    )
+    assert result["n"] == 4
+    assert result["cluster_count"] == 3
+    assert result["mean"] == pytest.approx(0.25)
+    assert result["ci95_cluster_normal"][0] < 0.25
+    assert result["ci95_cluster_normal"][1] > 0.25
+
+
+def test_cluster_paired_improvements_identity() -> None:
+    t = datetime(2026, 1, 1, tzinfo=UTC)
+    rows = [
+        {"start": t + timedelta(days=i), "p": 0.65, "correct": bool(i % 2)}
+        for i in range(3)
+    ]
+    result = _module.cluster_paired_improvements(rows, [1.0] * 3)
+    assert result["brier"]["ci95_cluster_normal"] == [0.0, 0.0]
+    assert result["log_loss"]["ci95_cluster_normal"] == [0.0, 0.0]
