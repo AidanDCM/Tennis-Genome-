@@ -43,6 +43,36 @@ def score(rows: list[dict], slope: float) -> dict:
     }
 
 
+
+def paired_interval(differences: list[float]) -> dict:
+    """Descriptive normal-approximation CI; not an independent validation claim."""
+    n = len(differences)
+    if n < 2 or not all(math.isfinite(d) for d in differences):
+        raise ValueError("paired differences require at least two finite observations")
+    mean = sum(differences) / n
+    variance = sum((d - mean) ** 2 for d in differences) / (n - 1)
+    margin = 1.96 * math.sqrt(variance / n)
+    return {"n": n, "mean": mean, "ci95_normal": [mean - margin, mean + margin]}
+
+
+def paired_improvements(rows: list[dict], slopes: list[float]) -> dict:
+    if len(rows) != len(slopes):
+        raise ValueError("paired comparison requires aligned slopes")
+    brier_diffs = []
+    log_diffs = []
+    for row, slope in zip(rows, slopes, strict=True):
+        y = int(row["correct"])
+        raw = adjusted(row["p"], 1.0)
+        challenger = adjusted(row["p"], slope)
+        brier_diffs.append((raw - y) ** 2 - (challenger - y) ** 2)
+        log_diffs.append(
+            (math.log(challenger) - math.log(raw))
+            if y else (math.log1p(-challenger) - math.log1p(-raw))
+        )
+    return {"brier": paired_interval(brier_diffs),
+            "log_loss": paired_interval(log_diffs)}
+
+
 def read_rows(root: Path) -> tuple[list[dict], dict]:
     sc = json.loads((root / "web-shadow/scorecard.json").read_text())
     if sc["production_eligible"] is not False:
@@ -138,10 +168,22 @@ def experiment(rows: list[dict], min_train: int = 30) -> dict:
     }
     if abs(challenger["accuracy"] - baseline["accuracy"]) > 1e-12:
         raise AssertionError("positive slope must preserve winner accuracy")
+    test_rows = [r for r, _ in tests]
+    chosen_slopes = [s for _, s in tests]
+    fixed_half = score(test_rows, 0.5)
+    intervals = paired_improvements(test_rows, chosen_slopes)
+    half_intervals = paired_improvements(test_rows, [0.5] * n)
     return {"evaluated_n": n, "min_train": min_train, "slope_grid": list(slopes),
             "baseline": baseline, "challenger": challenger,
             "paired_brier_improvement": baseline["brier"] - challenger["brier"],
             "paired_log_loss_improvement": baseline["log_loss"] - challenger["log_loss"],
+            "paired_uncertainty": intervals,
+            "fixed_half_control": fixed_half,
+            "fixed_half_paired_uncertainty": half_intervals,
+            "uncertainty_caveat": (
+                "Descriptive unadjusted normal 95% intervals; repeated time-correlated "
+                "matches and exploratory model selection may invalidate coverage."
+            ),
             "selected_slopes": {str(s): sum(v == s for _, v in tests) for s in slopes},
             "evaluation_ids": [r["id"] for r, _ in tests],
             "research_only": True, "production_eligible": False,
