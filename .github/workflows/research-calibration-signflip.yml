@@ -19,4 +19,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Execute real-data read-only sign-flip sensitivity
-        run: python scripts/research_calibration_signflip_real.py --repo-root .
+        run: python scripts/research_calibration_signflip_real.py --repo-root . | tee date-cluster-sensitivity.json
+      - name: Upload read-only sensitivity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-date-cluster-sensitivity
+          path: date-cluster-sensitivity.json
+          if-no-files-found: warn
