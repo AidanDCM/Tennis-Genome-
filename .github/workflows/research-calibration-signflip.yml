@@ -5,6 +5,7 @@ on:
       - research/2026-11-09-calibration-audit
     paths:
       - scripts/research_calibration_signflip_real.py
+      - tests/test_research_calibration_signflip_real.py
       - .github/workflows/research-calibration-signflip.yml
   workflow_dispatch:
 jobs:
