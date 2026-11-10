@@ -12,8 +12,13 @@ import math
 from datetime import UTC
 from pathlib import Path
 
-from research_cluster_sign_flip import sign_flip_sensitivity
-from research_web_shadow_calibration import adjusted, experiment, read_rows, score
+# Support both package imports (pytest) and direct script execution (GitHub Actions).
+if __package__:
+    from .research_cluster_sign_flip import sign_flip_sensitivity
+    from .research_web_shadow_calibration import adjusted, experiment, read_rows, score
+else:
+    from research_cluster_sign_flip import sign_flip_sensitivity
+    from research_web_shadow_calibration import adjusted, experiment, read_rows, score
 
 
 def evaluate(root: Path) -> dict:
