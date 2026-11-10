@@ -53,3 +53,18 @@ def test_fixed_half_brier_improvement_reproduced(study):
     assert study["results"]["fixed_half"]["brier"]["observed_mean_improvement"] == pytest.approx(
         0.01089, abs=0.00002
     )
+
+
+@pytest.mark.parametrize("candidate", ["adaptive", "fixed_half"])
+def test_leave_one_date_out_is_complete_and_partitioned(study, candidate):
+    rows = study["results"][candidate]["leave_one_date_out"]
+    assert len(rows) == study["date_clusters"] == 15
+    assert len({row["excluded_date"] for row in rows}) == 15
+    assert sum(row["excluded_n"] for row in rows) == study["evaluation_n"]
+    assert all(row["remaining_n"] + row["excluded_n"] == 55 for row in rows)
+    assert all(row["remaining_n"] > 0 for row in rows)
+    assert all(
+        abs(row[metric]) < 1
+        for row in rows
+        for metric in ("brier_improvement", "log_loss_improvement")
+    )
