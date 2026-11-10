@@ -4,11 +4,10 @@ These tests do not estimate prospective performance or alter the champion.
 Run: pytest -q tests/test_research_calibration_signflip_real.py
 """
 
+import importlib
 from pathlib import Path
 
 import pytest
-
-from scripts.research_calibration_signflip_real import evaluate
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def study():
-    return evaluate(ROOT)
+    return importlib.import_module("scripts.research_calibration_signflip_real").evaluate(ROOT)
 
 
 def test_reproduces_immutable_paper_population(study):
