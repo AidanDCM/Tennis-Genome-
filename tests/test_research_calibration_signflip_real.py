@@ -3,6 +3,7 @@
 These tests do not estimate prospective performance or alter the champion.
 Run: pytest -q tests/test_research_calibration_signflip_real.py
 """
+
 from pathlib import Path
 
 import pytest
