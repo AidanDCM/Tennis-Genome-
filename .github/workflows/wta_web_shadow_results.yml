@@ -48,6 +48,7 @@ jobs:
           )"
           if [ "${open_count}" -gt 0 ]; then
             echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "block_reason=OPEN_RESULT_PR" >> "${GITHUB_OUTPUT}"
             echo "A result proposal is already open; leaving it immutable."
             exit 0
           fi
@@ -78,6 +79,7 @@ jobs:
 
           if [ "${#orphan_branches[@]}" -gt 0 ]; then
             echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "block_reason=ORPHAN_RESULT_BRANCH" >> "${GITHUB_OUTPUT}"
             echo "An unpublished result proposal branch already exists:" >&2
             printf '  %s\n' "${orphan_branches[@]}" >&2
             echo "Open or delete that proposal before acquiring another result snapshot." >&2
@@ -90,6 +92,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          BLOCK_REASON: ${{ steps.pr_gate.outputs.block_reason }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -100,7 +103,7 @@ jobs:
 
           receipt = {
               "schema_version": "tennis-genome-wta-acquisition-blocked-v1",
-              "status": "BLOCKED_EXISTING_PROPOSAL",
+              "status": os.environ["BLOCK_REASON"],
               "run_id": os.environ["GITHUB_RUN_ID"],
               "observed_at": datetime.now(timezone.utc).isoformat(),
               "source_ref": os.environ["GITHUB_SHA"],
