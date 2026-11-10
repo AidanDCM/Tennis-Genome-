@@ -47,6 +47,8 @@ jobs:
         run: |
           echo "=== Ruff ==="
           cat ruff.txt
+          echo "=== Ruff import-format suggested diff ==="
+          ruff check --select I --diff tests/test_research_calibration_signflip_real.py || true
           echo "=== Pytest ==="
           cat pytest.txt
           exit 1
