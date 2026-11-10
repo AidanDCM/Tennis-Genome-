@@ -59,9 +59,23 @@ def evaluate(root: Path) -> dict:
             log_loss.append(
                 math.log(q / p) if y else math.log1p(-q) - math.log1p(-p)
             )
+        # Sensitivity only: omit each date; do not refit locked probabilities.
+        leave_one_date_out = []
+        for day in sorted(set(keys)):
+            keep = [i for i, key in enumerate(keys) if key != day]
+            if not keep:
+                raise ValueError("date exclusion left no observations")
+            leave_one_date_out.append({
+                "excluded_date": day,
+                "excluded_n": len(keys) - len(keep),
+                "remaining_n": len(keep),
+                "brier_improvement": sum(brier[i] for i in keep) / len(keep),
+                "log_loss_improvement": sum(log_loss[i] for i in keep) / len(keep),
+            })
         output[label] = {
             "brier": sign_flip_sensitivity(brier, keys),
             "log_loss": sign_flip_sensitivity(log_loss, keys),
+            "leave_one_date_out": leave_one_date_out,
         }
         expected = (
             result["paired_brier_improvement"] if label == "adaptive"
