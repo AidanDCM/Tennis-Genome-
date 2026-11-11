@@ -31,6 +31,7 @@ def _fixture(
     slate_id: str = "test-slate",
     match_id: str = "web:wta:test:1",
     stem: str = "test",
+    slate_workflow_run_id: int = 111,
 ) -> tuple[Path, Path, Path, str]:
     repo_root = tmp_path / "repo"
     source_sha = "d" * 40
@@ -66,7 +67,7 @@ def _fixture(
         {
             "schema_version": "tennis-genome-web-shadow-slate-receipt-v1",
             "slate_id": slate_id,
-            "workflow_run_id": 111,
+            "workflow_run_id": slate_workflow_run_id,
             "workflow_artifact_id": 222,
             "workflow_artifact_sha256": "f" * 64,
             "workflow_source_sha": source_sha,
@@ -93,7 +94,7 @@ def _fixture(
                 {
                     "slate_id": slate_id,
                     "receipt_path": receipt_path.relative_to(repo_root).as_posix(),
-                    "workflow_run_id": 111,
+                    "workflow_run_id": slate_workflow_run_id,
                     "history_mode": "PINNED_PUBLIC_HISTORY_THROUGH_2026_06_02",
                     "status": "PENDING_SETTLEMENT",
                     "predictions": [
@@ -364,6 +365,7 @@ def test_two_distinct_batches_preserve_first_settlement_and_reject_replay(
         slate_id="test-slate-2",
         match_id="web:wta:test:2",
         stem="test-2",
+        slate_workflow_run_id=112,
     )
 
     for relative in (
