@@ -115,7 +115,7 @@ def _fixture(
         },
     )
 
-    result_path = repo_root / f"web-shadow/results/test.json"
+    result_path = repo_root / f"web-shadow/results/{stem}.json"
     _write_json(
         result_path,
         {
