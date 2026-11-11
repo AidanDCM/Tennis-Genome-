@@ -28,14 +28,15 @@ def _fixture(
     tmp_path: Path,
     *,
     settlement_status: str = "COMPLETED",
+    slate_id: str = "test-slate",
+    match_id: str = "web:wta:test:1",
+    stem: str = "test",
 ) -> tuple[Path, Path, Path, str]:
     repo_root = tmp_path / "repo"
-    slate_id = "test-slate"
-    match_id = "web:wta:test:1"
     source_sha = "d" * 40
 
     prediction_path = (
-        repo_root / f"web-shadow/slates/{slate_id}/predictions/test.json"
+        repo_root / f"web-shadow/slates/{slate_id}/predictions/{stem}.json"
     )
     prediction_path.parent.mkdir(parents=True, exist_ok=True)
     prediction = WebShadowPrediction(
@@ -113,7 +114,7 @@ def _fixture(
         },
     )
 
-    result_path = repo_root / "web-shadow/results/test.json"
+    result_path = repo_root / f"web-shadow/results/{stem}.json"
     _write_json(
         result_path,
         {
@@ -146,7 +147,7 @@ def _fixture(
     artifact_root = tmp_path / "artifact"
     settlement_output = (
         artifact_root
-        / f"web-shadow-settlement-batch/{slate_id}/settlements/test.json"
+        / f"web-shadow-settlement-batch/{slate_id}/settlements/{stem}.json"
     )
     _write_json(settlement_output, settlement)
 
@@ -171,7 +172,7 @@ def _fixture(
                 "prediction_path": prediction_path.relative_to(repo_root).as_posix(),
                 "prediction_record_sha256": prediction["record_sha256"],
                 "settlement_output_path": (
-                    f"web-shadow-settlement-batch/{slate_id}/settlements/test.json"
+                    f"web-shadow-settlement-batch/{slate_id}/settlements/{stem}.json"
                 ),
                 "settlement_record_sha256": settlement["record_sha256"],
                 "winner": "Alpha",
@@ -291,7 +292,7 @@ def test_apply_rejects_committed_result_drift_without_mutation(
 ) -> None:
     repo_root, scorecard_path, archive, digest = _fixture(tmp_path)
     original_scorecard = scorecard_path.read_bytes()
-    result_path = repo_root / "web-shadow/results/test.json"
+    result_path = repo_root / "web-shadow/results/{stem}.json"
     result = json.loads(result_path.read_text(encoding="utf-8"))
     result["score"] = "0-6 0-6"
     _write_json(result_path, result)
@@ -306,7 +307,7 @@ def test_apply_rejects_committed_result_drift_without_mutation(
 
     assert scorecard_path.read_bytes() == original_scorecard
     assert not (
-        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
+        repo_root / "web-shadow/slates/test-slate/settlements/{stem}.json"
     ).exists()
     assert not (repo_root / "web-shadow/settlement-batches/9001").exists()
 
@@ -333,7 +334,7 @@ def test_apply_rolls_back_after_final_validation_failure(
 
     assert scorecard_path.read_bytes() == original_scorecard
     assert not (
-        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
+        repo_root / "web-shadow/slates/test-slate/settlements/{stem}.json"
     ).exists()
     assert not (repo_root / "web-shadow/settlement-batches/9001").exists()
 
@@ -348,3 +349,90 @@ def test_apply_rejects_outer_artifact_digest_drift(tmp_path: Path) -> None:
             archive=archive,
             digest="0" * 64,
         )
+
+
+def test_two_distinct_batches_preserve_first_settlement_and_reject_replay(
+    tmp_path: Path,
+) -> None:
+    import shutil
+
+    root, scorecard_path, first_zip, first_digest = _fixture(
+        tmp_path / "first"
+    )
+    second_root, second_scorecard, second_zip, second_digest = _fixture(
+        tmp_path / "second",
+        slate_id="test-slate-2",
+        match_id="web:wta:test:2",
+        stem="test-2",
+    )
+
+    for relative in (
+        "web-shadow/slates/test-slate-2",
+        "web-shadow/results/test-2.json",
+    ):
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        source = second_root / relative
+        if source.is_dir():
+            shutil.copytree(source, destination)
+        else:
+            shutil.copy2(source, destination)
+
+    scorecard = json.loads(scorecard_path.read_text(encoding="utf-8"))
+    second_book = json.loads(second_scorecard.read_text(encoding="utf-8"))
+    scorecard["slates"].extend(second_book["slates"])
+    scorecard["official_slate_count"] = 2
+    scorecard["pending_match_count"] = 2
+    _write_json(scorecard_path, scorecard)
+
+    _apply(repo_root=root, scorecard_path=scorecard_path,
+           archive=first_zip, digest=first_digest)
+    first_book = json.loads(scorecard_path.read_text(encoding="utf-8"))
+    first_entry = first_book["slates"][0]["predictions"][0]
+    first_settlement = root / first_entry["settlement_path"]
+    first_receipt = root / "web-shadow/settlement-batches/9001/artifact-receipt.json"
+    saved_settlement = first_settlement.read_bytes()
+    saved_receipt = first_receipt.read_bytes()
+    assert first_book["pending_match_count"] == 1
+
+    apply.apply_web_shadow_settlement_batch(
+        artifact_zip=second_zip,
+        repo_root=root,
+        scorecard_path=scorecard_path,
+        source_workflow_run_id=9002,
+        source_workflow_sha="d" * 40,
+        settlement_artifact_id=7002,
+        settlement_artifact_sha256=second_digest,
+    )
+    final_book = json.loads(scorecard_path.read_text(encoding="utf-8"))
+    assert final_book["pending_match_count"] == 0
+    assert final_book["settled_match_count"] == 2
+    assert final_book["metrics"]["settled_match_count"] == 2
+    assert all(
+        entry["status"] == "SETTLED"
+        for slate in final_book["slates"]
+        for entry in slate["predictions"]
+    )
+    assert first_settlement.read_bytes() == saved_settlement
+    assert first_receipt.read_bytes() == saved_receipt
+    assert (root / "web-shadow/settlement-batches/9002/artifact-receipt.json").is_file()
+    validate_web_shadow_scorecard(scorecard_path=scorecard_path, repo_root=root)
+
+    frozen = scorecard_path.read_bytes()
+    for archive, digest, run_id, artifact_id in (
+        (first_zip, first_digest, 9001, 7001),
+        (second_zip, second_digest, 9002, 7002),
+    ):
+        with pytest.raises((ValueError, RuntimeError)):
+            apply.apply_web_shadow_settlement_batch(
+                artifact_zip=archive,
+                repo_root=root,
+                scorecard_path=scorecard_path,
+                source_workflow_run_id=run_id,
+                source_workflow_sha="d" * 40,
+                settlement_artifact_id=artifact_id,
+                settlement_artifact_sha256=digest,
+            )
+        assert scorecard_path.read_bytes() == frozen
+        assert first_settlement.read_bytes() == saved_settlement
+        assert first_receipt.read_bytes() == saved_receipt
