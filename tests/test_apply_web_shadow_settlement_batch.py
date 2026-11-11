@@ -114,7 +114,7 @@ def _fixture(
         },
     )
 
-    result_path = repo_root / f"web-shadow/results/{stem}.json"
+    result_path = repo_root / f"web-shadow/results/test.json"
     _write_json(
         result_path,
         {
@@ -292,7 +292,7 @@ def test_apply_rejects_committed_result_drift_without_mutation(
 ) -> None:
     repo_root, scorecard_path, archive, digest = _fixture(tmp_path)
     original_scorecard = scorecard_path.read_bytes()
-    result_path = repo_root / "web-shadow/results/{stem}.json"
+    result_path = repo_root / "web-shadow/results/test.json"
     result = json.loads(result_path.read_text(encoding="utf-8"))
     result["score"] = "0-6 0-6"
     _write_json(result_path, result)
@@ -307,7 +307,7 @@ def test_apply_rejects_committed_result_drift_without_mutation(
 
     assert scorecard_path.read_bytes() == original_scorecard
     assert not (
-        repo_root / "web-shadow/slates/test-slate/settlements/{stem}.json"
+        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
     ).exists()
     assert not (repo_root / "web-shadow/settlement-batches/9001").exists()
 
@@ -334,7 +334,7 @@ def test_apply_rolls_back_after_final_validation_failure(
 
     assert scorecard_path.read_bytes() == original_scorecard
     assert not (
-        repo_root / "web-shadow/slates/test-slate/settlements/{stem}.json"
+        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
     ).exists()
     assert not (repo_root / "web-shadow/settlement-batches/9001").exists()
 
