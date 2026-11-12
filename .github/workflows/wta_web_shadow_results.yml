@@ -48,6 +48,7 @@ jobs:
           )"
           if [ "${open_count}" -gt 0 ]; then
             echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "block_reason=OPEN_RESULT_PR" >> "${GITHUB_OUTPUT}"
             echo "A result proposal is already open; leaving it immutable."
             exit 0
           fi
@@ -78,12 +79,53 @@ jobs:
 
           if [ "${#orphan_branches[@]}" -gt 0 ]; then
             echo "blocked=true" >> "${GITHUB_OUTPUT}"
+            echo "block_reason=ORPHAN_RESULT_BRANCH" >> "${GITHUB_OUTPUT}"
             echo "An unpublished result proposal branch already exists:" >&2
             printf '  %s\n' "${orphan_branches[@]}" >&2
             echo "Open or delete that proposal before acquiring another result snapshot." >&2
             exit 0
           fi
           echo "blocked=false" >> "${GITHUB_OUTPUT}"
+
+      - name: Record blocked acquisition receipt
+        if: steps.pr_gate.outputs.blocked == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BLOCK_REASON: ${{ steps.pr_gate.outputs.block_reason }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          receipt = {
+              "schema_version": "tennis-genome-wta-acquisition-blocked-v1",
+              "status": os.environ["BLOCK_REASON"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "observed_at": datetime.now(timezone.utc).isoformat(),
+              "source_ref": os.environ["GITHUB_SHA"],
+              "acquisition_attempted": False,
+              "results_captured": None,
+          }
+          Path("wta-acquisition-blocked-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(receipt, sort_keys=True))
+          PY
+          echo "::warning::WTA acquisition skipped by existing-proposal safety gate"
+
+      - name: Upload blocked acquisition receipt
+        if: steps.pr_gate.outputs.blocked == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wta-acquisition-blocked-${{ github.run_id }}
+          path: wta-acquisition-blocked-receipt.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Set result acquisition identity
         id: stamp
