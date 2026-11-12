@@ -85,9 +85,35 @@ jobs:
           fi
           echo "blocked=false" >> "${GITHUB_OUTPUT}"
 
+      - name: Report acquisition gate outcome
+        if: always()
+        shell: bash
+        env:
+          GATE_OUTCOME: ${{ steps.pr_gate.outcome }}
+          GATE_BLOCKED: ${{ steps.pr_gate.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          if [ "${GATE_OUTCOME}" != "success" ]; then
+            state="gate_failed"
+          elif [ "${GATE_BLOCKED}" = "true" ]; then
+            state="blocked_by_existing_proposal"
+          elif [ "${GATE_BLOCKED}" = "false" ]; then
+            state="acquisition_allowed"
+          else
+            state="gate_indeterminate"
+          fi
+          echo "WTA_RESULT_ACQUISITION_GATE_STATE=${state}"
+          {
+            echo "### WTA result acquisition gate"
+            echo
+            echo "- Gate state: \`${state}\`"
+            echo "- Official source fetching is not evidence of execution until its step succeeds."
+            echo "- A blocked gate preserves existing proposals and does not fetch results."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Set result acquisition identity
         id: stamp
-        if: steps.pr_gate.outputs.blocked != 'true'
+        if: steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'
         shell: bash
         run: |
           set -euo pipefail
@@ -101,7 +127,7 @@ jobs:
           echo "summary=${summary}" >> "${GITHUB_OUTPUT}"
 
       - uses: actions/setup-python@v5
-        if: steps.pr_gate.outputs.blocked != 'true'
+        if: steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'
         with:
           python-version: "3.11.16"
           check-latest: false
@@ -109,7 +135,7 @@ jobs:
           cache-dependency-path: requirements/ci.lock
 
       - name: Install pinned runtime and test tools
-        if: steps.pr_gate.outputs.blocked != 'true'
+        if: steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'
         shell: bash
         run: |
           set -euo pipefail
@@ -117,7 +143,7 @@ jobs:
           python -m pip install -e . --no-deps
 
       - name: Fetch retained official WTA sources
-        if: steps.pr_gate.outputs.blocked != 'true'
+        if: steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'
         shell: bash
         env:
           OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
@@ -132,7 +158,7 @@ jobs:
 
       - name: Compile finished official WTA rows
         id: results
-        if: steps.pr_gate.outputs.blocked != 'true'
+        if: steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'
         shell: bash
         env:
           OBSERVED_AT: ${{ steps.stamp.outputs.observed_at }}
@@ -166,7 +192,7 @@ jobs:
 
       - name: Dry-run existing settlement batch contract
         if: >-
-          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false' &&
           steps.results.outputs.selected == 'true'
         shell: bash
         env:
@@ -189,7 +215,7 @@ jobs:
 
       - name: Verify result proposal mutation scope
         if: >-
-          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false' &&
           steps.results.outputs.selected == 'true'
         shell: bash
         env:
@@ -239,7 +265,7 @@ jobs:
 
       - name: Verify full repository contract before proposal
         if: >-
-          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false' &&
           steps.results.outputs.selected == 'true'
         shell: bash
         run: |
@@ -251,7 +277,7 @@ jobs:
       - name: Upload result acquisition attempt
         if: >-
           always() &&
-          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false' &&
           steps.stamp.outputs.source_root != ''
         uses: actions/upload-artifact@v4
         with:
@@ -265,7 +291,7 @@ jobs:
       - name: Commit immutable result proposal
         id: commit
         if: >-
-          steps.pr_gate.outputs.blocked != 'true' &&
+          steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false' &&
           steps.results.outputs.selected == 'true'
         shell: bash
         env:
