@@ -34,6 +34,17 @@ jobs:
         id: pytest
         continue-on-error: true
         run: pytest > pytest.txt 2>&1
+      - name: Execute read-only date-cluster sensitivity
+        run: |
+          set -o pipefail
+          python scripts/research_calibration_signflip_real.py --repo-root . | tee date-cluster-sensitivity.json
+      - name: Upload date-cluster sensitivity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-date-cluster-sensitivity
+          path: date-cluster-sensitivity.json
+          if-no-files-found: warn
       - name: Upload CI diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -47,6 +58,8 @@ jobs:
         run: |
           echo "=== Ruff ==="
           cat ruff.txt
+          echo "=== Ruff import-format suggested diff ==="
+          ruff check --select I --diff tests/test_research_calibration_signflip_real.py || true
           echo "=== Pytest ==="
           cat pytest.txt
           exit 1
