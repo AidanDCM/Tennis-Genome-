@@ -69,3 +69,12 @@ def test_result_acquisition_reports_blocked_and_allowed_gate_states() -> None:
     assert 'state="gate_indeterminate"' in text
     assert "WTA_RESULT_ACQUISITION_GATE_STATE=" in text
     assert "A blocked gate preserves existing proposals and does not fetch results." in text
+
+
+def test_result_acquisition_fails_closed_if_proposal_gate_fails() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    guard = "steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'"
+    # Every former downstream blocked != true condition must require a successful gate.
+    assert text.count(guard) == 10
+    assert "if: steps.pr_gate.outputs.blocked != 'true'" not in text
+    assert "          steps.pr_gate.outputs.blocked != 'true' &&" not in text
