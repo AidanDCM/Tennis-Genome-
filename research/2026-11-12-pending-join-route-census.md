@@ -10,7 +10,7 @@ Main scorecard blob: `c9636ac9d86c256ccf241e652b9456034c451fc3`; result core blo
 
 ## Executed method and results
 
-Fetched the raw `web-shadow/scorecard.json` and `scripts/web_shadow_wta_result_core.py` through the connected GitHub repository. Parsed all slate predictions and filtered `status == "PENDING"`. Classified each ID using `/^web:wta:\\d+:\\d+:[^:]+$/`, which reproduces the source-ID shape accepted in `_pending_predictions`.
+Fetched the raw `web-shadow/scorecard.json` and `scripts/web_shadow_wta_result_core.py` through the connected GitHub repository. Parsed all slate predictions and filtered `status == "PENDING"`. Classified each ID using the numeric group/year and single-token MatchID shape, which reproduces the source-ID shape accepted in `_pending_predictions`.
 
 - **15 pending**: **2** exact source-MatchID-route predictions (`web:wta:1074:2026:LS031`, `web:wta:1074:2026:LS020`); **13** legacy player-pair/round-route predictions.
 - Legacy breakdown: **9 Seoul** and **4 Singapore**, all scheduled 2026-09-22 or 2026-09-23.
