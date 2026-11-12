@@ -55,3 +55,26 @@ def test_result_acquisition_never_auto_merges_and_preserves_blocked_branch() -> 
     assert "preserved the validated proposal branch" in text
     assert "gh pr merge" not in text
     assert "merge_pull_request" not in text
+
+
+def test_result_acquisition_reports_blocked_and_allowed_gate_states() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "name: Report acquisition gate outcome" in text
+    assert "if: always()" in text
+    assert 'GATE_OUTCOME: ${{ steps.pr_gate.outcome }}' in text
+    assert 'GATE_BLOCKED: ${{ steps.pr_gate.outputs.blocked }}' in text
+    assert 'state="blocked_by_existing_proposal"' in text
+    assert 'state="acquisition_allowed"' in text
+    assert 'state="gate_failed"' in text
+    assert 'state="gate_indeterminate"' in text
+    assert "WTA_RESULT_ACQUISITION_GATE_STATE=" in text
+    assert "A blocked gate preserves existing proposals and does not fetch results." in text
+
+
+def test_result_acquisition_fails_closed_if_proposal_gate_fails() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    guard = "steps.pr_gate.outcome == 'success' && steps.pr_gate.outputs.blocked == 'false'"
+    # Every former downstream blocked != true condition must require a successful gate.
+    assert text.count(guard) == 10
+    assert "if: steps.pr_gate.outputs.blocked != 'true'" not in text
+    assert "          steps.pr_gate.outputs.blocked != 'true' &&" not in text
