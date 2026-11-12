@@ -1,0 +1,26 @@
+{
+  "accuracy": 1.0,
+  "correct_prediction_count": 1,
+  "evaluation_eligible_count": 1,
+  "excluded_noncompleted_count": 0,
+  "production_eligible": false,
+  "requested_result_count": 1,
+  "results": [
+    {
+      "evaluation_eligible": true,
+      "match_id": "web:wta:1148:2026:LS001",
+      "prediction_correct": true,
+      "prediction_path": "web-shadow/slates/2026-11-07-run-42418376306/predictions/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929",
+      "result_path": "web-shadow/results/2026-11-09-chennai-2026-f-ls001-janice-tjen-magda-linette-42775ef387.json",
+      "result_record_sha256": "cf6e533ba2daf617e64b68b164feaec1f7c103cfa5a00ba9c826269a380f5856",
+      "settlement_output_path": "web-shadow-settlement-batch/2026-11-07-run-42418376306/settlements/chennai-2026-f-ls001-janice-tjen-magda-linette.json",
+      "settlement_record_sha256": "b9bd39b8c4ab6de1b01b735cf51193cb36e2a6c3a8259e3c58de210e4e05d9d9",
+      "slate_id": "2026-11-07-run-42418376306",
+      "winner": "Magda Linette"
+    }
+  ],
+  "schema_version": "tennis-genome-web-shadow-settlement-batch-v1",
+  "settlement_count": 1,
+  "slate_count": 1
+}
