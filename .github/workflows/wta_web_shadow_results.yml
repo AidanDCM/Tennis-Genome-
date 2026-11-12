@@ -85,6 +85,32 @@ jobs:
           fi
           echo "blocked=false" >> "${GITHUB_OUTPUT}"
 
+      - name: Report acquisition gate outcome
+        if: always()
+        shell: bash
+        env:
+          GATE_OUTCOME: ${{ steps.pr_gate.outcome }}
+          GATE_BLOCKED: ${{ steps.pr_gate.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          if [ "${GATE_OUTCOME}" != "success" ]; then
+            state="gate_failed"
+          elif [ "${GATE_BLOCKED}" = "true" ]; then
+            state="blocked_by_existing_proposal"
+          elif [ "${GATE_BLOCKED}" = "false" ]; then
+            state="acquisition_allowed"
+          else
+            state="gate_indeterminate"
+          fi
+          echo "WTA_RESULT_ACQUISITION_GATE_STATE=${state}"
+          {
+            echo "### WTA result acquisition gate"
+            echo
+            echo "- Gate state: \`${state}\`"
+            echo "- Official source fetching is not evidence of execution until its step succeeds."
+            echo "- A blocked gate preserves existing proposals and does not fetch results."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Set result acquisition identity
         id: stamp
         if: steps.pr_gate.outputs.blocked != 'true'
