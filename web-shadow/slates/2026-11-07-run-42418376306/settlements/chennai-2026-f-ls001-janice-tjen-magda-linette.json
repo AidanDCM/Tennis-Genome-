@@ -1,0 +1,14 @@
+{
+  "match_id": "web:wta:1148:2026:LS001",
+  "prediction_correct": true,
+  "prediction_record_sha256": "42775ef387a985d5c68af2d4d349c7ce45e21d9c5304dccfd1886a381a44b929",
+  "production_eligible": false,
+  "record_sha256": "b9bd39b8c4ab6de1b01b735cf51193cb36e2a6c3a8259e3c58de210e4e05d9d9",
+  "record_type": "WEB_SHADOW_SETTLEMENT",
+  "result_observed_at": "2026-11-09T08:39:51+00:00",
+  "result_record_path": "web-shadow/results/2026-11-09-chennai-2026-f-ls001-janice-tjen-magda-linette-42775ef387.json",
+  "result_source_url": "https://api.wtatennis.com/tennis/tournaments/1148/2026/matches",
+  "schema_version": "tennis-genome-web-shadow-v1",
+  "status": "COMPLETED",
+  "winner": "Magda Linette"
+}
