@@ -42,7 +42,8 @@ class TestRoundIdentityDiagnostic(unittest.TestCase):
         self.assertIsNone(core._match_row(pending(round_name="QF"), [row(round_id="Q")]))
 
     def test_exact_textual_round_supported(self):
-        self.assertEqual(core._match_row(pending("LS001", "QF"), [row(round_id="Q")])["round"], "QF")
+        matched = core._match_row(pending("LS001", "QF"), [row(round_id="Q")])
+        self.assertEqual(matched["round"], "QF")
 
     def test_event_mismatch_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "tournament identity mismatch"):
