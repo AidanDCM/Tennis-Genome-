@@ -1,5 +1,7 @@
 """Read-only identity regression. Never changes settlements or eligibility."""
+
 import unittest
+
 from scripts import web_shadow_wta_result_core as core
 
 TOURNAMENT = {"group_id": 123, "year": 2026}
