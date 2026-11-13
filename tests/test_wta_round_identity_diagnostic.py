@@ -1,6 +1,6 @@
 """Read-only identity regression. Never changes settlements or eligibility."""
 import unittest
-from scripts.web_shadow_wta_result_core import WtaPlayerIdentityConflict, _match_row
+from scripts import web_shadow_wta_result_core as core
 
 TOURNAMENT = {"group_id": 123, "year": 2026}
 
@@ -17,31 +17,31 @@ def pending(source_id=None, round_name="R32"):
 
 class TestRoundIdentityDiagnostic(unittest.TestCase):
     def test_legacy_numeric_round_mismatch_unresolved(self):
-        self.assertIsNone(_match_row(pending(), [row(round_id=1)]))
+        self.assertIsNone(core._match_row(pending(), [row(round_id=1)]))
 
     def test_legacy_matching_numeric_round(self):
-        self.assertEqual(_match_row(pending(), [row(round_id=5)])["source_match_id"], "LS001")
+        self.assertEqual(core._match_row(pending(), [row(round_id=5)])["source_match_id"], "LS001")
 
     def test_exact_id_retains_round_discrepancy(self):
-        self.assertEqual(_match_row(pending("LS001"), [row(round_id=1)])["round"], "F")
+        self.assertEqual(core._match_row(pending("LS001"), [row(round_id=1)])["round"], "F")
 
     def test_exact_id_wrong_player_fails_closed(self):
-        with self.assertRaises(WtaPlayerIdentityConflict):
-            _match_row(pending("LS001"), [row(first="Carol")])
+        with self.assertRaises(core.WtaPlayerIdentityConflict):
+            core._match_row(pending("LS001"), [row(first="Carol")])
 
     def test_exact_id_missing_does_not_fallback(self):
-        self.assertIsNone(_match_row(pending("LS002"), [row()]))
+        self.assertIsNone(core._match_row(pending("LS002"), [row()]))
 
     def test_legacy_duplicate_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "ambiguous"):
-            _match_row(pending(), [row("LS001", 5), row("LS002", 5)])
+            core._match_row(pending(), [row("LS001", 5), row("LS002", 5)])
 
     def test_legacy_textual_round_excluded(self):
-        self.assertIsNone(_match_row(pending(round_name="QF"), [row(round_id="Q")]))
+        self.assertIsNone(core._match_row(pending(round_name="QF"), [row(round_id="Q")]))
 
     def test_exact_textual_round_supported(self):
-        self.assertEqual(_match_row(pending("LS001", "QF"), [row(round_id="Q")])["round"], "QF")
+        self.assertEqual(core._match_row(pending("LS001", "QF"), [row(round_id="Q")])["round"], "QF")
 
     def test_event_mismatch_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "tournament identity mismatch"):
-            _match_row(pending("LS001"), [row(event="999")])
+            core._match_row(pending("LS001"), [row(event="999")])
