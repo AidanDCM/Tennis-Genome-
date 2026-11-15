@@ -98,7 +98,7 @@ def test_missing_dispatches_contract():
 
     assert checked([base], []) == [1]
     assert checked([base], [
-        dict(path=PRODUCER, event="workflow_dispatch", provider_run_id=1)
+        dict(id=10, path=PRODUCER, event="workflow_dispatch", provider_run_id=1)
     ], now) == []
     assert checked([dict(base, conclusion="failure")], []) == []
     assert checked([dict(base, head_branch="dev")], []) == []
