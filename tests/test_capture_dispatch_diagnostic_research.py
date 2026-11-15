@@ -57,6 +57,15 @@ def missing_dispatches(
             if run_id in seen and seen[run_id] != run:
                 raise ValueError("conflicting capture records for same run ID")
             seen[run_id] = run
+    if any(
+        run.get("path") == CAPTURE
+        and run.get("event") == "workflow_dispatch"
+        and (not isinstance(run.get("id"), int)
+             or isinstance(run.get("id"), bool)
+             or run.get("id") <= 0)
+        for run in captures
+    ):
+        raise ValueError("capture run identity provenance unavailable")
     eligible = set()
     for run in captures:
         run_id, created = run.get("id"), run.get("created_at")
@@ -195,6 +204,25 @@ def test_missing_producer_run_identity_fails_closed():
         provider_run_id=1, id=99,
     )
     assert missing_dispatches([], [valid], now, **kwargs) == []
+
+
+def test_invalid_capture_run_identity_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    kwargs = dict(
+        capture_inventory_complete=True, producer_inputs_verified=True,
+    )
+    for bad_id in (None, 0, True, "77"):
+        capture = dict(
+            id=bad_id, path=CAPTURE, event="workflow_dispatch",
+            head_branch="main", conclusion="success",
+            created_at=now - timedelta(hours=1),
+        )
+        try:
+            missing_dispatches([capture], [], now, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid capture run identity accepted")
 
 
 def test_unsupported_routing_mode_fails_closed():
