@@ -21,7 +21,7 @@ def missing_dispatches(
     """
     if routing_mode != "LEGACY_SINGLE_TARGET":
         raise ValueError("unsupported producer routing mode; reconciliation inconclusive")
-    if not capture_inventory_complete or not producer_inputs_verified:
+    if capture_inventory_complete is not True or producer_inputs_verified is not True:
         raise ValueError("complete captures and verified producer inputs required")
     if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must be timezone-aware datetime")
@@ -283,3 +283,21 @@ def test_invalid_observation_window_fails_closed():
         else:
             raise AssertionError("invalid age window accepted")
     assert missing_dispatches([], [], now, max_age=timedelta(0), **kwargs) == []
+
+
+def test_inventory_attestations_require_literal_true():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    for capture_ok, producer_ok in (("yes", True), (True, "yes"), (1, True), (True, 1)):
+        try:
+            missing_dispatches(
+                [], [], now, capture_inventory_complete=capture_ok,
+                producer_inputs_verified=producer_ok,
+            )
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("non-boolean inventory attestation accepted")
+    assert missing_dispatches(
+        [], [], now, capture_inventory_complete=True,
+        producer_inputs_verified=True,
+    ) == []
