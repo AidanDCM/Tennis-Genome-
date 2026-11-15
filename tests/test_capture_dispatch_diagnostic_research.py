@@ -9,14 +9,28 @@ CAPTURE = ".github/workflows/prospective_provider_capture_anchor.yml"
 PRODUCER = ".github/workflows/wta_forward_004_auto_shadow_chain.yml"
 
 
-def missing_dispatches(captures, producers, now, max_age=timedelta(days=1)):
+def missing_dispatches(
+    captures, producers, now, max_age=timedelta(days=1),
+    *, capture_inventory_complete=False, producer_inputs_verified=False,
+):
     """Return fresh successful capture run IDs without recorded producer dispatches.
 
     Caller must supply complete, independently verified inventories. Missing run
     metadata is rejected; this is not an authorization or trust-gate substitute.
     """
+    if not capture_inventory_complete or not producer_inputs_verified:
+        raise ValueError("complete captures and verified producer inputs required")
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must be timezone-aware")
+    if any(
+        run.get("path") == PRODUCER
+        and run.get("event") == "workflow_dispatch"
+        and (not isinstance(run.get("provider_run_id"), int)
+             or isinstance(run.get("provider_run_id"), bool)
+             or run.get("provider_run_id") <= 0)
+        for run in producers
+    ):
+        raise ValueError("producer dispatch input provenance unavailable")
     eligible = set()
     for run in captures:
         run_id, created = run.get("id"), run.get("created_at")
@@ -53,19 +67,44 @@ def test_missing_dispatches_contract():
         id=1, path=CAPTURE, event="workflow_dispatch", head_branch="main",
         conclusion="success", created_at=now - timedelta(hours=2),
     )
-    assert missing_dispatches([base], [], now) == [1]
-    assert missing_dispatches([base], [
+    def checked(captures, producers, at=now):
+        return missing_dispatches(
+            captures, producers, at, capture_inventory_complete=True,
+            producer_inputs_verified=True,
+        )
+
+    assert checked([base], []) == [1]
+    assert checked([base], [
         dict(path=PRODUCER, event="workflow_dispatch", provider_run_id=1)
     ], now) == []
-    assert missing_dispatches([dict(base, conclusion="failure")], [], now) == []
-    assert missing_dispatches([dict(base, head_branch="dev")], [], now) == []
-    assert missing_dispatches([dict(base, created_at=now-timedelta(days=60))], [], now) == []
-    assert missing_dispatches([dict(base, created_at=now+timedelta(minutes=1))], [], now) == []
-    assert missing_dispatches([dict(base, created_at=now.replace(tzinfo=None))], [], now) == []
-    assert missing_dispatches([base, base], [], now) == [1]
+    assert checked([dict(base, conclusion="failure")], []) == []
+    assert checked([dict(base, head_branch="dev")], []) == []
+    assert checked([dict(base, created_at=now-timedelta(days=60))], []) == []
+    assert checked([dict(base, created_at=now+timedelta(minutes=1))], []) == []
+    assert checked([dict(base, created_at=now.replace(tzinfo=None))], []) == []
+    assert checked([base, base], []) == [1]
     try:
-        missing_dispatches([], [], now.replace(tzinfo=None))
+        checked([], [], now.replace(tzinfo=None))
     except ValueError:
         pass
     else:
         raise AssertionError("naive observation time must be rejected")
+
+
+def test_missing_dispatches_fail_closed_on_unverified_inputs():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    try:
+        missing_dispatches([], [], now)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unverified inventories must fail closed")
+    try:
+        missing_dispatches(
+            [], [dict(path=PRODUCER, event="workflow_dispatch")], now,
+            capture_inventory_complete=True, producer_inputs_verified=True,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("missing producer dispatch inputs must fail closed")
