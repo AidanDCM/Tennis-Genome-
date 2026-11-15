@@ -1,0 +1,32 @@
+name: Research-only WTA calibration ablation
+on:
+  push:
+    branches:
+      - research/2026-11-09-calibration-audit
+    paths:
+      - scripts/research_web_shadow_calibration.py
+      - .github/workflows/research-web-shadow-calibration.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax validation
+        run: python -m py_compile scripts/research_web_shadow_calibration.py
+      - name: Read-only chronological calibration experiment
+        run: python scripts/research_web_shadow_calibration.py --repo-root . | tee calibration-research-results.json
+      - name: Upload research-only result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-only-calibration-results
+          path: calibration-research-results.json
+          if-no-files-found: ignore
