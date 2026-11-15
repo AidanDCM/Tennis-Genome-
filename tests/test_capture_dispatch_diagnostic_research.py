@@ -31,6 +31,13 @@ def missing_dispatches(
         for run in producers
     ):
         raise ValueError("producer dispatch input provenance unavailable")
+    producer_seen = {}
+    for run in producers:
+        run_id = run.get("id")
+        if isinstance(run_id, int) and not isinstance(run_id, bool) and run_id > 0:
+            if run_id in producer_seen and producer_seen[run_id] != run:
+                raise ValueError("conflicting producer records for same run ID")
+            producer_seen[run_id] = run
     seen = {}
     for run in captures:
         run_id = run.get("id")
@@ -132,3 +139,24 @@ def test_conflicting_capture_identity_fails_closed():
         pass
     else:
         raise AssertionError("conflicting same-ID captures must fail closed")
+
+
+def test_conflicting_producer_identity_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    producer = dict(
+        id=99, path=PRODUCER, event="workflow_dispatch",
+        provider_run_id=1,
+    )
+    kwargs = dict(
+        capture_inventory_complete=True, producer_inputs_verified=True,
+    )
+    try:
+        missing_dispatches(
+            [], [producer, dict(producer, provider_run_id=2)], now,
+            **kwargs,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("conflicting same-ID producers must fail closed")
+    assert missing_dispatches([], [producer, producer], now, **kwargs) == []
