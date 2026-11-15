@@ -66,6 +66,18 @@ def missing_dispatches(
         for run in captures
     ):
         raise ValueError("capture run identity provenance unavailable")
+    if any(
+        run.get("path") == CAPTURE
+        and run.get("event") == "workflow_dispatch"
+        and run.get("conclusion") == "success"
+        and (
+            not isinstance(run.get("created_at"), datetime)
+            or run["created_at"].tzinfo is None
+            or run["created_at"].utcoffset() is None
+        )
+        for run in captures
+    ):
+        raise ValueError("successful capture timestamp provenance unavailable")
     eligible = set()
     for run in captures:
         run_id, created = run.get("id"), run.get("created_at")
@@ -116,7 +128,14 @@ def test_missing_dispatches_contract():
     assert checked([dict(base, head_branch="dev")], []) == []
     assert checked([dict(base, created_at=now-timedelta(days=60))], []) == []
     assert checked([dict(base, created_at=now+timedelta(minutes=1))], []) == []
-    assert checked([dict(base, created_at=now.replace(tzinfo=None))], []) == []
+    for bad_time in (None, "2026-11-15T00:00:00Z", now.replace(tzinfo=None)):
+        try:
+            checked([dict(base, created_at=bad_time)], [])
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid successful capture timestamp accepted")
+    assert checked([dict(base, conclusion="failure", created_at=None)], []) == []
     assert checked([base, base], []) == [1]
     try:
         checked([], [], now.replace(tzinfo=None))
