@@ -23,8 +23,10 @@ def missing_dispatches(
         raise ValueError("unsupported producer routing mode; reconciliation inconclusive")
     if not capture_inventory_complete or not producer_inputs_verified:
         raise ValueError("complete captures and verified producer inputs required")
-    if now.tzinfo is None or now.utcoffset() is None:
-        raise ValueError("now must be timezone-aware")
+    if not isinstance(now, datetime) or now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("now must be timezone-aware datetime")
+    if not isinstance(max_age, timedelta) or max_age < timedelta(0):
+        raise ValueError("max_age must be a nonnegative timedelta")
     if any(
         run.get("path") == PRODUCER
         and run.get("event") == "workflow_dispatch"
@@ -259,3 +261,25 @@ def test_unsupported_routing_mode_fails_closed():
     assert missing_dispatches(
         [], [], now, routing_mode="LEGACY_SINGLE_TARGET", **kwargs,
     ) == []
+
+
+def test_invalid_observation_window_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    kwargs = dict(
+        capture_inventory_complete=True, producer_inputs_verified=True,
+    )
+    for bad_now in (None, "2026-11-15T00:00:00Z", 0):
+        try:
+            missing_dispatches([], [], bad_now, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid observation time accepted")
+    for bad_age in (None, -1, timedelta(seconds=-1)):
+        try:
+            missing_dispatches([], [], now, max_age=bad_age, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid age window accepted")
+    assert missing_dispatches([], [], now, max_age=timedelta(0), **kwargs) == []
