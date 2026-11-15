@@ -12,12 +12,15 @@ PRODUCER = ".github/workflows/wta_forward_004_auto_shadow_chain.yml"
 def missing_dispatches(
     captures, producers, now, max_age=timedelta(days=1),
     *, capture_inventory_complete=False, producer_inputs_verified=False,
+    routing_mode="LEGACY_SINGLE_TARGET",
 ):
     """Return fresh successful capture run IDs without recorded producer dispatches.
 
     Caller must supply complete, independently verified inventories. Missing run
     metadata is rejected; this is not an authorization or trust-gate substitute.
     """
+    if routing_mode != "LEGACY_SINGLE_TARGET":
+        raise ValueError("unsupported producer routing mode; reconciliation inconclusive")
     if not capture_inventory_complete or not producer_inputs_verified:
         raise ValueError("complete captures and verified producer inputs required")
     if now.tzinfo is None or now.utcoffset() is None:
@@ -192,3 +195,20 @@ def test_missing_producer_run_identity_fails_closed():
         provider_run_id=1, id=99,
     )
     assert missing_dispatches([], [valid], now, **kwargs) == []
+
+
+def test_unsupported_routing_mode_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    kwargs = dict(
+        capture_inventory_complete=True, producer_inputs_verified=True,
+    )
+    for mode in ("FULL_SLATE_V1", "UNKNOWN", None):
+        try:
+            missing_dispatches([], [], now, routing_mode=mode, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("unsupported routing mode accepted")
+    assert missing_dispatches(
+        [], [], now, routing_mode="LEGACY_SINGLE_TARGET", **kwargs,
+    ) == []
