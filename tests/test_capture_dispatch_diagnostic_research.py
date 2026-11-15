@@ -1,4 +1,7 @@
-"""Diagnostic-only reconciliation; does not establish prediction eligibility or dispatch workflows."""
+"""Diagnostic-only reconciliation.
+
+Does not establish prediction eligibility or dispatch workflows.
+"""
 
 from datetime import UTC, datetime, timedelta
 
@@ -19,7 +22,11 @@ def missing_dispatches(captures, producers, now, max_age=timedelta(days=1)):
         run_id, created = run.get("id"), run.get("created_at")
         if not isinstance(run_id, int) or isinstance(run_id, bool) or run_id <= 0:
             continue
-        if not isinstance(created, datetime) or created.tzinfo is None or created.utcoffset() is None:
+        if (
+            not isinstance(created, datetime)
+            or created.tzinfo is None
+            or created.utcoffset() is None
+        ):
             continue
         if (
             run.get("path"),
