@@ -169,4 +169,26 @@ def test_conflicting_producer_identity_fails_closed():
     else:
         raise AssertionError("conflicting same-ID producers must fail closed")
     assert missing_dispatches([], [producer, producer], now, **kwargs) == []
-\n\ndef test_missing_producer_run_identity_fails_closed():\n    now = datetime(2026, 11, 15, tzinfo=UTC)\n    kwargs = dict(\n        capture_inventory_complete=True, producer_inputs_verified=True,\n    )\n    for bad_id in (None, 0, True, "99"):\n        producer = dict(\n            path=PRODUCER, event="workflow_dispatch",\n            provider_run_id=1, id=bad_id,\n        )\n        try:\n            missing_dispatches([], [producer], now, **kwargs)\n        except ValueError:\n            pass\n        else:\n            raise AssertionError("invalid producer run identity accepted")\n    valid = dict(\n        path=PRODUCER, event="workflow_dispatch",\n        provider_run_id=1, id=99,\n    )\n    assert missing_dispatches([], [valid], now, **kwargs) == []\n
+
+
+def test_missing_producer_run_identity_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    kwargs = dict(
+        capture_inventory_complete=True, producer_inputs_verified=True,
+    )
+    for bad_id in (None, 0, True, "99"):
+        producer = dict(
+            path=PRODUCER, event="workflow_dispatch",
+            provider_run_id=1, id=bad_id,
+        )
+        try:
+            missing_dispatches([], [producer], now, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid producer run identity accepted")
+    valid = dict(
+        path=PRODUCER, event="workflow_dispatch",
+        provider_run_id=1, id=99,
+    )
+    assert missing_dispatches([], [valid], now, **kwargs) == []
