@@ -31,6 +31,15 @@ def missing_dispatches(
         for run in producers
     ):
         raise ValueError("producer dispatch input provenance unavailable")
+    if any(
+        run.get("path") == PRODUCER
+        and run.get("event") == "workflow_dispatch"
+        and (not isinstance(run.get("id"), int)
+             or isinstance(run.get("id"), bool)
+             or run.get("id") <= 0)
+        for run in producers
+    ):
+        raise ValueError("producer run identity provenance unavailable")
     producer_seen = {}
     for run in producers:
         run_id = run.get("id")
@@ -160,3 +169,4 @@ def test_conflicting_producer_identity_fails_closed():
     else:
         raise AssertionError("conflicting same-ID producers must fail closed")
     assert missing_dispatches([], [producer, producer], now, **kwargs) == []
+\n\ndef test_missing_producer_run_identity_fails_closed():\n    now = datetime(2026, 11, 15, tzinfo=UTC)\n    kwargs = dict(\n        capture_inventory_complete=True, producer_inputs_verified=True,\n    )\n    for bad_id in (None, 0, True, "99"):\n        producer = dict(\n            path=PRODUCER, event="workflow_dispatch",\n            provider_run_id=1, id=bad_id,\n        )\n        try:\n            missing_dispatches([], [producer], now, **kwargs)\n        except ValueError:\n            pass\n        else:\n            raise AssertionError("invalid producer run identity accepted")\n    valid = dict(\n        path=PRODUCER, event="workflow_dispatch",\n        provider_run_id=1, id=99,\n    )\n    assert missing_dispatches([], [valid], now, **kwargs) == []\n
