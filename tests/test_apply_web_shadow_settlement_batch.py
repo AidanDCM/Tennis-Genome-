@@ -348,3 +348,55 @@ def test_apply_rejects_outer_artifact_digest_drift(tmp_path: Path) -> None:
             archive=archive,
             digest="0" * 64,
         )
+
+
+def test_replaying_applied_batch_rejects_without_mutating_scorecard(
+    tmp_path: Path,
+) -> None:
+    repo_root, scorecard_path, archive, digest = _fixture(tmp_path)
+    first = _apply(
+        repo_root=repo_root,
+        scorecard_path=scorecard_path,
+        archive=archive,
+        digest=digest,
+    )
+    assert first["applied_settlement_count"] == 1
+    settled_bytes = scorecard_path.read_bytes()
+    settlement_path = (
+        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
+    )
+    settlement_bytes = settlement_path.read_bytes()
+    receipt_path = repo_root / "web-shadow/settlement-batches/9001/artifact-receipt.json"
+    receipt_bytes = receipt_path.read_bytes()
+
+    with pytest.raises(RuntimeError, match="no pending predictions"):
+        _apply(
+            repo_root=repo_root,
+            scorecard_path=scorecard_path,
+            archive=archive,
+            digest=digest,
+        )
+
+    assert scorecard_path.read_bytes() == settled_bytes
+    assert settlement_path.read_bytes() == settlement_bytes
+    assert receipt_path.read_bytes() == receipt_bytes
+    validate_web_shadow_scorecard(scorecard_path=scorecard_path, repo_root=repo_root)
+
+
+def test_corrupt_batch_archive_rejected_without_mutation(tmp_path: Path) -> None:
+    repo_root, scorecard_path, archive, digest = _fixture(tmp_path)
+    original = scorecard_path.read_bytes()
+    with archive.open("ab") as handle:
+        handle.write(b"unexpected trailing bytes")
+    with pytest.raises(ValueError, match="settlement artifact ZIP SHA-256 differs"):
+        _apply(
+            repo_root=repo_root,
+            scorecard_path=scorecard_path,
+            archive=archive,
+            digest=digest,
+        )
+    assert scorecard_path.read_bytes() == original
+    assert not (
+        repo_root / "web-shadow/slates/test-slate/settlements/test.json"
+    ).exists()
+    assert not (repo_root / "web-shadow/settlement-batches/9001").exists()
