@@ -80,6 +80,15 @@ def missing_dispatches(
         for run in captures
     ):
         raise ValueError("successful capture timestamp provenance unavailable")
+    if any(
+        run.get("path") == CAPTURE
+        and run.get("event") == "workflow_dispatch"
+        and run.get("conclusion") == "success"
+        and (not isinstance(run.get("head_branch"), str)
+             or not run.get("head_branch"))
+        for run in captures
+    ):
+        raise ValueError("successful capture branch provenance unavailable")
     eligible = set()
     for run in captures:
         run_id, created = run.get("id"), run.get("created_at")
@@ -301,3 +310,22 @@ def test_inventory_attestations_require_literal_true():
         [], [], now, capture_inventory_complete=True,
         producer_inputs_verified=True,
     ) == []
+
+
+def test_successful_capture_branch_provenance_fails_closed():
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    base = dict(
+        id=77, path=CAPTURE, event="workflow_dispatch",
+        conclusion="success", created_at=now - timedelta(hours=1),
+    )
+    kwargs = dict(capture_inventory_complete=True, producer_inputs_verified=True)
+    for bad_branch in (None, "", 0):
+        try:
+            missing_dispatches([dict(base, head_branch=bad_branch)], [], now, **kwargs)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("missing capture branch provenance accepted")
+    assert missing_dispatches([dict(base, head_branch="dev")], [], now, **kwargs) == []
+    assert missing_dispatches([dict(base, head_branch="main")], [], now, **kwargs) == [77]
+    assert missing_dispatches([dict(base, conclusion="failure")], [], now, **kwargs) == []
