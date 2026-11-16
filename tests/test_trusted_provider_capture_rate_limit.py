@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, date, datetime, timedelta
+from email.utils import format_datetime
 from email.message import Message
 from pathlib import Path
 from urllib.error import HTTPError
@@ -159,3 +160,31 @@ def test_default_transport_retries_429_using_retry_after(
     assert sleeps == [2.0]
     assert response.status == 200
     assert response.body == b"{}"
+
+
+@pytest.mark.parametrize(
+    ("header", "attempt", "expected"),
+    [
+        ("2", 0, 2.0),
+        ("future", 0, 10.0),
+        ("past", 0, 1.05),
+        ("invalid", 2, 4.2),
+        ("9999", 0, 16.0),
+    ],
+)
+def test_retry_after_seconds_and_http_date_are_bounded(
+    header: str, attempt: int, expected: float
+) -> None:
+    now = datetime(2026, 11, 16, 14, tzinfo=UTC)
+    if header == "future":
+        header = format_datetime(now + timedelta(seconds=10), usegmt=True)
+    elif header == "past":
+        header = format_datetime(now - timedelta(seconds=10), usegmt=True)
+    elif header == "invalid":
+        header = "not-an-http-date"
+    headers = Message()
+    headers["Retry-After"] = header
+    exc = HTTPError("https://api.sportradar.com/test", 429, "rate limit", headers, None)
+    assert trusted_capture._rate_limit_retry_delay(
+        exc, attempt=attempt, now=now
+    ) == pytest.approx(expected)
