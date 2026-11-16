@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, date, datetime, timedelta
-from email.utils import format_datetime
 from email.message import Message
+from email.utils import format_datetime
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlparse
