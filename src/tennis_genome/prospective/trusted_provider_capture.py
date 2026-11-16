@@ -8,6 +8,7 @@ import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -133,14 +134,25 @@ def _default_now() -> datetime:
     return datetime.now(UTC)
 
 
-def _rate_limit_retry_delay(exc: HTTPError, *, attempt: int) -> float:
+def _rate_limit_retry_delay(
+    exc: HTTPError, *, attempt: int, now: datetime | None = None
+) -> float:
     raw_retry_after = exc.headers.get("Retry-After") if exc.headers is not None else None
     if raw_retry_after is not None:
+        text = str(raw_retry_after).strip()
         try:
-            retry_after = float(str(raw_retry_after).strip())
+            retry_after = float(text)
         except ValueError:
-            retry_after = 0.0
-        if retry_after > 0:
+            try:
+                target = parsedate_to_datetime(text)
+                retry_after = (
+                    (target - (now if now is not None else datetime.now(UTC))).total_seconds()
+                    if target.tzinfo is not None
+                    else 0.0
+                )
+            except (ValueError, TypeError, IndexError, OverflowError):
+                retry_after = 0.0
+        if 0 < retry_after < float("inf"):
             return min(
                 max(retry_after, _TRIAL_MIN_REQUEST_INTERVAL_SECONDS),
                 _MAX_RETRY_DELAY_SECONDS,
