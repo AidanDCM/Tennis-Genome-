@@ -216,7 +216,8 @@ def test_capture_diagnostics_upload_even_if_anchor_publication_fails() -> None:
     assert "trusted-provider-capture/" in upload
     assert "provider_batch_anchor_comment.json" in upload
     # Publication must still precede upload; the uploader must not create an anchor.
-    assert workflow.index("      - name: Publish trusted capture to public anchor ledger") < workflow.index(
+    publish_step = "      - name: Publish trusted capture to public anchor ledger"
+    assert workflow.index(publish_step) < workflow.index(
         "      - name: Upload complete trusted provider capture"
     )
     assert "issues: write" in workflow
