@@ -15,8 +15,14 @@ class DiscoveryTests(unittest.TestCase):
             {"tournamentGroup": {"id": 5}, "year": 2026, "endDate": "n/a"},
         ]
         out = discover([{"content": rows}], "2026-11-17T12:00:00Z")
-        self.assertEqual(out["candidates"], [{"group_id": 2, "year": 2026, "end_date": "2026-11-20"}])
-        self.assertEqual(out["excluded"], {"ended": 1, "duplicate": 1, "invalid_identity_or_date": 3})
+        self.assertEqual(
+            out["candidates"],
+            [{"group_id": 2, "year": 2026, "end_date": "2026-11-20"}],
+        )
+        self.assertEqual(
+            out["excluded"],
+            {"ended": 1, "duplicate": 1, "invalid_identity_or_date": 3},
+        )
         self.assertIs(out["production_eligible"], False)
 
     def test_rejects_naive_observation(self):
@@ -24,5 +30,8 @@ class DiscoveryTests(unittest.TestCase):
             discover([], "2026-11-17T12:00:00")
 
     def test_rejects_non_object_group(self):
-        out = discover([{"content": [{"tournamentGroup": None, "year": 2026, "endDate": "2026-11-20"}]}], "2026-11-17T12:00:00+00:00")
+        out = discover(
+            [{"content": [{"tournamentGroup": None, "year": 2026, "endDate": "2026-11-20"}]}],
+            "2026-11-17T12:00:00+00:00",
+        )
         self.assertEqual(out["candidates"], [])
