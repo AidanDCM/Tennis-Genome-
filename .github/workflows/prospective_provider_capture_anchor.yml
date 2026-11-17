@@ -179,6 +179,8 @@ jobs:
           sha256sum provider_batch_anchor_comment.json > provider_batch_anchor_comment.sha256
 
       - name: Upload complete trusted provider capture
+        # Diagnostic retention only: a failed capture or anchor must remain untrusted.
+        if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: trusted-provider-capture-${{ github.run_id }}
@@ -190,3 +192,4 @@ jobs:
             provider_batch_anchor_comment.sha256
             provider_batch_anchor_comment_id.txt
           retention-days: 90
+          if-no-files-found: warn
