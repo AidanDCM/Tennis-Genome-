@@ -202,3 +202,22 @@ def test_trusted_workflow_has_only_routing_inputs_and_pinned_runtime_surface() -
     assert "python - <<'PY'" not in workflow
     assert 'LEDGER_ISSUE_NUMBER: "111"' in workflow
     assert "trusted-provider-capture/" in workflow
+
+
+def test_capture_diagnostics_upload_even_if_anchor_publication_fails() -> None:
+    """Keep diagnostics on failed jobs without changing anchor qualification."""
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github/workflows/prospective_provider_capture_anchor.yml"
+    ).read_text(encoding="utf-8")
+    upload = workflow.split("      - name: Upload complete trusted provider capture\n", 1)[1]
+    assert "if: ${{ always() }}" in upload
+    assert "if-no-files-found: warn" in upload
+    assert "trusted-provider-capture/" in upload
+    assert "provider_batch_anchor_comment.json" in upload
+    # Publication must still precede upload; the uploader must not create an anchor.
+    publish_step = "      - name: Publish trusted capture to public anchor ledger"
+    assert workflow.index(publish_step) < workflow.index(
+        "      - name: Upload complete trusted provider capture"
+    )
+    assert "issues: write" in workflow
