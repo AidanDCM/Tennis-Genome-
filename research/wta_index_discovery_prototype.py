@@ -37,6 +37,11 @@ def discover(index_pages, observed_at):
                 excluded["duplicate"] = excluded.get("duplicate", 0) + 1
                 continue
             seen.add(identity)
+            # Provider status is an independent veto; absence retains legacy behavior.
+            status = row.get("status")
+            if status is not None and status not in {"future", "inProgress", "live"}:
+                excluded["non_active_status"] = excluded.get("non_active_status", 0) + 1
+                continue
             if end < today:
                 excluded["ended"] = excluded.get("ended", 0) + 1
                 continue
