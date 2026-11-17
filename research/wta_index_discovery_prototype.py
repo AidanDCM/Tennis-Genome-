@@ -15,7 +15,12 @@ def discover(index_pages, observed_at):
             try:
                 group_id = group["id"] if isinstance(group, dict) else None
                 year = row.get("year")
-                if type(group_id) is not int or group_id <= 0 or type(year) is not int or year < 2000:
+                if (
+                    type(group_id) is not int
+                    or group_id <= 0
+                    or type(year) is not int
+                    or year < 2000
+                ):
                     raise ValueError("identity")
                 end_text = row["endDate"]
                 if not isinstance(end_text, str):
