@@ -11,7 +11,8 @@ class DiscoveryTests(unittest.TestCase):
              "endDate": "2026-11-01", "status": "past"},
             {"tournamentGroup": {"id": 2}, "year": 2026,
              "endDate": "2026-11-20", "status": "future"},
-            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
+            {"tournamentGroup": {"id": 2}, "year": 2026,
+             "endDate": "2026-11-20", "status": "future"},
             {"tournamentGroup": {"id": "3"}, "year": 2026, "endDate": "2026-11-20"},
             {"tournamentGroup": {"id": 4}, "year": 2026, "endDate": "2025-11-20"},
             {"tournamentGroup": {"id": 5}, "year": 2026, "endDate": "n/a"},
@@ -23,7 +24,7 @@ class DiscoveryTests(unittest.TestCase):
         )
         self.assertEqual(
             out["excluded"],
-            {"ended": 1, "duplicate": 1, "invalid_identity_or_date": 3},
+            {"non_active_status": 1, "duplicate": 1, "invalid_identity_or_date": 3},
         )
         self.assertIs(out["production_eligible"], False)
 
