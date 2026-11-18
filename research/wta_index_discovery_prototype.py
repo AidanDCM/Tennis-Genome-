@@ -33,7 +33,11 @@ def discover(index_pages, observed_at):
                 key = "invalid_identity_or_date"
                 excluded[key] = excluded.get(key, 0) + 1
                 continue
-            valid.append(((group_id, year), end, row.get("status")))
+            status = row.get("status")
+            if status is not None and not isinstance(status, str):
+                excluded["invalid_status"] = excluded.get("invalid_status", 0) + 1
+                continue
+            valid.append(((group_id, year), end, status))
 
     grouped = {}
     for identity, end, status in valid:
