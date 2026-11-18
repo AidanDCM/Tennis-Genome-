@@ -3,12 +3,13 @@ from datetime import UTC, date, datetime
 
 
 def discover(index_pages, observed_at):
-    """Return candidates and exclusions; fail closed on malformed date/identity."""
+    """Return candidates and exclusions; quarantine contradictory duplicate identities."""
     observation = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
     if observation.tzinfo is None:
         raise ValueError("observation must include timezone")
     today = observation.astimezone(UTC).date()
-    candidates, excluded, seen = [], {}, set()
+    excluded = {}
+    valid = []
     for page in index_pages:
         for row in page["content"]:
             group = row.get("tournamentGroup")
@@ -32,18 +33,26 @@ def discover(index_pages, observed_at):
                 key = "invalid_identity_or_date"
                 excluded[key] = excluded.get(key, 0) + 1
                 continue
-            identity = (group_id, year)
-            if identity in seen:
-                excluded["duplicate"] = excluded.get("duplicate", 0) + 1
-                continue
-            seen.add(identity)
-            # Provider status is an independent veto; absence retains legacy behavior.
-            status = row.get("status")
-            if status is not None and status not in {"future", "inProgress", "live"}:
-                excluded["non_active_status"] = excluded.get("non_active_status", 0) + 1
-                continue
-            if end < today:
-                excluded["ended"] = excluded.get("ended", 0) + 1
-                continue
-            candidates.append({"group_id": group_id, "year": year, "end_date": end.isoformat()})
+            valid.append(((group_id, year), end, row.get("status")))
+
+    grouped = {}
+    for identity, end, status in valid:
+        grouped.setdefault(identity, []).append((end, status))
+
+    candidates = []
+    for identity, records in sorted(grouped.items()):
+        # Conflicting evidence must never be resolved by provider row order.
+        if len(set(records)) > 1:
+            excluded["conflicting_duplicate"] = excluded.get("conflicting_duplicate", 0) + len(records)
+            continue
+        if len(records) > 1:
+            excluded["duplicate"] = excluded.get("duplicate", 0) + len(records) - 1
+        end, status = records[0]
+        if status is not None and status not in {"future", "inProgress", "live"}:
+            excluded["non_active_status"] = excluded.get("non_active_status", 0) + 1
+            continue
+        if end < today:
+            excluded["ended"] = excluded.get("ended", 0) + 1
+            continue
+        candidates.append({"group_id": identity[0], "year": identity[1], "end_date": end.isoformat()})
     return {"production_eligible": False, "candidates": candidates, "excluded": excluded}
