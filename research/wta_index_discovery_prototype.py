@@ -55,11 +55,11 @@ def discover(index_pages, observed_at):
                 excluded["invalid_status"] = excluded.get("invalid_status", 0) + 1
                 invalid_status_identities.add((group_id, year))
                 continue
-            valid.append(((group_id, year), end, status))
+            valid.append(((group_id, year), start_text, end, status))
 
     grouped = {}
-    for identity, end, status in valid:
-        grouped.setdefault(identity, []).append((end, status))
+    for identity, start_text, end, status in valid:
+        grouped.setdefault(identity, []).append((start_text, end, status))
 
     candidates = []
     for identity, records in sorted(grouped.items()):
@@ -81,7 +81,7 @@ def discover(index_pages, observed_at):
             continue
         if len(records) > 1:
             excluded["duplicate"] = excluded.get("duplicate", 0) + len(records) - 1
-        end, status = records[0]
+        _start_text, end, status = records[0]
         if status is None:
             excluded["missing_status"] = excluded.get("missing_status", 0) + 1
             continue
