@@ -28,6 +28,13 @@ def discover(index_pages, observed_at):
                 if not isinstance(end_text, str):
                     raise ValueError("date")
                 end = date.fromisoformat(end_text)
+                start_text = row.get("startDate")
+                if start_text is not None:
+                    if not isinstance(start_text, str):
+                        raise ValueError("start_date")
+                    start = date.fromisoformat(start_text)
+                    if start > end or start.year != year:
+                        raise ValueError("inconsistent_date_range")
                 if end.year != year:
                     raise ValueError("year_date_mismatch")
             except (KeyError, TypeError, ValueError):
