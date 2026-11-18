@@ -11,6 +11,7 @@ def discover(index_pages, observed_at):
     excluded = {}
     valid = []
     invalid_status_identities = set()
+    invalid_date_identities = set()
     for page in index_pages:
         for row in page["content"]:
             group = row.get("tournamentGroup")
@@ -38,6 +39,14 @@ def discover(index_pages, observed_at):
                 if end.year != year:
                     raise ValueError("year_date_mismatch")
             except (KeyError, TypeError, ValueError):
+                # Preserve a valid identity even when its dates are contradictory.
+                if (
+                    type(group_id) is int
+                    and group_id > 0
+                    and type(year) is int
+                    and year >= 2000
+                ):
+                    invalid_date_identities.add((group_id, year))
                 key = "invalid_identity_or_date"
                 excluded[key] = excluded.get(key, 0) + 1
                 continue
@@ -54,6 +63,11 @@ def discover(index_pages, observed_at):
 
     candidates = []
     for identity, records in sorted(grouped.items()):
+        if identity in invalid_date_identities:
+            excluded["invalid_date_conflict"] = (
+                excluded.get("invalid_date_conflict", 0) + len(records)
+            )
+            continue
         if identity in invalid_status_identities:
             excluded["malformed_status_conflict"] = (
                 excluded.get("malformed_status_conflict", 0) + len(records)
