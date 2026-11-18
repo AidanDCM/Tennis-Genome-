@@ -50,7 +50,11 @@ class DiscoveryTests(unittest.TestCase):
              "endDate": "2026-11-22", "status": "future"},
         ]
         out = discover([{"content": rows}], "2026-11-18T12:00:00Z")
-        self.assertEqual(out["excluded"], {"invalid_status": 1})
+        self.assertEqual(
+            out["excluded"],
+            {"invalid_status": 1, "malformed_status_conflict": 1},
+        )
+        self.assertEqual(out["candidates"], [])
         self.assertIs(out["production_eligible"], False)
 
     def test_rejects_naive_observation(self):
