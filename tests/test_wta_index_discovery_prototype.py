@@ -8,7 +8,7 @@ class DiscoveryTests(unittest.TestCase):
     def test_rejects_ended_invalid_duplicate(self):
         rows = [
             {"tournamentGroup": {"id": 1}, "year": 2026, "endDate": "2026-11-01"},
-            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20"},
+            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
             {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20"},
             {"tournamentGroup": {"id": "3"}, "year": 2026, "endDate": "2026-11-20"},
             {"tournamentGroup": {"id": 4}, "year": 2026, "endDate": "2025-11-20"},
@@ -103,4 +103,19 @@ class DiscoveryTests(unittest.TestCase):
             out = discover([{"content": ordered}], "2026-11-18T14:00:00Z")
             self.assertEqual([x["group_id"] for x in out["candidates"]], [93])
             self.assertEqual(out["excluded"], {"invalid_identity_or_date": 2})
+            self.assertIs(out["production_eligible"], False)
+
+    def test_missing_status_is_quarantined_in_any_order(self):
+        rows = [
+            {"tournamentGroup": {"id": 41}, "year": 2026,
+             "endDate": "2026-11-22"},
+            {"tournamentGroup": {"id": 42}, "year": 2026,
+             "endDate": "2026-11-22", "status": "future"},
+            {"tournamentGroup": {"id": 43}, "year": 2026,
+             "endDate": "2026-11-22", "status": None},
+        ]
+        for ordered in (rows, list(reversed(rows))):
+            out = discover([{"content": ordered}], "2026-11-18T12:00:00Z")
+            self.assertEqual([x["group_id"] for x in out["candidates"]], [42])
+            self.assertEqual(out["excluded"], {"missing_status": 2})
             self.assertIs(out["production_eligible"], False)
