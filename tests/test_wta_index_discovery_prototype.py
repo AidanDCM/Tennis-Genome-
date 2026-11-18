@@ -1,4 +1,5 @@
 """Synthetic tests only; index schema requires retained-artifact validation."""
+from itertools import permutations
 import unittest
 
 from research.wta_index_discovery_prototype import discover
@@ -139,4 +140,20 @@ def test_invalid_date_duplicate_identity_quarantined_in_both_orders():
         assert out["excluded"] == {
             "invalid_identity_or_date": 1, "invalid_date_conflict": 1
         }
+        assert out["production_eligible"] is False
+
+
+def test_conflicting_start_dates_quarantine_identity_in_all_orders():
+    rows = [
+        {"tournamentGroup": {"id": 77}, "year": 2026,
+         "startDate": "2026-11-19", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 77}, "year": 2026,
+         "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 78}, "year": 2026,
+         "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+    ]
+    for ordered in permutations(rows):
+        out = discover([{"content": list(ordered)}], "2026-11-18T12:00:00Z")
+        assert [row["group_id"] for row in out["candidates"]] == [78]
+        assert out["excluded"] == {"conflicting_duplicate": 2}
         assert out["production_eligible"] is False
