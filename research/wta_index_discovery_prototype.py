@@ -68,7 +68,10 @@ def discover(index_pages, observed_at):
         if len(records) > 1:
             excluded["duplicate"] = excluded.get("duplicate", 0) + len(records) - 1
         end, status = records[0]
-        if status is not None and status not in {"future", "inProgress", "live"}:
+        if status is None:
+            excluded["missing_status"] = excluded.get("missing_status", 0) + 1
+            continue
+        if status not in {"future", "inProgress", "live"}:
             excluded["non_active_status"] = excluded.get("non_active_status", 0) + 1
             continue
         if end < today:
