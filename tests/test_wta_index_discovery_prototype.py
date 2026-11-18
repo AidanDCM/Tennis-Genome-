@@ -89,3 +89,18 @@ class DiscoveryTests(unittest.TestCase):
             out["excluded"], {"non_active_status": 3, "ended": 1},
         )
         self.assertIs(out["production_eligible"], False)
+
+    def test_rejects_inconsistent_provider_date_ranges(self):
+        rows = [
+            {"tournamentGroup": {"id": 91}, "year": 2026,
+             "startDate": "2026-12-10", "endDate": "2026-11-22", "status": "future"},
+            {"tournamentGroup": {"id": 92}, "year": 2026,
+             "startDate": "not-a-date", "endDate": "2026-11-22", "status": "future"},
+            {"tournamentGroup": {"id": 93}, "year": 2026,
+             "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+        ]
+        for ordered in (rows, list(reversed(rows))):
+            out = discover([{"content": ordered}], "2026-11-18T14:00:00Z")
+            self.assertEqual([x["group_id"] for x in out["candidates"]], [93])
+            self.assertEqual(out["excluded"], {"invalid_identity_or_date": 2})
+            self.assertIs(out["production_eligible"], False)
