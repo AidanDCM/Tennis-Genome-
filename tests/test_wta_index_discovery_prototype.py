@@ -9,7 +9,7 @@ class DiscoveryTests(unittest.TestCase):
         rows = [
             {"tournamentGroup": {"id": 1}, "year": 2026, "endDate": "2026-11-01"},
             {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
-            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20"},
+            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
             {"tournamentGroup": {"id": "3"}, "year": 2026, "endDate": "2026-11-20"},
             {"tournamentGroup": {"id": 4}, "year": 2026, "endDate": "2025-11-20"},
             {"tournamentGroup": {"id": 5}, "year": 2026, "endDate": "n/a"},
