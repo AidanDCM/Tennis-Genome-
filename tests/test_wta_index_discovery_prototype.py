@@ -7,8 +7,10 @@ from research.wta_index_discovery_prototype import discover
 class DiscoveryTests(unittest.TestCase):
     def test_rejects_ended_invalid_duplicate(self):
         rows = [
-            {"tournamentGroup": {"id": 1}, "year": 2026, "endDate": "2026-11-01"},
-            {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
+            {"tournamentGroup": {"id": 1}, "year": 2026,
+             "endDate": "2026-11-01", "status": "past"},
+            {"tournamentGroup": {"id": 2}, "year": 2026,
+             "endDate": "2026-11-20", "status": "future"},
             {"tournamentGroup": {"id": 2}, "year": 2026, "endDate": "2026-11-20", "status": "future"},
             {"tournamentGroup": {"id": "3"}, "year": 2026, "endDate": "2026-11-20"},
             {"tournamentGroup": {"id": 4}, "year": 2026, "endDate": "2025-11-20"},
