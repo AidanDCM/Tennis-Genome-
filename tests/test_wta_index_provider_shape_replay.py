@@ -45,5 +45,5 @@ def test_provider_shaped_candidate_and_stale_config_ids():
     assert {row["group_id"] for row in result["candidates"]} == {
         2076, 2052, 1118, 2056, 1072,
     }
-    assert result["excluded"] == {"ended": 4}
+    assert result["excluded"] == {"non_active_status": 4}
     assert result["production_eligible"] is False
