@@ -10,6 +10,7 @@ def discover(index_pages, observed_at):
     today = observation.astimezone(UTC).date()
     excluded = {}
     valid = []
+    invalid_status_identities = set()
     for page in index_pages:
         for row in page["content"]:
             group = row.get("tournamentGroup")
@@ -36,6 +37,7 @@ def discover(index_pages, observed_at):
             status = row.get("status")
             if status is not None and not isinstance(status, str):
                 excluded["invalid_status"] = excluded.get("invalid_status", 0) + 1
+                invalid_status_identities.add((group_id, year))
                 continue
             valid.append(((group_id, year), end, status))
 
@@ -45,6 +47,11 @@ def discover(index_pages, observed_at):
 
     candidates = []
     for identity, records in sorted(grouped.items()):
+        if identity in invalid_status_identities:
+            excluded["malformed_status_conflict"] = (
+                excluded.get("malformed_status_conflict", 0) + len(records)
+            )
+            continue
         # Conflicting evidence must never be resolved by provider row order.
         if len(set(records)) > 1:
             excluded["conflicting_duplicate"] = (
