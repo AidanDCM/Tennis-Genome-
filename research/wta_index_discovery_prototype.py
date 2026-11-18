@@ -43,7 +43,9 @@ def discover(index_pages, observed_at):
     for identity, records in sorted(grouped.items()):
         # Conflicting evidence must never be resolved by provider row order.
         if len(set(records)) > 1:
-            excluded["conflicting_duplicate"] = excluded.get("conflicting_duplicate", 0) + len(records)
+            excluded["conflicting_duplicate"] = (
+                excluded.get("conflicting_duplicate", 0) + len(records)
+            )
             continue
         if len(records) > 1:
             excluded["duplicate"] = excluded.get("duplicate", 0) + len(records) - 1
@@ -54,5 +56,7 @@ def discover(index_pages, observed_at):
         if end < today:
             excluded["ended"] = excluded.get("ended", 0) + 1
             continue
-        candidates.append({"group_id": identity[0], "year": identity[1], "end_date": end.isoformat()})
+        candidates.append(
+            {"group_id": identity[0], "year": identity[1], "end_date": end.isoformat()}
+        )
     return {"production_eligible": False, "candidates": candidates, "excluded": excluded}
