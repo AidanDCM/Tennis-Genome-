@@ -1,5 +1,5 @@
 """Read-only WTA index candidate discovery; never authorizes intake."""
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 
 def discover(index_pages, observed_at):
@@ -7,7 +7,7 @@ def discover(index_pages, observed_at):
     observation = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
     if observation.tzinfo is None:
         raise ValueError("observation must include timezone")
-    today = observation.astimezone(timezone.utc).date()
+    today = observation.astimezone(UTC).date()
     candidates, excluded, seen = [], {}, set()
     for page in index_pages:
         for row in page["content"]:
