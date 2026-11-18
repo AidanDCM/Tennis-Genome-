@@ -122,3 +122,21 @@ class DiscoveryTests(unittest.TestCase):
             self.assertEqual([x["group_id"] for x in out["candidates"]], [42])
             self.assertEqual(out["excluded"], {"missing_status": 2})
             self.assertIs(out["production_eligible"], False)
+
+
+def test_invalid_date_duplicate_identity_quarantined_in_both_orders():
+    rows = [
+        {"tournamentGroup": {"id": 77}, "year": 2026,
+         "startDate": "2026-12-10", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 77}, "year": 2026,
+         "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 78}, "year": 2026,
+         "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+    ]
+    for ordered in (rows, list(reversed(rows))):
+        out = discover([{"content": ordered}], "2026-11-18T12:00:00Z")
+        assert [row["group_id"] for row in out["candidates"]] == [78]
+        assert out["excluded"] == {
+            "invalid_identity_or_date": 1, "invalid_date_conflict": 1
+        }
+        assert out["production_eligible"] is False
