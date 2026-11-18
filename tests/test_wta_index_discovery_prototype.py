@@ -25,6 +25,34 @@ class DiscoveryTests(unittest.TestCase):
         )
         self.assertIs(out["production_eligible"], False)
 
+    def test_malformed_status_is_excluded_without_crashing(self):
+        rows = [
+            {"tournamentGroup": {"id": 20}, "year": 2026,
+             "endDate": "2026-11-22", "status": {"value": "future"}},
+            {"tournamentGroup": {"id": 21}, "year": 2026,
+             "endDate": "2026-11-22", "status": ["future"]},
+            {"tournamentGroup": {"id": 22}, "year": 2026,
+             "endDate": "2026-11-22", "status": "future"},
+        ]
+        for ordered in (rows, list(reversed(rows))):
+            out = discover([{"content": ordered}], "2026-11-18T12:00:00Z")
+            self.assertEqual(
+                [row["group_id"] for row in out["candidates"]], [22],
+            )
+            self.assertEqual(out["excluded"], {"invalid_status": 2})
+            self.assertIs(out["production_eligible"], False)
+
+    def test_malformed_duplicate_cannot_authorize_valid_identity(self):
+        rows = [
+            {"tournamentGroup": {"id": 30}, "year": 2026,
+             "endDate": "2026-11-22", "status": {"value": "future"}},
+            {"tournamentGroup": {"id": 30}, "year": 2026,
+             "endDate": "2026-11-22", "status": "future"},
+        ]
+        out = discover([{"content": rows}], "2026-11-18T12:00:00Z")
+        self.assertEqual(out["excluded"], {"invalid_status": 1})
+        self.assertIs(out["production_eligible"], False)
+
     def test_rejects_naive_observation(self):
         with self.assertRaises(ValueError):
             discover([], "2026-11-17T12:00:00")
