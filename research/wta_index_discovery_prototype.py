@@ -15,9 +15,9 @@ def discover(index_pages, observed_at):
     for page in index_pages:
         for row in page["content"]:
             group = row.get("tournamentGroup")
+            group_id = group.get("id") if isinstance(group, dict) else None
+            year = row.get("year")
             try:
-                group_id = group["id"] if isinstance(group, dict) else None
-                year = row.get("year")
                 if (
                     type(group_id) is not int
                     or group_id <= 0
