@@ -143,10 +143,13 @@ def _index_identities(
         raise ValueError(f"WTA tournament index {year} lacks content array")
     page_info = payload.get("pageInfo")
     if isinstance(page_info, dict) and "page" in page_info:
-        try:
-            observed_page = int(page_info["page"])
-        except (TypeError, ValueError) as exc:
-            raise ValueError("WTA tournament index page is invalid") from exc
+        raw_page = page_info["page"]
+        if type(raw_page) is int:
+            observed_page = raw_page
+        elif isinstance(raw_page, str) and raw_page.isascii() and raw_page.isdecimal():
+            observed_page = int(raw_page)
+        else:
+            raise ValueError("WTA tournament index page is invalid")
         if observed_page != page:
             raise ValueError("WTA tournament index page identity mismatch")
 
