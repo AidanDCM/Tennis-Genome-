@@ -132,6 +132,15 @@ def _targets(config: dict[str, Any]) -> list[dict[str, Any]]:
     return targets
 
 
+def _strict_identity_int(value: Any) -> int:
+    """Parse nonnegative provider IDs without float/bool coercion."""
+    if type(value) is int and value >= 0:
+        return value
+    if isinstance(value, str) and value.isascii() and value.isdecimal():
+        return int(value)
+    raise ValueError("WTA tournament identity is invalid")
+
+
 def _index_identities(
     payload: dict[str, Any],
     *,
@@ -158,9 +167,9 @@ def _index_identities(
         if not isinstance(group, dict):
             continue
         try:
-            group_id = int(group.get("id"))
-            row_year = int(row.get("year"))
-        except (TypeError, ValueError):
+            group_id = _strict_identity_int(group.get("id"))
+            row_year = _strict_identity_int(row.get("year"))
+        except ValueError:
             continue
         identities.add((group_id, row_year))
     return identities, len(content)
@@ -176,9 +185,9 @@ def _validate_tournament(
     if not isinstance(group, dict):
         raise ValueError("WTA tournament payload lacks tournamentGroup")
     try:
-        observed_group = int(group.get("id"))
-        observed_year = int(payload.get("year"))
-    except (TypeError, ValueError) as exc:
+        observed_group = _strict_identity_int(group.get("id"))
+        observed_year = _strict_identity_int(payload.get("year"))
+    except ValueError as exc:
         raise ValueError("WTA tournament identity is invalid") from exc
     if (observed_group, observed_year) != (group_id, year):
         raise ValueError("WTA tournament identity mismatch")
