@@ -41,8 +41,16 @@ def test_index_skips_invalid_year(value):
 @pytest.mark.parametrize("value", [0.5, False, "１２３", -1])
 def test_detail_rejects_invalid_group_id(value):
     with pytest.raises(ValueError, match="invalid"):
-        _validate_tournament({"tournamentGroup": {"id": value}, "year": 2026}, group_id=123, year=2026)
+        _validate_tournament(
+            {"tournamentGroup": {"id": value}, "year": 2026},
+            group_id=123,
+            year=2026,
+        )
 
 
 def test_detail_accepts_ascii_numeric_strings():
-    _validate_tournament({"tournamentGroup": {"id": "123"}, "year": "2026"}, group_id=123, year=2026)
+    _validate_tournament(
+        {"tournamentGroup": {"id": "123"}, "year": "2026"},
+        group_id=123,
+        year=2026,
+    )
