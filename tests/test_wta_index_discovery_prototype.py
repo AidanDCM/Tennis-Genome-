@@ -173,3 +173,18 @@ def test_equivalent_iso_start_dates_do_not_create_false_conflict():
         assert [row["group_id"] for row in out["candidates"]] == [79, 80]
         assert out["excluded"] == {"duplicate": 1}
         assert out["production_eligible"] is False
+
+
+def test_empty_and_missing_group_identity_fail_closed():
+    rows = [
+        {"tournamentGroup": {}, "year": 2026,
+         "endDate": "2026-11-22", "status": "future"},
+        {"year": 2026, "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 81}, "year": 2026,
+         "endDate": "2026-11-22", "status": "future"},
+    ]
+    for ordered in permutations(rows):
+        out = discover([{"content": list(ordered)}], "2026-11-19T06:00:00Z")
+        assert [row["group_id"] for row in out["candidates"]] == [81]
+        assert out["excluded"] == {"invalid_identity_or_date": 2}
+        assert out["production_eligible"] is False
