@@ -188,3 +188,14 @@ def test_empty_and_missing_group_identity_fail_closed():
         assert [row["group_id"] for row in out["candidates"]] == [81]
         assert out["excluded"] == {"invalid_identity_or_date": 2}
         assert out["production_eligible"] is False
+
+
+def test_non_object_rows_are_excluded_without_aborting_valid_discovery():
+    valid = {"tournamentGroup": {"id": 81}, "year": 2026,
+             "endDate": "2026-11-22", "status": "future"}
+    for malformed in (None, [], "oops", 12):
+        for rows in ([malformed, valid], [valid, malformed]):
+            out = discover([{"content": rows}], "2026-11-19T06:00:00Z")
+            assert [row["group_id"] for row in out["candidates"]] == [81]
+            assert out["excluded"] == {"invalid_identity_or_date": 1}
+            assert out["production_eligible"] is False
