@@ -13,7 +13,7 @@ def test_conflicting_duplicate_permutations_quarantined():
         {"tournamentGroup": {"id": 12}, "year": 2026, "endDate": "2026-11-22", "status": "future"},
     ]
     for perm in permutations(rows):
-        out = discover([{"content": perm}], "2026-11-17T12:00:00Z")
+        out = discover([{"content": list(perm)}], "2026-11-17T12:00:00Z")
         assert [r["group_id"] for r in out["candidates"]] == [11, 12]
         assert out["excluded"] == {"conflicting_duplicate": 2, "duplicate": 1}
         assert out["production_eligible"] is False
