@@ -157,3 +157,19 @@ def test_conflicting_start_dates_quarantine_identity_in_all_orders():
         assert [row["group_id"] for row in out["candidates"]] == [78]
         assert out["excluded"] == {"conflicting_duplicate": 2}
         assert out["production_eligible"] is False
+
+
+def test_equivalent_iso_start_dates_do_not_create_false_conflict():
+    rows = [
+        {"tournamentGroup": {"id": 79}, "year": 2026,
+         "startDate": "2026-11-20", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 79}, "year": 2026,
+         "startDate": "20261120", "endDate": "2026-11-22", "status": "future"},
+        {"tournamentGroup": {"id": 80}, "year": 2026,
+         "startDate": "2026-11-19", "endDate": "2026-11-22", "status": "future"},
+    ]
+    for ordered in permutations(rows):
+        out = discover([{"content": list(ordered)}], "2026-11-18T12:00:00Z")
+        assert [row["group_id"] for row in out["candidates"]] == [79, 80]
+        assert out["excluded"] == {"duplicate": 1}
+        assert out["production_eligible"] is False
