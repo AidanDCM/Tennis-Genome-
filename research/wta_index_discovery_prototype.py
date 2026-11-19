@@ -34,6 +34,7 @@ def discover(index_pages, observed_at):
                     if not isinstance(start_text, str):
                         raise ValueError("start_date")
                     start = date.fromisoformat(start_text)
+                    start_text = start.isoformat()
                     if start > end or start.year != year:
                         raise ValueError("inconsistent_date_range")
                 if end.year != year:
