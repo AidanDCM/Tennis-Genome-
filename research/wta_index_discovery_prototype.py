@@ -13,6 +13,9 @@ def discover(index_pages, observed_at):
     invalid_status_identities = set()
     invalid_date_identities = set()
     for page in index_pages:
+        if not isinstance(page, dict) or not isinstance(page.get("content"), list):
+            excluded["invalid_page_envelope"] = excluded.get("invalid_page_envelope", 0) + 1
+            continue
         for row in page["content"]:
             if not isinstance(row, dict):
                 excluded["invalid_identity_or_date"] = (
