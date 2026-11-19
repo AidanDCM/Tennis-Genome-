@@ -1,6 +1,6 @@
 """Synthetic tests only; index schema requires retained-artifact validation."""
-from itertools import permutations
 import unittest
+from itertools import permutations
 
 from research.wta_index_discovery_prototype import discover
 
