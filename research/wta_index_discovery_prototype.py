@@ -14,6 +14,11 @@ def discover(index_pages, observed_at):
     invalid_date_identities = set()
     for page in index_pages:
         for row in page["content"]:
+            if not isinstance(row, dict):
+                excluded["invalid_identity_or_date"] = (
+                    excluded.get("invalid_identity_or_date", 0) + 1
+                )
+                continue
             group = row.get("tournamentGroup")
             group_id = group.get("id") if isinstance(group, dict) else None
             year = row.get("year")
