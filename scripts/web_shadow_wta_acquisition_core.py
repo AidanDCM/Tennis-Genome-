@@ -111,8 +111,8 @@ def _targets(config: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             raise ValueError("intake tournament entries must be objects")
         try:
-            group_id = int(item["group_id"])
-            year = int(item["year"])
+            group_id = _strict_identity_int(item["group_id"])
+            year = _strict_identity_int(item["year"])
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("intake tournament identity is invalid") from exc
         slug = item.get("slug")
