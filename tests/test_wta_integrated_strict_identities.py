@@ -35,3 +35,33 @@ def test_integrated_config_and_index_identity_agree():
     identities, count = _index_identities(payload, year=2026, page=0)
     assert count == 1
     assert (target["group_id"], target["year"]) in identities
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [None, "unexpected", {}, {"pageSize": 100}],
+)
+def test_integrated_missing_page_metadata_rejected(metadata):
+    payload = {"content": [], "pageInfo": metadata}
+    with pytest.raises(ValueError, match="page metadata is missing"):
+        _index_identities(payload, year=2026, page=0)
+
+
+def test_integrated_absent_page_info_rejected():
+    with pytest.raises(ValueError, match="page metadata is missing"):
+        _index_identities({"content": []}, year=2026, page=0)
+
+
+@pytest.mark.parametrize("page_id", [0, 1])
+def test_integrated_archived_page_metadata_shape(page_id):
+    # Provider archive 2026-10-14: both pages contain this metadata shape.
+    payload = {
+        "pageInfo": {
+            "page": page_id,
+            "numPages": 0,
+            "pageSize": 100,
+            "numEntries": 124,
+        },
+        "content": [],
+    }
+    assert _index_identities(payload, year=2026, page=page_id) == (set(), 0)
