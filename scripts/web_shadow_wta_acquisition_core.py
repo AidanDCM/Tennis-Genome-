@@ -151,13 +151,14 @@ def _index_identities(
     if not isinstance(content, list):
         raise ValueError(f"WTA tournament index {year} lacks content array")
     page_info = payload.get("pageInfo")
-    if isinstance(page_info, dict) and "page" in page_info:
-        try:
-            observed_page = _strict_identity_int(page_info["page"])
-        except ValueError as exc:
-            raise ValueError("WTA tournament index page is invalid") from exc
-        if observed_page != page:
-            raise ValueError("WTA tournament index page identity mismatch")
+    if not isinstance(page_info, dict) or "page" not in page_info:
+        raise ValueError("WTA tournament index page metadata is missing")
+    try:
+        observed_page = _strict_identity_int(page_info["page"])
+    except ValueError as exc:
+        raise ValueError("WTA tournament index page is invalid") from exc
+    if observed_page != page:
+        raise ValueError("WTA tournament index page identity mismatch")
 
     identities: set[tuple[int, int]] = set()
     for row in content:
