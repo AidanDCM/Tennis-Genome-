@@ -22,7 +22,7 @@ def test_strict_identity_invalid(value):
 
 @pytest.mark.parametrize("value", [0.5, False, "１２３", -1])
 def test_index_skips_invalid_group_id(value):
-    payload = {"content": [
+    payload = {"pageInfo": {"page": 0}, "content": [
         {"tournamentGroup": {"id": value}, "year": 2026},
         {"tournamentGroup": {"id": "123"}, "year": "2026"},
     ]}
@@ -31,7 +31,7 @@ def test_index_skips_invalid_group_id(value):
 
 @pytest.mark.parametrize("value", [2026.9, True, "２０２６", -1])
 def test_index_skips_invalid_year(value):
-    payload = {"content": [
+    payload = {"pageInfo": {"page": 0}, "content": [
         {"tournamentGroup": {"id": 123}, "year": value},
         {"tournamentGroup": {"id": 123}, "year": 2026},
     ]}
