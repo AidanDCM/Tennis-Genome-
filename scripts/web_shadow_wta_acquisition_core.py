@@ -153,8 +153,8 @@ def _index_identities(
     page_info = payload.get("pageInfo")
     if isinstance(page_info, dict) and "page" in page_info:
         try:
-            observed_page = int(page_info["page"])
-        except (TypeError, ValueError) as exc:
+            observed_page = _strict_identity_int(page_info["page"])
+        except ValueError as exc:
             raise ValueError("WTA tournament index page is invalid") from exc
         if observed_page != page:
             raise ValueError("WTA tournament index page identity mismatch")
